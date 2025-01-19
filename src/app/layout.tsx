@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Providers from "@/context/Providers";
 import "./globals.css";
 
 import localFont from "next/font/local";
@@ -45,7 +46,9 @@ export default function RootLayout({
       <body
         className={`${inter.className} ${inconsolata.className} antialiased`}
       >
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );
