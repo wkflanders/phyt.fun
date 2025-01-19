@@ -77,6 +77,7 @@ export default {
 			phyt_blue: "#00F6FB",
 			phyt_red: "#FE205D",
 			phyt_bg: "#101010",
+			phyt_text: "#E3E4E6",
 			phyt_text_secondary: "#777798",
 			phyt_form: "#13122A",
 			phyt_form_placeholder: "#58587B",
