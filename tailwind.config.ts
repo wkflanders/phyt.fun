@@ -67,6 +67,7 @@ export default {
 			},
 			red: {
 			  DEFAULT: "#FE205D",
+			  100: "#7d0f2d"
 			},
 			blue: {
 			  100: "#00F6FB",
@@ -78,6 +79,7 @@ export default {
 			phyt_red: "#FE205D",
 			phyt_bg: "#101010",
 			phyt_text: "#E3E4E6",
+			phyt_text_dark: "#d1d1d1",
 			phyt_text_secondary: "#777798",
 			phyt_form: "#13122A",
 			phyt_form_placeholder: "#58587B",
