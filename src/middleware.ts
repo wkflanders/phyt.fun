@@ -1,21 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { handleAuth } from './middleware/auth';
 
-const publicPaths = ['/login'];
 
 export function middleware(req: NextRequest) {
-    const { pathname } = req.nextUrl;
-
-    if (publicPaths.includes(pathname)) {
-        return NextResponse.next();
-    }
-
-    const sessionCookie = req.cookies.get('phyt_session');
-
-    if (!sessionCookie) {
-        return NextResponse.redirect(new URL("/login", req.url));
-    }
-
-    return NextResponse.next();
+    return handleAuth(req);
 }
 
 export const config = {
