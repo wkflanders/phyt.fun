@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Providers from "@/context/Providers";
 import "./globals.css";
+import { Toaster } from "@/components/ui/toaster";
 
 import localFont from "next/font/local";
 
@@ -49,6 +50,7 @@ export default function RootLayout({
         <Providers>
           {children}
         </Providers>
+        <Toaster />
       </body>
     </html>
   );

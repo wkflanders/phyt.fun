@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { usePrivy, useLogin } from '@privy-io/react-auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { handleApiError } from '@/lib/utils';
 
 import { Button } from '@/components/ui/button';
 
@@ -16,10 +15,8 @@ export default function Login() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    setIsLoading(!ready || (ready && authenticated));
-
     const { login } = useLogin({
-        onComplete: async ({ user, isNewUser, wasAlreadyAuthenticated, loginMethod, }) => {
+        onComplete: async ({ user, isNewUser, wasAlreadyAuthenticated }) => {
             try {
                 setIsLoading(true);
                 setError(null);
@@ -31,44 +28,45 @@ export default function Login() {
                     return;
                 }
                 if (isNewUser) {
-                    const response = await fetch('/api/users/create', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${accessToken}`,
-                        },
-                        body: JSON.stringify({
-                            userId: user.id,
-                        })
-                    });
+                    // const response = await fetch('/api/users/create', {
+                    //     method: 'POST',
+                    //     headers: {
+                    //         'Content-Type': 'application/json',
+                    //         'Authorization': `Bearer ${accessToken}`,
+                    //     },
+                    //     body: JSON.stringify({
+                    //         email: user.google,
 
-                    if (!response.ok) {
-                        const { error, status } = await handleApiError(response);
-                        if (status === 409) {
-                            setError('This user already exists. Please try logging in again.');
-                        } else {
-                            setError(error);
-                        }
-                        return;
-                    }
+                    //     })
+                    // });
+
+                    // if (!response.ok) {
+                    //     const { error, status } = await handleApiError(response);
+                    //     if (status === 409) {
+                    //         setError('This user already exists. Please try logging in again.');
+                    //     } else {
+                    //         setError(error);
+                    //     }
+                    //     return;
+                    // }
+
+                    router.push('/onboard');
                 } else {
-                    const response = await fetch(`/api/users/${user.id}`, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${accessToken}`,
-                        }
-                    });
+                    // const response = await fetch(`/api/users/${user.id}`, {
+                    //     method: 'GET',
+                    //     headers: {
+                    //         'Authorization': `Bearer ${accessToken}`,
+                    //     }
+                    // });
 
-                    if (!response.ok) {
-                        const { error } = await handleApiError(response);
-                        setError(error);
-                    }
+                    // if (!response.ok) {
+                    //     const { error } = await handleApiError(response);
+                    //     setError(error);
+                    // }
 
-                    const userData = await response.json();
+                    const redirectTo = searchParams.get('redirect') || '/';
+                    router.push(redirectTo);
                 }
-
-                const redirectTo = searchParams.get('redirect') || '/';
-                router.push(redirectTo);
             } catch (error) {
                 console.error('Login error: ', error);
                 setError('Failed to login. Please try again');

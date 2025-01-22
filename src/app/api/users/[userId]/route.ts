@@ -14,20 +14,7 @@ export async function GET(
             userId,
         };
 
-        // Set the session cookie
-        const response = NextResponse.json(userData);
-
-        response.cookies.set({
-            name: 'phyt_session',
-            value: `session-for-${userId}`,
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            path: '/',
-            maxAge: 60 * 60 * 24, // 24 hours
-        });
-
-        return response;
+        return NextResponse.json(userData);
 
     } catch (error) {
         console.error("Error fetching user:", error);
