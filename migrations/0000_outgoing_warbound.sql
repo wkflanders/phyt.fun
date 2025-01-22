@@ -151,7 +151,8 @@ CREATE TABLE "users" (
 	"username" varchar NOT NULL,
 	"role" "enum_users_role" DEFAULT 'user' NOT NULL,
 	"privy_id" varchar,
-	"wallet_address" varchar
+	"wallet_address" varchar,
+	"avatar_url" varchar
 );
 --> statement-breakpoint
 ALTER TABLE "cards" ADD CONSTRAINT "cards_runner_id_runners_id_fk" FOREIGN KEY ("runner_id") REFERENCES "public"."runners"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
