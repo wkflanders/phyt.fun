@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { privy } from '@/lib/privyClient';
 
+import { SessionCookie } from '../../types';
+
 const publicPaths = ['/login', 'https://auth.privy.io/api/v1/oauth/callback'];
 const publicApiRoutes = [''];
+
+const isValidSession = (cookie: string): boolean => {
+    return true;
+};
 
 export async function handleAuth(req: NextRequest) {
     const { pathname } = req.nextUrl;
@@ -40,7 +46,7 @@ export async function handleAuth(req: NextRequest) {
 
     const sessionCookie = req.cookies.get('phyt_session');
 
-    if (!sessionCookie) {
+    if (!sessionCookie || !isValidSession(sessionCookie.value)) {
         const loginUrl = new URL('/login', req.url);
         loginUrl.searchParams.set('redirect', pathname);
         return NextResponse.redirect(loginUrl);
