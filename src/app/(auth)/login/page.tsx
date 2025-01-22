@@ -16,11 +16,13 @@ export default function Login() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const disableLogin = !ready || (ready && authenticated);
+    setIsLoading(!ready || (ready && authenticated));
 
     const { login } = useLogin({
         onComplete: async ({ user, isNewUser, wasAlreadyAuthenticated, loginMethod, }) => {
             try {
+                setIsLoading(true);
+                setError(null);
                 const accessToken = await getAccessToken();
 
                 if (wasAlreadyAuthenticated) {
@@ -41,7 +43,13 @@ export default function Login() {
                     });
 
                     if (!response.ok) {
-                        throw new Error('Failed to create user');
+                        const { error, status } = await handleApiError(response);
+                        if (status === 409) {
+                            setError('This user already exists. Please try logging in again.');
+                        } else {
+                            setError(error);
+                        }
+                        return;
                     }
                 } else {
                     const response = await fetch(`/api/users/${user.id}`, {
@@ -52,7 +60,8 @@ export default function Login() {
                     });
 
                     if (!response.ok) {
-                        throw new Error('Failed to fetch user data');
+                        const { error } = await handleApiError(response);
+                        setError(error);
                     }
 
                     const userData = await response.json();
@@ -63,15 +72,27 @@ export default function Login() {
             } catch (error) {
                 console.error('Login error: ', error);
                 setError('Failed to login. Please try again');
+            } finally {
+                setIsLoading(false);
             }
         }
     });
 
     return (
-        <div>
-            <Button disabled={disableLogin} onClick={login} className="text-xl font-inconsolata font-bold w-full h-14 bg-red hover:bg-red-100 hover:text-phyt_text_dark">
-                LOGIN
+        <div className="flex flex-col gap-4">
+            <Button
+                onClick={login}
+                disabled={isLoading}
+                className="text-xl font-inconsolata font-bold w-full h-14 bg-red hover:bg-red-100 hover:text-phyt_text_dark"
+            >
+                {isLoading ? 'LOGGING IN...' : 'LOGIN'}
             </Button>
+
+            {error && (
+                <div className="text-red text-sm text-center">
+                    {error}
+                </div>
+            )}
         </div>
     );
 }
