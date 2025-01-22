@@ -1,17 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { privy } from '@/lib/privyClient';
 
-import { SessionCookie } from '../../types';
-
-const publicPaths = ['/login', 'https://auth.privy.io/api/v1/oauth/callback'];
+const publicPaths = ['/login'];
 const publicApiRoutes = [''];
 
-const isValidSession = (cookie: string): boolean => {
-    return true;
-};
 
 export async function handleAuth(req: NextRequest) {
     const { pathname } = req.nextUrl;
+
+    if (req.nextUrl.searchParams.get('privy_oauth_code')) return NextResponse.next();
 
     if (pathname.startsWith('/api/')) {
         if (publicApiRoutes.includes(pathname)) {
@@ -19,16 +16,14 @@ export async function handleAuth(req: NextRequest) {
         }
 
         try {
-            const authHeader = req.headers.get('Authorization');
-            if (!authHeader?.startsWith('Bearer ')) {
+            const accessToken = req.cookies.get('privy-token');
+            if (!accessToken?.value) {
                 return NextResponse.json(
-                    { error: 'Missing or invalid authorization header' },
+                    { error: 'No authentication token found' },
                     { status: 401 }
                 );
             }
-
-            const token = authHeader.split(' ')[1];
-            await privy.verifyAuthToken(token);
+            await privy.verifyAuthToken(accessToken.value);
 
             return NextResponse.next();
         } catch (error) {
@@ -44,9 +39,8 @@ export async function handleAuth(req: NextRequest) {
         return NextResponse.next();
     }
 
-    const sessionCookie = req.cookies.get('phyt_session');
-
-    if (!sessionCookie || !isValidSession(sessionCookie.value)) {
+    const privyToken = req.cookies.get('privy-token');
+    if (!privyToken?.value) {
         const loginUrl = new URL('/login', req.url);
         loginUrl.searchParams.set('redirect', pathname);
         return NextResponse.redirect(loginUrl);
