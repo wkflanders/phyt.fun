@@ -1,6 +1,4 @@
-"use-client";
-
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     IKImage, ImageKitProvider, IKUpload
 } from 'imagekitio-next';
@@ -20,18 +18,21 @@ const authenticator = async () => {
         }
 
         const data = await response.json();
-
         const { signature, expire, token } = data;
-
         return { signature, expire, token };
     } catch (error: any) {
         throw new Error(`Authentication request failed: , ${error.message}`);
     }
 };
 
-export const ImageUpload = () => {
+interface ImageUploadProps {
+    onChange?: (value: string) => void;
+}
+
+export const ImageUpload = ({ onChange }: ImageUploadProps) => {
     const IKUploadRef = useRef(null);
-    const [file, setFile] = useState<{ filePath: string; } | null>(null);
+    const [imageUrl, setImageUrl] = useState<string | null>("https://ik.imagekit.io/phyt/icon.png?updatedAt=1737542010549");
+    const [fileName, setFileName] = useState<string | null>(null);
 
     const onError = (error: any) => {
         toast({
@@ -39,11 +40,19 @@ export const ImageUpload = () => {
             description: `Your image could not be uploaded. Please try again`,
         });
     };
+
     const onSuccess = (res: any) => {
-        setFile(res);
+        const fullUrl = `${urlEndpoint}/${res.filePath}`;
+        setImageUrl(fullUrl);
+        setFileName(res.name);
+
+        if (onChange) {
+            onChange(fullUrl);
+        }
+
         toast({
-            title: "Image Uploaded Succesfully",
-            description: `${res.filePath} uploaded`
+            title: "Image Uploaded Successfully",
+            description: `Image uploaded successfully`
         });
     };
 
@@ -62,32 +71,32 @@ export const ImageUpload = () => {
             <button
                 onClick={(e) => {
                     e.preventDefault();
-
                     if (IKUploadRef.current) {
                         // @ts-ignore
                         IKUploadRef.current?.click();
                     }
                 }}
-                className="upload-btn bg-phyt_form_bg border-2 border-phyt_form_border"
+                className="upload-btn bg-phyt_form border-2 border-phyt_form_border"
             >
-                {!file && (
-                    <>
-                        <Image src="https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFeyNj9PWXIurj6HFPzfoB0Zb1R7MUvkETnedi" alt="upload-icon" width={20} height={20} />
 
-                        <p className="font-inter text-phyt_text">Upload a File</p>
-                    </>
-                )}
+                <Image
+                    src="https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFeyNj9PWXIurj6HFPzfoB0Zb1R7MUvkETnedi"
+                    alt="upload-icon"
+                    width={20}
+                    height={20}
+                />
+                <p className="font-inter text-phyt_text">Upload a File</p>
 
-                {file && <p className="upload-filename font-inter">{file.filePath}</p>}
+                {fileName && <p className="upload-filename font-inter">{fileName}</p>}
             </button>
 
-            {file && (
-                <IKImage
+            {imageUrl && (
+                <Image
                     className="mx-auto mt-4"
-                    alt={file.filePath}
-                    path={file.filePath}
-                    width={300}
-                    height={300}
+                    src={imageUrl}
+                    alt="Avatar preview"
+                    width={100}
+                    height={100}
                 />
             )}
         </ImageKitProvider>
