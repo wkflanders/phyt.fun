@@ -10,17 +10,15 @@ import { Button } from '@/components/ui/button';
 export default function Login() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { ready, getAccessToken, authenticated } = usePrivy();
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const { login } = useLogin({
-        onComplete: async ({ user, isNewUser, wasAlreadyAuthenticated }) => {
+        onComplete: async ({ isNewUser, wasAlreadyAuthenticated }) => {
             try {
                 setIsLoading(true);
                 setError(null);
-                const accessToken = await getAccessToken();
 
                 if (wasAlreadyAuthenticated) {
                     const redirectTo = searchParams.get('redirect') || '/';
@@ -28,42 +26,8 @@ export default function Login() {
                     return;
                 }
                 if (isNewUser) {
-                    // const response = await fetch('/api/users/create', {
-                    //     method: 'POST',
-                    //     headers: {
-                    //         'Content-Type': 'application/json',
-                    //         'Authorization': `Bearer ${accessToken}`,
-                    //     },
-                    //     body: JSON.stringify({
-                    //         email: user.google,
-
-                    //     })
-                    // });
-
-                    // if (!response.ok) {
-                    //     const { error, status } = await handleApiError(response);
-                    //     if (status === 409) {
-                    //         setError('This user already exists. Please try logging in again.');
-                    //     } else {
-                    //         setError(error);
-                    //     }
-                    //     return;
-                    // }
-
                     router.push('/onboard');
                 } else {
-                    // const response = await fetch(`/api/users/${user.id}`, {
-                    //     method: 'GET',
-                    //     headers: {
-                    //         'Authorization': `Bearer ${accessToken}`,
-                    //     }
-                    // });
-
-                    // if (!response.ok) {
-                    //     const { error } = await handleApiError(response);
-                    //     setError(error);
-                    // }
-
                     const redirectTo = searchParams.get('redirect') || '/';
                     router.push(redirectTo);
                 }
