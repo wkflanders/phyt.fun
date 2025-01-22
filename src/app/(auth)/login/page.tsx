@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 export default function Login() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { ready } = usePrivy();
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -44,7 +45,7 @@ export default function Login() {
         <div className="flex flex-col gap-4">
             <Button
                 onClick={login}
-                disabled={isLoading}
+                disabled={isLoading || !ready}
                 className="text-xl font-inconsolata font-bold w-full h-14 bg-red hover:bg-red-100 hover:text-phyt_text_dark"
             >
                 {isLoading ? 'LOGGING IN...' : 'LOGIN'}
