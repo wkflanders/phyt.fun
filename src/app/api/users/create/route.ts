@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { db } from '../../../../../database/drizzle';
+import { users } from '../../../../../database/schema';
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<User | null> {
     try {
         const userData = await req.json();
 
-        // Database insert
+        const newUser = db.insert(users).values({
+
+        });
+
         const response = NextResponse.json({
             message: 'success',
             userId: userData.userId
@@ -17,7 +22,7 @@ export async function POST(req: NextRequest) {
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
             path: '/',
-            maxAge: 60 * 60 * 24, // 24 hours
+            maxAge: 30 * 60 * 60 * 24, // 24 hours
         });
 
         return response;
