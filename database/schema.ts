@@ -16,7 +16,7 @@ export const users = pgTable("users", {
 	role: enum_users_role().default('user').notNull(),
 	privy_id: varchar(),
 	wallet_address: varchar(),
-	avatar_url: varchar(),
+	avatar_url: varchar().default('https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut'),
 }, (table) => [
 	index("users_created_at_idx").using("btree", table.created_at.asc().nullsLast().op("timestamptz_ops")),
 	uniqueIndex("users_email_idx").using("btree", table.email.asc().nullsLast().op("text_ops")),
