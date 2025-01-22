@@ -12,7 +12,8 @@ export interface User {
     email: string;
     username: string;
     role: UserRole;
-    privy_id: string | null;
+    privy_id: string;
+    avatar_url: string;
     wallet_address: string | null;
 }
 
