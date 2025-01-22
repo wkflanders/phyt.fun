@@ -7,3 +7,4 @@ export const onboardFormSchema = z.object({
         .regex(/^[a-zA-Z0-9_-]+$/, 'Username can only contain letters, numbers, underscores, and hyphens'),
     avatar_url: z.string().url('Please enter a valid URL').optional(),
 });
+export type OnboardFormData = z.infer<typeof onboardFormSchema>;
