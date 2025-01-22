@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { privy } from "@/lib/privyClient";
 
 export async function GET(
     req: NextRequest,
@@ -7,14 +6,6 @@ export async function GET(
 ) {
     try {
         const { userId } = await context.params;
-
-        const authHeader = req.headers.get('Authorization');
-        const token = authHeader!.split(' ')[1];
-        const verifiedClaims = await privy.verifyAuthToken(token);
-
-        if (verifiedClaims.userId !== userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
 
         // Here you would:
         // 1. Fetch the user from your database
