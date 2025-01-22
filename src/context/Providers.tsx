@@ -2,9 +2,11 @@
 
 import React from 'react';
 import { PrivyProvider } from '@privy-io/react-auth';
+import { QueryProvider } from './QueryProvider';
 
 export default function Providers({ children }: { children: React.ReactNode; }) {
     return (
+
         <PrivyProvider
             appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID!}
             config={{
@@ -20,7 +22,10 @@ export default function Providers({ children }: { children: React.ReactNode; }) 
                 },
             }}
         >
-            {children}
+            <QueryProvider>
+                {children}
+            </QueryProvider>
         </PrivyProvider>
+
     );
 }
