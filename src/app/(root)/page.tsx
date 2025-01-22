@@ -1,11 +1,10 @@
-import { Button } from "@/components/ui/button";
+import Logout from "@/components/Logout";
 
 export default function Home() {
+
   return (
     <>
-      <Button>
-        Click me
-      </Button>
+      <Logout />
     </>
   );
 }
