@@ -1,7 +1,6 @@
 import express, { Router } from 'express';
-import { db } from '@phyt/database';
+import { db, eq } from '@phyt/database';
 import { users } from '@phyt/database';
-import { eq } from 'drizzle-orm';
 import { validateAuth } from '../middleware/auth';
 
 const router: Router = express.Router();

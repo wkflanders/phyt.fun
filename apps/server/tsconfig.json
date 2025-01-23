@@ -1,5 +1,5 @@
 {
-  "extends": "@repo/typescript-config/base.json",
+  "extends": "../../packages/typescript-config/base.json",
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
@@ -13,6 +13,7 @@
     },
     "composite": true,
     "declaration": true,
+    "incremental": true,
     "declarationMap": true,
     "sourceMap": true,
     "allowJs": true,
