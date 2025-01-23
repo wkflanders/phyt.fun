@@ -5,7 +5,6 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import { config } from 'dotenv';
 import { userRouter } from './routes/users';
-import { imagekitRouter } from './routes/imagekit';
 import { errorHandler } from './middleware/errorHandler';
 
 config();
@@ -29,7 +28,6 @@ app.use(limiter);
 
 // Routes
 app.use('/api/users', userRouter);
-app.use('/api/imagekit', imagekitRouter);
 
 // Error handling
 app.use(errorHandler);
