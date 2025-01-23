@@ -1,6 +1,6 @@
 {
-  "name": "phyt-web",
-  "version": "0.1.0",
+  "name": "@phyt/web",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "NODE_OPTIONS='--inspect' next dev",
@@ -14,7 +14,6 @@
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
     "@privy-io/react-auth": "^2.0.4",
-    "@privy-io/server-auth": "^1.18.1",
     "@radix-ui/react-label": "^2.1.1",
     "@radix-ui/react-slot": "^1.1.1",
     "@radix-ui/react-toast": "^1.2.4",
@@ -34,8 +33,8 @@
     "use-sync-external-store": "^1.4.0",
     "zod": "^3.24.1",
     "zustand": "^5.0.3",
-    "@phyt/types": "*",
-    "@phyt/database": "*"
+    "@phyt/types": "workspace*",
+    "@phyt/database": "workspace*"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

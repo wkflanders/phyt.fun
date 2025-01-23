@@ -1,0 +1,22 @@
+{
+  "extends": "@repo/typescript-config/base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "baseUrl": ".",
+    "paths": {
+      "@phyt/database": ["../../packages/database/src"],
+      "@phyt/types": ["../../packages/types/src"]
+    },
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "../../packages/database" },
+    { "path": "../../packages/types" }
+  ]
+}

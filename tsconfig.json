@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+      "module": "CommonJS",
+      "target": "ES2022",
+      "moduleResolution": "node",
+      "esModuleInterop": true,
+      "skipLibCheck": true
+    },
+    "references": [
+      { "path": "packages/database" },
+      { "path": "packages/types" },
+      { "path": "apps/server" }
+    ],
+    "files": []
+  }
