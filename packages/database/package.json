@@ -1,0 +1,21 @@
+{
+  "name": "@phyt/database",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4",
+    "drizzle-orm": "^0.38.4"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.30.2",
+    "typescript": "^5"
+  }
+}
