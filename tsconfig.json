@@ -9,7 +9,8 @@
     "references": [
       { "path": "packages/database" },
       { "path": "packages/types" },
-      { "path": "apps/server" }
+      { "path": "apps/server" },
+      { "path": "apps/web" }
     ],
     "files": []
   }
