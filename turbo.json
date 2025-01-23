@@ -5,13 +5,7 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [
-        "dist/**",
-        ".next/**",
-        "build/**",
-        "api/**",
-        "public/build/**"
-      ]
+      "outputs": ["dist/**", ".next/**", "build/**", "api/**", "public/build/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]
@@ -22,9 +16,6 @@
     "dev": {
       "cache": false,
       "persistent": true
-    },
-    "pipeline": {
-
     }
   }
 }
