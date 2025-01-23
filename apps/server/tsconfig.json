@@ -2,31 +2,12 @@
   "extends": "../../packages/typescript-config/base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
-    "module": "CommonJS",
-    "esModuleInterop": true,
-    "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
       "@phyt/database": ["../../packages/database/src"],
       "@phyt/types": ["../../packages/types/src"]
-    },
-    "composite": true,
-    "declaration": true,
-    "incremental": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "allowJs": true,
-    "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": false
+    }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"],
-  "references": [
-    { "path": "../../packages/database" },
-    { "path": "../../packages/types" }
-  ]
+  "exclude": ["node_modules", "dist"]
 }

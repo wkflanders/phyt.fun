@@ -5,15 +5,18 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "clean": "turbo clean",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "type-check": "turbo type-check"
   },
   "devDependencies": {
+    "@types/node": "^20.11.24",
     "prettier": "^3.2.5",
     "turbo": "^2.3.4",
     "typescript": "5.5.4"
   },
+  "packageManager": "pnpm@8.15.1",
   "engines": {
-    "node": ">=18"
-  },
-  "packageManager": "pnpm@8.15.1"
+    "node": ">=18.0.0"
+  }
 }

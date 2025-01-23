@@ -1,13 +1,17 @@
 {
   "name": "@phyt/types",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "private": true,
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "clean": "rm -rf dist .turbo node_modules",
+    "lint": "eslint . --ext .ts",
+    "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "typescript": "^5"
+    "typescript": "^5.3.3",
+    "eslint": "^8.56.0"
   }
 }
