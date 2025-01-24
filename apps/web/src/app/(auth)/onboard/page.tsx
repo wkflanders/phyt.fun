@@ -6,16 +6,18 @@ import { usePrivy } from '@privy-io/react-auth';
 import { OnboardForm } from '@/components/OnboardForm';
 import { onboardFormSchema, OnboardFormData } from '@/lib/validation';
 import { useToast } from '@/hooks/use-toast';
-import { handleApiError } from '@/lib/utils';
+import { useCreateUser } from '@/hooks/use-create-user';
+
+import { ApiError } from '@phyt/types';
 
 const DEFAULT_AVATAR_URL = 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut';
-const apiEndpoint = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
 export default function OnboardPage() {
     const router = useRouter();
     const { toast } = useToast();
     const { user, ready } = usePrivy();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const createUser = useCreateUser();
 
     const handleSubmit = async (data: OnboardFormData) => {
         if (!user?.google) {
@@ -30,38 +32,13 @@ export default function OnboardPage() {
         try {
             setIsSubmitting(true);
 
-            const response = await fetch(`${apiEndpoint}/users/create`, {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: user.google.email,
-                    username: data.username,
-                    avatar_url: data.avatar_url || DEFAULT_AVATAR_URL,
-                    privy_id: user.id,
-                    wallet_address: user.wallet?.address,
-                }),
+            await createUser.mutateAsync({
+                email: user.google.email,
+                username: data.username,
+                avatar_url: data.avatar_url || DEFAULT_AVATAR_URL,
+                privy_id: user.id,
+                wallet_address: user.wallet?.address,
             });
-
-            if (!response.ok) {
-                const { error, status } = await handleApiError(response);
-                if (status === 409) {
-                    toast({
-                        title: "Error",
-                        description: "Username already exists. Please choose another one.",
-                        variant: "destructive",
-                    });
-                } else {
-                    toast({
-                        title: "Error",
-                        description: error,
-                        variant: "destructive",
-                    });
-                }
-                return;
-            }
 
             toast({
                 title: "Success",
@@ -70,12 +47,21 @@ export default function OnboardPage() {
 
             router.push('/');
         } catch (error) {
-            console.error('Error creating user:', error);
-            toast({
-                title: "Error",
-                description: "Failed to create profile. Please try again.",
-                variant: "destructive",
-            });
+            const apiError = error as ApiError;
+
+            if (apiError.status === 409) {
+                toast({
+                    title: "Error",
+                    description: "Username already exists. Please choose another one.",
+                    variant: "destructive",
+                });
+            } else {
+                toast({
+                    title: "Error",
+                    description: apiError.error || "Failed to create profile. Please try again.",
+                    variant: "destructive",
+                });
+            }
         } finally {
             setIsSubmitting(false);
         }
