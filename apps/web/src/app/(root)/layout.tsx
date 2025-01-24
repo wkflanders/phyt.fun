@@ -1,14 +1,12 @@
 import React from 'react';
-import Header from '@/components/Header';
+import { Aside } from '@/components/Aside/Aside';
 
 export default function Layout({ children }: { children: React.ReactNode; }) {
     return (
-        <main className="root-container">
-            <div className="mx-auto max-w-7xl">
-                <Header />
-                <div className="mt-20 pb-20">
-                    {children}
-                </div>
+        <main className="h-full w-full bg-phyt_bg">
+            <div className="flex h-full w-full overflow-hidden">
+                <Aside />
+                {children}
             </div>
         </main>
     );
