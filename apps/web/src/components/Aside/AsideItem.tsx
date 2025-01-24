@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import { useRouter } from "next/router";
+import { usePathname } from "next/navigation";
 
 interface AsideItemProps {
   title: string;
@@ -13,19 +13,21 @@ interface AsideItemProps {
 }
 
 export const AsideItem = ({ title, href, icon, alt }: AsideItemProps) => {
-  const router = useRouter();
-  const isActive = router.pathname.startsWith(href);
+  const pathname = usePathname();
+  const isActive = pathname.startsWith(href);
 
   return (
-    <li className={`flex align-middle ${isActive ? "bg-gray-800" : ""}`}>
+    <li className="flex align-middle" >
       <Link href={href} className="flex items-center gap-3 group">
         <Image
           src={icon}
           alt={alt}
           height={30}
           width={30}
-          className={`transition group-hover:filter group-hover:brightness-200 ${isActive ? "brightness-200" : "filter grayscale"
-            }`}
+          className={`transition-all duration-200 ease-in-out ${isActive
+            ? "brightness-100 opacity"
+            : "brightness-50 grayscale opacity-50"
+            } group-hover:brightness-100 group-hover:opacity-100`}
         />
         <h1
           className={`text-2xl font-inter-700 transition ${isActive ? "text-white" : "text-gray-600"
@@ -34,6 +36,6 @@ export const AsideItem = ({ title, href, icon, alt }: AsideItemProps) => {
           {title}
         </h1>
       </Link>
-    </li>
+    </li >
   );
 };
