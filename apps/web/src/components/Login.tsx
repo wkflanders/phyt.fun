@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import { usePrivy, useLogin } from '@privy-io/react-auth';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useGetUser } from '@/hooks/use-get-user';
+import { getUser } from "@/queries/user";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { ApiError } from '@phyt/types';
@@ -16,6 +17,8 @@ export const Login = () => {
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const queryClient = useQueryClient();
 
     const { login } = useLogin({
         onComplete: async ({ isNewUser, wasAlreadyAuthenticated, user }) => {
@@ -32,14 +35,16 @@ export const Login = () => {
                     router.push('/onboard');
                 } else {
                     try {
-                        useGetUser();
+                        const userData = await getUser(user.id);
+                        // Populate React Query's cache directly
+                        queryClient.setQueryData(["user", user.id], userData);
                         const redirectTo = searchParams.get('redirect') || '/';
                         router.push(redirectTo);
                     } catch (error) {
                         const apiError = error as ApiError;
                         toast({
                             title: "Error",
-                            description: apiError.error || "Failed to fetch user data",
+                            description: apiError.error || `${apiError}`,
                             variant: "destructive",
                         });
                     }
