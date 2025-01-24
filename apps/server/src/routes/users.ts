@@ -3,7 +3,7 @@ import { db, eq } from '@phyt/database';
 import { users } from '@phyt/database';
 import { validateAuth } from '../middleware/auth';
 import { validateSchema } from '../middleware/validator';
-import { createUserSchema } from 'src/lib/validation';
+import { createUserSchema } from '../lib/validation';
 
 const router: Router = express.Router();
 
