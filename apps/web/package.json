@@ -12,7 +12,10 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
-    "@privy-io/react-auth": "^2.0.4",
+    "@phyt/database": "workspace*",
+    "@phyt/types": "workspace*",
+    "@privy-io/react-auth": "^2.0.5",
+    "@privy-io/wagmi": "^1.0.2",
     "@radix-ui/react-label": "^2.1.1",
     "@radix-ui/react-slot": "^1.1.1",
     "@radix-ui/react-toast": "^1.2.4",
@@ -30,10 +33,10 @@
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "use-sync-external-store": "^1.4.0",
+    "viem": "^2.22.13",
+    "wagmi": "^2.14.9",
     "zod": "^3.24.1",
-    "zustand": "^5.0.3",
-    "@phyt/types": "workspace*",
-    "@phyt/database": "workspace*"
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
