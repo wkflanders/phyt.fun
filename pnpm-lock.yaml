@@ -26,11 +26,14 @@ importers:
       '@phyt/database':
         specifier: workspace:*
         version: link:../../packages/database
+      '@phyt/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       '@privy-io/server-auth':
         specifier: ^1.0.0
         version: 1.18.1
       cookie-parser:
-        specifier: ^1.4.6
+        specifier: ^1.4.7
         version: 1.4.7
       cors:
         specifier: ^2.8.5

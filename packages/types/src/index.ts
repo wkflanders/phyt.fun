@@ -174,3 +174,39 @@ export interface ApiError {
     error: string;
     status: number;
 }
+
+export class DatabaseError extends Error {
+    statusCode: number;
+    constructor(message: string, public originalError?: any) {
+        super(message);
+        this.name = 'DatabaseError';
+        this.statusCode = 500;
+    }
+}
+
+export class NotFoundError extends Error {
+    statusCode: number;
+    constructor(message: string) {
+        super(message);
+        this.name = 'NotFoundError';
+        this.statusCode = 404;
+    }
+}
+
+export class DuplicateError extends Error {
+    statusCode: number;
+    constructor(message: string) {
+        super(message);
+        this.name = 'DuplicateError';
+        this.statusCode = 409;
+    }
+}
+
+export class ValidationError extends Error {
+    statusCode: number;
+    constructor(message: string) {
+        super(message);
+        this.name = 'ValidationError';
+        this.statusCode = 400;
+    }
+}
