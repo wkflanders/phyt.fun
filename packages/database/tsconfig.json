@@ -2,7 +2,8 @@
   "extends": "../typescript-config/library.json",
   "compilerOptions": {
     "outDir": "dist",
-    "baseUrl": "."
+    "baseUrl": ".",
+    "strict": false
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
