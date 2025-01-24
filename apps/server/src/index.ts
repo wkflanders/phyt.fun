@@ -3,11 +3,14 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
 import { config } from 'dotenv';
 import router from './routes';
 import { errorHandler } from './middleware/errorHandler';
 
 config();
+
+console.log('Starting server initialization...');
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -27,6 +30,7 @@ app.use(cors({
 app.use(morgan('[:date[clf]] :method :url :status :response-time ms - :res[content-length]'));
 app.use(express.json());
 app.use(limiter);
+app.use(cookieParser());
 
 app.use('/api', router);
 
