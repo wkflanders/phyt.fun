@@ -57,7 +57,7 @@ export const Aside = () => {
                     href="/leaderboard"
                 />
             </ul>
-            <div className="">
+            <div className="mt-auto mr-auto ml-8 mb-4">
                 <Link href="/profile">
                     <AsideUser />
                 </Link>

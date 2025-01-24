@@ -24,8 +24,8 @@ export const AsideUser = () => {
     // Loading states
     if (isLoading || isFetching) {
         return (
-            <div className="mt-auto p-6 w-full">
-                <div className="flex items-center gap-4 rounded-xl p-4">
+            <div className="w-full">
+                <div className="flex items-center gap-4 rounded-xl">
                     <div className="animate-pulse rounded-full bg-gray-700 h-12 w-12" />
                     <div className="flex-1 space-y-2">
                         <div className="animate-pulse h-4 bg-gray-700 rounded w-3/4" />
@@ -40,8 +40,8 @@ export const AsideUser = () => {
     if (error) {
         console.error('AsideUser - Error:', error);
         return (
-            <div className="mt-auto p-6 w-full">
-                <div className="flex items-center gap-4 rounded-xl p-4">
+            <div className="w-full">
+                <div className="flex items-center gap-4 rounded-xl">
                     <Image
                         src={DEFAULT_AVATAR}
                         alt="Default avatar"
@@ -60,8 +60,8 @@ export const AsideUser = () => {
     // No user data
     if (!user) {
         return (
-            <div className="mt-auto p-6 w-full">
-                <div className="flex items-center gap-4 rounded-xl p-4">
+            <div className="w-full">
+                <div className="flex items-center gap-4 rounded-xl">
                     <Image
                         src={DEFAULT_AVATAR}
                         alt="Default avatar"
@@ -79,8 +79,8 @@ export const AsideUser = () => {
 
     // Success state with user data
     return (
-        <div className="mt-auto p-6 w-full">
-            <div className="flex items-center gap-4 rounded-xl p-4">
+        <div className="w-full">
+            <div className="flex items-center gap-4 rounded-xl">
                 <Image
                     src={user.avatar_url}
                     alt={user.username}
