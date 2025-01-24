@@ -3,6 +3,9 @@ import { ApiError } from "@phyt/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
+export const USER_QUERY_KEY = "user";
+export const getUserQueryKey = (privyId: string) => [USER_QUERY_KEY, privyId];
+
 export async function getUser(privyId: string): Promise<User> {
     const response = await fetch(`${API_URL}/users/${privyId}`, {
         credentials: 'include',

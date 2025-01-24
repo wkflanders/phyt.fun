@@ -8,6 +8,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { ApiError } from '@phyt/types';
+import { getUserQueryKey } from '@/queries/user';
+
 
 export const Login = () => {
     const router = useRouter();
@@ -35,19 +37,16 @@ export const Login = () => {
                     router.push('/onboard');
                 } else {
                     try {
-                        // Fetch user data
                         const userData = await getUser(user.id);
                         console.log('Setting user data in cache:', userData);
 
-                        // Set the data in the cache
-                        await queryClient.setQueryData(
-                            ["user", user.id],
-                            userData,
-                            { updatedAt: Date.now() }
-                        );
+                        const queryKey = getUserQueryKey(user.id);
 
-                        // Verify the cache was updated
-                        const cachedData = queryClient.getQueryData(["user", user.id]);
+                        await queryClient.setQueryData(queryKey, userData, {
+                            updatedAt: Date.now()
+                        });
+
+                        const cachedData = queryClient.getQueryData(queryKey);
                         console.log('Verified cached data:', cachedData);
 
                         const redirectTo = searchParams.get('redirect') || '/';

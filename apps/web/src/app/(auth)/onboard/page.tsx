@@ -32,20 +32,20 @@ export default function OnboardPage() {
         try {
             setIsSubmitting(true);
 
-            await createUser.mutateAsync({
+            const userData = {
                 email: user.google.email,
                 username: data.username,
                 avatar_url: data.avatar_url || DEFAULT_AVATAR_URL,
                 privy_id: user.id,
                 wallet_address: user.wallet?.address,
-            });
+            };
+
+            await createUser.mutateAsync(userData);
 
             toast({
                 title: "Success",
                 description: "Profile created successfully!",
             });
-
-            router.push('/');
         } catch (error) {
             const apiError = error as ApiError;
 
