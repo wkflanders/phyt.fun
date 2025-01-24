@@ -6,12 +6,15 @@ import { Button } from '@/components/ui/button';
 import { usePrivy } from '@privy-io/react-auth';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Modal } from '@/components/Modal';
-import { Wallet, ArrowUpRight, History, CreditCard, ArrowDownLeft, Copy, Check } from 'lucide-react';
+import { Wallet, History, CreditCard, ArrowDownLeft, Copy, Check } from 'lucide-react';
+import { formatEther } from 'viem';
+import { useAccount, useBalance } from 'wagmi';
+import { useToast } from '@/hooks/use-toast';
 
 export const WalletCard = () => {
-    const { user } = usePrivy();
+    const { user, ready } = usePrivy();
     const [copied, setCopied] = useState(false);
-    const [activeModal, setActiveModal] = useState<'send' | 'receive' | 'buy' | 'history' | null>(null);
+    const [activeModal, setActiveModal] = useState<'deposit' | 'buy' | 'history' | null>(null);
     const walletAddress = user?.wallet?.address || '';
 
     const formatAddress = (address: string | undefined) => {
@@ -55,28 +58,19 @@ export const WalletCard = () => {
                             <p className="text-phyt_text_secondary text-sm">≈ $0.00 USD</p>
                         </div>
 
-                        <div className="grid grid-cols-4 gap-2">
+                        <div className="grid grid-cols-3 gap-2">
                             <Button
                                 variant="outline"
-                                className="flex flex-col items-center gap-2 h-auto py-4 border-phyt_form_border hover:bg-phyt_form hover:text-phyt_text"
-                                onClick={() => setActiveModal('send')}
-                            >
-                                <ArrowUpRight size={20} className="text-phyt_blue" />
-                                <span className="text-xs">Send</span>
-                            </Button>
-
-                            <Button
-                                variant="outline"
-                                className="flex flex-col items-center gap-2 h-auto py-4 border-phyt_form_border hover:bg-phyt_form hover:text-phyt_text"
-                                onClick={() => setActiveModal('receive')}
+                                className="flex flex-col items-center gap-2 h-auto py-4 border-phyt_form_border hover:bg-phyt_form text-phyt_text hover:text-phyt_text"
+                                onClick={() => setActiveModal('deposit')}
                             >
                                 <ArrowDownLeft size={20} className="text-phyt_blue" />
-                                <span className="text-xs">Receive</span>
+                                <span className="text-xs">Deposit</span>
                             </Button>
 
                             <Button
                                 variant="outline"
-                                className="flex flex-col items-center gap-2 h-auto py-4 border-phyt_form_border hover:bg-phyt_form hover:text-phyt_text"
+                                className="flex flex-col items-center gap-2 h-auto py-4 border-phyt_form_border hover:bg-phyt_form text-phyt_text hover:text-phyt_text"
                                 onClick={() => setActiveModal('buy')}
                             >
                                 <CreditCard size={20} className="text-phyt_blue" />
@@ -85,7 +79,7 @@ export const WalletCard = () => {
 
                             <Button
                                 variant="outline"
-                                className="flex flex-col items-center gap-2 h-auto py-4 border-phyt_form_border hover:bg-phyt_form hover:text-phyt_text"
+                                className="flex flex-col items-center gap-2 h-auto py-4 border-phyt_form_border hover:bg-phyt_form text-phyt_text hover:text-phyt_text"
                                 onClick={() => setActiveModal('history')}
                             >
                                 <History size={20} className="text-phyt_blue" />
@@ -96,39 +90,11 @@ export const WalletCard = () => {
                 </CardContent>
             </Card>
 
-            {/* Send Modal */}
+            {/* deposit Modal */}
             <Modal
-                isOpen={activeModal === 'send'}
+                isOpen={activeModal === 'deposit'}
                 onClose={closeModal}
-                title="Send Funds"
-            >
-                <div className="space-y-4">
-                    <div className="space-y-2">
-                        <p className="text-sm text-phyt_text_secondary">Recipient Address</p>
-                        <Input
-                            placeholder="Enter wallet address"
-                            className="bg-phyt_form border-phyt_form_border text-phyt_text"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-sm text-phyt_text_secondary">Amount (ETH)</p>
-                        <Input
-                            type="number"
-                            placeholder="0.00"
-                            className="bg-phyt_form border-phyt_form_border text-phyt_text"
-                        />
-                    </div>
-                    <Button className="w-full bg-phyt_blue hover:bg-phyt_blue/80 text-black font-bold">
-                        Send ETH
-                    </Button>
-                </div>
-            </Modal>
-
-            {/* Receive Modal */}
-            <Modal
-                isOpen={activeModal === 'receive'}
-                onClose={closeModal}
-                title="Receive Funds"
+                title="Deposit Funds"
             >
                 <div className="space-y-4">
                     <div className="space-y-2">
