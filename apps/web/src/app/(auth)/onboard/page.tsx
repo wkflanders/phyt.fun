@@ -10,7 +10,7 @@ import { handleApiError } from '@/lib/utils';
 
 const DEFAULT_AVATAR_URL = 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut';
 
-export default function Onboard() {
+export default function OnboardPage() {
     const router = useRouter();
     const { toast } = useToast();
     const { user, ready } = usePrivy();
