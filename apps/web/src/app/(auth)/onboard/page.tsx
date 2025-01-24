@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { handleApiError } from '@/lib/utils';
 
 const DEFAULT_AVATAR_URL = 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut';
+const apiEndpoint = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
 export default function OnboardPage() {
     const router = useRouter();
@@ -29,13 +30,14 @@ export default function OnboardPage() {
         try {
             setIsSubmitting(true);
 
-            const response = await fetch('/api/users/create', {
+            const response = await fetch(`${apiEndpoint}/users/create`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    email: user.google,
+                    email: user.google.email,
                     username: data.username,
                     avatar_url: data.avatar_url || DEFAULT_AVATAR_URL,
                     privy_id: user.id,
@@ -80,14 +82,16 @@ export default function OnboardPage() {
     };
 
     return (
-        <OnboardForm
-            schema={onboardFormSchema}
-            defaultValues={{
-                username: '',
-                avatar_url: DEFAULT_AVATAR_URL,
-            }}
-            onSubmit={handleSubmit}
-            isSubmitting={isSubmitting}
-        />
+        ready && (
+            <OnboardForm
+                schema={onboardFormSchema}
+                defaultValues={{
+                    username: '',
+                    avatar_url: DEFAULT_AVATAR_URL,
+                }}
+                onSubmit={handleSubmit}
+                isSubmitting={isSubmitting}
+            />
+        )
     );
 };
