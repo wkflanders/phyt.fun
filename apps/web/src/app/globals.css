@@ -43,7 +43,7 @@
 
 @layer components {
   .root-container {
-    @apply flex min-h-screen flex-1 flex-col bg-phyt_bg px-5 xs:px-10 md:px-16;
+    @apply flex min-h-screen flex-1 flex-col bg-black px-5 xs:px-10 md:px-16;
   }
 
   .upload-btn {
@@ -58,6 +58,10 @@
 @layer utilities {
   .gradient-vertical {
     background: linear-gradient(180deg, #12141d 0%, #12151f 100%);
+  }
+
+  .gradient-gray {
+    background: linear-gradient(270deg, #37363a 0%, #353637 100%);
   }
 
   .gradient-gray {
