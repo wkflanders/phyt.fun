@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
-import { db, eq } from '@phyt/database';
 import { users } from '@phyt/database';
+import { userService } from '../services/userServices';
 import { validateAuth } from '../middleware/auth';
 import { validateSchema } from '../middleware/validator';
 import { createUserSchema } from '../lib/validation';
@@ -13,18 +13,8 @@ router.use(validateAuth);
 // User by Privy ID
 router.get('/:privyId', async (req, res) => {
     try {
-        const { privyId } = req.params;
-
-        const [user] = await db.select()
-            .from(users)
-            .where(eq(users.privy_id, privyId))
-            .limit(1);
-
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
-        }
-
-        return res.json({
+        const user = await userService.getUserByPrivyId(req.params.privyId);
+        return res.status(200).json({
             user: {
                 id: user.id,
                 email: user.email,
@@ -34,52 +24,32 @@ router.get('/:privyId', async (req, res) => {
                 wallet_address: user.wallet_address
             }
         });
-    } catch (error) {
-        console.error("Error fetching user:", error);
-        return res.status(500).json({ error: "Failed to fetch user data" });
+    } catch (error: any) {
+        console.error("Error in GET /:privyId:", error);
+        return res.status(error.statusCode || 500).json({
+            error: error.message || "Failed to fetch user data"
+        });
     }
 });
+
+// GET
+// User by email
+
+
+// GET
+// User by username 
+
 
 // POST
 // Create new user
 router.post('/create', validateSchema(createUserSchema), async (req, res) => {
     try {
         const { email, username, avatar_url, privy_id, wallet_address } = req.body;
+        const newUser = await userService.createUser({
+            email, username, avatar_url, privy_id, wallet_address
+        });
 
-        if (!email || !username) {
-            return res.status(400).json({ error: "Email and username are required" });
-        }
-
-        const existingUserByEmail = await db.select()
-            .from(users)
-            .where(eq(users.email, email))
-            .limit(1);
-
-        if (existingUserByEmail.length > 0) {
-            return res.status(409).json({ error: "Email already registered" });
-        }
-
-        const existingUserByUsername = await db.select()
-            .from(users)
-            .where(eq(users.username, username))
-            .limit(1);
-
-        if (existingUserByUsername.length > 0) {
-            return res.status(409).json({ error: "Username already taken" });
-        }
-
-        const [newUser] = await db.insert(users)
-            .values({
-                email,
-                username,
-                avatar_url: avatar_url || 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut',
-                privy_id,
-                wallet_address,
-                role: 'user'
-            })
-            .returning();
-
-        return res.json({
+        return res.status(201).json({
             message: "User created successfully",
             user: {
                 id: newUser.id,
@@ -89,9 +59,11 @@ router.post('/create', validateSchema(createUserSchema), async (req, res) => {
                 role: newUser.role
             }
         });
-    } catch (error) {
-        console.error('Error creating user:', error);
-        return res.status(500).json({ error: "Failed to create user" });
+    } catch (error: any) {
+        console.error('Error in POST /create:', error);
+        return res.status(error.statusCode || 500).json({
+            error: error.message || "Failed to create user"
+        });
     }
 });
 
