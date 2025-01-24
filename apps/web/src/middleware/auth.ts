@@ -11,6 +11,10 @@ export async function handleAuth(req: NextRequest) {
         return NextResponse.next();
     }
 
+    if (pathname.startsWith('/(auth)')) {
+        return NextResponse.next();
+    }
+
     const privyToken = req.cookies.get('privy-token');
     if (!privyToken?.value) {
         const loginUrl = new URL('/login', req.url);

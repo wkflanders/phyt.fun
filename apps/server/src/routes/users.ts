@@ -15,14 +15,12 @@ router.get('/:privyId', async (req, res) => {
     try {
         const user = await userService.getUserByPrivyId(req.params.privyId);
         return res.status(200).json({
-            user: {
-                id: user.id,
-                email: user.email,
-                username: user.username,
-                avatar_url: user.avatar_url,
-                role: user.role,
-                wallet_address: user.wallet_address
-            }
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            avatar_url: user.avatar_url,
+            role: user.role,
+            wallet_address: user.wallet_address
         });
     } catch (error: any) {
         console.error("Error in GET /:privyId:", error);
@@ -50,14 +48,11 @@ router.post('/create', validateSchema(createUserSchema), async (req, res) => {
         });
 
         return res.status(201).json({
-            message: "User created successfully",
-            user: {
-                id: newUser.id,
-                email: newUser.email,
-                username: newUser.username,
-                avatar_url: newUser.avatar_url,
-                role: newUser.role
-            }
+            id: newUser.id,
+            email: newUser.email,
+            username: newUser.username,
+            avatar_url: newUser.avatar_url,
+            role: newUser.role
         });
     } catch (error: any) {
         console.error('Error in POST /create:', error);

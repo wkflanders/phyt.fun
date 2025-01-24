@@ -1,22 +1,37 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePrivy } from "@privy-io/react-auth";
 import { getUser } from "@/queries/user";
+import { User } from "@phyt/types";
 
 export function useGetUser() {
     const { user: privyUser, ready } = usePrivy();
+    const queryClient = useQueryClient();
 
     return useQuery({
-        // Query key includes the user’s ID
         queryKey: ["user", privyUser?.id],
-        queryFn: () => {
+        queryFn: async () => {
+            console.log("Attempting to fetch user data for:", privyUser?.id);
+
+            // Attempt to get data from cache first
+            const cachedData = queryClient.getQueryData<User>(["user", privyUser?.id]);
+
+            if (cachedData) {
+                console.log("Found cached user data");
+                return cachedData;
+            }
+
             if (!privyUser?.id) {
                 throw new Error("No authenticated user");
             }
-            return getUser(privyUser.id);
+
+            console.log("Fetching from API");
+            const userData = await getUser(privyUser.id);
+            return userData;
         },
-        // Only run automatically if Privy is ready and we have a user ID
-        enabled: ready && !!privyUser?.id,
-        // Other options as needed, e.g. staleTime
-        staleTime: 60_000,
+        enabled: Boolean(ready && privyUser?.id),
+        staleTime: 300000, // 5 minutes
+        gcTime: 3600000, // 1 hour
+        refetchOnMount: false,
+        refetchOnWindowFocus: false
     });
 }

@@ -29,7 +29,7 @@ app.use(cors({
 }));
 app.use(morgan('[:date[clf]] :method :url :status :response-time ms - :res[content-length]'));
 app.use(express.json());
-app.use(limiter);
+// app.use(limiter);
 app.use(cookieParser());
 
 app.use('/api', router);

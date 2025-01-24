@@ -35,9 +35,21 @@ export const Login = () => {
                     router.push('/onboard');
                 } else {
                     try {
+                        // Fetch user data
                         const userData = await getUser(user.id);
-                        // Populate React Query's cache directly
-                        queryClient.setQueryData(["user", user.id], userData);
+                        console.log('Setting user data in cache:', userData);
+
+                        // Set the data in the cache
+                        await queryClient.setQueryData(
+                            ["user", user.id],
+                            userData,
+                            { updatedAt: Date.now() }
+                        );
+
+                        // Verify the cache was updated
+                        const cachedData = queryClient.getQueryData(["user", user.id]);
+                        console.log('Verified cached data:', cachedData);
+
                         const redirectTo = searchParams.get('redirect') || '/';
                         router.push(redirectTo);
                     } catch (error) {
