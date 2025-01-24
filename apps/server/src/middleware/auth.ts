@@ -9,13 +9,13 @@ export const validateAuth = async (
 ) => {
     try {
         const accessToken = req.cookies['privy-token'];
-        if (!accessToken?.value) {
+        if (!accessToken) {
             return res.status(401).json({
                 error: 'No authentication token found'
             });
         }
 
-        await privy.verifyAuthToken(accessToken.value);
+        await privy.verifyAuthToken(accessToken);
 
         next();
     } catch (error) {
