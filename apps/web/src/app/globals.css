@@ -3,8 +3,12 @@
 @tailwind utilities;
 
 @layer base {
+  html, body{
+    width: 100%;
+    height: 100%;
+  }
+  
   :root {
-    --radius: 0.5rem;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
   }
@@ -39,7 +43,7 @@
 
 @layer components {
   .root-container {
-    @apply flex min-h-screen flex-1 flex-col bg-pattern bg-cover bg-top px-5 xs:px-10 md:px-16;
+    @apply flex min-h-screen flex-1 flex-col bg-phyt_bg px-5 xs:px-10 md:px-16;
   }
 
   .upload-btn {
