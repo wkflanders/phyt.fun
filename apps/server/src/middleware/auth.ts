@@ -1,10 +1,6 @@
-import { PrivyClient } from '@privy-io/server-auth';
+import { privy } from '../lib/privyClient';
 import { Request, Response, NextFunction } from 'express';
 
-const privy = new PrivyClient(
-    process.env.NEXT_PUBLIC_PRIVY_APP_ID!,
-    process.env.PRIVY_SECRET_KEY!
-);
 
 export const validateAuth = async (
     req: Request,
@@ -12,17 +8,14 @@ export const validateAuth = async (
     next: NextFunction
 ) => {
     try {
-        const authHeader = req.headers.authorization;
-
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(401).json({ error: 'No authorization token provided' });
+        const accessToken = req.cookies['privy-token'];
+        if (!accessToken?.value) {
+            return res.status(401).json({
+                error: 'No authentication token found'
+            });
         }
 
-        const token = authHeader.split(' ')[1];
-        if (!token) {
-            return res.status(401).json({ error: 'Token is missing' });
-        }
-        await privy.verifyAuthToken(token);
+        await privy.verifyAuthToken(accessToken.value);
 
         next();
     } catch (error) {
