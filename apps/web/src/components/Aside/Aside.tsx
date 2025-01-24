@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { AsideItem } from './AsideItem';
+import { AsideUser } from './AsideUser';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -56,6 +57,11 @@ export const Aside = () => {
                     href="/leaderboard"
                 />
             </ul>
+            <div className="">
+                <Link href="/profile">
+                    <AsideUser />
+                </Link>
+            </div>
         </div>
     );
 };
