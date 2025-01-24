@@ -86,7 +86,7 @@ export const AsideUser = () => {
                     alt={user.username}
                     width={48}
                     height={48}
-                    className="rounded-full border-2 border-phyt_blue"
+                    className="rounded-full border-2 border-phyt_form"
                 />
                 <div className="flex-1 min-w-0">
                     <p className="text-phyt_text font-medium text-lg truncate">

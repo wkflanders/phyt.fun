@@ -1,15 +1,55 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Heart, MessageCircle, Share2, MoreHorizontal, Timer, Navigation, Ruler } from 'lucide-react';
+import React, { FC, useState } from 'react';
+import {
+    Heart,
+    MessageCircle,
+    Share2,
+    MoreHorizontal,
+    Timer,
+    Navigation,
+    Ruler,
+    type LucideProps
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const mockPosts = [
+/** -----------------------------
+ *    1) Define your data types
+ * -----------------------------
+ */
+interface User {
+    name: string;
+    avatar: string;
+}
+
+interface RunData {
+    coordinates: Array<[number, number]>;
+    distance: string;
+    pace: string;
+    time: string;
+}
+
+interface Post {
+    id: number;
+    user: User;
+    content: string;
+    runData: RunData;
+    likes: number;
+    comments: number;
+    shares: number;
+    time: string;
+}
+
+/** ----------------------------------
+ *   2) Create a typed mock data array
+ * ----------------------------------
+ */
+const mockPosts: Post[] = [
     {
         id: 1,
         user: {
             name: 'boatsandlogs',
-            avatar: 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFzH1tTYSPrsGziypw0WOcRQSY1DebF2V6ATHX'
+            avatar: 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFzH1tTYSPrsGziypw0WOcRQSY1DebF2V6ATHX',
         },
         content: 'lightwork',
         runData: {
@@ -19,46 +59,46 @@ const mockPosts = [
                 [40, 25],
                 [60, 40],
                 [80, 30],
-                [100, 45]
+                [100, 45],
             ],
             distance: '5.2',
             pace: '8:30',
-            time: '44:12'
+            time: '44:12',
         },
         likes: 124,
         comments: 18,
         shares: 5,
-        time: '2h ago'
+        time: '2h ago',
     },
     {
         id: 2,
         user: {
             name: 'jc9923',
-            avatar: 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut'
+            avatar: 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut',
         },
-        content: "Quick morning jog",
+        content: 'Quick morning jog',
         runData: {
             coordinates: [
                 [10, 10],
                 [30, 40],
                 [50, 30],
                 [70, 50],
-                [90, 35]
+                [90, 35],
             ],
             distance: '3.1',
             pace: '7:45',
-            time: '24:05'
+            time: '24:05',
         },
         likes: 89,
         comments: 12,
         shares: 3,
-        time: '4h ago'
+        time: '4h ago',
     },
     {
         id: 3,
         user: {
             name: 'rob11121',
-            avatar: 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFvL3WgyBlUwOnrYHhoyXe7VEfG4udaTSLBDkK'
+            avatar: 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFvL3WgyBlUwOnrYHhoyXe7VEfG4udaTSLBDkK',
         },
         content: '',
         runData: {
@@ -67,20 +107,31 @@ const mockPosts = [
                 [25, 35],
                 [45, 25],
                 [65, 45],
-                [85, 30]
+                [85, 30],
             ],
             distance: '6.8',
             pace: '9:15',
-            time: '1:02:54'
+            time: '1:02:54',
         },
         likes: 56,
         comments: 8,
         shares: 2,
-        time: '6h ago'
-    }
+        time: '6h ago',
+    },
 ];
 
-const RunMap = ({ coordinates, distance }) => {
+/** -------------------------------
+ *   3) Type your sub-components
+ * -------------------------------
+ */
+
+// Props for the RunMap component
+interface RunMapProps {
+    coordinates: Array<[number, number]>;
+    distance: string;
+}
+
+const RunMap: FC<RunMapProps> = ({ coordinates, distance }) => {
     const padding = 20;
     const scaleBarHeight = 30;
     const width = 400;
@@ -93,26 +144,27 @@ const RunMap = ({ coordinates, distance }) => {
     const minY = Math.min(...yValues);
     const maxY = Math.max(...yValues);
 
-    const xScale = (width - (padding * 2)) / (maxX - minX);
-    const yScale = (height - (padding * 2)) / (maxY - minY);
+    const xScale = (width - padding * 2) / (maxX - minX);
+    const yScale = (height - padding * 2) / (maxY - minY);
     const scale = Math.min(xScale, yScale);
 
     const transformedPath = coordinates.map(([x, y]) => [
-        padding + ((x - minX) * scale),
-        padding + ((y - minY) * scale)
+        padding + (x - minX) * scale,
+        padding + (y - minY) * scale,
     ]);
 
     const gridSize = 20;
 
     const pathLengthInMiles = parseFloat(distance);
-    const pixelsPerMile = Math.sqrt(
-        Math.pow(transformedPath[transformedPath.length - 1][0] - transformedPath[0][0], 2) +
-        Math.pow(transformedPath[transformedPath.length - 1][1] - transformedPath[0][1], 2)
-    ) / pathLengthInMiles;
+    const pixelsPerMile =
+        Math.sqrt(
+            Math.pow(transformedPath[transformedPath.length - 1][0] - transformedPath[0][0], 2) +
+            Math.pow(transformedPath[transformedPath.length - 1][1] - transformedPath[0][1], 2)
+        ) / pathLengthInMiles;
 
     return (
         <div className="bg-phyt_form bg-opacity-10 rounded-xl p-4 mb-4 w-full">
-            <svg className="w-full aspect-[2/1]" viewBox={`0 0 400 200`} preserveAspectRatio="xMidYMid meet">
+            <svg className="w-full aspect-[2/1]" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet">
                 <g className="grid-lines" stroke="#3B82F680" strokeWidth="0.5">
                     {[...Array(Math.floor(height / gridSize))].map((_, i) => (
                         <line
@@ -136,6 +188,7 @@ const RunMap = ({ coordinates, distance }) => {
                     ))}
                 </g>
 
+                {/* Scale bar */}
                 <g transform={`translate(${padding}, ${height + 15})`}>
                     <line x1="0" y1="0" x2={pixelsPerMile} y2="0" stroke="#3B82F6" strokeWidth="2" />
                     <line x1="0" y1="-3" x2="0" y2="3" stroke="#3B82F6" strokeWidth="2" />
@@ -145,6 +198,7 @@ const RunMap = ({ coordinates, distance }) => {
                     </text>
                 </g>
 
+                {/* Path */}
                 <path
                     d={`M ${transformedPath.map(([x, y]) => `${x},${y}`).join(' L ')}`}
                     stroke="#3B82F6"
@@ -154,6 +208,7 @@ const RunMap = ({ coordinates, distance }) => {
                     fill="none"
                 />
 
+                {/* Circles at each coordinate */}
                 {transformedPath.map(([x, y], i) => (
                     <circle
                         key={i}
@@ -168,7 +223,16 @@ const RunMap = ({ coordinates, distance }) => {
     );
 };
 
-const MetricWidget = ({ icon: Icon, label, value }) => (
+// We can define a type for the icon component from lucide-react:
+type LucideIconComponent = React.ComponentType<LucideProps>;
+
+interface MetricWidgetProps {
+    icon: LucideIconComponent;
+    label: string;
+    value: string;
+}
+
+const MetricWidget: FC<MetricWidgetProps> = ({ icon: Icon, label, value }) => (
     <div className="flex flex-col items-center bg-phyt_form bg-opacity-10 rounded-lg p-3">
         <Icon size={20} className="text-phyt_blue mb-1" />
         <span className="text-sm text-phyt_text_secondary">{label}</span>
@@ -176,20 +240,30 @@ const MetricWidget = ({ icon: Icon, label, value }) => (
     </div>
 );
 
-const TabButton = ({ isActive, onClick, children }) => (
+interface TabButtonProps {
+    isActive: boolean;
+    onClick: () => void;
+    children: React.ReactNode;
+}
+
+const TabButton: FC<TabButtonProps> = ({ isActive, onClick, children }) => (
     <button
         onClick={onClick}
         className={cn(
-            "px-6 py-3 text-lg font-inter transition-colors duration-200 flex-1 text-center",
-            isActive ? "text-phyt_text border-phyt_text_third" : "text-phyt_text_third hover:text-phyt_text"
+            'px-6 py-3 text-lg font-inter transition-colors duration-200 flex-1 text-center',
+            isActive ? 'text-phyt_text border-phyt_text_third' : 'text-phyt_text_third hover:text-phyt_text'
         )}
     >
         {children}
     </button>
 );
 
-export const Feed = () => {
-    const [activeTab, setActiveTab] = useState('following');
+/** ---------------------------------------
+ *   4) Finally, the typed Feed component
+ * ---------------------------------------
+ */
+export const Feed: FC = () => {
+    const [activeTab, setActiveTab] = useState<'following' | 'trending'>('following');
 
     return (
         <div className="flex-1 overflow-y-auto h-screen">
@@ -197,16 +271,10 @@ export const Feed = () => {
                 <div className="bg-black rounded-xl overflow-hidden">
                     <div className="border-b border-phyt_form">
                         <div className="flex gap-8">
-                            <TabButton
-                                isActive={activeTab === 'following'}
-                                onClick={() => setActiveTab('following')}
-                            >
+                            <TabButton isActive={activeTab === 'following'} onClick={() => setActiveTab('following')}>
                                 Following
                             </TabButton>
-                            <TabButton
-                                isActive={activeTab === 'trending'}
-                                onClick={() => setActiveTab('trending')}
-                            >
+                            <TabButton isActive={activeTab === 'trending'} onClick={() => setActiveTab('trending')}>
                                 Trending
                             </TabButton>
                         </div>
@@ -214,7 +282,7 @@ export const Feed = () => {
 
                     <div className="p-4">
                         <div className="space-y-6">
-                            {mockPosts.map(post => (
+                            {mockPosts.map((post) => (
                                 <div key={post.id} className="bg-black rounded-xl p-4 border border-phyt_form">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="flex items-center gap-3">
@@ -238,21 +306,9 @@ export const Feed = () => {
                                     <RunMap coordinates={post.runData.coordinates} distance={post.runData.distance} />
 
                                     <div className="grid grid-cols-3 gap-4 mb-4">
-                                        <MetricWidget
-                                            icon={Ruler}
-                                            label="Distance"
-                                            value={`${post.runData.distance} mi`}
-                                        />
-                                        <MetricWidget
-                                            icon={Timer}
-                                            label="Pace"
-                                            value={`${post.runData.pace} /mi`}
-                                        />
-                                        <MetricWidget
-                                            icon={Navigation}
-                                            label="Time"
-                                            value={post.runData.time}
-                                        />
+                                        <MetricWidget icon={Ruler} label="Distance" value={`${post.runData.distance} mi`} />
+                                        <MetricWidget icon={Timer} label="Pace" value={`${post.runData.pace} /mi`} />
+                                        <MetricWidget icon={Navigation} label="Time" value={post.runData.time} />
                                     </div>
 
                                     <div className="flex items-center justify-between pt-2 border-t border-phyt_form">
