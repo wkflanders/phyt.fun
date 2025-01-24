@@ -87,17 +87,22 @@ export const ImageUpload = ({ onChange }: ImageUploadProps) => {
                 />
                 <p className="font-inter text-phyt_text">Upload a File</p>
 
-                {fileName && <p className="upload-filename font-inter">{fileName}</p>}
             </button>
 
             {imageUrl && (
-                <Image
-                    className="mx-auto mt-4"
-                    src={imageUrl}
-                    alt="Avatar preview"
-                    width={100}
-                    height={100}
-                />
+                <>
+                    <Image
+                        className="mx-auto mt-4"
+                        src={imageUrl}
+                        alt="Avatar preview"
+                        width={100}
+                        height={100}
+                    />
+                    <div className="w-full">
+                        {fileName && <p className="upload-filename font-inter">{fileName}</p>}
+                    </div>
+
+                </>
             )}
         </ImageKitProvider>
     );
