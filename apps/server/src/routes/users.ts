@@ -2,11 +2,16 @@ import express, { Router } from 'express';
 import { db, eq } from '@phyt/database';
 import { users } from '@phyt/database';
 import { validateAuth } from '../middleware/auth';
+import { validateSchema } from '../middleware/validator';
+import { createUserSchema } from 'src/lib/validation';
 
 const router: Router = express.Router();
 
-// Get user by Privy ID
-router.get('/:privyId', validateAuth, async (req, res) => {
+router.use(validateAuth);
+
+// GET 
+// User by Privy ID
+router.get('/:privyId', async (req, res) => {
     try {
         const { privyId } = req.params;
 
@@ -35,8 +40,9 @@ router.get('/:privyId', validateAuth, async (req, res) => {
     }
 });
 
+// POST
 // Create new user
-router.post('/create', async (req, res) => {
+router.post('/create', validateSchema(createUserSchema), async (req, res) => {
     try {
         const { email, username, avatar_url, privy_id, wallet_address } = req.body;
 
