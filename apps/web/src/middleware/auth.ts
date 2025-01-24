@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const publicPaths = ['/login'];
-const publicApiRoutes = [''];
-
 
 export async function handleAuth(req: NextRequest) {
     const { pathname } = req.nextUrl;
