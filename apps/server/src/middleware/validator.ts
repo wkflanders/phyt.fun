@@ -11,8 +11,14 @@ export const validateSchema = (schema: ZodSchema) => async (
         next();
     } catch (error) {
         if (error instanceof ZodError) {
-            return res.status(400).json({ error: error.issues });
+            // Get a single, user-friendly string with all messages
+            const combinedErrorMessage = error.issues
+                .map((issue) => issue.message)
+                .join(", ");
+
+            return res.status(400).json({ error: combinedErrorMessage });
         }
-        return res.status(400).json({ error: 'Invalid request' });
+
+        return res.status(400).json({ error: "Invalid request" });
     }
 };
