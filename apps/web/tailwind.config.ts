@@ -81,13 +81,15 @@ export default {
 				phyt_text: "#E3E4E6",
 				phyt_text_dark: "#d1d1d1",
 				phyt_text_secondary: "#777798",
+				phyt_text_third: "#454559",
 				phyt_form: "#13122A",
 				phyt_form_placeholder: "#58587B",
 				phyt_form_border: "#5454BF",
 				phyt_form_text: "#ff00f7",
 				phyt_code_box_bg: '#2E2E5D',
 				phyt_code_box_highlight: '#b915c2',
-				phyt_code_box_highlight_border: '#ef48f7'
+				phyt_code_box_highlight_border: '#ef48f7',
+				phyt_gray: '#020303'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

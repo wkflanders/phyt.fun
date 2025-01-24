@@ -19,7 +19,7 @@ import Link from 'next/link';
 
 export const Aside = () => {
     return (
-        <div className="flex flex-col gap-20 bg-black items-center h-full w-80 pt-12 pr-2">
+        <div className="flex flex-col gap-20 bg-black items-center h-full w-80 pt-12 pr-2 border-r-2 border-phyt_form">
             <div className="">
                 <Link href="/">
                     <Image src="https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFduORvackTPlRILfDrtYWge59yzhSjpFisE6v" alt="PHYT" width={250} height={250} />
