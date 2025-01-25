@@ -1,5 +1,4 @@
 import express, { Router } from 'express';
-import { users } from '@phyt/database';
 import { userService } from '../services/userServices';
 import { validateAuth } from '../middleware/auth';
 import { validateSchema } from '../middleware/validator';
@@ -8,6 +7,20 @@ import { createUserSchema } from '../lib/validation';
 const router: Router = express.Router();
 
 router.use(validateAuth);
+
+// GET
+// All user transactions
+router.get('/users/transactions/:privyId', async (req, res) => {
+    try {
+        const transactions = await userService.getTransactionsByPrivyId(req.params.privyId);
+        return res.status(200).json(transactions); // Return transactions directly
+    } catch (error: any) {
+        console.error("Error in GET /users/:privyId/transactions:", error);
+        return res.status(error.statusCode || 500).json({
+            error: error.message || "Failed to fetch user transactions"
+        });
+    }
+});
 
 // GET 
 // User by Privy ID
@@ -36,7 +49,6 @@ router.get('/:privyId', async (req, res) => {
 
 // GET
 // User by username 
-
 
 // POST
 // Create new user
