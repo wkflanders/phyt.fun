@@ -10,4 +10,10 @@ export const privyConfig: PrivyClientConfig = {
         createOnLogin: 'users-without-wallets',
         showWalletUIs: true
     },
+    fundingMethodConfig: {
+        moonpay: {
+            paymentMethod: 'credit_debit_card',
+            uiConfig: { accentColor: '#696FFD', theme: 'light' },
+        },
+    }
 };
