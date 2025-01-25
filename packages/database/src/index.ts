@@ -1,4 +1,4 @@
 export * from './schema';
 export * from './relations';
 export * from './drizzle';
-export { eq, and, desc, asc } from 'drizzle-orm';
+export { eq, and, desc, asc, or } from 'drizzle-orm';
