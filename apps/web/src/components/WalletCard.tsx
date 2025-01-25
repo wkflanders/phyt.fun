@@ -1,21 +1,31 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { usePrivy } from '@privy-io/react-auth';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Modal } from '@/components/Modal';
-import { Wallet, History, CreditCard, ArrowDownLeft, Copy, Check } from 'lucide-react';
-import { formatEther } from 'viem';
+import { usePrivy, useFundWallet } from '@privy-io/react-auth';
 import { useAccount, useBalance } from 'wagmi';
+import { formatEther } from 'viem';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Modal } from '@/components/Modal';
+import { Wallet, CreditCard, ArrowDownLeft, Copy, Check, Loader2, History, ArrowDown, ArrowUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useGetUserTransactions } from '@/hooks/use-get-user-transactions';
+import { useGetUser } from '@/hooks/use-get-user';
 
 export const WalletCard = () => {
-    const { user, ready } = usePrivy();
+    const { user: privyUser, ready } = usePrivy();
+    const { address, isConnecting } = useAccount();
+    const { toast } = useToast();
     const [copied, setCopied] = useState(false);
     const [activeModal, setActiveModal] = useState<'deposit' | 'buy' | 'history' | null>(null);
-    const walletAddress = user?.wallet?.address || '';
+    const [isProcessing, setIsProcessing] = useState(false);
+    const { data: user, isLoading: isGetUserLoading } = useGetUser();
+    const { data: transactions, isLoading: isTransactionLoading } = useGetUserTransactions();
+    const { fundWallet } = useFundWallet();
+
+    const { data: balanceData, isLoading: isBalanceLoading } = useBalance({
+        address: address as `0x${string}`,
+    });
 
     const formatAddress = (address: string | undefined) => {
         if (!address) return '';
@@ -23,16 +33,60 @@ export const WalletCard = () => {
     };
 
     const copyAddress = async () => {
+        if (!address) return;
         try {
-            await navigator.clipboard.writeText(walletAddress);
+            await navigator.clipboard.writeText(address);
             setCopied(true);
+            toast({
+                title: "Address Copied",
+                description: "Wallet address copied to clipboard",
+            });
             setTimeout(() => setCopied(false), 2000);
         } catch (err) {
-            console.error('Failed to copy address:', err);
+            toast({
+                title: "Error",
+                description: "Failed to copy address",
+                variant: "destructive",
+            });
+        }
+    };
+
+    const handleFundWallet = async (address: string | undefined) => {
+        if (!address || isProcessing) return;
+
+        setIsProcessing(true);
+        try {
+            await fundWallet(address);
+        } catch (error: any) {
+            console.error("Error funding wallet:", error); // Log the full error object
+            toast({
+                title: "Error",
+                description: error.message || "Failed to fund wallet",
+                variant: "destructive",
+            });
+        } finally {
+            setIsProcessing(false);
         }
     };
 
     const closeModal = () => setActiveModal(null);
+
+    if (!ready || isConnecting || isGetUserLoading) {
+        return (
+            <Card className="w-96 h-[400px] bg-black border-2 border-phyt_form flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-phyt_blue" />
+            </Card>
+        );
+    }
+
+    const formatTimestamp = (timestamp: string) => {
+        return new Date(timestamp).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
 
     return (
         <div className="w-96 space-y-4 p-4">
@@ -47,15 +101,37 @@ export const WalletCard = () => {
                     <div className="space-y-6">
                         <div className="bg-phyt_form bg-opacity-10 p-4 rounded-lg">
                             <p className="text-phyt_text_secondary text-sm mb-1">Wallet Address</p>
-                            <p className="font-mono text-phyt_text">
-                                {formatAddress(walletAddress)}
-                            </p>
+                            <div className="flex items-center gap-2">
+                                <p className="font-mono text-phyt_text">
+                                    {formatAddress(address)}
+                                </p>
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={copyAddress}
+                                    className="text-phyt_text_secondary hover:text-phyt_text"
+                                >
+                                    {copied ? <Check size={16} /> : <Copy size={16} />}
+                                </Button>
+                            </div>
                         </div>
 
                         <div className="bg-phyt_form bg-opacity-10 p-4 rounded-lg">
                             <p className="text-phyt_text_secondary text-sm mb-1">Balance</p>
-                            <p className="text-2xl font-bold text-phyt_text">0.00 ETH</p>
-                            <p className="text-phyt_text_secondary text-sm">≈ $0.00 USD</p>
+                            {isBalanceLoading ? (
+                                <Loader2 className="h-4 w-4 animate-spin text-phyt_blue" />
+                            ) : (
+                                <>
+                                    <p className="text-2xl font-bold text-phyt_text">
+                                        {balanceData ? formatEther(balanceData.value) : '0.00'} ETH
+                                    </p>
+                                    <p className="text-phyt_text_secondary text-sm">
+                                        ≈ ${balanceData ?
+                                            (parseFloat(formatEther(balanceData.value)) * 3500).toFixed(2)
+                                            : '0.00'} USD
+                                    </p>
+                                </>
+                            )}
                         </div>
 
                         <div className="grid grid-cols-3 gap-2">
@@ -71,7 +147,7 @@ export const WalletCard = () => {
                             <Button
                                 variant="outline"
                                 className="flex flex-col items-center gap-2 h-auto py-4 border-phyt_form_border hover:bg-phyt_form text-phyt_text hover:text-phyt_text"
-                                onClick={() => setActiveModal('buy')}
+                                onClick={() => handleFundWallet(address)}
                             >
                                 <CreditCard size={20} className="text-phyt_blue" />
                                 <span className="text-xs">Buy</span>
@@ -90,7 +166,6 @@ export const WalletCard = () => {
                 </CardContent>
             </Card>
 
-            {/* deposit Modal */}
             <Modal
                 isOpen={activeModal === 'deposit'}
                 onClose={closeModal}
@@ -101,7 +176,7 @@ export const WalletCard = () => {
                         <p className="text-sm text-phyt_text_secondary">Your Wallet Address</p>
                         <div className="flex items-center gap-2 p-3 bg-phyt_form bg-opacity-10 rounded-lg">
                             <code className="flex-1 font-mono text-sm text-phyt_text break-all">
-                                {walletAddress}
+                                {address}
                             </code>
                             <Button
                                 size="sm"
@@ -123,40 +198,57 @@ export const WalletCard = () => {
                 </div>
             </Modal>
 
-            {/* Buy Modal */}
-            <Modal
-                isOpen={activeModal === 'buy'}
-                onClose={closeModal}
-                title="Buy Crypto"
-            >
-                <div className="space-y-4">
-                    <div className="space-y-2">
-                        <p className="text-sm text-phyt_text_secondary">Amount (USD)</p>
-                        <Input
-                            type="number"
-                            placeholder="Enter amount in USD"
-                            className="bg-phyt_form border-phyt_form_border text-phyt_text"
-                        />
-                        <p className="text-xs text-phyt_text_secondary text-right">
-                            ≈ 0.00 ETH
-                        </p>
-                    </div>
-                    <Button className="w-full bg-phyt_blue hover:bg-phyt_blue/80 text-black font-bold">
-                        Continue to Payment
-                    </Button>
-                </div>
-            </Modal>
-
-            {/* History Modal */}
             <Modal
                 isOpen={activeModal === 'history'}
                 onClose={closeModal}
                 title="Transaction History"
             >
-                <div className="space-y-2">
-                    <p className="text-phyt_text_secondary text-center py-8">
-                        No transactions found
-                    </p>
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <div className="bg-phyt_form bg-opacity-10 rounded-lg p-4">
+                            <div className="flex flex-col gap-4">
+                                {isTransactionLoading ? ( // Show loading spinner while transactions are being fetched
+                                    <div className="flex items-center justify-center">
+                                        <Loader2 className="h-8 w-8 animate-spin text-phyt_blue" />
+                                    </div>
+                                ) : transactions?.length === 0 ? ( // Show message if no transactions are found
+                                    <p className="text-phyt_text_secondary text-center">
+                                        No transactions found
+                                    </p>
+                                ) : (
+                                    transactions?.map((tx, index) => ( // Map through transactions and display them
+                                        <div key={index} className="border-b border-phyt_form last:border-0 pb-3 last:pb-0">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    {tx.from_user_id === user?.id ? ( // Check if the user is the sender
+                                                        <ArrowUp className="text-red" size={16} /> // Sent transaction icon
+                                                    ) : (
+                                                        <ArrowDown className="text-green-500" size={16} /> // Received transaction icon
+                                                    )}
+                                                    <div>
+                                                        <p className="text-sm text-phyt_text">
+                                                            {tx.from_user_id === user?.id ? 'Sent' : 'Received'}
+                                                        </p>
+                                                        <p className="text-xs text-phyt_text_secondary">
+                                                            {formatTimestamp(tx.created_at)} {/* Format the timestamp */}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-sm text-phyt_text">
+                                                        {tx.token_amount} Tokens {/* Display the token amount */}
+                                                    </p>
+                                                    <p className="text-xs text-phyt_text_secondary">
+                                                        {tx.transaction_type} {/* Display the transaction type */}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </Modal>
         </div>
