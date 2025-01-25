@@ -1,5 +1,5 @@
-import { db, eq } from '@phyt/database';
-import { users } from '@phyt/database';
+import { db, eq, or, desc } from '@phyt/database';
+import { users, transactions } from '@phyt/database';
 import { DatabaseError, NotFoundError, DuplicateError, ValidationError } from '@phyt/types';
 
 export const userService = {
@@ -48,6 +48,33 @@ export const userService = {
         } catch (error) {
             if (error instanceof NotFoundError || error instanceof ValidationError) throw error;
             throw new DatabaseError('Failed to fetch user by username');
+        }
+    },
+
+    getTransactionsByPrivyId: async (privyId: string) => {
+        if (!privyId) throw new ValidationError('Username is required');
+        try {
+            const [user] = await db.select()
+                .from(users)
+                .where(eq(users.privy_id, privyId))
+                .limit(1);
+            if (!user) throw new NotFoundError('User not found');
+
+            // Fetch transactions for the user (both sent and received)
+            const userTransactions = await db.select()
+                .from(transactions)
+                .where(
+                    or(
+                        eq(transactions.from_user_id, user.id),
+                        eq(transactions.to_user_id, user.id)
+                    ),
+                )
+                .orderBy(desc(transactions.created_at));
+
+            return userTransactions;
+        } catch (error) {
+            if (error instanceof NotFoundError || error instanceof ValidationError) throw error;
+            throw new DatabaseError('Failed to fetch user transactions');
         }
     },
 
