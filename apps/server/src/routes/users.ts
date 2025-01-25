@@ -10,7 +10,7 @@ router.use(validateAuth);
 
 // GET
 // All user transactions
-router.get('/users/transactions/:privyId', async (req, res) => {
+router.get('/transactions/:privyId', async (req, res) => {
     try {
         const transactions = await userService.getTransactionsByPrivyId(req.params.privyId);
         return res.status(200).json(transactions); // Return transactions directly
