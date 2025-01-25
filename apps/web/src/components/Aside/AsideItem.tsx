@@ -14,8 +14,9 @@ interface AsideItemProps {
 
 export const AsideItem = ({ title, href, icon, alt }: AsideItemProps) => {
   const pathname = usePathname();
-  const isActive = pathname.startsWith(href);
-
+  const isActive = href === '/'
+    ? pathname === '/'
+    : pathname.startsWith(href);
   return (
     <li className="flex align-middle" >
       <Link href={href} className="flex items-center gap-3 group">
