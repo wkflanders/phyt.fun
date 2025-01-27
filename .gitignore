@@ -40,3 +40,6 @@ yarn-error.log*
 .vscode
 
 **/tsconfig.tsbuildinfo
+
+cache/
+broadcast/
