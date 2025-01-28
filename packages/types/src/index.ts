@@ -1,4 +1,4 @@
-// src/types/db.ts
+import type { Address } from 'viem';
 
 export type CardRarity = 'Common' | 'Rare' | 'Exotic' | 'Legendary';
 export type RunVerificationStatus = 'pending' | 'verified' | 'flagged';
@@ -208,5 +208,22 @@ export class ValidationError extends Error {
         super(message);
         this.name = 'ValidationError';
         this.statusCode = 400;
+    }
+}
+
+export interface PackPurchaseResult {
+    transactionHash: string;
+    cardIds: number[];
+}
+
+export interface ContractConfig {
+    address: Address;
+    abi: unknown;
+}
+
+export class ContractError extends Error {
+    constructor(message: string, public readonly code?: number) {
+        super(message);
+        this.name = 'ContractError';
     }
 }
