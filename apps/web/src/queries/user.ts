@@ -33,7 +33,6 @@ export async function getUserTransactions(privyId: string): Promise<Transaction[
     console.log(data);
 
     if (!response.ok) {
-        console.log('test');
         throw {
             error: data.error || 'Failed to fetch user transactions',
             status: response.status
