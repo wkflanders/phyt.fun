@@ -23,6 +23,9 @@ importers:
 
   apps/server:
     dependencies:
+      '@phyt/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@phyt/database':
         specifier: workspace:*
         version: link:../../packages/database
@@ -211,6 +214,9 @@ importers:
       '@neondatabase/serverless':
         specifier: ^0.10.4
         version: 0.10.4
+      dotenv:
+        specifier: ^16.0.0
+        version: 16.4.7
       drizzle-orm:
         specifier: ^0.38.4
         version: 0.38.4(@neondatabase/serverless@0.10.4)(@types/pg@8.11.6)(pg@8.13.1)
