@@ -227,3 +227,15 @@ export class ContractError extends Error {
         this.name = 'ContractError';
     }
 }
+
+export interface MintEvent {
+    eventName: 'Mint';
+    args: {
+        mintConfigId: bigint;
+        buyer: `0x${string}`;
+        totalMintedPacks: bigint;
+        firstTokenId: bigint;
+        lastTokenId: bigint;
+        price: bigint;
+    };
+}
