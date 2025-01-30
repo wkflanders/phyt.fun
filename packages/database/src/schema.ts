@@ -1,4 +1,4 @@
-import { pgTable, index, uniqueIndex, serial, timestamp, varchar, foreignKey, integer, numeric, jsonb, boolean, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, index, uniqueIndex, serial, timestamp, varchar, foreignKey, integer, numeric, jsonb, boolean, pgEnum, doublePrecision } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 export const enum_cards_rarity = pgEnum("enum_cards_rarity", [
@@ -100,13 +100,13 @@ export const cards = pgTable("cards", {
 ]);
 
 export const card_metadata = pgTable("card_metadata", {
-	token_id: integer("token_id").primaryKey().notNull(),
-	runner_id: integer("runner_id").notNull(),
-	runner_name: varchar("runner_name").notNull(),
-	rarity: enum_cards_rarity("rarity").notNull(),
-	multiplier: numeric("multiplier").notNull(),
-	image_url: varchar("image_url").notNull(),
-	created_at: timestamp("created_at", {
+	token_id: integer().primaryKey().notNull(),
+	runner_id: integer().notNull(),
+	runner_name: varchar().notNull(),
+	rarity: enum_cards_rarity().notNull(),
+	multiplier: doublePrecision().notNull(),
+	image_url: varchar().notNull(),
+	created_at: timestamp({
 		precision: 3,
 		withTimezone: true,
 		mode: 'string'
