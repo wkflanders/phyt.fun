@@ -1,7 +1,19 @@
 import { pgTable, index, uniqueIndex, serial, timestamp, varchar, foreignKey, integer, numeric, jsonb, boolean, pgEnum } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
-export const enum_cards_rarity = pgEnum("enum_cards_rarity", ['Common', 'Rare', 'Exotic', 'Legendary']);
+export const enum_cards_rarity = pgEnum("enum_cards_rarity", [
+	'bronze',
+	'silver',
+	'gold',
+	'sapphire',
+	'ruby',
+	'opal'
+]);
+export const enum_acquisition_type = pgEnum("enum_acquisition_type", [
+	'mint',
+	'transfer',
+	'marketplace'
+]);
 export const enum_runs_verification_status = pgEnum("enum_runs_verification_status", ['pending', 'verified', 'flagged']);
 export const enum_transactions_transaction_type = pgEnum("enum_transactions_transaction_type", ['packPurchase', 'marketplaceSale', 'rewardPayout']);
 export const enum_users_role = pgEnum("enum_users_role", ['admin', 'user', 'runner']);
@@ -55,29 +67,63 @@ export const runs = pgTable("runs", {
 ]);
 
 export const cards = pgTable("cards", {
-	id: serial().primaryKey().notNull(),
-	runner_id: integer().notNull(),
-	current_owner_id: integer().notNull(),
-	rarity: enum_cards_rarity().default('Common').notNull(),
-	multiplier: numeric().default('1').notNull(),
-	is_burned: boolean().default(false),
-	updated_at: timestamp({ precision: 3, withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-	created_at: timestamp({ precision: 3, withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	id: serial("id").primaryKey().notNull(),
+	owner_id: integer("owner_id").notNull(),
+	pack_purchase_id: integer("pack_purchase_id"),
+	acquisition_type: enum_acquisition_type("acquisition_type").notNull().default('mint'),
+	is_burned: boolean("is_burned").default(false),
+	updated_at: timestamp("updated_at", {
+		precision: 3,
+		withTimezone: true,
+		mode: 'string'
+	}).defaultNow().notNull(),
+	created_at: timestamp("created_at", {
+		precision: 3,
+		withTimezone: true,
+		mode: 'string'
+	}).defaultNow().notNull(),
 }, (table) => [
-	index("cards_created_at_idx").using("btree", table.created_at.asc().nullsLast().op("timestamptz_ops")),
-	index("cards_current_owner_idx").using("btree", table.current_owner_id.asc().nullsLast().op("int4_ops")),
-	index("cards_runner_idx").using("btree", table.runner_id.asc().nullsLast().op("int4_ops")),
-	index("cards_updated_at_idx").using("btree", table.updated_at.asc().nullsLast().op("timestamptz_ops")),
+	index("idx_cards_owner_id").on(table.owner_id),
+	index("idx_cards_created_at").on(table.created_at),
+	index("idx_cards_updated_at").on(table.updated_at),
+	index("idx_cards_pack_purchase_id").on(table.pack_purchase_id),
+	foreignKey({
+		columns: [table.owner_id],
+		foreignColumns: [users.id],
+		name: "cards_owner_id_users_id_fk"
+	}).onDelete("set null"),
+	foreignKey({
+		columns: [table.pack_purchase_id],
+		foreignColumns: [pack_purchases.id],
+		name: "cards_pack_purchase_id_pack_purchases_id_fk"
+	}).onDelete("set null")
+]);
+
+export const card_metadata = pgTable("card_metadata", {
+	token_id: integer("token_id").primaryKey().notNull(),
+	runner_id: integer("runner_id").notNull(),
+	runner_name: varchar("runner_name").notNull(),
+	rarity: enum_cards_rarity("rarity").notNull(),
+	multiplier: numeric("multiplier").notNull(),
+	image_url: varchar("image_url").notNull(),
+	created_at: timestamp("created_at", {
+		precision: 3,
+		withTimezone: true,
+		mode: 'string'
+	}).defaultNow().notNull(),
+}, (table) => [
+	index("idx_card_metadata_runner_id").on(table.runner_id),
+	index("idx_card_metadata_created_at").on(table.created_at),
+	foreignKey({
+		columns: [table.token_id],
+		foreignColumns: [cards.id],
+		name: "card_metadata_token_id_cards_id_fk"
+	}).onDelete("cascade"),
 	foreignKey({
 		columns: [table.runner_id],
 		foreignColumns: [runners.id],
-		name: "cards_runner_id_runners_id_fk"
-	}).onDelete("set null"),
-	foreignKey({
-		columns: [table.current_owner_id],
-		foreignColumns: [users.id],
-		name: "cards_current_owner_id_users_id_fk"
-	}).onDelete("set null"),
+		name: "card_metadata_runner_id_runners_id_fk"
+	}).onDelete("restrict")
 ]);
 
 export const competitions = pgTable("competitions", {
@@ -249,27 +295,6 @@ export const transactions = pgTable("transactions", {
 		foreignColumns: [competitions.id],
 		name: "transactions_competition_id_competitions_id_fk"
 	}).onDelete("set null"),
-]);
-
-export const pack_purchases_card_ids = pgTable("pack_purchases_card_ids", {
-	_order: integer().notNull(),
-	_parent_id: integer().notNull(),
-	id: varchar().primaryKey().notNull(),
-	card_id: integer(),
-}, (table) => [
-	index("pack_purchases_card_ids_card_idx").using("btree", table.card_id.asc().nullsLast().op("int4_ops")),
-	index("pack_purchases_card_ids_order_idx").using("btree", table._order.asc().nullsLast().op("int4_ops")),
-	index("pack_purchases_card_ids_parent_id_idx").using("btree", table._parent_id.asc().nullsLast().op("int4_ops")),
-	foreignKey({
-		columns: [table.card_id],
-		foreignColumns: [cards.id],
-		name: "pack_purchases_card_ids_card_id_cards_id_fk"
-	}).onDelete("set null"),
-	foreignKey({
-		columns: [table._parent_id],
-		foreignColumns: [pack_purchases.id],
-		name: "pack_purchases_card_ids_parent_id_fk"
-	}).onDelete("cascade"),
 ]);
 
 export const pack_purchases = pgTable("pack_purchases", {
