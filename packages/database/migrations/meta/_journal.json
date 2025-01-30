@@ -15,6 +15,13 @@
       "when": 1737532457331,
       "tag": "0001_abnormal_wendigo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1738186776569,
+      "tag": "0002_quick_the_executioner",
+      "breakpoints": true
     }
   ]
 }
