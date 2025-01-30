@@ -1,6 +1,7 @@
 import type { Address } from 'viem';
 
-export type CardRarity = 'Common' | 'Rare' | 'Exotic' | 'Legendary';
+export type CardRarity = 'bronze' | 'silver' | 'gold' | 'sapphire' | 'ruby' | 'opal';
+export type AcquisitionType = 'mint' | 'transfer' | 'marketplace';
 export type RunVerificationStatus = 'pending' | 'verified' | 'flagged';
 export type TransactionType = 'packPurchase' | 'marketplaceSale' | 'rewardPayout';
 export type UserRole = 'admin' | 'user' | 'runner';
@@ -38,15 +39,40 @@ export interface Run {
     raw_data_json: any | null;
 }
 
+export interface CardMetadata {
+    token_id: number;
+    runner_id: number;
+    runner_name: string;
+    rarity: CardRarity;
+    image_url: string;
+    multiplier: number;
+    created_at: string;
+}
+
+export interface TokenURIMetadata {
+    name: string;
+    description: string;
+    image: string;
+    attributes: {
+        runner_id: number;
+        runner_name: string;
+        rarity: CardRarity;
+        multiplier: number;
+        created_at: string;
+    }[];
+}
+
 export interface Card {
     id: number;
+    owner_id: number;
+    pack_purchase_id: number | null;
+    acquisition_type: AcquisitionType;
     updated_at: string;
     created_at: string;
-    runner_id: number;
-    current_owner_id: number;
-    rarity: CardRarity;
-    multiplier: number;
-    is_burned: boolean;
+}
+
+export interface CardWithMetadata extends Card {
+    metadata: CardMetadata;
 }
 
 export interface Competition {
