@@ -2,11 +2,8 @@ import { db } from './drizzle';
 import {
     users, runners, runs, cards, card_metadata, competitions, lineups, lineup_cards,
     runner_results, gambler_results, pack_purchases, listings, transactions,
-    enum_users_role, enum_cards_rarity, enum_acquisition_type, enum_runs_verification_status,
-    enum_transactions_transaction_type
 } from './schema';
 import { faker } from '@faker-js/faker';
-import { sql } from 'drizzle-orm';
 
 async function seed() {
     console.log('🌱 Starting database seeding...');
