@@ -214,6 +214,9 @@ importers:
 
   packages/database:
     dependencies:
+      '@faker-js/faker':
+        specifier: ^9.4.0
+        version: 9.4.0
       '@neondatabase/serverless':
         specifier: ^0.10.4
         version: 0.10.4
@@ -221,8 +224,11 @@ importers:
         specifier: ^16.0.0
         version: 16.4.7
       drizzle-orm:
-        specifier: ^0.38.4
-        version: 0.38.4(@neondatabase/serverless@0.10.4)(@types/pg@8.11.6)(pg@8.13.1)
+        specifier: ^0.39.1
+        version: 0.39.1(@neondatabase/serverless@0.10.4)(@types/pg@8.11.6)(pg@8.13.1)
+      drizzle-seed:
+        specifier: ^0.3.1
+        version: 0.3.1(drizzle-orm@0.39.1)
       pg:
         specifier: ^8.11.0
         version: 8.13.1
@@ -2039,6 +2045,11 @@ packages:
       '@ethersproject/logger': 5.7.0
       '@ethersproject/properties': 5.7.0
       '@ethersproject/strings': 5.7.0
+    dev: false
+
+  /@faker-js/faker@9.4.0:
+    resolution: {integrity: sha512-85+k0AxaZSTowL0gXp8zYWDIrWclTbRPg/pm/V0dSFZ6W6D4lhcG3uuZl4zLsEKfEvs69xDbLN2cHQudwp95JA==}
+    engines: {node: '>=18.0.0', npm: '>=9.0.0'}
     dev: false
 
   /@floating-ui/core@1.6.9:
@@ -6191,8 +6202,8 @@ packages:
       - supports-color
     dev: true
 
-  /drizzle-orm@0.38.4(@neondatabase/serverless@0.10.4)(@types/pg@8.11.6)(pg@8.13.1):
-    resolution: {integrity: sha512-s7/5BpLKO+WJRHspvpqTydxFob8i1vo2rEx4pY6TGY7QSMuUfWUuzaY0DIpXCkgHOo37BaFC+SJQb99dDUXT3Q==}
+  /drizzle-orm@0.39.1(@neondatabase/serverless@0.10.4)(@types/pg@8.11.6)(pg@8.13.1):
+    resolution: {integrity: sha512-2bDHlzTY31IDmrYn8i+ZZrxK8IyBD4mPZ7JmZdVDQj2tpBZXs/gxB/1kK5pSvkjxPUMNOVsTnoGkSltgjuJwcA==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
       '@cloudflare/workers-types': '>=4'
@@ -6286,6 +6297,18 @@ packages:
       '@neondatabase/serverless': 0.10.4
       '@types/pg': 8.11.6
       pg: 8.13.1
+    dev: false
+
+  /drizzle-seed@0.3.1(drizzle-orm@0.39.1):
+    resolution: {integrity: sha512-F/0lgvfOAsqlYoHM/QAGut4xXIOXoE5VoAdv2FIl7DpGYVXlAzKuJO+IphkKUFK3Dz+rFlOsQLnMNrvoQ0cx7g==}
+    peerDependencies:
+      drizzle-orm: '>=0.36.4'
+    peerDependenciesMeta:
+      drizzle-orm:
+        optional: true
+    dependencies:
+      drizzle-orm: 0.39.1(@neondatabase/serverless@0.10.4)(@types/pg@8.11.6)(pg@8.13.1)
+      pure-rand: 6.1.0
     dev: false
 
   /dunder-proto@1.0.1:
@@ -9104,6 +9127,10 @@ packages:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
     dev: true
+
+  /pure-rand@6.1.0:
+    resolution: {integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==}
+    dev: false
 
   /qrcode@1.5.3:
     resolution: {integrity: sha512-puyri6ApkEHYiVl4CFzo1tDkAZ+ATcnbJrJ6RiBM1Fhctdn/ix9MTE3hRph33omisEbC/2fcfemsseiKgBPKZg==}
