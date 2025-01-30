@@ -6,6 +6,25 @@ export type RunVerificationStatus = 'pending' | 'verified' | 'flagged';
 export type TransactionType = 'packPurchase' | 'marketplaceSale' | 'rewardPayout';
 export type UserRole = 'admin' | 'user' | 'runner';
 
+export const RarityWeights = {
+    bronze: 50,
+    silver: 25,
+    gold: 15,
+    sapphire: 7,
+    ruby: 2,
+    opal: 1,
+} as const;
+
+export const RarityMultipliers: Record<CardRarity, number> = {
+    bronze: 1,
+    silver: 1.5,
+    gold: 2,
+    sapphire: 3,
+    ruby: 5,
+    opal: 10,
+};
+
+
 export interface User {
     id: number;
     updated_at: string;
