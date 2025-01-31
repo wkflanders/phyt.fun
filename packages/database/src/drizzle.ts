@@ -6,5 +6,5 @@ import { config } from "dotenv";
 
 config({ path: "./env" });
 
-const sql = neon(process.env.DATABASE_URL!);
-export const db: PostgresJsDatabase<typeof schema> = drizzle(sql, { schema });
+const sql = neon<boolean, boolean>(process.env.DATABASE_URL!);
+export const db = drizzle(sql, { schema });
