@@ -1,10 +1,11 @@
-import { createPublicClient, createWalletClient, http, decodeEventLog } from 'viem';
+import { createPublicClient, createWalletClient, http, decodeEventLog, parseEther } from 'viem';
 import { base } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
-import { MinterAbi, deployedAddresses } from '@phyt/contracts';
+import { MinterAbi } from '@phyt/contracts';
 import { DatabaseError, NotFoundError, ValidationError, MintEvent } from '@phyt/types';
 
-const { MINTER } = deployedAddresses;
+const MINTER = process.env.MINTER_ADDRESS;
+const PHYT_CARDS = process.env.PHYT_CARDS_ADDRESS;
 
 const publicClient = createPublicClient({
     chain: base,
@@ -20,6 +21,41 @@ const walletClient = createWalletClient({
 });
 
 export const packService = {
+    createMintConfig: async () => {
+        try {
+            const { request } = await publicClient.simulateContract({
+                address: MINTER as `0x${string}`,
+                abi: MinterAbi,
+                functionName: 'createMintConfig',
+                args: [
+                    PHYT_CARDS,     // collection address
+                    1n,                          // cardsPerPack
+                    1n,                          // maxPacks (1 pack per config)
+                    parseEther("0.1"),           // price in ETH
+                    1n,                          // maxPacksPerAddress
+                    false,                       // requiresWhitelist
+                    "0x0000000000000000000000000000000000000000000000000000000000000000", // merkleRoot
+                    0n,                          // startTimestamp (0 means start immediately)
+                    0n,                          // expirationTimestamp (0 means no expiration)
+                ]
+            });
+
+            const hash = await walletClient.writeContract(request);
+            const receipt = await publicClient.waitForTransactionReceipt({ hash });
+
+            // Get the latest config ID
+            const totalConfigs = await publicClient.readContract({
+                address: MINTER as `0x${string}`,
+                abi: MinterAbi,
+                functionName: 'totalConfigs'
+            });
+
+            return totalConfigs - 1n; // Return the new config ID
+        } catch (error) {
+            console.error('Failed to create mint config:', error);
+            throw error;
+        }
+    },
     purchasePack: async (data: {
         mintConfigId: number;
         buyer: string;
@@ -28,73 +64,29 @@ export const packService = {
         const { mintConfigId, buyer, merkleProof = [] } = data;
 
         try {
+            // Create a new mint config for this purchase
+            const mintConfigId = await packService.createMintConfig();
+
             const packPrice = await publicClient.readContract({
                 address: MINTER as `0x${string}`,
                 abi: MinterAbi,
                 functionName: 'getPackPrice',
-                args: [BigInt(mintConfigId)]
+                args: [mintConfigId]
             });
 
-            const [
-                collection,
-                cardsPerPack,
-                maxPacks,
-                price,
-                maxPacksPerAddress,
-                requiresWhitelist,
-                merkleRoot,
-                startTimestamp,
-                expirationTimestamp,
-                totalMintedPacks,
-                cancelled
-            ] = await publicClient.readContract({
-                address: MINTER as `0x${string}`,
-                abi: MinterAbi,
-                functionName: 'getMintConfig',
-                args: [BigInt(mintConfigId)]
-            });
-
-            if (cancelled) {
-                throw new ValidationError('Mint config has been cancelled');
-            }
-
-            if (Number(startTimestamp) > Date.now() / 1000) {
-                throw new ValidationError('Mint has not started yet');
-            }
-
-            if (Number(expirationTimestamp) !== 0 && Number(expirationTimestamp) < Date.now() / 1000) {
-                throw new ValidationError('Mint has expired');
-            }
-
-            // Smart contract should handle this
-            // if (Number(totalMintedPacks) >= Number(maxPacks)) {
-            //     throw new ValidationError('All packs have been minted');
-            // }
-
-            // if (Number(maxPacksPerAddress) > 0) {
-            //     const userMinted = await publicClient.readContract({
-            //         address: MINTER as `0x${string}`,
-            //         abi: MinterAbi,
-            //         functionName: 'getAmountMintedPerAddress',
-            //         args: [BigInt(mintConfigId), buyer as `0x${string}`]
-            //     });
-
-            //     if (Number(userMinted) >= Number(maxPacksPerAddress)) {
-            //         throw new ValidationError('User has reached their minting limit');
-            //     }
-            // }
+            // Empty merkle proof since we're not using whitelist
+            const merkleProof: `0x${string}`[] = [];
 
             const { request } = await publicClient.simulateContract({
                 address: MINTER as `0x${string}`,
                 abi: MinterAbi,
                 functionName: 'mint',
-                args: [BigInt(mintConfigId), merkleProof],
+                args: [mintConfigId, merkleProof],
                 value: packPrice,
                 account: buyer as `0x${string}`
             });
 
             const hash = await walletClient.writeContract(request);
-
             const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
             const mintEvents = receipt.logs
