@@ -2,23 +2,31 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { PackPurchaseResponse } from "@phyt/types";
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { usePurchasePack } from '@/hooks/use-purchase-pack';
+import { useGetUser } from '@/hooks/use-get-user';
 import { Loader2 } from 'lucide-react';
 import { usePrivy } from '@privy-io/react-auth';
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 import { parseEther } from 'viem';
 
 const PackPurchase = () => {
     const [isRotated, setIsRotated] = useState(false);
-    const [isPurchasing, setIsPurchasing] = useState(false);
     const { toast } = useToast();
     const { address } = useAccount();
-    const { ready } = usePrivy();
+    const { ready, user: privyUser } = usePrivy();
+    const { data: user, isFetching, error } = useGetUser();
+
+    const { mutate: purchasePack, isPending } = usePurchasePack();
+
+    const { data: balance } = useBalance({
+        address: address as `0x${string}`,
+    });
 
     const handlePurchase = async () => {
-        if (!address) {
+        if (!ready || !address || !user?.id) {
             toast({
                 title: "Error",
                 description: "Please connect your wallet first",
@@ -27,22 +35,30 @@ const PackPurchase = () => {
             return;
         }
 
-        setIsPurchasing(true);
-        try {
-            // Add contract interaction here
-            await new Promise(resolve => setTimeout(resolve, 2000)); // Simulated delay
-            toast({
-                title: "Success",
-                description: "Pack purchased successfully!",
-            });
-        } catch (error) {
+        if (!balance || balance.value < parseEther("0.1")) {
             toast({
                 title: "Error",
-                description: "Failed to purchase pack",
+                description: "Insufficient balance - you need at least 0.1 ETH",
                 variant: "destructive",
             });
-        } finally {
-            setIsPurchasing(false);
+            return;
+        }
+
+        try {
+            purchasePack(
+                {
+                    buyerId: user.id,
+                    buyerAddress: address as `0x${string}`
+                },
+                {
+                    onSuccess: (data: PackPurchaseResponse) => {
+                        setIsRotated(true);
+                        setTimeout(() => setIsRotated(false), 1000);
+                    },
+                }
+            );
+        } catch (error) {
+            console.error('Purchase error:', error);
         }
     };
 
@@ -68,7 +84,7 @@ const PackPurchase = () => {
                                     Contains 1 Runner NFT with random rarity
                                 </p>
                                 <div className="mt-4">
-                                    <p className="text-phyt_blue text-xl font-bold">0.1 ETH</p>
+                                    <p className="text-phyt_blue text-xl font-bold">0.0001 ETH</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -102,10 +118,10 @@ const PackPurchase = () => {
 
                 <Button
                     onClick={handlePurchase}
-                    disabled={isPurchasing || !ready}
+                    disabled={!ready}
                     className="w-full h-12 bg-phyt_blue hover:bg-blue-100 text-black font-bold"
                 >
-                    {isPurchasing ? (
+                    {isPending ? (
                         <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             Purchasing...
