@@ -5,9 +5,9 @@
     "main": "./abi/index.js",
     "types": "./abi/index.d.ts",
     "scripts": {
-      "build": "forge build && pnpm export-abis && tsc",
+      "build-contract": "forge build && pnpm export-abis && tsc",
       "export-abis": "tsx script/export-abis.ts",
-      "clean": "rm -rf .turbo node_modules abi"
+      "clean-contract": "rm -rf .turbo node_modules abi"
     },
     "devDependencies": {
       "@types/node": "^20.0.0",
