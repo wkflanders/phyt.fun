@@ -4,9 +4,3 @@ import PhytCardsAbi from './PhytCards.json';
 import ExecutorAbi from './Executor.json';
 
 export { MinterAbi, PhytCardsAbi, ExecutorAbi };
-
-export const deployedAddresses = {
-  MINTER: process.env.MINTER_ADDRESS,
-  PHYT_CARDS: process.env.PHYT_CARDS_ADDRESS,
-  EXECUTOR: process.env.EXECUTOR_ADDRESS,
-} as const;
