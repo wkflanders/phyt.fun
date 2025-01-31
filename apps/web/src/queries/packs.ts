@@ -1,8 +1,8 @@
-import { ApiError, PackPurchaseInput, PackPurchaseResult } from "@phyt/types";
+import { ApiError, PackPurchaseInput, PackPurchaseResponse } from "@phyt/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
-export async function purchasePack(packData: PackPurchaseInput): Promise<PackPurchaseResult> {
+export async function purchasePack(packData: PackPurchaseInput): Promise<PackPurchaseResponse> {
     const response = await fetch(`${API_URL}/packs/purchase`, {
         method: 'POST',
         credentials: 'include',
