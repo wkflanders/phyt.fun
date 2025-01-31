@@ -12,10 +12,9 @@ router.post('/purchase', validateSchema(purchasePackSchema), async (req, res) =>
     try {
         const purchaseData = await packService.purchasePack(req.body);
         return res.status(200).json(purchaseData);
-    } catch (error: any) {
-        console.error('Error in POST /packs/purchase: ', error);
-        return res.status(error.statusCode || 500).json({
-            error: error.message || 'Failed to purchase pack'
+    } catch (error) {
+        return res.status(500).json({
+            error: error instanceof Error ? error.message : 'An unexpected error occurred'
         });
     }
 });

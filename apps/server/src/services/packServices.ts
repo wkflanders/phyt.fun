@@ -1,100 +1,148 @@
-import { createPublicClient, createWalletClient, http, decodeEventLog, parseEther, formatEther } from 'viem';
-import { base } from 'viem/chains';
+import { createPublicClient, createWalletClient, http, decodeEventLog, parseEther, formatEther, createTestClient, Chain } from 'viem';
+import { baseSepolia } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
 import { MinterAbi } from '@phyt/contracts';
 import { db, transactions, cards, card_metadata, pack_purchases } from '@phyt/database';
 import { PackPurchaseError, MintEvent, PackPurchaseInput, PackPurchaseResponse, TokenURIMetadata } from '@phyt/types';
 import { metadataService } from './metadataServices';
 
-const MINTER = process.env.MINTER_ADDRESS;
-const PHYT_CARDS = process.env.PHYT_CARDS_ADDRESS;
+if (!process.env.MINTER_ADDRESS || !process.env.PHYT_CARDS_ADDRESS) {
+    throw new Error('Missing contract addresses in environment variables');
+}
+
+const MINTER = process.env.MINTER_ADDRESS as `0x${string}`;
+const PHYT_CARDS = process.env.PHYT_CARDS_ADDRESS as `0x${string}`;
+
+const localChain: Chain = {
+    ...baseSepolia,
+    id: 31337,  // Anvil's default chain ID
+    name: 'Anvil Local',
+    rpcUrls: {
+        default: {
+            http: ['http://127.0.0.1:8545'],
+        },
+        public: {
+            http: ['http://127.0.0.1:8545'],
+        }
+    }
+};
+
+const transport = http('http://127.0.0.1:8545');
 
 const publicClient = createPublicClient({
-    chain: base,
-    transport: http(process.env.BASE_RPC_URL),
+    chain: localChain,
+    transport,
 });
+
+if (!process.env.SERVER_PRIVATE_KEY) {
+    throw new Error('Missing SERVER_PRIVATE_KEY in environment variables');
+}
 
 const account = privateKeyToAccount(process.env.SERVER_PRIVATE_KEY as `0x${string}`);
 
 const walletClient = createWalletClient({
     account,
-    chain: base,
-    transport: http(process.env.BASE_RPC_URL),
+    chain: localChain,
+    transport,
 });
 
 export const packService = {
     createMintConfig: async () => {
         try {
-            const { request } = await publicClient.simulateContract({
-                address: MINTER as `0x${string}`,
+            console.log('Creating mint config with account:', account.address);
+            console.log('PHYT_CARDS address:', PHYT_CARDS);
+            console.log('MINTER address:', MINTER);
+
+            // Verify role
+            const MINT_CONFIG_ROLE = await publicClient.readContract({
+                address: MINTER,
                 abi: MinterAbi,
-                functionName: 'createMintConfig',
-                args: [
-                    PHYT_CARDS,     // collection address
-                    1n,                          // cardsPerPack
-                    1n,                          // maxPacks (1 pack per config)
-                    parseEther("0.0001"),           // price in ETH
-                    1n,                          // maxPacksPerAddress
-                    false,                       // requiresWhitelist
-                    "0x0000000000000000000000000000000000000000000000000000000000000000", // merkleRoot
-                    0n,                          // startTimestamp (0 means start immediately)
-                    0n,                          // expirationTimestamp (0 means no expiration)
-                ]
+                functionName: 'MINT_CONFIG_ROLE'
             });
+
+            const hasRole = await publicClient.readContract({
+                address: MINTER,
+                abi: MinterAbi,
+                functionName: 'hasRole',
+                args: [MINT_CONFIG_ROLE, account.address]
+            });
+
+            console.log('Account has MINT_CONFIG_ROLE:', hasRole);
+
+            const now = Math.floor(Date.now() / 1000); // Current time in seconds
+            const startTime = BigInt(now + 60);
+            const endTime = BigInt(now + (1000 * 24 * 60 * 60));
+
+            if (!hasRole) {
+                throw new Error(`Account \${account.address} does not have MINT_CONFIG_ROLE`);
+            }
+
+            const { request } = await publicClient.simulateContract({
+                address: MINTER,
+                abi: MinterAbi,
+                functionName: 'newMintConfig',
+                args: [
+                    PHYT_CARDS,
+                    1n,
+                    1n,
+                    parseEther("0.0001"),
+                    1n,
+                    false,
+                    "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    startTime,
+                    0n,
+                ],
+                account,
+            });
+
+            console.log('Contract simulation successful');
 
             const hash = await walletClient.writeContract(request);
-            const receipt = await publicClient.waitForTransactionReceipt({ hash });
+            console.log('Transaction hash:', hash);
 
-            // Get the latest config ID
+            const receipt = await publicClient.waitForTransactionReceipt({ hash });
+            console.log('Transaction receipt:', receipt);
+
             const totalConfigs = await publicClient.readContract({
-                address: MINTER as `0x${string}`,
+                address: MINTER,
                 abi: MinterAbi,
-                functionName: 'totalConfigs'
+                functionName: 'mintConfigIdCounter'
             });
 
-            return totalConfigs - 1n; // Return the new config ID
+            console.log('New mint config ID:', totalConfigs - 1n);
+            return totalConfigs - 1n;
         } catch (error) {
             console.error('Failed to create mint config:', error);
             throw error;
         }
     },
+
     purchasePack: async (data: PackPurchaseInput): Promise<PackPurchaseResponse> => {
         const { buyerId, buyerAddress } = data;
 
         try {
-            // Create a new mint config for this purchase
             const mintConfigId = await packService.createMintConfig();
+            console.log('Created mint config:', mintConfigId);
 
             const packPrice = await publicClient.readContract({
-                address: MINTER as `0x${string}`,
+                address: MINTER,
                 abi: MinterAbi,
                 functionName: 'getPackPrice',
                 args: [mintConfigId]
             });
 
+            console.log('Pack price:', formatEther(packPrice), 'ETH');
+
             const { request } = await publicClient.simulateContract({
-                address: MINTER as `0x${string}`,
+                address: MINTER,
                 abi: MinterAbi,
                 functionName: 'mint',
                 args: [mintConfigId, []],
                 value: packPrice,
-                account: buyerAddress as `0x${string}`
-            }).catch(error => {
-                throw new PackPurchaseError(
-                    'Failed to simulate transaction',
-                    'SIMULATION_FAILED',
-                    error
-                );
-            });;
+                account: buyerAddress as `0x${string}`,
+            });
 
-            const hash = await walletClient.writeContract(request)
-                .catch(error => {
-                    throw new PackPurchaseError(
-                        'Failed to execute transaction',
-                        'TRANSACTION_FAILED',
-                        error
-                    );
-                });
+            const hash = await walletClient.writeContract(request);
             const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
             const mintEvents = receipt.logs
@@ -126,7 +174,7 @@ export const packService = {
 
                 // Create transaction record
                 await tx.insert(transactions).values({
-                    from_user_id: null, // Contract mint
+                    from_user_id: null,
                     to_user_id: buyerId,
                     transaction_type: 'packPurchase',
                     token_amount: Number(formatEther(packPrice))
@@ -139,7 +187,7 @@ export const packService = {
                     tokenId <= Number(mintEvent.args.lastTokenId);
                     tokenId++) {
 
-                    const metadata: TokenURIMetadata = await metadataService.generateMetadata(tokenId);
+                    const metadata = await metadataService.generateMetadata(tokenId);
                     cardsMetadata.push(metadata);
 
                     cardPromises.push(
@@ -173,23 +221,10 @@ export const packService = {
                     price: formatEther(packPrice),
                     cardsMetadata
                 };
-            }).catch(error => {
-                throw new PackPurchaseError(
-                    'Database operation failed',
-                    'DATABASE_ERROR',
-                    error
-                );
             });
-
         } catch (error) {
-            if (error instanceof PackPurchaseError) {
-                throw error;
-            }
-            throw new PackPurchaseError(
-                'Pack purchase failed',
-                'UNKNOWN_ERROR',
-                error
-            );
+            console.error('Pack purchase error:', error);
+            throw new Error(error instanceof Error ? error.message : 'Failed to purchase pack');
         }
     }
-};
+};;
