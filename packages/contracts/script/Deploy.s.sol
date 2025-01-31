@@ -36,7 +36,7 @@ contract DeployScript is Script {
             address(phytCards), // collection
             1, // cardsPerPack
             100, // maxPacks
-            0.1 ether, // price
+            0.0001 ether, // price
             199, // maxPacksPerAddress
             false, // requiresWhitelist
             bytes32(0), // merkleRoot
