@@ -268,18 +268,14 @@ export interface PackPurchaseInput {
     buyerAddress: string;
 }
 
-export interface PurchasePackResponse {
+export interface PackPurchaseResponse {
+    success: boolean;
     hash: string;
+    packPurchaseId: number;
     mintConfigId: number;
-    totalMintedPacks: number;
     firstTokenId: number;
     lastTokenId: number;
-    price: number;
-}
-
-export interface PackPurchaseResult {
-    transactionHash: string;
-    cardIds: number[];
+    price: string;
 }
 
 export interface ContractConfig {
