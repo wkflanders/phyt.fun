@@ -77,7 +77,6 @@ export interface TokenURIMetadata {
         runner_name: string;
         rarity: CardRarity;
         multiplier: number;
-        created_at: string;
     }[];
 }
 
@@ -276,6 +275,7 @@ export interface PackPurchaseResponse {
     firstTokenId: number;
     lastTokenId: number;
     price: string;
+    cardsMetadata: TokenURIMetadata[];
 }
 
 export interface ContractConfig {
