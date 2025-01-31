@@ -94,6 +94,7 @@ export const cards = pgTable("cards", {
     id: serial("id").primaryKey(),
     owner_id: integer("owner_id").notNull().references(() => users.id, { onDelete: 'set null' }),
     pack_purchase_id: integer("pack_purchase_id").references(() => pack_purchases.id, { onDelete: 'set null' }),
+    token_id: integer("token_id").notNull().unique(),
     acquisition_type: enum_acquisition_type("acquisition_type").notNull().default('mint'),
     is_burned: boolean("is_burned").default(false),
     updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
@@ -106,7 +107,7 @@ export const cards = pgTable("cards", {
 ]);
 
 export const card_metadata = pgTable("card_metadata", {
-    token_id: integer("token_id").primaryKey().references(() => cards.id, { onDelete: 'cascade' }),
+    token_id: integer("token_id").primaryKey().references(() => cards.token_id, { onDelete: 'cascade' }),
     runner_id: integer("runner_id").notNull().references(() => runners.id, { onDelete: 'restrict' }),
     runner_name: varchar("runner_name").notNull(),
     rarity: enum_cards_rarity("rarity").notNull(),
@@ -114,6 +115,7 @@ export const card_metadata = pgTable("card_metadata", {
     image_url: varchar("image_url").notNull(),
     created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
 }, (table) => [
+    uniqueIndex("idx_cards_token_id").on(table.token_id),
     index("idx_card_metadata_runner_id").on(table.runner_id),
     index("idx_card_metadata_created_at").on(table.created_at),
 ]);

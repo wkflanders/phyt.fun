@@ -1,21 +1,8 @@
-import { ApiError } from "@phyt/types";
-
-export interface PurchasePackInput {
-    buyer: string;
-}
-
-export interface PurchasePackResponse {
-    hash: string;
-    mintConfigId: number;
-    totalMintedPacks: number;
-    firstTokenId: number;
-    lastTokenId: number;
-    price: number;
-}
+import { ApiError, PackPurchaseInput, PackPurchaseResult } from "@phyt/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
-export async function purchasePack(packData: PurchasePackInput): Promise<PurchasePackResponse> {
+export async function purchasePack(packData: PackPurchaseInput): Promise<PackPurchaseResult> {
     const response = await fetch(`${API_URL}/packs/purchase`, {
         method: 'POST',
         credentials: 'include',

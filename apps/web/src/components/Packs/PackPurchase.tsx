@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { usePurchasePack } from '@/hooks/use-purchase-pack';
 import { Loader2 } from 'lucide-react';
 import { usePrivy } from '@privy-io/react-auth';
 import { useAccount } from 'wagmi';

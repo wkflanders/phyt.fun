@@ -1,8 +1,9 @@
-import { createPublicClient, createWalletClient, http, decodeEventLog, parseEther } from 'viem';
+import { createPublicClient, createWalletClient, http, decodeEventLog, parseEther, formatEther } from 'viem';
 import { base } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
 import { MinterAbi } from '@phyt/contracts';
-import { DatabaseError, NotFoundError, ValidationError, MintEvent } from '@phyt/types';
+import { db, transactions, cards, pack_purchases } from '@phyt/database';
+import { DatabaseError, NotFoundError, ValidationError, PackPurchaseError, MintEvent } from '@phyt/types';
 
 const MINTER = process.env.MINTER_ADDRESS;
 const PHYT_CARDS = process.env.PHYT_CARDS_ADDRESS;
@@ -57,11 +58,10 @@ export const packService = {
         }
     },
     purchasePack: async (data: {
-        mintConfigId: number;
-        buyer: string;
-        merkleProof?: string[];
+        buyerId: number,
+        buyerAddress: string,
     }) => {
-        const { mintConfigId, buyer, merkleProof = [] } = data;
+        const { buyerId, buyerAddress } = data;
 
         try {
             // Create a new mint config for this purchase
@@ -74,19 +74,29 @@ export const packService = {
                 args: [mintConfigId]
             });
 
-            // Empty merkle proof since we're not using whitelist
-            const merkleProof: `0x${string}`[] = [];
-
             const { request } = await publicClient.simulateContract({
                 address: MINTER as `0x${string}`,
                 abi: MinterAbi,
                 functionName: 'mint',
-                args: [mintConfigId, merkleProof],
+                args: [mintConfigId, []],
                 value: packPrice,
-                account: buyer as `0x${string}`
-            });
+                account: buyerAddress as `0x${string}`
+            }).catch(error => {
+                throw new PackPurchaseError(
+                    'Failed to simulate transaction',
+                    'SIMULATION_FAILED',
+                    error
+                );
+            });;
 
-            const hash = await walletClient.writeContract(request);
+            const hash = await walletClient.writeContract(request)
+                .catch(error => {
+                    throw new PackPurchaseError(
+                        'Failed to execute transaction',
+                        'TRANSACTION_FAILED',
+                        error
+                    );
+                });
             const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
             const mintEvents = receipt.logs
@@ -109,19 +119,63 @@ export const packService = {
 
             const mintEvent = mintEvents[0];
 
-            return {
-                hash: hash,
-                mintConfigId: Number(mintEvent.args.mintConfigId),
-                totalMintedPacks: Number(mintEvent.args.totalMintedPacks),
-                firstTokenId: Number(mintEvent.args.firstTokenId),
-                lastTokenId: Number(mintEvent.args.lastTokenId),
-                price: Number(mintEvent.args.price),
-            };
+            return await db.transaction(async (tx) => {
+                // Create pack purchase record
+                const [packPurchase] = await tx.insert(pack_purchases).values({
+                    buyer_id: buyerId,
+                    purchase_price: Number(formatEther(packPrice))
+                }).returning();
 
-        } catch (error: any) {
-            if (error instanceof ValidationError) throw error;
-            console.error('Pack purchase error:', error);
-            throw new Error(error.message || 'Failed to purchase pack');
+                // Create transaction record
+                await tx.insert(transactions).values({
+                    from_user_id: null, // Contract mint
+                    to_user_id: buyerId,
+                    transaction_type: 'packPurchase',
+                    token_amount: Number(formatEther(packPrice))
+                });
+
+                // Create card records
+                const cardPromises = [];
+                for (let tokenId = Number(mintEvent.args.firstTokenId);
+                    tokenId <= Number(mintEvent.args.lastTokenId);
+                    tokenId++) {
+                    cardPromises.push(
+                        tx.insert(cards).values({
+                            owner_id: buyerId,
+                            pack_purchase_id: packPurchase.id,
+                            acquisition_type: 'mint',
+                            token_id: tokenId
+                        })
+                    );
+                }
+                await Promise.all(cardPromises);
+
+                return {
+                    success: true,
+                    hash,
+                    packPurchaseId: packPurchase.id,
+                    mintConfigId: Number(mintEvent.args.mintConfigId),
+                    firstTokenId: Number(mintEvent.args.firstTokenId),
+                    lastTokenId: Number(mintEvent.args.lastTokenId),
+                    price: formatEther(packPrice)
+                };
+            }).catch(error => {
+                throw new PackPurchaseError(
+                    'Database operation failed',
+                    'DATABASE_ERROR',
+                    error
+                );
+            });
+
+        } catch (error) {
+            if (error instanceof PackPurchaseError) {
+                throw error;
+            }
+            throw new PackPurchaseError(
+                'Pack purchase failed',
+                'UNKNOWN_ERROR',
+                error
+            );
         }
     }
 };

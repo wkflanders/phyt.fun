@@ -256,6 +256,27 @@ export class ValidationError extends Error {
     }
 }
 
+export class PackPurchaseError extends Error {
+    constructor(message: string, public code: string, public details?: any) {
+        super(message);
+        this.name = 'PackPurchaseError';
+    }
+}
+
+export interface PackPurchaseInput {
+    buyerId: number;
+    buyerAddress: string;
+}
+
+export interface PurchasePackResponse {
+    hash: string;
+    mintConfigId: number;
+    totalMintedPacks: number;
+    firstTokenId: number;
+    lastTokenId: number;
+    price: number;
+}
+
 export interface PackPurchaseResult {
     transactionHash: string;
     cardIds: number[];

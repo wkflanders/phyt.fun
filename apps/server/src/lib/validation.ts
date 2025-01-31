@@ -9,5 +9,5 @@ export const createUserSchema = z.object({
 });
 
 export const purchasePackSchema = z.object({
-    buyer: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
+    buyerAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
 });
