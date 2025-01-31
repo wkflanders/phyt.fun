@@ -1,40 +1,12 @@
 {
-  "version": "7",
+  "version": "1",
   "dialect": "postgresql",
   "entries": [
     {
-      "idx": 0,
-      "version": "7",
-      "when": 1737532014499,
-      "tag": "0000_outgoing_warbound",
-      "breakpoints": true
-    },
-    {
       "idx": 1,
-      "version": "7",
-      "when": 1737532457331,
-      "tag": "0001_abnormal_wendigo",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1738186776569,
-      "tag": "0002_quick_the_executioner",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1738275562695,
-      "tag": "0003_easy_psynapse",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1738341029655,
-      "tag": "0004_shocking_rattler",
+      "version": "1",
+      "when": 1738352568654,
+      "tag": "0001_flimsy_tusk",
       "breakpoints": true
     }
   ]
