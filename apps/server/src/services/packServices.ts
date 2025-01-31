@@ -3,7 +3,7 @@ import { base } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
 import { MinterAbi } from '@phyt/contracts';
 import { db, transactions, cards, pack_purchases } from '@phyt/database';
-import { DatabaseError, NotFoundError, ValidationError, PackPurchaseError, MintEvent } from '@phyt/types';
+import { PackPurchaseError, MintEvent, PackPurchaseInput, PackPurchaseResponse } from '@phyt/types';
 
 const MINTER = process.env.MINTER_ADDRESS;
 const PHYT_CARDS = process.env.PHYT_CARDS_ADDRESS;
@@ -32,7 +32,7 @@ export const packService = {
                     PHYT_CARDS,     // collection address
                     1n,                          // cardsPerPack
                     1n,                          // maxPacks (1 pack per config)
-                    parseEther("0.1"),           // price in ETH
+                    parseEther("0.0001"),           // price in ETH
                     1n,                          // maxPacksPerAddress
                     false,                       // requiresWhitelist
                     "0x0000000000000000000000000000000000000000000000000000000000000000", // merkleRoot
@@ -57,10 +57,7 @@ export const packService = {
             throw error;
         }
     },
-    purchasePack: async (data: {
-        buyerId: number,
-        buyerAddress: string,
-    }) => {
+    purchasePack: async (data: PackPurchaseInput): Promise<PackPurchaseResponse> => {
         const { buyerId, buyerAddress } = data;
 
         try {
