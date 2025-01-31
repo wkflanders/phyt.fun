@@ -2,8 +2,9 @@ import { createPublicClient, createWalletClient, http, decodeEventLog, parseEthe
 import { base } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
 import { MinterAbi } from '@phyt/contracts';
-import { db, transactions, cards, pack_purchases } from '@phyt/database';
-import { PackPurchaseError, MintEvent, PackPurchaseInput, PackPurchaseResponse } from '@phyt/types';
+import { db, transactions, cards, card_metadata, pack_purchases } from '@phyt/database';
+import { PackPurchaseError, MintEvent, PackPurchaseInput, PackPurchaseResponse, TokenURIMetadata } from '@phyt/types';
+import { metadataService } from './metadataServices';
 
 const MINTER = process.env.MINTER_ADDRESS;
 const PHYT_CARDS = process.env.PHYT_CARDS_ADDRESS;
@@ -133,15 +134,30 @@ export const packService = {
 
                 // Create card records
                 const cardPromises = [];
+                const cardsMetadata: TokenURIMetadata[] = [];
                 for (let tokenId = Number(mintEvent.args.firstTokenId);
                     tokenId <= Number(mintEvent.args.lastTokenId);
                     tokenId++) {
+
+                    const metadata: TokenURIMetadata = await metadataService.generateMetadata(tokenId);
+                    cardsMetadata.push(metadata);
+
                     cardPromises.push(
                         tx.insert(cards).values({
                             owner_id: buyerId,
                             pack_purchase_id: packPurchase.id,
                             acquisition_type: 'mint',
                             token_id: tokenId
+                        })
+                    );
+                    cardPromises.push(
+                        tx.insert(card_metadata).values({
+                            token_id: tokenId,
+                            runner_id: metadata.attributes[0].runner_id,
+                            runner_name: metadata.attributes[0].runner_name,
+                            rarity: metadata.attributes[0].rarity,
+                            multiplier: metadata.attributes[0].multiplier,
+                            image_url: metadata.image,
                         })
                     );
                 }
@@ -154,7 +170,8 @@ export const packService = {
                     mintConfigId: Number(mintEvent.args.mintConfigId),
                     firstTokenId: Number(mintEvent.args.firstTokenId),
                     lastTokenId: Number(mintEvent.args.lastTokenId),
-                    price: formatEther(packPrice)
+                    price: formatEther(packPrice),
+                    cardsMetadata
                 };
             }).catch(error => {
                 throw new PackPurchaseError(
