@@ -214,37 +214,34 @@ importers:
 
   packages/database:
     dependencies:
-      '@faker-js/faker':
-        specifier: ^9.4.0
-        version: 9.4.0
       '@neondatabase/serverless':
         specifier: ^0.10.4
         version: 0.10.4
       dotenv:
-        specifier: ^16.0.0
+        specifier: ^16.4.7
         version: 16.4.7
       drizzle-orm:
         specifier: ^0.39.1
-        version: 0.39.1(@neondatabase/serverless@0.10.4)(@types/pg@8.11.6)(pg@8.13.1)
+        version: 0.39.1(@neondatabase/serverless@0.10.4)(@types/pg@8.11.11)(pg@8.13.1)
       drizzle-seed:
         specifier: ^0.3.1
         version: 0.3.1(drizzle-orm@0.39.1)
       pg:
-        specifier: ^8.11.0
+        specifier: ^8.13.1
         version: 8.13.1
     devDependencies:
       '@types/pg':
-        specifier: ^8.10.0
-        version: 8.11.6
+        specifier: ^8.11.11
+        version: 8.11.11
       drizzle-kit:
         specifier: ^0.30.4
         version: 0.30.4
       eslint:
-        specifier: ^8.56.0
+        specifier: ^8.57.1
         version: 8.57.1
       typescript:
-        specifier: ^5.3.3
-        version: 5.5.4
+        specifier: ^5.7.3
+        version: 5.7.3
 
   packages/eslint-config:
     devDependencies:
@@ -2045,11 +2042,6 @@ packages:
       '@ethersproject/logger': 5.7.0
       '@ethersproject/properties': 5.7.0
       '@ethersproject/strings': 5.7.0
-    dev: false
-
-  /@faker-js/faker@9.4.0:
-    resolution: {integrity: sha512-85+k0AxaZSTowL0gXp8zYWDIrWclTbRPg/pm/V0dSFZ6W6D4lhcG3uuZl4zLsEKfEvs69xDbLN2cHQudwp95JA==}
-    engines: {node: '>=18.0.0', npm: '>=9.0.0'}
     dev: false
 
   /@floating-ui/core@1.6.9:
@@ -4366,12 +4358,25 @@ packages:
     dependencies:
       undici-types: 6.20.0
 
+  /@types/node@22.12.0:
+    resolution: {integrity: sha512-Fll2FZ1riMjNmlmJOdAyY5pUbkftXslB5DgEzlIuNaiWhXd00FhWxVC/r4yV/4wBb9JfImTu+jiSvXTkJ7F/gA==}
+    dependencies:
+      undici-types: 6.20.0
+
+  /@types/pg@8.11.11:
+    resolution: {integrity: sha512-kGT1qKM8wJQ5qlawUrEkXgvMSXoV213KfMGXcwfDwUIfUHXqXYXOfS1nE1LINRJVVVx5wCm70XnFlMHaIcQAfw==}
+    dependencies:
+      '@types/node': 22.12.0
+      pg-protocol: 1.7.0
+      pg-types: 4.0.2
+
   /@types/pg@8.11.6:
     resolution: {integrity: sha512-/2WmmBXHLsfRqzfHW7BNZ8SbYzE8OSk7i3WjFYvfgRHj7S1xj+16Je5fUKv3lVdVzk/zn9TXOqf+avFCFIE0yQ==}
     dependencies:
-      '@types/node': 20.17.16
+      '@types/node': 22.12.0
       pg-protocol: 1.7.0
       pg-types: 4.0.2
+    dev: false
 
   /@types/qs@6.9.18:
     resolution: {integrity: sha512-kK7dgTYDyGqS+e2Q4aK9X3D7q234CIZ1Bv0q/7Z5IwRDoADNU81xXJK/YVyLbLTZCoIwUoDoffFeF+p/eIklAA==}
@@ -6202,7 +6207,7 @@ packages:
       - supports-color
     dev: true
 
-  /drizzle-orm@0.39.1(@neondatabase/serverless@0.10.4)(@types/pg@8.11.6)(pg@8.13.1):
+  /drizzle-orm@0.39.1(@neondatabase/serverless@0.10.4)(@types/pg@8.11.11)(pg@8.13.1):
     resolution: {integrity: sha512-2bDHlzTY31IDmrYn8i+ZZrxK8IyBD4mPZ7JmZdVDQj2tpBZXs/gxB/1kK5pSvkjxPUMNOVsTnoGkSltgjuJwcA==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
@@ -6295,7 +6300,7 @@ packages:
         optional: true
     dependencies:
       '@neondatabase/serverless': 0.10.4
-      '@types/pg': 8.11.6
+      '@types/pg': 8.11.11
       pg: 8.13.1
     dev: false
 
@@ -6307,7 +6312,7 @@ packages:
       drizzle-orm:
         optional: true
     dependencies:
-      drizzle-orm: 0.39.1(@neondatabase/serverless@0.10.4)(@types/pg@8.11.6)(pg@8.13.1)
+      drizzle-orm: 0.39.1(@neondatabase/serverless@0.10.4)(@types/pg@8.11.11)(pg@8.13.1)
       pure-rand: 6.1.0
     dev: false
 
