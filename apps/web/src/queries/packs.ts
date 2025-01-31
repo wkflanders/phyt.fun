@@ -1,9 +1,7 @@
 import { ApiError } from "@phyt/types";
 
 export interface PurchasePackInput {
-    mintConfigId: number;
     buyer: string;
-    merkleProof?: string[];
 }
 
 export interface PurchasePackResponse {
