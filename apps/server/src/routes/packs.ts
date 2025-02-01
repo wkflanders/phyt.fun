@@ -14,10 +14,15 @@ router.get('/init/:walletAddress', async (req, res) => {
         const mintConfigId = await packService.createMintConfig();
         const packPrice = await packService.getPackPrice(mintConfigId);
         const merkleProof = await packService.getWhitelistProof(wallet_address);
+
+        if (!Array.isArray(merkleProof)) {
+            throw new Error('Invalid merkle proof format');
+        }
+
         return res.status(200).json({
             mintConfigId: mintConfigId.toString(),
             packPrice: packPrice.toString(),
-            merkleProof: merkleProof.toString()
+            merkleProof: merkleProof
         });
     } catch (error) {
         console.error('Failed to create mint config:', error);
