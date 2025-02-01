@@ -10,49 +10,54 @@ import "../src/Exchange.sol";
 
 contract DeployScript is Script {
     function run() external {
+        // Read deployer's private key from the environment variable.
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        // Use deployer address as treasury for testing
+        // Use the deployer address as treasury.
         address treasury = vm.addr(deployerPrivateKey);
+
+        // Read the whitelist Merkle root from the environment variable.
+        // This should be a 32-byte hex string (for example, "0x0000000000000000000000000000000000000000000000000000000000000000" when empty).
+        bytes32 whitelistRoot = vm.envBytes32("WHITELIST_ROOT");
 
         vm.startBroadcast(deployerPrivateKey);
 
-        // Deploy contracts
+        // Deploy the contracts.
         Executor executor = new Executor();
         PhytCards phytCards = new PhytCards();
         Minter minter = new Minter(
             treasury,
             address(executor),
-            10, // cardsRequiredForEvolve
-            5, // cardsRequiredForRedraw
+            3, // cardsRequiredForEvolve
+            2, // cardsRequiredForRedraw
             1 // cardsDrawnPerRedraw
         );
-        // Deploy Exchange contract.
-        // In this example, we use treasury as the fee recipient,
-        // set protocol fee bps to 250 (i.e. 5% fee),
-        // and pass the deployed executor address.
-        Exchange exchange = new Exchange(treasury, 500, address(executor));
+        Exchange exchange = new Exchange(treasury, 250, address(executor));
 
-        // Setup roles and permissions
+        // Setup roles and permissions.
+        // Grant the Executor its role in the PhytCards contract.
         phytCards.grantRole(phytCards.EXECUTOR_ROLE(), address(executor));
+        // Approve the Minter contract on the Executor.
         executor.approveContract(address(minter));
+        // Whitelist the PhytCards collection in the Minter.
         minter.whitelistCollection(address(phytCards));
 
-        // Create initial mint config for testing
+        // Create an initial mint configuration.
+        // Enable whitelist checks by setting requiresWhitelist to true and passing the whitelistRoot.
         minter.newMintConfig(
-            address(phytCards), // collection
+            address(phytCards), // collection address
             1, // cardsPerPack
             100, // maxPacks
-            0.0001 ether, // price
+            0.001 ether, // price per pack
             199, // maxPacksPerAddress
-            false, // requiresWhitelist
-            bytes32(0), // merkleRoot
+            true, // requiresWhitelist is enabled
+            whitelistRoot, // whitelist Merkle root from env variable
             block.timestamp + 2 minutes, // startTimestamp
             block.timestamp + 7 days // expirationTimestamp
         );
 
         vm.stopBroadcast();
 
-        // Log deployed addresses
+        // Log deployed contract addresses.
         console.log("Executor deployed to:", address(executor));
         console.log("PhytCards deployed to:", address(phytCards));
         console.log("Minter deployed to:", address(minter));

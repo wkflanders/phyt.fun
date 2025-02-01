@@ -2,7 +2,7 @@ import { writeFileSync, mkdirSync } from "fs";
 import { join } from "path";
 
 async function exportAbis() {
-    const contractNames = ["Minter", "PhytCards", "Executor"];
+    const contractNames = ["Minter", "PhytCards", "Executor", 'Exchange'];
     const abiDir = join(__dirname, "../abi");
 
     // Create ABI directory if it doesn't exist
