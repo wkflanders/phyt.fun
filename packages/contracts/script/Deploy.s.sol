@@ -6,6 +6,7 @@ import "forge-std/Script.sol";
 import "../src/Executor.sol";
 import "../src/Minter.sol";
 import "../src/PhytCards.sol";
+import "../src/Exchange.sol";
 
 contract DeployScript is Script {
     function run() external {
@@ -21,10 +22,15 @@ contract DeployScript is Script {
         Minter minter = new Minter(
             treasury,
             address(executor),
-            3, // cardsRequiredForEvolve
-            2, // cardsRequiredForRedraw
+            10, // cardsRequiredForEvolve
+            5, // cardsRequiredForRedraw
             1 // cardsDrawnPerRedraw
         );
+        // Deploy Exchange contract.
+        // In this example, we use treasury as the fee recipient,
+        // set protocol fee bps to 250 (i.e. 5% fee),
+        // and pass the deployed executor address.
+        Exchange exchange = new Exchange(treasury, 500, address(executor));
 
         // Setup roles and permissions
         phytCards.grantRole(phytCards.EXECUTOR_ROLE(), address(executor));
@@ -50,5 +56,6 @@ contract DeployScript is Script {
         console.log("Executor deployed to:", address(executor));
         console.log("PhytCards deployed to:", address(phytCards));
         console.log("Minter deployed to:", address(minter));
+        console.log("Exchange deployed to:", address(exchange));
     }
 }
