@@ -41,7 +41,7 @@ export const packService = {
             console.log('MINTER address:', MINTER);
 
             const now = Math.floor(Date.now() / 1000);
-            const startTime = BigInt(now + 2);
+            const startTime = BigInt(now);
             const endTime = BigInt(now + (7 * 24 * 60 * 60)); // End in 7 days
 
             console.log('Timestamps:', {

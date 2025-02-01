@@ -82,7 +82,7 @@ const PackPurchase = () => {
     };
 
     return (
-        <div className="flex flex-col items-center min-h-screen bg-phyt_gray">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-phyt_gray">
             <div className="relative w-full flex flex-col items-center pt-8">
                 {/* Container for animations */}
                 <div className="relative w-96 h-96">
@@ -155,7 +155,7 @@ const PackPurchase = () => {
                                     Purchasing...
                                 </>
                             ) : (
-                                'Purchase Pack'
+                                'Purchase Pack | 0.0001 ETH'
                             )}
                         </Button>
                     </div>

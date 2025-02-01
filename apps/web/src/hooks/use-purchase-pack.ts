@@ -7,7 +7,7 @@ import { PackDetails, PackPurchaseInput, PackPurchaseResponse } from "@phyt/type
 import { notifyServerPackTxn, fetchPackDetails } from "@/queries/packs";
 import { config } from "@/lib/wagmi";
 
-const MINTER = '0x527C6CFdD3BFC4Ea4Ea79BFE713f5e426E166b63';
+const MINTER = '0x7Ee08f7d4707F94C2f2664327D16cF6b30cA87D1';
 
 export function usePurchasePack() {
     const { toast } = useToast();
