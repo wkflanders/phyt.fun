@@ -10,5 +10,7 @@ export const createUserSchema = z.object({
 
 export const purchasePackSchema = z.object({
     buyerId: z.number(),
-    buyerAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/)
+    buyerAddress: z.string()
+        .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum address format")
+        .length(42, "Ethereum address must be 42 characters long"),
 });
