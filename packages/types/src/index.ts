@@ -1,4 +1,5 @@
 import type { Address } from 'viem';
+import { type WaitForTransactionReceiptReturnType } from "@wagmi/core";
 
 export type CardRarity = 'bronze' | 'silver' | 'gold' | 'sapphire' | 'ruby' | 'opal';
 export type AcquisitionType = 'mint' | 'transfer' | 'marketplace';
@@ -262,20 +263,26 @@ export class PackPurchaseError extends Error {
     }
 }
 
+export interface PackDetails {
+    mintConfigId: string;
+    packPrice: string;
+}
+
 export interface PackPurchaseInput {
     buyerId: number;
-    buyerAddress: string;
+    buyerAddress: Address;
+}
+
+export interface PackPurchaseNotif {
+    buyerId: number;
+    hash: `0x${string}`;
+    packPrice: bigint;
 }
 
 export interface PackPurchaseResponse {
-    success: boolean;
-    hash: string;
-    packPurchaseId: number;
-    mintConfigId: number;
-    firstTokenId: number;
-    lastTokenId: number;
-    price: string;
     cardsMetadata: TokenURIMetadata[];
+    txHash: string;
+    packPurchaseId: number;
 }
 
 export interface ContractConfig {

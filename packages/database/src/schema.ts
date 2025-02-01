@@ -215,6 +215,7 @@ export const transactions = pgTable("transactions", {
     competition_id: integer("competition_id").references(() => competitions.id, { onDelete: 'set null' }),
     token_amount: doublePrecision("token_amount"),
     transaction_type: enum_transactions_transaction_type("transaction_type").notNull(),
+    hash: varchar("hash", { length: 66 }), // 0x + 64 characters for hash
     updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
     created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
 }, (table) => [
@@ -222,6 +223,7 @@ export const transactions = pgTable("transactions", {
     index("transactions_to_user_idx").on(table.to_user_id),
     index("transactions_card_idx").on(table.card_id),
     index("transactions_competition_idx").on(table.competition_id),
+    index("transactions_hash_idx").on(table.hash),
     index("transactions_created_at_idx").on(table.created_at),
     index("transactions_updated_at_idx").on(table.updated_at),
 ]);
