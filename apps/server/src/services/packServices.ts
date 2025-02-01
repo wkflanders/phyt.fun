@@ -6,6 +6,10 @@ import { db, transactions, cards, card_metadata, pack_purchases } from '@phyt/da
 import { MintEvent, PackPurchaseNotif, PackPurchaseResponse, TokenURIMetadata, } from '@phyt/types';
 import { metadataService } from './metadataServices';
 
+//forge script script/Deploy.s.sol --rpc-url $URL --broadcast --private-key $PRIVATE_KEY
+
+//forge script script/GrantRole.s.sol --rpc-url $URL --broadcast --private-key $PRIVATE_KEY
+
 if (!process.env.MINTER_ADDRESS || !process.env.PHYT_CARDS_ADDRESS) {
     throw new Error('Missing contract addresses in environment variables');
 }
@@ -72,8 +76,8 @@ export const packService = {
             console.log('Account has MINT_CONFIG_ROLE:', hasRole);
 
             const now = Math.floor(Date.now() / 1000);
-            const startTime = BigInt(now - 1000);
-            const endTime = BigInt(now + (1000 * 24 * 60 * 60));
+            const startTime = BigInt(now + 1);
+            const endTime = 0;
 
             if (!hasRole) {
                 throw new Error(`Account \${account.address} does not have MINT_CONFIG_ROLE`);
