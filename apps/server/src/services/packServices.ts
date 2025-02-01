@@ -165,14 +165,9 @@ export const packService = {
                     [buyerId, Number(formatEther(BigInt(packPrice)))]
                 );
 
-                // Create transaction record
-                await client.query(
-                    'INSERT INTO transactions (from_user_id, to_user_id, transaction_type, token_amount, hash) VALUES ($1, $2, $3, $4, $5)',
-                    [null, buyerId, 'packPurchase', Number(formatEther(BigInt(packPrice))), hash]
-                );
-
                 // Create card records and metadata
                 const cardsMetadata: TokenURIMetadata[] = [];
+                const cardsIds: number[] = [];
 
                 for (let tokenId = Number(mintEvent.args.firstTokenId);
                     tokenId <= Number(mintEvent.args.lastTokenId);
@@ -188,8 +183,9 @@ export const packService = {
                         throw new Error(`Failed to insert card with token_id: ${tokenId}`);
                     }
 
+                    cardsIds.push(card.d);
+
                     // 2. Now generate metadata and insert it into card_metadata.
-                    //    (Assuming generateMetadata no longer does the insert itself)
                     const metadata = await metadataService.generateMetadata(tokenId);
                     cardsMetadata.push(metadata);
 
@@ -203,6 +199,18 @@ export const packService = {
                             metadata.attributes[0].rarity,
                             metadata.attributes[0].multiplier,
                             metadata.image,
+                        ]
+                    );
+
+                    await client.query(
+                        'INSERT INTO transactions (from_user_id, to_user_id, card_id, transaction_type, token_amount, hash) VALUES ($1, $2, $3, $4, $5, $6)',
+                        [
+                            null,
+                            buyerId,
+                            card.id,
+                            'packPurchase',
+                            Number(formatEther(BigInt(packPrice))) / cardsIds.length, // Divide the total price by number of cards
+                            hash
                         ]
                     );
                 }
