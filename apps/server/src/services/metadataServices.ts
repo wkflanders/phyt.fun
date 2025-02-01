@@ -1,5 +1,5 @@
 import { db, eq, runners, card_metadata } from '@phyt/database';
-import { CardRarity, RarityWeights, RarityMultipliers } from '@phyt/types';
+import { CardRarity, RarityWeights, RarityMultipliers, TokenURIMetadata } from '@phyt/types';
 import { s3Service } from '../lib/awsClient';
 import { randomInt } from 'crypto';
 
@@ -19,7 +19,7 @@ export const metadataService = {
             }
         }
 
-        return 'gold'; // Fallback, should never reach here due to cumulative weights
+        return 'bronze'; // Fallback, should never reach here due to cumulative weights
     },
     selectRandomRunner: async () => {
         const allRunners = await db.select()
@@ -37,7 +37,7 @@ export const metadataService = {
         return RarityMultipliers[rarity];
     },
 
-    generateMetadata: async (tokenId: number) => {
+    generateMetadata: async (tokenId: number): Promise<TokenURIMetadata> => {
         const rarity = metadataService.generateRarity();
         const runner = await metadataService.selectRandomRunner();
         const multiplier = metadataService.getMultiplier(rarity);
