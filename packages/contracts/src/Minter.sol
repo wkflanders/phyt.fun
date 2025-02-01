@@ -107,7 +107,6 @@ contract Minter is IMinter, AccessControlDefaultAdminRules, ReentrancyGuard {
         require(cardsPerPack > 0, "Invalid cards per pack");
         require(maxPacks > 0, "Invalid max packs");
         require(price > 0, "Invalid price");
-        require(startTimestamp >= block.timestamp, "Start must be future");
         if (requiresWhitelist) {
             require(merkleRoot != 0, "Missing merkle root");
         }
