@@ -3,9 +3,8 @@ import { base, baseSepolia } from 'viem/chains';
 import { http } from 'wagmi';
 
 export const config = createConfig({
-    chains: [base, baseSepolia],
+    chains: [baseSepolia],
     transports: {
-        [base.id]: http(),
-        [baseSepolia.id]: http()
-    }
+        [baseSepolia.id]: http(process.env.BASE_RPC_URL),
+    },
 });

@@ -1,0 +1,17 @@
+{
+    "name": "@phyt/contracts",
+    "version": "0.0.0",
+    "private": true,
+    "main": "./abi/index.js",
+    "types": "./abi/index.d.ts",
+    "scripts": {
+      "build-contract": "forge build && pnpm export-abis && tsc",
+      "export-abis": "tsx script/export-abis.ts",
+      "clean-contract": "rm -rf .turbo node_modules abi"
+    },
+    "devDependencies": {
+      "@types/node": "^20.0.0",
+      "tsx": "^4.7.0",
+      "typescript": "^5.3.3"
+    }
+  }

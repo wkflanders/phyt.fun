@@ -10,7 +10,8 @@
         "PRIVY_SECRET_KEY",
         "DATABASE_URL",
         "NEXT_PUBLIC_*",
-        "IMAGEKIT_SECRET_KEY"
+        "IMAGEKIT_SECRET_KEY",
+        "BASE_RPC_URL"
       ]
     },
     "lint": {
@@ -27,7 +28,9 @@
         "PRIVY_SECRET_KEY",
         "DATABASE_URL",
         "NEXT_PUBLIC_*",
-        "IMAGEKIT_SECRET_KEY"
+        "IMAGEKIT_SECRET_KEY",
+        "BASE_RPC_URL"
+
       ]
     },
     "clean": {

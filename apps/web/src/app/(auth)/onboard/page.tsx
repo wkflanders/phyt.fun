@@ -42,6 +42,8 @@ export default function OnboardPage() {
 
             await createUser.mutateAsync(userData);
 
+            router.push('/');
+
             toast({
                 title: "Success",
                 description: "Profile created successfully!",

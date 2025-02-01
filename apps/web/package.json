@@ -13,6 +13,7 @@
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
     "@phyt/types": "workspace:*",
+    "@phyt/contracts": "workspace:*",
     "@privy-io/react-auth": "^2.0.5",
     "@privy-io/wagmi": "^1.0.2",
     "@radix-ui/react-label": "^2.1.1",

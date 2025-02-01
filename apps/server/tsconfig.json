@@ -5,7 +5,8 @@
     "baseUrl": ".",
     "paths": {
       "@phyt/database": ["../../packages/database/src"],
-      "@phyt/types": ["../../packages/types/src"]
+      "@phyt/types": ["../../packages/types/src"],
+      "@phyt/contracts": ["../../packages/contracts"],
     }
   },
   "include": ["src/**/*"],

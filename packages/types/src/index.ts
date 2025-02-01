@@ -1,9 +1,30 @@
-// src/types/db.ts
+import type { Address } from 'viem';
+import { type WaitForTransactionReceiptReturnType } from "@wagmi/core";
 
-export type CardRarity = 'Common' | 'Rare' | 'Exotic' | 'Legendary';
+export type CardRarity = 'bronze' | 'silver' | 'gold' | 'sapphire' | 'ruby' | 'opal';
+export type AcquisitionType = 'mint' | 'transfer' | 'marketplace';
 export type RunVerificationStatus = 'pending' | 'verified' | 'flagged';
 export type TransactionType = 'packPurchase' | 'marketplaceSale' | 'rewardPayout';
 export type UserRole = 'admin' | 'user' | 'runner';
+
+export const RarityWeights = {
+    bronze: 50,
+    silver: 25,
+    gold: 15,
+    sapphire: 7,
+    ruby: 2,
+    opal: 1,
+} as const;
+
+export const RarityMultipliers: Record<CardRarity, number> = {
+    bronze: 1,
+    silver: 1.5,
+    gold: 2,
+    sapphire: 3,
+    ruby: 5,
+    opal: 10,
+};
+
 
 export interface User {
     id: number;
@@ -38,15 +59,39 @@ export interface Run {
     raw_data_json: any | null;
 }
 
+export interface CardMetadata {
+    token_id: number;
+    runner_id: number;
+    runner_name: string;
+    rarity: CardRarity;
+    image_url: string;
+    multiplier: number;
+    created_at: string;
+}
+
+export interface TokenURIMetadata {
+    name: string;
+    description: string;
+    image: string;
+    attributes: {
+        runner_id: number;
+        runner_name: string;
+        rarity: CardRarity;
+        multiplier: number;
+    }[];
+}
+
 export interface Card {
     id: number;
+    owner_id: number;
+    pack_purchase_id: number | null;
+    acquisition_type: AcquisitionType;
     updated_at: string;
     created_at: string;
-    runner_id: number;
-    current_owner_id: number;
-    rarity: CardRarity;
-    multiplier: number;
-    is_burned: boolean;
+}
+
+export interface CardWithMetadata extends Card {
+    metadata: CardMetadata;
 }
 
 export interface Competition {
@@ -209,4 +254,56 @@ export class ValidationError extends Error {
         this.name = 'ValidationError';
         this.statusCode = 400;
     }
+}
+
+export class PackPurchaseError extends Error {
+    constructor(message: string, public code: string, public details?: any) {
+        super(message);
+        this.name = 'PackPurchaseError';
+    }
+}
+
+export interface PackDetails {
+    mintConfigId: string;
+    packPrice: string;
+    merkleProof: string;
+}
+
+export interface PackPurchaseInput {
+    buyerId: number;
+    buyerAddress: `0x${string}`;
+}
+
+export interface PackPurchaseNotif {
+    buyerId: number;
+    hash: `0x${string}`;
+    packPrice: string;
+}
+
+export interface PackPurchaseResponse {
+    cardsMetadata: TokenURIMetadata[];
+}
+
+export interface ContractConfig {
+    address: Address;
+    abi: unknown;
+}
+
+export class ContractError extends Error {
+    constructor(message: string, public readonly code?: number) {
+        super(message);
+        this.name = 'ContractError';
+    }
+}
+
+export interface MintEvent {
+    eventName: 'Mint';
+    args: {
+        mintConfigId: bigint;
+        buyer: `0x${string}`;
+        totalMintedPacks: bigint;
+        firstTokenId: bigint;
+        lastTokenId: bigint;
+        price: bigint;
+    };
 }

@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1737532014499,
-      "tag": "0000_outgoing_warbound",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1737532457331,
-      "tag": "0001_abnormal_wendigo",
+      "when": 1738375323539,
+      "tag": "0000_curious_shaman",
       "breakpoints": true
     }
   ]

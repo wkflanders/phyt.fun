@@ -11,7 +11,11 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "typescript": "^5.3.3",
-    "eslint": "^8.56.0"
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@wagmi/core": "^2.16.3",
+    "viem": "^2.22.13"
   }
 }

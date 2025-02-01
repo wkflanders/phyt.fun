@@ -40,3 +40,11 @@ yarn-error.log*
 .vscode
 
 **/tsconfig.tsbuildinfo
+
+# Foundry
+cache/
+broadcast/
+
+# forge script script/DeployMinter.s.sol:DeployMinterScript --rpc-url $BASE_RPC_URL --broadcast
+# forge script script/GrantRole.s.sol:GrantMintConfigRoleScript --rpc-url $BASE_RPC_URL --private-key $PRIVATE_KEY --broadcast
+# forge script script/ApproveScript.s.sol:ApproveScript --rpc-url $BASE_RPC_URL --broadcast

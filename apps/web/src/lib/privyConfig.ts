@@ -1,4 +1,5 @@
 import type { PrivyClientConfig } from "@privy-io/react-auth";
+import { baseSepolia } from "viem/chains";
 
 export const privyConfig: PrivyClientConfig = {
     appearance: {
@@ -10,6 +11,7 @@ export const privyConfig: PrivyClientConfig = {
         createOnLogin: 'users-without-wallets',
         showWalletUIs: true
     },
+    defaultChain: baseSepolia,
     fundingMethodConfig: {
         moonpay: {
             paymentMethod: 'credit_debit_card',
