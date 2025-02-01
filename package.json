@@ -1,5 +1,5 @@
 {
-  "name": "phyt",
+  "name": "phyt.fun",
   "private": true,
   "scripts": {
     "build": "turbo build",
