@@ -8,13 +8,37 @@ const router: Router = express.Router();
 
 router.use(validateAuth);
 
+router.post('/init', async (req, res) => {
+    try {
+        const mintConfigId = await packService.createMintConfig();
+        const packPrice = await packService.getPackPrice(mintConfigId);
+        return res.status(200).json({
+            mintConfigId: mintConfigId.toString(),
+            packPrice: packPrice
+        });
+    } catch (error) {
+        console.error('Failed to create mint config:', error);
+        return res.status(500).json({
+            error: error instanceof Error ? error.message : 'An unexpected error occurred',
+        });
+    }
+});
+
 router.post('/purchase', validateSchema(purchasePackSchema), async (req, res) => {
     try {
-        const purchaseData = await packService.purchasePack(req.body);
-        return res.status(200).json(purchaseData);
+        const { buyerId, receipt, packPrice } = req.body;
+
+        const result = await packService.purchasePack({
+            buyerId,
+            receipt,
+            packPrice
+        });
+
+        return res.status(200).json(result);
     } catch (error) {
+        console.error('Pack purchase failed:', error);
         return res.status(500).json({
-            error: error instanceof Error ? error.message : 'An unexpected error occurred'
+            error: error instanceof Error ? error.message : 'Failed to process pack purchase',
         });
     }
 });
