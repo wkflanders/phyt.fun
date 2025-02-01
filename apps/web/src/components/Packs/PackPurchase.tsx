@@ -46,13 +46,14 @@ const PackPurchase = () => {
     const { ready, user: privyUser } = usePrivy();
     const { data: user, isFetching, error } = useGetUser();
 
+    const buyerId = user?.id;
     const { mutate: purchasePack, isPending } = usePurchasePack();
 
     const { data: balance } = useBalance({
         address: address as `0x${string}`,
     });
 
-    const handlePurchase = async () => {
+    const handlePurchase = () => {
         if (!ready || !address || !user?.id) {
             toast({
                 title: "Error",
@@ -71,40 +72,34 @@ const PackPurchase = () => {
             return;
         }
 
-        try {
-            purchasePack(
-                {
-                    buyerId: user.id,
-                    buyerAddress: address as `0x${string}`
-                },
-                {
-                    onSuccess: (data) => {
-                        setIsPurchaseComplete(true);
-                        // Set the first card from the pack as the revealed card
-                        if (data.cardsMetadata?.[0]) {
-                            setTimeout(() => {
-                                setIsRevealing(true);
-                                setRevealedCard(data.cardsMetadata[0]);
-                            }, 1000);
-                        }
-                    },
-                }
-            );
-        } catch (error) {
-            console.log(user.id);
-            console.error('Purchase error:', error);
-        }
-    };
+        purchasePack(
+            {
+                buyerId: user.id,
+                buyerAddress: address as `0x${string}`
+            },
+            {
+                onSuccess: (data) => {
+                    setIsRotated(true);
+                    setIsPurchaseComplete(true);
 
-    // Reset states when component unmounts
-    useEffect(() => {
-        return () => {
-            setIsRotated(false);
-            setIsPurchaseComplete(false);
-            setRevealedCard(null);
-            setIsRevealing(false);
-        };
-    }, []);
+                    if (data.cardsMetadata?.[0]) {
+                        // Start reveal animation
+                        setTimeout(() => {
+                            setIsRevealing(true);
+                            setRevealedCard(data.cardsMetadata[0]);
+                        }, 1000);
+                    }
+                },
+                onError: (error) => {
+                    toast({
+                        title: "Error",
+                        description: error.message || "Failed to purchase pack",
+                        variant: "destructive",
+                    });
+                }
+            }
+        );
+    };
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-phyt_gray p-4">
