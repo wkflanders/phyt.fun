@@ -19,6 +19,7 @@ export async function generateMerkleTree(): Promise<MerkleTree> {
 
 export async function getMerkleRoot(): Promise<string> {
     const tree = await generateMerkleTree();
+    console.log("TREE OUTPUT!!!!: ", tree.getHexRoot());
     return tree.getHexRoot();
 }
 

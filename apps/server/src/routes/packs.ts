@@ -8,12 +8,12 @@ const router: Router = express.Router();
 
 // router.use(validateAuth);
 
-router.get('/init', async (req, res) => {
+router.get('/init/:walletAddress', async (req, res) => {
     try {
-        const { wallet } = req.body;
+        const wallet_address = req.params.walletAddress;
         const mintConfigId = await packService.createMintConfig();
         const packPrice = await packService.getPackPrice(mintConfigId);
-        const merkleProof = await packService.getWhitelistProof(wallet);
+        const merkleProof = await packService.getWhitelistProof(wallet_address);
         return res.status(200).json({
             mintConfigId: mintConfigId.toString(),
             packPrice: packPrice.toString(),

@@ -123,7 +123,7 @@ export const WalletCard = () => {
                             ) : (
                                 <>
                                     <p className="text-2xl font-bold text-phyt_text">
-                                        {balanceData ? formatEther(balanceData.value) : '0.00'} ETH
+                                        ≈ {balanceData ? Number(formatEther(balanceData.value)).toFixed(3) : '0.000'} ETH
                                     </p>
                                 </>
                             )}

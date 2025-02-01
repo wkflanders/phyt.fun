@@ -11,7 +11,7 @@
         "DATABASE_URL",
         "NEXT_PUBLIC_*",
         "IMAGEKIT_SECRET_KEY",
-        "MINTER_ADDRESS"
+        "BASE_RPC_URL"
       ]
     },
     "lint": {
@@ -29,7 +29,7 @@
         "DATABASE_URL",
         "NEXT_PUBLIC_*",
         "IMAGEKIT_SECRET_KEY",
-        "MINTER_ADDRESS"
+        "BASE_RPC_URL"
 
       ]
     },

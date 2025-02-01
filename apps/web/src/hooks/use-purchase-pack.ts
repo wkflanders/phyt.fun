@@ -7,7 +7,7 @@ import { PackPurchaseInput, PackPurchaseResponse } from "@phyt/types";
 import { notifyServerPackTxn, fetchPackDetails } from "@/queries/packs";
 import { config } from "@/lib/wagmi";
 
-const MINTER = '0xF9fAfC580205F713Bb43D7e21c5f8a37E0B1EAdA';
+const MINTER = '0xFB79F23A700FaEE03CE9F9a0cfd94E0B1Ecb57E8';
 
 export function usePurchasePack() {
     const { toast } = useToast();
@@ -16,6 +16,7 @@ export function usePurchasePack() {
         mutationFn: async ({ buyerId, buyerAddress }: PackPurchaseInput) => {
             // Get config and price
             const { mintConfigId, packPrice, merkleProof } = await fetchPackDetails(buyerAddress as `0x${string}`);
+            console.log(merkleProof);
             // Simulate transaction
             const { request } = await simulateContract(config, {
                 address: MINTER,
