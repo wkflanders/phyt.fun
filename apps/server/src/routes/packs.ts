@@ -10,11 +10,14 @@ const router: Router = express.Router();
 
 router.get('/init', async (req, res) => {
     try {
+        const { wallet } = req.body;
         const mintConfigId = await packService.createMintConfig();
         const packPrice = await packService.getPackPrice(mintConfigId);
+        const merkleProof = await packService.getWhitelistProof(wallet);
         return res.status(200).json({
             mintConfigId: mintConfigId.toString(),
-            packPrice: packPrice.toString()
+            packPrice: packPrice.toString(),
+            merkleProof: merkleProof.toString()
         });
     } catch (error) {
         console.error('Failed to create mint config:', error);
