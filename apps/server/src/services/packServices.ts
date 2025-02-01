@@ -1,4 +1,4 @@
-import { createPublicClient, createWalletClient, http, decodeEventLog, parseEther, formatEther, createTestClient, Chain } from 'viem';
+import { createPublicClient, createWalletClient, http, decodeEventLog, parseEther, formatEther, Chain } from 'viem';
 import { baseSepolia } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
 import { MinterAbi } from '@phyt/contracts';
@@ -136,6 +136,7 @@ export const packService = {
 
     purchasePack: async (data: PackPurchaseNotif): Promise<PackPurchaseResponse> => {
         const { buyerId, hash, packPrice } = data;
+        console.log(hash);
 
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
@@ -168,7 +169,7 @@ export const packService = {
                 // Create pack purchase record
                 const [packPurchase] = await tx.insert(pack_purchases).values({
                     buyer_id: buyerId,
-                    purchase_price: Number(formatEther(packPrice))
+                    purchase_price: Number(formatEther(BigInt(packPrice)))
                 }).returning();
 
                 // Create transaction record
@@ -176,7 +177,7 @@ export const packService = {
                     from_user_id: null,
                     to_user_id: buyerId,
                     transaction_type: 'packPurchase',
-                    token_amount: Number(formatEther(packPrice)),
+                    token_amount: Number(formatEther(BigInt(packPrice))),
                     hash: hash
                 });
 
@@ -213,8 +214,6 @@ export const packService = {
 
                 return {
                     cardsMetadata,
-                    txHash: hash,
-                    packPurchaseId: packPurchase.id
                 };
             });
         } catch (error) {
