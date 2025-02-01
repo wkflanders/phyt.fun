@@ -91,6 +91,13 @@ const PackPurchase = () => {
                     }
                 },
                 onError: (error) => {
+                    if (error.message.includes("User rejected the request")) {
+                        toast({
+                            title: "Transaction cancelled",
+                            variant: 'destructive'
+                        });
+                        return;
+                    }
                     toast({
                         title: "Error",
                         description: error.message || "Failed to purchase pack",

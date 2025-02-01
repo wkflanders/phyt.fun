@@ -48,6 +48,12 @@ export function usePurchasePack() {
             });
         },
         onError: (error: Error) => {
+            if (error.message.includes("User rejected the request")) {
+                toast({
+                    title: "Transaction cancelled",
+                });
+                return;
+            }
             console.log(error);
             toast({
                 title: "Error",
