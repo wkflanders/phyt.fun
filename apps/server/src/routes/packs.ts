@@ -6,15 +6,15 @@ import { purchasePackSchema } from '../lib/validation';
 
 const router: Router = express.Router();
 
-router.use(validateAuth);
+// router.use(validateAuth);
 
-router.post('/init', async (req, res) => {
+router.get('/init', async (req, res) => {
     try {
         const mintConfigId = await packService.createMintConfig();
         const packPrice = await packService.getPackPrice(mintConfigId);
         return res.status(200).json({
             mintConfigId: mintConfigId.toString(),
-            packPrice: packPrice
+            packPrice: packPrice.toString()
         });
     } catch (error) {
         console.error('Failed to create mint config:', error);
@@ -26,11 +26,11 @@ router.post('/init', async (req, res) => {
 
 router.post('/purchase', validateSchema(purchasePackSchema), async (req, res) => {
     try {
-        const { buyerId, receipt, packPrice } = req.body;
+        const { buyerId, hash, packPrice } = req.body;
 
         const result = await packService.purchasePack({
             buyerId,
-            receipt,
+            hash,
             packPrice
         });
 
