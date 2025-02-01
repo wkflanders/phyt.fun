@@ -44,7 +44,7 @@ export const s3Service = {
         }
     },
     getImageUrl: (runnerId: number, rarity: CardRarity): string => {
-        return `https://${process.env.AWS_IMAGES_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/runners/${runnerId}/${rarity}.jpg`;
+        return `https://d1o7ihod05ar3g.cloudfront.net/runners/${runnerId}/${rarity}.png`;
     },
 
     // deleteMetadata: async (tokenId: number): Promise<void> => {
