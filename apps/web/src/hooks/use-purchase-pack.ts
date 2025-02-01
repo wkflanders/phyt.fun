@@ -1,28 +1,58 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useToast } from "./use-toast";
-import { purchasePack } from "@/queries/packs";
+import { MinterAbi } from "@phyt/contracts";
+import type { Address } from 'viem';
+import { simulateContract, writeContract } from "wagmi/actions";
 import { PackPurchaseInput, PackPurchaseResponse } from "@phyt/types";
+import { notifyServerPackTxn, fetchPackDetails } from "@/queries/packs";
+import { config } from "@/lib/wagmi";
+
+const MINTER = '0xF9fAfC580205F713Bb43D7e21c5f8a37E0B1EAdA';
 
 export function usePurchasePack() {
     const { toast } = useToast();
-    const queryClient = useQueryClient();
 
     return useMutation<PackPurchaseResponse, Error, PackPurchaseInput>({
-        mutationFn: purchasePack,
-        onSuccess: (data) => {
-            toast({
-                title: 'Success',
-                description: `Successfully purchased pack. Transaction: ${data.hash.slice(0, 6)}...${data.hash.slice(-4)}`,
+        mutationFn: async ({ buyerId, buyerAddress }: PackPurchaseInput) => {
+            // Get config and price
+            const { mintConfigId, packPrice } = await fetchPackDetails();
+            console.log(mintConfigId);
+            // Simulate transaction
+            const { request } = await simulateContract(config, {
+                address: MINTER,
+                abi: MinterAbi,
+                functionName: 'mint',
+                args: [BigInt(mintConfigId), []],
+                value: BigInt(packPrice),
+                account: buyerAddress as Address,
             });
-            // Invalidate relevant queries
-            queryClient.invalidateQueries({ queryKey: ['cards'] });
-            queryClient.invalidateQueries({ queryKey: ['packs'] });
+
+            // Execute transaction with two arguments
+            const hash = await writeContract(
+                { ...config },
+                { ...request }
+            );
+
+            // Notify server
+            const response = await notifyServerPackTxn({
+                buyerId,
+                hash,
+                packPrice: BigInt(packPrice)
+            });
+
+            return response;
+        },
+        onSuccess: (cardsMetadata) => {
+            toast({
+                title: "Success",
+            });
         },
         onError: (error: Error) => {
+            console.log(error);
             toast({
-                title: 'Error',
-                description: error.message || 'Failed to purchase pack',
-                variant: 'destructive'
+                title: "Error",
+                description: error.message || "Failed to mint pack",
+                variant: "destructive",
             });
         }
     });
