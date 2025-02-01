@@ -3,11 +3,11 @@ import { useToast } from "./use-toast";
 import { MinterAbi } from "@phyt/contracts";
 import type { Address } from 'viem';
 import { simulateContract, writeContract } from "wagmi/actions";
-import { PackPurchaseInput, PackPurchaseResponse } from "@phyt/types";
+import { PackDetails, PackPurchaseInput, PackPurchaseResponse } from "@phyt/types";
 import { notifyServerPackTxn, fetchPackDetails } from "@/queries/packs";
 import { config } from "@/lib/wagmi";
 
-const MINTER = '0xFB79F23A700FaEE03CE9F9a0cfd94E0B1Ecb57E8';
+const MINTER = '0x527C6CFdD3BFC4Ea4Ea79BFE713f5e426E166b63';
 
 export function usePurchasePack() {
     const { toast } = useToast();
@@ -15,9 +15,10 @@ export function usePurchasePack() {
     return useMutation<PackPurchaseResponse, Error, PackPurchaseInput>({
         mutationFn: async ({ buyerId, buyerAddress }: PackPurchaseInput) => {
             // Get config and price
-            const { mintConfigId, packPrice, merkleProof } = await fetchPackDetails(buyerAddress as `0x${string}`);
-            console.log(merkleProof);
-            // Simulate transaction
+            const { mintConfigId, packPrice, merkleProof } = await fetchPackDetails(buyerAddress as `0x${string}`) as PackDetails;
+
+            console.log('Proof array:', merkleProof);
+
             const { request } = await simulateContract(config, {
                 address: MINTER,
                 abi: MinterAbi,
@@ -40,6 +41,7 @@ export function usePurchasePack() {
                 packPrice
             });
 
+            console.log(response);
             return response;
         },
         onSuccess: (cardsMetadata) => {
