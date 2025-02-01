@@ -2,7 +2,7 @@ import { createPublicClient, createWalletClient, http, decodeEventLog, parseEthe
 import { baseSepolia } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
 import { MinterAbi } from '@phyt/contracts';
-import { db, transactions, cards, card_metadata, pack_purchases } from '@phyt/database';
+import { db, transactions, cards, card_metadata, pack_purchases, withTransaction } from '@phyt/database';
 import { MintEvent, PackPurchaseNotif, PackPurchaseResponse, TokenURIMetadata, } from '@phyt/types';
 import { metadataService } from './metadataServices';
 import { getMerkleRoot, getMerkleProofForWallet } from '../lib/merkleWhitelist';
@@ -39,13 +39,19 @@ export const packService = {
             console.log('Creating mint config with account:', account.address);
             console.log('PHYT_CARDS address:', PHYT_CARDS);
             console.log('MINTER address:', MINTER);
-            console.log('Chain ID:', await publicClient.getChainId());
-
-            const computedMerkleRoot = await getMerkleRoot();
 
             const now = Math.floor(Date.now() / 1000);
-            const startTime = BigInt(now + 1);
-            const endTime = 0;
+            const startTime = BigInt(now + 2);
+            const endTime = BigInt(now + (7 * 24 * 60 * 60)); // End in 7 days
+
+            console.log('Timestamps:', {
+                now,
+                startTime,
+                endTime
+            });
+
+            const computedMerkleRoot = await getMerkleRoot();
+            console.log('Computed merkle root:', computedMerkleRoot);
 
             const { request } = await publicClient.simulateContract({
                 address: MINTER,
@@ -53,14 +59,14 @@ export const packService = {
                 functionName: 'newMintConfig',
                 args: [
                     PHYT_CARDS,
-                    1n,
-                    1n,
-                    parseEther("0.0001"),
-                    1n,
-                    true,
-                    computedMerkleRoot,
-                    startTime,
-                    endTime,
+                    1n,                    // 3 cards per pack
+                    1n,                 // max total packs
+                    parseEther("0.0001"),  // price per pack
+                    1n,                   // max packs per address
+                    true,                  // whitelist enabled
+                    computedMerkleRoot,    // merkle root
+                    startTime,             // start time (now - 1 min)
+                    endTime,               // end time (7 days)
                 ],
                 account,
             });
@@ -73,14 +79,34 @@ export const packService = {
             const receipt = await publicClient.waitForTransactionReceipt({ hash });
             console.log('Transaction receipt:', receipt);
 
+            if (receipt.status === 'reverted') {
+                // Try to decode error if possible
+                if (receipt.logs && receipt.logs.length > 0) {
+                    try {
+                        const decodedLogs = receipt.logs.map(log =>
+                            decodeEventLog({
+                                abi: MinterAbi,
+                                data: log.data,
+                                topics: log.topics,
+                            })
+                        );
+                        console.log('Decoded logs:', decodedLogs);
+                    } catch (error) {
+                        console.error('Error decoding logs:', error);
+                    }
+                }
+                throw new Error('Transaction reverted - check roles and parameters');
+            }
+
             const totalConfigs = await publicClient.readContract({
                 address: MINTER,
                 abi: MinterAbi,
                 functionName: 'mintConfigIdCounter'
             });
 
-            console.log('New mint config ID:', totalConfigs - 1n);
-            return totalConfigs - 1n;
+            const configId = totalConfigs - 1n;
+            console.log('New mint config ID:', configId);
+            return configId;
         } catch (error) {
             console.error('Failed to create mint config:', error);
             throw error;
@@ -132,52 +158,54 @@ export const packService = {
 
             const mintEvent = mintEvents[0];
 
-            return await db.transaction(async (tx) => {
+            return await withTransaction(async (client) => {
                 // Create pack purchase record
-                const [packPurchase] = await tx.insert(pack_purchases).values({
-                    buyer_id: buyerId,
-                    purchase_price: Number(formatEther(BigInt(packPrice)))
-                }).returning();
+                const { rows: [packPurchase] } = await client.query(
+                    'INSERT INTO pack_purchases (buyer_id, purchase_price) VALUES ($1, $2) RETURNING *',
+                    [buyerId, Number(formatEther(BigInt(packPrice)))]
+                );
 
                 // Create transaction record
-                await tx.insert(transactions).values({
-                    from_user_id: null,
-                    to_user_id: buyerId,
-                    transaction_type: 'packPurchase',
-                    token_amount: Number(formatEther(BigInt(packPrice))),
-                    hash: hash
-                });
+                await client.query(
+                    'INSERT INTO transactions (from_user_id, to_user_id, transaction_type, token_amount, hash) VALUES ($1, $2, $3, $4, $5)',
+                    [null, buyerId, 'packPurchase', Number(formatEther(BigInt(packPrice))), hash]
+                );
 
-                // Create card records
-                const cardPromises = [];
+                // Create card records and metadata
                 const cardsMetadata: TokenURIMetadata[] = [];
+
                 for (let tokenId = Number(mintEvent.args.firstTokenId);
                     tokenId <= Number(mintEvent.args.lastTokenId);
                     tokenId++) {
 
+                    // 1. Insert the card into the cards table first
+                    const { rows: [card] } = await client.query(
+                        'INSERT INTO cards (owner_id, pack_purchase_id, token_id, acquisition_type) VALUES ($1, $2, $3, $4) RETURNING *',
+                        [buyerId, packPurchase.id, tokenId, 'mint']
+                    );
+
+                    if (!card) {
+                        throw new Error(`Failed to insert card with token_id: ${tokenId}`);
+                    }
+
+                    // 2. Now generate metadata and insert it into card_metadata.
+                    //    (Assuming generateMetadata no longer does the insert itself)
                     const metadata = await metadataService.generateMetadata(tokenId);
                     cardsMetadata.push(metadata);
 
-                    cardPromises.push(
-                        tx.insert(cards).values({
-                            owner_id: buyerId,
-                            pack_purchase_id: packPurchase.id,
-                            acquisition_type: 'mint',
-                            token_id: tokenId
-                        })
-                    );
-                    cardPromises.push(
-                        tx.insert(card_metadata).values({
-                            token_id: tokenId,
-                            runner_id: metadata.attributes[0].runner_id,
-                            runner_name: metadata.attributes[0].runner_name,
-                            rarity: metadata.attributes[0].rarity,
-                            multiplier: metadata.attributes[0].multiplier,
-                            image_url: metadata.image,
-                        })
+                    // Insert metadata using your own query (if needed)
+                    await client.query(
+                        'INSERT INTO card_metadata (token_id, runner_id, runner_name, rarity, multiplier, image_url) VALUES ($1, $2, $3, $4, $5, $6)',
+                        [
+                            tokenId,
+                            metadata.attributes[0].runner_id,
+                            metadata.attributes[0].runner_name,
+                            metadata.attributes[0].rarity,
+                            metadata.attributes[0].multiplier,
+                            metadata.image,
+                        ]
                     );
                 }
-                await Promise.all(cardPromises);
 
                 return {
                     cardsMetadata,
@@ -188,4 +216,4 @@ export const packService = {
             throw new Error(error instanceof Error ? error.message : 'Failed to purchase pack');
         }
     }
-};;
+};
