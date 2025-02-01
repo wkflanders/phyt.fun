@@ -1,1 +1,0 @@
-ALTER TABLE "cards" DROP CONSTRAINT "cards_token_id_unique";

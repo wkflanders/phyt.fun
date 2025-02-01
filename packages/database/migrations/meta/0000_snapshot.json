@@ -1,9 +1,139 @@
 {
-  "id": "c7e098d2-4328-4950-8bde-7d211144d123",
+  "id": "4f722920-e42f-4993-9ec7-8d8846d2da2d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.card_metadata": {
+      "name": "card_metadata",
+      "schema": "",
+      "columns": {
+        "token_id": {
+          "name": "token_id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "runner_id": {
+          "name": "runner_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "runner_name": {
+          "name": "runner_name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rarity": {
+          "name": "rarity",
+          "type": "enum_cards_rarity",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "multiplier": {
+          "name": "multiplier",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "image_url": {
+          "name": "image_url",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_cards_token_id": {
+          "name": "idx_cards_token_id",
+          "columns": [
+            {
+              "expression": "token_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_card_metadata_runner_id": {
+          "name": "idx_card_metadata_runner_id",
+          "columns": [
+            {
+              "expression": "runner_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_card_metadata_created_at": {
+          "name": "idx_card_metadata_created_at",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "card_metadata_token_id_cards_token_id_fk": {
+          "name": "card_metadata_token_id_cards_token_id_fk",
+          "tableFrom": "card_metadata",
+          "tableTo": "cards",
+          "columnsFrom": [
+            "token_id"
+          ],
+          "columnsTo": [
+            "token_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "card_metadata_runner_id_runners_id_fk": {
+          "name": "card_metadata_runner_id_runners_id_fk",
+          "tableFrom": "card_metadata",
+          "tableTo": "runners",
+          "columnsFrom": [
+            "runner_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.cards": {
       "name": "cards",
       "schema": "",
@@ -14,32 +144,31 @@
           "primaryKey": true,
           "notNull": true
         },
-        "runner_id": {
-          "name": "runner_id",
+        "owner_id": {
+          "name": "owner_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "current_owner_id": {
-          "name": "current_owner_id",
+        "pack_purchase_id": {
+          "name": "pack_purchase_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "token_id": {
+          "name": "token_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "rarity": {
-          "name": "rarity",
-          "type": "enum_cards_rarity",
+        "acquisition_type": {
+          "name": "acquisition_type",
+          "type": "enum_acquisition_type",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
-          "default": "'Common'"
-        },
-        "multiplier": {
-          "name": "multiplier",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'1'"
+          "default": "'mint'"
         },
         "is_burned": {
           "name": "is_burned",
@@ -50,29 +179,58 @@
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         }
       },
       "indexes": {
-        "cards_created_at_idx": {
-          "name": "cards_created_at_idx",
+        "idx_cards_owner_id": {
+          "name": "idx_cards_owner_id",
+          "columns": [
+            {
+              "expression": "owner_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_cards_pack_purchase_id": {
+          "name": "idx_cards_pack_purchase_id",
+          "columns": [
+            {
+              "expression": "pack_purchase_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_cards_created_at": {
+          "name": "idx_cards_created_at",
           "columns": [
             {
               "expression": "created_at",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -80,47 +238,14 @@
           "method": "btree",
           "with": {}
         },
-        "cards_current_owner_idx": {
-          "name": "cards_current_owner_idx",
-          "columns": [
-            {
-              "expression": "current_owner_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "cards_runner_idx": {
-          "name": "cards_runner_idx",
-          "columns": [
-            {
-              "expression": "runner_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "cards_updated_at_idx": {
-          "name": "cards_updated_at_idx",
+        "idx_cards_updated_at": {
+          "name": "idx_cards_updated_at",
           "columns": [
             {
               "expression": "updated_at",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -130,12 +255,12 @@
         }
       },
       "foreignKeys": {
-        "cards_runner_id_runners_id_fk": {
-          "name": "cards_runner_id_runners_id_fk",
+        "cards_owner_id_users_id_fk": {
+          "name": "cards_owner_id_users_id_fk",
           "tableFrom": "cards",
-          "tableTo": "runners",
+          "tableTo": "users",
           "columnsFrom": [
-            "runner_id"
+            "owner_id"
           ],
           "columnsTo": [
             "id"
@@ -143,12 +268,12 @@
           "onDelete": "set null",
           "onUpdate": "no action"
         },
-        "cards_current_owner_id_users_id_fk": {
-          "name": "cards_current_owner_id_users_id_fk",
+        "cards_pack_purchase_id_pack_purchases_id_fk": {
+          "name": "cards_pack_purchase_id_pack_purchases_id_fk",
           "tableFrom": "cards",
-          "tableTo": "users",
+          "tableTo": "pack_purchases",
           "columnsFrom": [
-            "current_owner_id"
+            "pack_purchase_id"
           ],
           "columnsTo": [
             "id"
@@ -158,7 +283,15 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "cards_token_id_unique": {
+          "name": "cards_token_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "token_id"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -181,19 +314,19 @@
         },
         "start_time": {
           "name": "start_time",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
           "notNull": true
         },
         "end_time": {
           "name": "end_time",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
           "notNull": true
         },
         "distance_m": {
           "name": "distance_m",
-          "type": "numeric",
+          "type": "double precision",
           "primaryKey": false,
           "notNull": false
         },
@@ -205,16 +338,16 @@
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         }
       },
@@ -226,8 +359,7 @@
               "expression": "created_at",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -242,8 +374,7 @@
               "expression": "updated_at",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -277,54 +408,38 @@
         },
         "total_score": {
           "name": "total_score",
-          "type": "numeric",
+          "type": "double precision",
           "primaryKey": false,
           "notNull": true
         },
         "final_placement": {
           "name": "final_placement",
-          "type": "numeric",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
         "reward_amount_p_h_y_t": {
           "name": "reward_amount_p_h_y_t",
-          "type": "numeric",
+          "type": "double precision",
           "primaryKey": false,
           "notNull": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         }
       },
       "indexes": {
-        "gambler_results_created_at_idx": {
-          "name": "gambler_results_created_at_idx",
-          "columns": [
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
         "gambler_results_lineup_idx": {
           "name": "gambler_results_lineup_idx",
           "columns": [
@@ -332,8 +447,22 @@
               "expression": "lineup_id",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "gambler_results_created_at_idx": {
+          "name": "gambler_results_created_at_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -348,8 +477,7 @@
               "expression": "updated_at",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -403,26 +531,41 @@
         },
         "position": {
           "name": "position",
-          "type": "numeric",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         }
       },
       "indexes": {
+        "lineup_cards_lineup_idx": {
+          "name": "lineup_cards_lineup_idx",
+          "columns": [
+            {
+              "expression": "lineup_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
         "lineup_cards_card_idx": {
           "name": "lineup_cards_card_idx",
           "columns": [
@@ -430,8 +573,7 @@
               "expression": "card_id",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -446,24 +588,7 @@
               "expression": "created_at",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "lineup_cards_lineup_idx": {
-          "name": "lineup_cards_lineup_idx",
-          "columns": [
-            {
-              "expression": "lineup_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -478,8 +603,7 @@
               "expression": "updated_at",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -546,16 +670,16 @@
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         }
       },
@@ -567,24 +691,7 @@
               "expression": "competition_id",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "lineups_created_at_idx": {
-          "name": "lineups_created_at_idx",
-          "columns": [
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -599,8 +706,22 @@
               "expression": "gambler_id",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "lineups_created_at_idx": {
+          "name": "lineups_created_at_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -615,8 +736,7 @@
               "expression": "updated_at",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -683,7 +803,7 @@
         },
         "listed_price": {
           "name": "listed_price",
-          "type": "numeric",
+          "type": "double precision",
           "primaryKey": false,
           "notNull": true
         },
@@ -696,16 +816,16 @@
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         }
       },
@@ -717,24 +837,7 @@
               "expression": "card_id",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "listings_created_at_idx": {
-          "name": "listings_created_at_idx",
-          "columns": [
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -749,8 +852,22 @@
               "expression": "seller_id",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "listings_created_at_idx": {
+          "name": "listings_created_at_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -765,8 +882,7 @@
               "expression": "updated_at",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -827,22 +943,22 @@
         },
         "purchase_price": {
           "name": "purchase_price",
-          "type": "numeric",
+          "type": "double precision",
           "primaryKey": false,
           "notNull": true
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         }
       },
@@ -854,8 +970,7 @@
               "expression": "buyer_id",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -870,8 +985,7 @@
               "expression": "created_at",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -886,8 +1000,7 @@
               "expression": "updated_at",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -908,119 +1021,6 @@
             "id"
           ],
           "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.pack_purchases_card_ids": {
-      "name": "pack_purchases_card_ids",
-      "schema": "",
-      "columns": {
-        "_order": {
-          "name": "_order",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "_parent_id": {
-          "name": "_parent_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "id": {
-          "name": "id",
-          "type": "varchar",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "card_id": {
-          "name": "card_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "pack_purchases_card_ids_card_idx": {
-          "name": "pack_purchases_card_ids_card_idx",
-          "columns": [
-            {
-              "expression": "card_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "pack_purchases_card_ids_order_idx": {
-          "name": "pack_purchases_card_ids_order_idx",
-          "columns": [
-            {
-              "expression": "_order",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "pack_purchases_card_ids_parent_id_idx": {
-          "name": "pack_purchases_card_ids_parent_id_idx",
-          "columns": [
-            {
-              "expression": "_parent_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "pack_purchases_card_ids_card_id_cards_id_fk": {
-          "name": "pack_purchases_card_ids_card_id_cards_id_fk",
-          "tableFrom": "pack_purchases_card_ids",
-          "tableTo": "cards",
-          "columnsFrom": [
-            "card_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "pack_purchases_card_ids_parent_id_fk": {
-          "name": "pack_purchases_card_ids_parent_id_fk",
-          "tableFrom": "pack_purchases_card_ids",
-          "tableTo": "pack_purchases",
-          "columnsFrom": [
-            "_parent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -1060,28 +1060,28 @@
         },
         "best_time_sec": {
           "name": "best_time_sec",
-          "type": "numeric",
+          "type": "double precision",
           "primaryKey": false,
           "notNull": true
         },
         "ranking": {
           "name": "ranking",
-          "type": "numeric",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         }
       },
@@ -1093,24 +1093,7 @@
               "expression": "competition_id",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "runner_results_created_at_idx": {
-          "name": "runner_results_created_at_idx",
-          "columns": [
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -1125,8 +1108,7 @@
               "expression": "runner_id",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -1141,8 +1123,22 @@
               "expression": "session_id",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "runner_results_created_at_idx": {
+          "name": "runner_results_created_at_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -1157,8 +1153,7 @@
               "expression": "updated_at",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -1232,46 +1227,61 @@
         },
         "average_pace": {
           "name": "average_pace",
-          "type": "numeric",
+          "type": "double precision",
           "primaryKey": false,
           "notNull": false
         },
         "total_distance_m": {
           "name": "total_distance_m",
-          "type": "numeric",
+          "type": "double precision",
           "primaryKey": false,
           "notNull": false,
-          "default": "'0'"
+          "default": 0
         },
         "total_runs": {
           "name": "total_runs",
-          "type": "numeric",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "default": "'0'"
+          "default": 0
         },
         "best_mile_time": {
           "name": "best_mile_time",
-          "type": "numeric",
+          "type": "double precision",
           "primaryKey": false,
           "notNull": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         }
       },
       "indexes": {
+        "runners_user_idx": {
+          "name": "runners_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
         "runners_created_at_idx": {
           "name": "runners_created_at_idx",
           "columns": [
@@ -1279,8 +1289,7 @@
               "expression": "created_at",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -1295,27 +1304,10 @@
               "expression": "updated_at",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "runners_user_idx": {
-          "name": "runners_user_idx",
-          "columns": [
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
-            }
-          ],
-          "isUnique": true,
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -1332,7 +1324,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "set null",
+          "onDelete": "restrict",
           "onUpdate": "no action"
         }
       },
@@ -1360,61 +1352,61 @@
         },
         "start_time": {
           "name": "start_time",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
           "notNull": true
         },
         "end_time": {
           "name": "end_time",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
           "notNull": true
         },
         "duration_seconds": {
           "name": "duration_seconds",
-          "type": "numeric",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
         "distance_m": {
           "name": "distance_m",
-          "type": "numeric",
+          "type": "double precision",
           "primaryKey": false,
           "notNull": true
         },
         "average_pace_sec": {
           "name": "average_pace_sec",
-          "type": "numeric",
+          "type": "double precision",
           "primaryKey": false,
           "notNull": false
         },
         "calories_burned": {
           "name": "calories_burned",
-          "type": "numeric",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
         "step_count": {
           "name": "step_count",
-          "type": "numeric",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
         "elevation_gain_m": {
           "name": "elevation_gain_m",
-          "type": "numeric",
+          "type": "double precision",
           "primaryKey": false,
           "notNull": false
         },
         "average_heart_rate": {
           "name": "average_heart_rate",
-          "type": "numeric",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
         "max_heart_rate": {
           "name": "max_heart_rate",
-          "type": "numeric",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
@@ -1438,44 +1430,28 @@
           "notNull": false,
           "default": "'pending'"
         },
-        "raw_data_j_s_o_n": {
-          "name": "raw_data_j_s_o_n",
+        "raw_data_json": {
+          "name": "raw_data_json",
           "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         }
       },
       "indexes": {
-        "runs_created_at_idx": {
-          "name": "runs_created_at_idx",
-          "columns": [
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
         "runs_runner_idx": {
           "name": "runs_runner_idx",
           "columns": [
@@ -1483,8 +1459,22 @@
               "expression": "runner_id",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "runs_created_at_idx": {
+          "name": "runs_created_at_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -1499,8 +1489,7 @@
               "expression": "updated_at",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -1510,10 +1499,10 @@
         }
       },
       "foreignKeys": {
-        "runs_runner_id_users_id_fk": {
-          "name": "runs_runner_id_users_id_fk",
+        "runs_runner_id_runners_id_fk": {
+          "name": "runs_runner_id_runners_id_fk",
           "tableFrom": "runs",
-          "tableTo": "users",
+          "tableTo": "runners",
           "columnsFrom": [
             "runner_id"
           ],
@@ -1566,7 +1555,7 @@
         },
         "token_amount": {
           "name": "token_amount",
-          "type": "numeric",
+          "type": "double precision",
           "primaryKey": false,
           "notNull": false
         },
@@ -1577,70 +1566,28 @@
           "primaryKey": false,
           "notNull": true
         },
+        "hash": {
+          "name": "hash",
+          "type": "varchar(66)",
+          "primaryKey": false,
+          "notNull": false
+        },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         }
       },
       "indexes": {
-        "transactions_card_idx": {
-          "name": "transactions_card_idx",
-          "columns": [
-            {
-              "expression": "card_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "transactions_competition_idx": {
-          "name": "transactions_competition_idx",
-          "columns": [
-            {
-              "expression": "competition_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "transactions_created_at_idx": {
-          "name": "transactions_created_at_idx",
-          "columns": [
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
         "transactions_from_user_idx": {
           "name": "transactions_from_user_idx",
           "columns": [
@@ -1648,8 +1595,7 @@
               "expression": "from_user_id",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -1664,8 +1610,67 @@
               "expression": "to_user_id",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "transactions_card_idx": {
+          "name": "transactions_card_idx",
+          "columns": [
+            {
+              "expression": "card_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "transactions_competition_idx": {
+          "name": "transactions_competition_idx",
+          "columns": [
+            {
+              "expression": "competition_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "transactions_hash_idx": {
+          "name": "transactions_hash_idx",
+          "columns": [
+            {
+              "expression": "hash",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "transactions_created_at_idx": {
+          "name": "transactions_created_at_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -1680,8 +1685,7 @@
               "expression": "updated_at",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -1792,26 +1796,41 @@
         },
         "last_synced_at": {
           "name": "last_synced_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
           "notNull": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         }
       },
       "indexes": {
+        "user_device_authorizations_user_idx": {
+          "name": "user_device_authorizations_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
         "user_device_authorizations_created_at_idx": {
           "name": "user_device_authorizations_created_at_idx",
           "columns": [
@@ -1819,8 +1838,7 @@
               "expression": "created_at",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -1835,24 +1853,7 @@
               "expression": "updated_at",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "user_device_authorizations_user_idx": {
-          "name": "user_device_authorizations_user_idx",
-          "columns": [
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": false,
@@ -1894,16 +1895,16 @@
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp(3) with time zone",
+          "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         },
         "email": {
@@ -1942,26 +1943,11 @@
           "name": "avatar_url",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut'"
         }
       },
       "indexes": {
-        "users_created_at_idx": {
-          "name": "users_created_at_idx",
-          "columns": [
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
         "users_email_idx": {
           "name": "users_email_idx",
           "columns": [
@@ -1969,27 +1955,10 @@
               "expression": "email",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "users_updated_at_idx": {
-          "name": "users_updated_at_idx",
-          "columns": [
-            {
-              "expression": "updated_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "timestamptz_ops"
-            }
-          ],
-          "isUnique": false,
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -2001,11 +1970,40 @@
               "expression": "username",
               "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops"
+              "nulls": "last"
             }
           ],
           "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "users_created_at_idx": {
+          "name": "users_created_at_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "users_updated_at_idx": {
+          "name": "users_updated_at_idx",
+          "columns": [
+            {
+              "expression": "updated_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -2020,14 +2018,25 @@
     }
   },
   "enums": {
+    "public.enum_acquisition_type": {
+      "name": "enum_acquisition_type",
+      "schema": "public",
+      "values": [
+        "mint",
+        "transfer",
+        "marketplace"
+      ]
+    },
     "public.enum_cards_rarity": {
       "name": "enum_cards_rarity",
       "schema": "public",
       "values": [
-        "Common",
-        "Rare",
-        "Exotic",
-        "Legendary"
+        "bronze",
+        "silver",
+        "gold",
+        "sapphire",
+        "ruby",
+        "opal"
       ]
     },
     "public.enum_runs_verification_status": {
