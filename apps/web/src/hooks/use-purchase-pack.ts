@@ -15,14 +15,13 @@ export function usePurchasePack() {
     return useMutation<PackPurchaseResponse, Error, PackPurchaseInput>({
         mutationFn: async ({ buyerId, buyerAddress }: PackPurchaseInput) => {
             // Get config and price
-            const { mintConfigId, packPrice } = await fetchPackDetails();
-            console.log(mintConfigId);
+            const { mintConfigId, packPrice, merkleProof } = await fetchPackDetails(buyerAddress as `0x${string}`);
             // Simulate transaction
             const { request } = await simulateContract(config, {
                 address: MINTER,
                 abi: MinterAbi,
                 functionName: 'mint',
-                args: [BigInt(mintConfigId), []],
+                args: [BigInt(mintConfigId), merkleProof],
                 value: BigInt(packPrice),
                 account: buyerAddress as Address,
             });

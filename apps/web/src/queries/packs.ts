@@ -2,7 +2,7 @@ import { ApiError, PackDetails, PackPurchaseNotif, PackPurchaseResponse } from "
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
-export async function fetchPackDetails(): Promise<PackDetails> {
+export async function fetchPackDetails(wallet_address: `0x${string}`): Promise<PackDetails> {
     console.log(BigInt(Math.floor(Date.now() / 1000)));
     const response = await fetch(`${API_URL}/packs/init`, {
         method: 'GET',
@@ -10,6 +10,7 @@ export async function fetchPackDetails(): Promise<PackDetails> {
         headers: {
             'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ wallet_address })
     });
 
     const data = await response.json();
@@ -31,7 +32,10 @@ export async function notifyServerPackTxn({
 }: PackPurchaseNotif): Promise<PackPurchaseResponse> {
     const resp = await fetch(`${API_URL}/packs/purchase`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json'
+        },
         body: JSON.stringify({ buyerId, hash, packPrice }),
     });
 
