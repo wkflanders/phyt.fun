@@ -266,11 +266,12 @@ export class PackPurchaseError extends Error {
 export interface PackDetails {
     mintConfigId: string;
     packPrice: string;
+    merkleProof: string;
 }
 
 export interface PackPurchaseInput {
     buyerId: number;
-    buyerAddress: Address;
+    buyerAddress: `0x${string}`;
 }
 
 export interface PackPurchaseNotif {
