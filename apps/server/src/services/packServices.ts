@@ -5,6 +5,7 @@ import { MinterAbi } from '@phyt/contracts';
 import { db, transactions, cards, card_metadata, pack_purchases } from '@phyt/database';
 import { MintEvent, PackPurchaseNotif, PackPurchaseResponse, TokenURIMetadata, } from '@phyt/types';
 import { metadataService } from './metadataServices';
+import { getMerkleRoot, getMerkleProofForWallet } from 'src/lib/merkleWhitelist';
 
 //forge script script/Deploy.s.sol --rpc-url $URL --broadcast --private-key $PRIVATE_KEY
 
@@ -54,34 +55,16 @@ const walletClient = createWalletClient({
 export const packService = {
     createMintConfig: async () => {
         try {
-            console.log('Chain ID:', await publicClient.getChainId());
             console.log('Creating mint config with account:', account.address);
             console.log('PHYT_CARDS address:', PHYT_CARDS);
             console.log('MINTER address:', MINTER);
+            console.log('Chain ID:', await publicClient.getChainId());
 
-            // Verify role
-            const MINT_CONFIG_ROLE = await publicClient.readContract({
-                address: MINTER,
-                abi: MinterAbi,
-                functionName: 'MINT_CONFIG_ROLE'
-            });
-
-            const hasRole = await publicClient.readContract({
-                address: MINTER,
-                abi: MinterAbi,
-                functionName: 'hasRole',
-                args: [MINT_CONFIG_ROLE, account.address]
-            });
-
-            console.log('Account has MINT_CONFIG_ROLE:', hasRole);
+            const computedMerkleRoot = await getMerkleRoot();
 
             const now = Math.floor(Date.now() / 1000);
             const startTime = BigInt(now + 1);
             const endTime = 0;
-
-            if (!hasRole) {
-                throw new Error(`Account \${account.address} does not have MINT_CONFIG_ROLE`);
-            }
 
             const { request } = await publicClient.simulateContract({
                 address: MINTER,
@@ -93,8 +76,8 @@ export const packService = {
                     1n,
                     parseEther("0.0001"),
                     1n,
-                    false,
-                    "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    true,
+                    computedMerkleRoot,
                     startTime,
                     endTime,
                 ],
@@ -121,6 +104,9 @@ export const packService = {
             console.error('Failed to create mint config:', error);
             throw error;
         }
+    },
+    getWhitelistProof: async (wallet: string): Promise<string[]> => {
+        return getMerkleProofForWallet(wallet);
     },
 
     getPackPrice: async (mintConfigId: bigint) => {
