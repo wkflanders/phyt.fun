@@ -276,13 +276,11 @@ export interface PackPurchaseInput {
 export interface PackPurchaseNotif {
     buyerId: number;
     hash: `0x${string}`;
-    packPrice: bigint;
+    packPrice: string;
 }
 
 export interface PackPurchaseResponse {
     cardsMetadata: TokenURIMetadata[];
-    txHash: string;
-    packPurchaseId: number;
 }
 
 export interface ContractConfig {
