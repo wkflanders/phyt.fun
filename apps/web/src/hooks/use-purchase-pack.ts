@@ -32,12 +32,12 @@ export function usePurchasePack() {
                 { ...config },
                 { ...request }
             );
-
-            // Notify server
+            console.log(hash);
+            // Notify server    
             const response = await notifyServerPackTxn({
                 buyerId,
                 hash,
-                packPrice: BigInt(packPrice)
+                packPrice
             });
 
             return response;

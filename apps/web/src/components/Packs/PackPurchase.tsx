@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { usePurchasePack } from '@/hooks/use-purchase-pack';
 import { useGetUser } from '@/hooks/use-get-user';
 import { Loader2, Sparkles } from 'lucide-react';
-import { usePrivy } from '@privy-io/react-auth';
+import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useAccount, useBalance } from 'wagmi';
 import { parseEther } from 'viem';
 import { TokenURIMetadata, CardRarity } from '@phyt/types';
@@ -45,10 +45,7 @@ const PackPurchase = () => {
     const { address } = useAccount();
     const { ready, user: privyUser } = usePrivy();
     const { data: user, isFetching, error } = useGetUser();
-
-    const buyerId = user?.id;
     const { mutate: purchasePack, isPending } = usePurchasePack();
-
     const { data: balance } = useBalance({
         address: address as `0x${string}`,
     });
