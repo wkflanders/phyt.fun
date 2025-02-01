@@ -154,10 +154,10 @@ contract Minter is IMinter, AccessControlDefaultAdminRules, ReentrancyGuard {
     ) external payable nonReentrant onlyEOA {
         MintConfigStorage storage config = mintConfigs[configId];
         require(!config.cancelled, "Config cancelled");
-        require(block.timestamp <= config.startTimestamp, "Not started");
+        require(block.timestamp >= config.startTimestamp, "Not started");
         require(
             config.expirationTimestamp == 0 ||
-                block.timestamp > config.expirationTimestamp,
+                block.timestamp < config.expirationTimestamp,
             "Expired"
         );
 
