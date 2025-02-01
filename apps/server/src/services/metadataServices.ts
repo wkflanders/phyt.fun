@@ -8,7 +8,7 @@ export const metadataService = {
         const weights = Object.entries(RarityWeights);
         const totalWeight = weights.reduce((sum, [_, weight]) => sum + weight, 0);
 
-        // Generate cryptographically secure random number
+        // Generate a random number between 0 (inclusive) and totalWeight (exclusive)
         const random = randomInt(totalWeight);
         let cumulativeWeight = 0;
 
@@ -19,7 +19,7 @@ export const metadataService = {
             }
         }
 
-        return 'bronze'; // Fallback, should never reach here due to cumulative weights
+        return 'silver'; // Fallback, should never reach here due to cumulative weights
     },
     selectRandomRunner: async () => {
         const allRunners = await db.select()
@@ -54,15 +54,6 @@ export const metadataService = {
                 multiplier: multiplier,
             }]
         };
-
-        await db.insert(card_metadata).values({
-            token_id: tokenId,
-            runner_id: runner.id,
-            runner_name: metadata.attributes[0].runner_name,
-            rarity: rarity,
-            multiplier: multiplier,
-            image_url: imageUrl,
-        });
 
         await s3Service.uploadMetadata(tokenId, metadata);
 
