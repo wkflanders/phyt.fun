@@ -68,6 +68,7 @@ export const AsideUser = () => {
                         width={48}
                         height={48}
                         className="rounded-full border-2 border-phyt_form_border"
+                        unoptimized
                     />
                     <div className="flex-1 min-w-0">
                         <p className="text-phyt_text_secondary text-sm">Profile not found</p>
@@ -87,6 +88,7 @@ export const AsideUser = () => {
                     width={48}
                     height={48}
                     className="rounded-full border-2 border-phyt_form"
+                    unoptimized
                 />
                 <div className="flex-1 min-w-0">
                     <p className="text-phyt_text font-medium text-lg truncate">

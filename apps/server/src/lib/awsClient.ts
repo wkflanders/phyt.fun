@@ -48,9 +48,8 @@ export const s3Service = {
     getImageUrl: (runnerId: number, rarity: CardRarity): string => {
         return `https://d1o7ihod05ar3g.cloudfront.net/runners/${runnerId}/${rarity}.png`;
     },
-    uploadAvatar: async (file: Buffer, env: 'dev' | 'prod') => {
+    uploadAvatar: async (file: Buffer, env: "dev" | "prod") => {
         const bucketName = env === "prod" ? process.env.AWS_AVATAR_PROD_BUCKET : process.env.AWS_AVATAR_DEV_BUCKET;
-
         const fileKey = `avatars/${uuidv4()}.png`;
 
         try {
@@ -58,36 +57,48 @@ export const s3Service = {
                 Bucket: bucketName,
                 Key: fileKey,
                 Body: file,
-                ContentType: 'image/png'
+                ContentType: "image/png",
+                ACL: "private", // ✅ Ensure private upload
             }));
 
-            return fileKey;
+            return fileKey; // ✅ Store only the fileKey in DB
         } catch (error) {
-            console.error('Error uploading avatar url:', error);
-            throw new Error('Failed to upload avatar url to S3');
+            console.error("Error uploading avatar:", error);
+            throw new Error("Failed to upload avatar to S3");
         }
     },
-    generateAvatarUrl: (fileKey: string, env: "dev" | "prod") => {
+    generateAvatarUrl: (fileKey: string, env: "dev" | "prod"): string => {
+        const baseUrl = env === "prod"
+            ? `${process.env.AWS_CLOUDFRONT_AVATAR_URL}/prod/`
+            : `${process.env.AWS_CLOUDFRONT_AVATAR_URL}/dev/`;
+
+        return `${baseUrl}${fileKey}`;
+    },
+
+    generateSignedAvatarUrl: (fileKey: string, env: "dev" | "prod"): string => {
         const baseUrl = env === "prod"
             ? `${process.env.AWS_CLOUDFRONT_AVATAR_URL}/prod/`
             : `${process.env.AWS_CLOUDFRONT_AVATAR_URL}/dev/`;
 
         const url = `${baseUrl}${fileKey}`;
-        const expiration = Math.floor(Date.now() / 1000) + 3600;
+        const expiration = Math.floor(Date.now() / 1000) + 3600; // 1 hour expiration
 
         const policy = JSON.stringify({
             Statement: [{
-                Resource: url,
+                Resource: `${baseUrl}*`, // ✅ Allows all avatars in the folder
                 Condition: { DateLessThan: { "AWS:EpochTime": expiration } }
             }]
         });
 
-        const PRIVATE_KEY = Buffer.from(process.env.AWS_CLOUDFRONT_AVATAR_URL_PRIVATE_KEY!, "base64").toString("utf-8");
+        const PRIVATE_KEY = Buffer.from(
+            process.env.AWS_CLOUDFRONT_AVATAR_URL_PRIVATE_KEY!,
+            "base64"
+        ).toString("utf-8").trim();
 
         const signature = crypto.createSign("SHA256");
         signature.update(policy);
         const signedSignature = signature.sign(PRIVATE_KEY, "base64");
 
         return `${url}?Policy=${Buffer.from(policy).toString("base64")}&Signature=${signedSignature}&Key-Pair-Id=${process.env.AWS_CLOUDFRONT_AVATAR_URL_KEY_ID}`;
-    }
+    },
 };

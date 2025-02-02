@@ -1,9 +1,11 @@
+// apps/server/src/services/userServices.ts
 import { db, eq, or, desc } from '@phyt/database';
 import { users, transactions } from '@phyt/database';
 import { DatabaseError, NotFoundError, DuplicateError, ValidationError } from '@phyt/types';
 import { s3Service } from '../lib/awsClient';
 
-const DEFAULT_AVATAR = "https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut";
+const DEFAULT_AVATAR = 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut';
+const env = process.env.NODE_ENV === 'production' ? 'prod' : 'dev';
 
 export const userService = {
     getUserByPrivyId: async (privyId: string) => {
@@ -14,7 +16,19 @@ export const userService = {
                 .from(users)
                 .where(eq(users.privy_id, privyId))
                 .limit(1);
+
             if (!user) throw new NotFoundError('User not found');
+
+            // Generate signed URL if avatar is from S3
+            if (user.avatar_url?.includes(process.env.AWS_CLOUDFRONT_AVATAR_URL!)) {
+                const urlParts = user.avatar_url.split('/');
+                const fileKey = urlParts.slice(-2).join('/'); // Get "avatars/uuid-filename"
+                return {
+                    ...user,
+                    avatar_url: s3Service.generateSignedAvatarUrl(fileKey, env)
+                };
+            }
+
             return user;
         } catch (error) {
             if (error instanceof NotFoundError || error instanceof ValidationError) throw error;
@@ -30,7 +44,19 @@ export const userService = {
                 .from(users)
                 .where(eq(users.email, email))
                 .limit(1);
+
             if (!user) throw new NotFoundError('User not found');
+
+            // Generate signed URL if avatar is from S3
+            if (user.avatar_url?.includes(process.env.AWS_CLOUDFRONT_AVATAR_URL!)) {
+                const urlParts = user.avatar_url.split('/');
+                const fileKey = urlParts.slice(-2).join('/');
+                return {
+                    ...user,
+                    avatar_url: s3Service.generateSignedAvatarUrl(fileKey, env)
+                };
+            }
+
             return user;
         } catch (error) {
             if (error instanceof NotFoundError || error instanceof ValidationError) throw error;
@@ -46,7 +72,19 @@ export const userService = {
                 .from(users)
                 .where(eq(users.username, username))
                 .limit(1);
+
             if (!user) throw new NotFoundError('User not found');
+
+            // Generate signed URL if avatar is from S3
+            if (user.avatar_url?.includes(process.env.AWS_CLOUDFRONT_AVATAR_URL!)) {
+                const urlParts = user.avatar_url.split('/');
+                const fileKey = urlParts.slice(-2).join('/');
+                return {
+                    ...user,
+                    avatar_url: s3Service.generateSignedAvatarUrl(fileKey, env)
+                };
+            }
+
             return user;
         } catch (error) {
             if (error instanceof NotFoundError || error instanceof ValidationError) throw error;
@@ -55,12 +93,14 @@ export const userService = {
     },
 
     getTransactionsByPrivyId: async (privyId: string) => {
-        if (!privyId) throw new ValidationError('Username is required');
+        if (!privyId) throw new ValidationError('Privy ID is required');
+
         try {
             const [user] = await db.select()
                 .from(users)
                 .where(eq(users.privy_id, privyId))
                 .limit(1);
+
             if (!user) throw new NotFoundError('User not found');
 
             // Fetch transactions for the user (both sent and received)
@@ -70,7 +110,7 @@ export const userService = {
                     or(
                         eq(transactions.from_user_id, user.id),
                         eq(transactions.to_user_id, user.id)
-                    ),
+                    )
                 )
                 .orderBy(desc(transactions.created_at));
 
@@ -84,15 +124,16 @@ export const userService = {
     createUser: async (userData: {
         email: string;
         username: string;
-        avatarFile?: Express.Multer.File;
         privy_id: string;
         wallet_address?: string;
+        avatarFile?: Express.Multer.File;
     }) => {
         if (!userData.email || !userData.username || !userData.privy_id) {
             throw new ValidationError('Email, username, and Privy ID are required');
         }
 
         try {
+            // Check for existing email
             const existingEmail = await userService.getUserByEmail(userData.email)
                 .catch(error => {
                     if (error instanceof NotFoundError) return null;
@@ -103,6 +144,7 @@ export const userService = {
                 throw new DuplicateError('Email already registered');
             }
 
+            // Check for existing username
             const existingUsername = await userService.getUserByUsername(userData.username)
                 .catch(error => {
                     if (error instanceof NotFoundError) return null;
@@ -113,13 +155,14 @@ export const userService = {
                 throw new DuplicateError('Username already taken');
             }
 
+            // Handle avatar upload if file exists
             let avatar_url = DEFAULT_AVATAR;
             if (userData.avatarFile) {
-                const env = process.env.NODE_ENV === 'production' ? 'prod' : 'dev';
                 const fileKey = await s3Service.uploadAvatar(userData.avatarFile.buffer, env);
                 avatar_url = s3Service.generateAvatarUrl(fileKey, env);
             }
 
+            // Create user record
             const [newUser] = await db.insert(users)
                 .values({
                     email: userData.email,
@@ -130,6 +173,17 @@ export const userService = {
                     role: 'user'
                 })
                 .returning();
+
+            // Return user with signed URL if using S3
+            if (avatar_url.includes(process.env.AWS_CLOUDFRONT_AVATAR_URL!)) {
+                const urlParts = avatar_url.split('/');
+                const fileKey = urlParts.slice(-2).join('/');
+                return {
+                    ...newUser,
+                    avatar_url: s3Service.generateSignedAvatarUrl(fileKey, env)
+                };
+            }
+
             return newUser;
         } catch (error) {
             if (error instanceof DuplicateError || error instanceof ValidationError) throw error;

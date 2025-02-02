@@ -1,10 +1,18 @@
 import { z } from "zod";
 
 export const createUserSchema = z.object({
-    email: z.string().email(),
-    username: z.string().min(3).max(30),
-    privy_id: z.string(),
-    wallet_address: z.string().optional()
+    email: z.string({
+        required_error: "Email is required",
+    }).email("Invalid email address"),
+    username: z.string({
+        required_error: "Username is required",
+    }).min(3, "Username must be at least 3 characters")
+        .max(30, "Username must be at most 30 characters")
+        .regex(/^[a-zA-Z0-9_-]+$/, "Username can only contain letters, numbers, underscores, and hyphens"),
+    privy_id: z.string({
+        required_error: "Privy ID is required",
+    }),
+    wallet_address: z.string().optional(),
 });
 
 export const purchasePackSchema = z.object({

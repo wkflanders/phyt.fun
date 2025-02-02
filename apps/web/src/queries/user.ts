@@ -43,7 +43,7 @@ export async function getUserTransactions(privyId: string): Promise<Transaction[
 }
 
 export async function createUser({ formData }: CreateUserInput): Promise<User> {
-    const response = await fetch('/api/users/create', {
+    const response = await fetch(`${API_URL}/users/create`, {
         method: 'POST',
         body: formData,
         credentials: 'include'
