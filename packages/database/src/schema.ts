@@ -13,9 +13,12 @@ export const enum_runs_verification_status = pgEnum("enum_runs_verification_stat
 ]);
 
 export const enum_transactions_transaction_type = pgEnum("enum_transactions_transaction_type", [
-    'packPurchase', 'marketplaceSale', 'rewardPayout'
+    'packPurchase',
+    'marketplaceSale',
+    'marketplaceOffer',
+    'marketplaceListing',
+    'rewardPayout'
 ]);
-
 export const enum_users_role = pgEnum("enum_users_role", [
     'admin', 'user', 'runner'
 ]);
@@ -196,15 +199,41 @@ export const listings = pgTable("listings", {
     id: serial("id").primaryKey(),
     card_id: integer("card_id").notNull().references(() => cards.id, { onDelete: 'set null' }),
     seller_id: integer("seller_id").notNull().references(() => users.id, { onDelete: 'set null' }),
-    listed_price: doublePrecision("listed_price").notNull(),
-    is_active: boolean("is_active").default(true),
+    price: doublePrecision("price").notNull(),
+    payment_token: varchar("payment_token", { length: 42 }).notNull(),
+    expiration_time: timestamp("expiration_time", { precision: 3 }).notNull(),
+    signature: varchar("signature").notNull(),
+    salt: varchar("salt").notNull(),
+    active: boolean("active").default(true),
     updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
     created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
 }, (table) => [
     index("listings_card_idx").on(table.card_id),
     index("listings_seller_idx").on(table.seller_id),
+    index("listings_active_idx").on(table.active),
     index("listings_created_at_idx").on(table.created_at),
     index("listings_updated_at_idx").on(table.updated_at),
+]);
+
+// Add new offers table following the same pattern
+export const offers = pgTable("offers", {
+    id: serial("id").primaryKey(),
+    card_id: integer("card_id").notNull().references(() => cards.id, { onDelete: 'set null' }),
+    buyer_id: integer("buyer_id").notNull().references(() => users.id, { onDelete: 'set null' }),
+    price: doublePrecision("price").notNull(),
+    payment_token: varchar("payment_token", { length: 42 }).notNull(),
+    expiration_time: timestamp("expiration_time", { precision: 3 }).notNull(),
+    signature: varchar("signature").notNull(),
+    salt: varchar("salt").notNull(),
+    active: boolean("active").default(true),
+    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+}, (table) => [
+    index("offers_card_idx").on(table.card_id),
+    index("offers_buyer_idx").on(table.buyer_id),
+    index("offers_active_idx").on(table.active),
+    index("offers_created_at_idx").on(table.created_at),
+    index("offers_updated_at_idx").on(table.updated_at),
 ]);
 
 export const transactions = pgTable("transactions", {
