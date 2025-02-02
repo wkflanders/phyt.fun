@@ -18,17 +18,6 @@ export const userService = {
                 .limit(1);
 
             if (!user) throw new NotFoundError('User not found');
-
-            // Generate signed URL if avatar is from S3
-            if (user.avatar_url?.includes(process.env.AWS_CLOUDFRONT_AVATAR_URL!)) {
-                const urlParts = user.avatar_url.split('/');
-                const fileKey = urlParts.slice(-2).join('/'); // Get "avatars/uuid-filename"
-                return {
-                    ...user,
-                    avatar_url: s3Service.generateSignedAvatarUrl(fileKey, env)
-                };
-            }
-
             return user;
         } catch (error) {
             if (error instanceof NotFoundError || error instanceof ValidationError) throw error;
@@ -46,17 +35,6 @@ export const userService = {
                 .limit(1);
 
             if (!user) throw new NotFoundError('User not found');
-
-            // Generate signed URL if avatar is from S3
-            if (user.avatar_url?.includes(process.env.AWS_CLOUDFRONT_AVATAR_URL!)) {
-                const urlParts = user.avatar_url.split('/');
-                const fileKey = urlParts.slice(-2).join('/');
-                return {
-                    ...user,
-                    avatar_url: s3Service.generateSignedAvatarUrl(fileKey, env)
-                };
-            }
-
             return user;
         } catch (error) {
             if (error instanceof NotFoundError || error instanceof ValidationError) throw error;
@@ -74,17 +52,6 @@ export const userService = {
                 .limit(1);
 
             if (!user) throw new NotFoundError('User not found');
-
-            // Generate signed URL if avatar is from S3
-            if (user.avatar_url?.includes(process.env.AWS_CLOUDFRONT_AVATAR_URL!)) {
-                const urlParts = user.avatar_url.split('/');
-                const fileKey = urlParts.slice(-2).join('/');
-                return {
-                    ...user,
-                    avatar_url: s3Service.generateSignedAvatarUrl(fileKey, env)
-                };
-            }
-
             return user;
         } catch (error) {
             if (error instanceof NotFoundError || error instanceof ValidationError) throw error;
@@ -158,8 +125,8 @@ export const userService = {
             // Handle avatar upload if file exists
             let avatar_url = DEFAULT_AVATAR;
             if (userData.avatarFile) {
-                const fileKey = await s3Service.uploadAvatar(userData.avatarFile.buffer, env);
-                avatar_url = s3Service.generateAvatarUrl(fileKey, env);
+                const fileKey = await s3Service.uploadAvatar(userData.avatarFile.buffer);
+                avatar_url = s3Service.generateAvatarUrl(fileKey);
             }
 
             // Create user record
@@ -173,16 +140,6 @@ export const userService = {
                     role: 'user'
                 })
                 .returning();
-
-            // Return user with signed URL if using S3
-            if (avatar_url.includes(process.env.AWS_CLOUDFRONT_AVATAR_URL!)) {
-                const urlParts = avatar_url.split('/');
-                const fileKey = urlParts.slice(-2).join('/');
-                return {
-                    ...newUser,
-                    avatar_url: s3Service.generateSignedAvatarUrl(fileKey, env)
-                };
-            }
 
             return newUser;
         } catch (error) {
