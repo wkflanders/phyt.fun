@@ -2,7 +2,6 @@ import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } fro
 import { CardRarity, RarityWeights, RarityMultipliers } from '@phyt/types';
 import { config } from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
-import crypto from "crypto";
 
 config();
 
@@ -48,9 +47,9 @@ export const s3Service = {
     getImageUrl: (runnerId: number, rarity: CardRarity): string => {
         return `https://d1o7ihod05ar3g.cloudfront.net/runners/${runnerId}/${rarity}.png`;
     },
-    uploadAvatar: async (file: Buffer, env: "dev" | "prod") => {
-        const bucketName = env === "prod" ? process.env.AWS_AVATAR_PROD_BUCKET : process.env.AWS_AVATAR_DEV_BUCKET;
-        const fileKey = `avatars/${uuidv4()}.png`;
+    uploadAvatar: async (file: Buffer) => {
+        const bucketName = process.env.AWS_AVATAR_URL_BUCKET;
+        const fileKey = `${uuidv4()}.png`;
 
         try {
             await s3Client.send(new PutObjectCommand({
@@ -58,47 +57,18 @@ export const s3Service = {
                 Key: fileKey,
                 Body: file,
                 ContentType: "image/png",
-                ACL: "private", // ✅ Ensure private upload
             }));
 
-            return fileKey; // ✅ Store only the fileKey in DB
+            return fileKey;
         } catch (error) {
             console.error("Error uploading avatar:", error);
             throw new Error("Failed to upload avatar to S3");
         }
     },
-    generateAvatarUrl: (fileKey: string, env: "dev" | "prod"): string => {
-        const baseUrl = env === "prod"
-            ? `${process.env.AWS_CLOUDFRONT_AVATAR_URL}/prod/`
-            : `${process.env.AWS_CLOUDFRONT_AVATAR_URL}/dev/`;
 
-        return `${baseUrl}${fileKey}`;
-    },
+    generateAvatarUrl: (fileKey: string): string => {
+        const baseUrl = process.env.AWS_CLOUDFRONT_AVATAR_URL;
 
-    generateSignedAvatarUrl: (fileKey: string, env: "dev" | "prod"): string => {
-        const baseUrl = env === "prod"
-            ? `${process.env.AWS_CLOUDFRONT_AVATAR_URL}/prod/`
-            : `${process.env.AWS_CLOUDFRONT_AVATAR_URL}/dev/`;
-
-        const url = `${baseUrl}${fileKey}`;
-        const expiration = Math.floor(Date.now() / 1000) + 3600; // 1 hour expiration
-
-        const policy = JSON.stringify({
-            Statement: [{
-                Resource: `${baseUrl}*`, // ✅ Allows all avatars in the folder
-                Condition: { DateLessThan: { "AWS:EpochTime": expiration } }
-            }]
-        });
-
-        const PRIVATE_KEY = Buffer.from(
-            process.env.AWS_CLOUDFRONT_AVATAR_URL_PRIVATE_KEY!,
-            "base64"
-        ).toString("utf-8").trim();
-
-        const signature = crypto.createSign("SHA256");
-        signature.update(policy);
-        const signedSignature = signature.sign(PRIVATE_KEY, "base64");
-
-        return `${url}?Policy=${Buffer.from(policy).toString("base64")}&Signature=${signedSignature}&Key-Pair-Id=${process.env.AWS_CLOUDFRONT_AVATAR_URL_KEY_ID}`;
-    },
+        return `${baseUrl}/${fileKey}`;
+    }
 };
