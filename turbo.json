@@ -10,7 +10,6 @@
         "PRIVY_SECRET_KEY",
         "DATABASE_URL",
         "NEXT_PUBLIC_*",
-        "IMAGEKIT_SECRET_KEY",
         "BASE_RPC_URL"
       ]
     },
@@ -28,7 +27,6 @@
         "PRIVY_SECRET_KEY",
         "DATABASE_URL",
         "NEXT_PUBLIC_*",
-        "IMAGEKIT_SECRET_KEY",
         "BASE_RPC_URL"
 
       ]
