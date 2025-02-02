@@ -64,16 +64,6 @@ export interface Run {
     raw_data_json: any | null;
 }
 
-export interface CardMetadata {
-    token_id: number;
-    runner_id: number;
-    runner_name: string;
-    rarity: CardRarity;
-    image_url: string;
-    multiplier: number;
-    created_at: string;
-}
-
 export interface TokenURIMetadata {
     name: string;
     description: string;
@@ -90,8 +80,20 @@ export interface Card {
     id: number;
     owner_id: number;
     pack_purchase_id: number | null;
+    token_id: number,
     acquisition_type: AcquisitionType;
     updated_at: string;
+    created_at: string;
+    owner?: User;
+}
+
+export interface CardMetadata extends Pick<Card, 'token_id'> {
+    token_id: number;
+    runner_id: number;
+    runner_name: string;
+    rarity: CardRarity;
+    image_url: string;
+    multiplier: number;
     created_at: string;
 }
 
@@ -184,16 +186,6 @@ export interface PackPurchaseCardId {
     _parent_id: number;
     id: string;
     card_id: number | null;
-}
-
-export interface Listing {
-    id: number;
-    updated_at: string;
-    created_at: string;
-    card_id: number;
-    seller_id: number;
-    listed_price: number;
-    is_active: boolean;
 }
 
 export interface UserDeviceAuthorization {
@@ -311,4 +303,68 @@ export interface MintEvent {
         lastTokenId: bigint;
         price: bigint;
     };
+}
+
+export type Side = 'buy' | 'sell';
+
+export interface Order {
+    trader: Address;
+    side: number;
+    collection: Address;
+    token_id: bigint;
+    payment_token: Address;
+    price: bigint;
+    expiration_time: bigint;
+    merkle_root: `0x${string}`;
+    salt: bigint;
+}
+
+export interface CreateListingParams {
+    seller_id: number;
+    card_id: number;
+    price: number;
+    payment_token: string;
+    expiration_time: number;
+    signature: string;
+    salt: string;
+}
+
+export interface CreateOfferParams {
+    buyer_id: number;
+    card_id: number;
+    price: number;
+    payment_token: string;
+    expiration_time: number;
+    signature: string;
+    salt: string;
+}
+
+export interface Listing {
+    id: number;
+    seller_id: number;
+    card_id: number;
+    price: number;
+    payment_token: string;
+    expiration_time: Date;
+    active: boolean;
+    signature: string;
+    salt: string;
+    created_at: Date;
+    updated_at: Date;
+}
+
+export interface Offer {
+    id: number;
+    buyer_id: number;
+    card_id: number;
+    price: number;
+    payment_token: string;
+    expiration_time: Date;
+    active: boolean;
+    signature: string;
+    salt: string;
+    created_at: Date;
+    updated_at: Date;
+    buyer: any;
+    card: Card;
 }
