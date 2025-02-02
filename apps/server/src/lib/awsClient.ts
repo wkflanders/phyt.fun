@@ -1,6 +1,8 @@
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { CardRarity, RarityWeights, RarityMultipliers } from '@phyt/types';
 import { config } from 'dotenv';
+import { v4 as uuidv4 } from 'uuid';
+import crypto from "crypto";
 
 config();
 
@@ -46,16 +48,46 @@ export const s3Service = {
     getImageUrl: (runnerId: number, rarity: CardRarity): string => {
         return `https://d1o7ihod05ar3g.cloudfront.net/runners/${runnerId}/${rarity}.png`;
     },
+    uploadAvatar: async (file: Buffer, env: 'dev' | 'prod') => {
+        const bucketName = env === "prod" ? process.env.AWS_AVATAR_PROD_BUCKET : process.env.AWS_AVATAR_DEV_BUCKET;
 
-    // deleteMetadata: async (tokenId: number): Promise<void> => {
-    //     try {
-    //         await s3Client.send(new DeleteObjectCommand({
-    //             Bucket: process.env.AWS_METADATA_BUCKET!,
-    //             Key: `${tokenId}`
-    //         }));
-    //     } catch (error) {
-    //         console.error('Error deleting metadata:', error);
-    //         throw new Error('Failed to delete metadata from S3');
-    //     }
-    // }
+        const fileKey = `avatars/${uuidv4()}.png`;
+
+        try {
+            await s3Client.send(new PutObjectCommand({
+                Bucket: bucketName,
+                Key: fileKey,
+                Body: file,
+                ContentType: 'image/png'
+            }));
+
+            return fileKey;
+        } catch (error) {
+            console.error('Error uploading avatar url:', error);
+            throw new Error('Failed to upload avatar url to S3');
+        }
+    },
+    generateSignedAvatarUrl: (fileKey: string, env: "dev" | "prod") => {
+        const baseUrl = env === "prod"
+            ? `${process.env.AWS_CLOUDFRONT_AVATAR_URL}/prod/`
+            : `${process.env.AWS_CLOUDFRONT_AVATAR_URL}/dev/`;
+
+        const url = `${baseUrl}${fileKey}`;
+        const expiration = Math.floor(Date.now() / 1000) + 3600;
+
+        const policy = JSON.stringify({
+            Statement: [{
+                Resource: url,
+                Condition: { DateLessThan: { "AWS:EpochTime": expiration } }
+            }]
+        });
+
+        const PRIVATE_KEY = Buffer.from(process.env.AWS_CLOUDFRONT_AVATAR_URL_PRIVATE_KEY!, "base64").toString("utf-8");
+
+        const signature = crypto.createSign("SHA256");
+        signature.update(policy);
+        const signedSignature = signature.sign(PRIVATE_KEY, "base64");
+
+        return `${url}?Policy=${Buffer.from(policy).toString("base64")}&Signature=${signedSignature}&Key-Pair-Id=${process.env.AWS_CLOUDFRONT_AVATAR_URL_KEY_ID}`;
+    }
 };
