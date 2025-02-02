@@ -4,13 +4,10 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 import { OnboardForm } from '@/components/OnboardForm';
-import { onboardFormSchema, OnboardFormData } from '@/lib/validation';
+import { onboardFormSchema } from '@/lib/validation';
 import { useToast } from '@/hooks/use-toast';
 import { useCreateUser } from '@/hooks/use-create-user';
-
 import { ApiError } from '@phyt/types';
-
-const DEFAULT_AVATAR_URL = 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut';
 
 export default function OnboardPage() {
     const router = useRouter();
@@ -19,7 +16,7 @@ export default function OnboardPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const createUser = useCreateUser();
 
-    const handleSubmit = async (data: OnboardFormData) => {
+    const handleSubmit = async (formData: FormData) => {
         if (!user?.google) {
             toast({
                 title: "Error",
@@ -32,15 +29,14 @@ export default function OnboardPage() {
         try {
             setIsSubmitting(true);
 
-            const userData = {
-                email: user.google.email,
-                username: data.username,
-                avatar_url: data.avatar_url || DEFAULT_AVATAR_URL,
-                privy_id: user.id,
-                wallet_address: user.wallet?.address,
-            };
+            // Add additional user data to FormData
+            formData.append('email', user.google.email);
+            formData.append('privy_id', user.id);
+            if (user.wallet?.address) {
+                formData.append('wallet_address', user.wallet.address);
+            }
 
-            await createUser.mutateAsync(userData);
+            await createUser.mutateAsync({ formData });
 
             router.push('/');
 
@@ -75,11 +71,10 @@ export default function OnboardPage() {
                 schema={onboardFormSchema}
                 defaultValues={{
                     username: '',
-                    avatar_url: DEFAULT_AVATAR_URL,
                 }}
                 onSubmit={handleSubmit}
-                isSubmitting={isSubmitting}
+                isSubmitting={isSubmitting || createUser.isPending}
             />
         )
     );
-};
+}

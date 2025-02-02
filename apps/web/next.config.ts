@@ -7,10 +7,6 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "rsg5uys7zq.ufs.sh",
       },
-      {
-        protocol: "https",
-        hostname: "ik.imagekit.io"
-      }
     ],
     dangerouslyAllowSVG: true,
   },

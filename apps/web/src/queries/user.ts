@@ -1,5 +1,5 @@
 import { Transaction, User } from "@phyt/types";
-import { ApiError } from "@phyt/types";
+import { ApiError, CreateUserInput } from "@phyt/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
@@ -42,30 +42,20 @@ export async function getUserTransactions(privyId: string): Promise<Transaction[
     return data;
 }
 
-export async function createUser(userData: {
-    email: string,
-    username: string,
-    avatar_url: string,
-    privy_id: string,
-    wallet_address?: string;
-}): Promise<User> {
-    const response = await fetch(`${API_URL}/users/create`, {
+export async function createUser({ formData }: CreateUserInput): Promise<User> {
+    const response = await fetch('/api/users/create', {
         method: 'POST',
-        credentials: 'include',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
+        body: formData,
+        credentials: 'include'
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
+        const error = await response.json();
         throw {
-            error: data.error || 'Failed to create user',
+            error: error.error || 'Failed to create user',
             status: response.status
-        } as ApiError;
+        };
     }
 
-    return data;
+    return response.json();
 }

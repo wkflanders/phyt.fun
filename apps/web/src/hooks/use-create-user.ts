@@ -8,14 +8,12 @@ export function useCreateUser() {
 
     return useMutation({
         mutationFn: createUser,
-        onSuccess: (data: User, variables) => {
-            const queryKey = getUserQueryKey(variables.privy_id);
+        onSuccess: (data: User, { formData }) => {
+            // Get privy_id from formData
+            const privyId = formData.get('privy_id') as string;
+            const queryKey = getUserQueryKey(privyId);
 
             queryClient.setQueryData(queryKey, data);
-
-            const cachedData = queryClient.getQueryData(queryKey);
-            console.log('Created user cached successfully:', cachedData);
-
             queryClient.invalidateQueries({ queryKey: ['users'] });
         },
         onError: (error) => {

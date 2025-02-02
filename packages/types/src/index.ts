@@ -38,6 +38,11 @@ export interface User {
     wallet_address: string | null;
 }
 
+export interface CreateUserInput {
+    formData: FormData;
+}
+
+
 export interface Run {
     id: number;
     updated_at: string;

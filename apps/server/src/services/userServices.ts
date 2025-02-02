@@ -1,6 +1,9 @@
 import { db, eq, or, desc } from '@phyt/database';
 import { users, transactions } from '@phyt/database';
 import { DatabaseError, NotFoundError, DuplicateError, ValidationError } from '@phyt/types';
+import { s3Service } from '../lib/awsClient';
+
+const DEFAULT_AVATAR = "https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut";
 
 export const userService = {
     getUserByPrivyId: async (privyId: string) => {
@@ -81,7 +84,7 @@ export const userService = {
     createUser: async (userData: {
         email: string;
         username: string;
-        avatar_url?: string;
+        avatarFile?: Express.Multer.File;
         privy_id: string;
         wallet_address?: string;
     }) => {
@@ -110,10 +113,20 @@ export const userService = {
                 throw new DuplicateError('Username already taken');
             }
 
+            let avatar_url = DEFAULT_AVATAR;
+            if (userData.avatarFile) {
+                const env = process.env.NODE_ENV === 'production' ? 'prod' : 'dev';
+                const fileKey = await s3Service.uploadAvatar(userData.avatarFile.buffer, env);
+                avatar_url = s3Service.generateAvatarUrl(fileKey, env);
+            }
+
             const [newUser] = await db.insert(users)
                 .values({
-                    ...userData,
-                    avatar_url: userData.avatar_url || 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut',
+                    email: userData.email,
+                    username: userData.username,
+                    privy_id: userData.privy_id,
+                    wallet_address: userData.wallet_address,
+                    avatar_url,
                     role: 'user'
                 })
                 .returning();

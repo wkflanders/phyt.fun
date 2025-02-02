@@ -67,7 +67,7 @@ export const s3Service = {
             throw new Error('Failed to upload avatar url to S3');
         }
     },
-    generateSignedAvatarUrl: (fileKey: string, env: "dev" | "prod") => {
+    generateAvatarUrl: (fileKey: string, env: "dev" | "prod") => {
         const baseUrl = env === "prod"
             ? `${process.env.AWS_CLOUDFRONT_AVATAR_URL}/prod/`
             : `${process.env.AWS_CLOUDFRONT_AVATAR_URL}/dev/`;

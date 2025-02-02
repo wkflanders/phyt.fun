@@ -3,8 +3,22 @@ import { userService } from '../services/userServices';
 import { validateAuth } from '../middleware/auth';
 import { validateSchema } from '../middleware/validator';
 import { createUserSchema } from '../lib/validation';
+import multer from 'multer';
 
 const router: Router = express.Router();
+
+const upload = multer({
+    limits: {
+        fileSize: 5 * 1024 * 1024,
+    },
+    fileFilter: (_, file, cb) => {
+        if (!file.mimetype.startsWith('image/')) {
+            cb(new Error('Only image files are allowed'));
+            return;
+        }
+        cb(null, true);
+    }
+});
 
 router.use(validateAuth);
 
@@ -54,9 +68,9 @@ router.get('/:privyId', async (req, res) => {
 // Create new user
 router.post('/create', validateSchema(createUserSchema), async (req, res) => {
     try {
-        const { email, username, avatar_url, privy_id, wallet_address } = req.body;
+        const { email, username, privy_id, wallet_address } = req.body;
         const newUser = await userService.createUser({
-            email, username, avatar_url, privy_id, wallet_address
+            email, username, avatarFile: req.file, privy_id, wallet_address
         });
 
         return res.status(201).json({
