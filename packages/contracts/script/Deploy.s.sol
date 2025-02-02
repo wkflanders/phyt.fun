@@ -40,6 +40,7 @@ contract DeployScript is Script {
         executor.approveContract(address(minter));
         // Whitelist the PhytCards collection in the Minter.
         minter.whitelistCollection(address(phytCards));
+        // Whitelist the PhytCards Collection in the Exchange.
 
         // Create an initial mint configuration.
         // Enable whitelist checks by setting requiresWhitelist to true and passing the whitelistRoot.
