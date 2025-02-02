@@ -1,8 +1,7 @@
-import { createPublicClient, createWalletClient, http, decodeEventLog, parseEther, formatEther, Chain } from 'viem';
-import { baseSepolia } from 'viem/chains';
-import { privateKeyToAccount } from 'viem/accounts';
+import { walletClient, publicClient, account } from '../lib/viemClient';
+import { decodeEventLog, parseEther, formatEther } from 'viem';
 import { MinterAbi } from '@phyt/contracts';
-import { db, transactions, cards, card_metadata, pack_purchases, withTransaction } from '@phyt/database';
+import { withTransaction } from '@phyt/database';
 import { MintEvent, PackPurchaseNotif, PackPurchaseResponse, TokenURIMetadata, } from '@phyt/types';
 import { metadataService } from './metadataServices';
 import { getMerkleRoot, getMerkleProofForWallet } from '../lib/merkleWhitelist';
@@ -14,24 +13,6 @@ if (!process.env.MINTER_ADDRESS || !process.env.PHYT_CARDS_ADDRESS) {
 const MINTER = process.env.MINTER_ADDRESS as `0x${string}`;
 const PHYT_CARDS = process.env.PHYT_CARDS_ADDRESS as `0x${string}`;
 
-const transport = http(process.env.BASE_RPC_URL);
-
-const publicClient = createPublicClient({
-    chain: baseSepolia,
-    transport,
-});
-
-if (!process.env.SERVER_PRIVATE_KEY) {
-    throw new Error('Missing SERVER_PRIVATE_KEY in environment variables');
-}
-
-const account = privateKeyToAccount(process.env.SERVER_PRIVATE_KEY as `0x${string}`);
-
-const walletClient = createWalletClient({
-    account,
-    chain: baseSepolia,
-    transport,
-});
 
 export const packService = {
     createMintConfig: async () => {
