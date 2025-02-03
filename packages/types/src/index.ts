@@ -308,8 +308,8 @@ export interface MintEvent {
 export type Side = 'buy' | 'sell';
 
 export interface Order {
-    trader: Address;
-    side: number;
+    trader: `0x${string}`;
+    side: 0 | 1; // 0 for buy, 1 for sell
     collection: Address;
     token_id: bigint;
     payment_token: Address;
@@ -346,13 +346,33 @@ export interface Listing {
     price: number;
     payment_token: string;
     expiration_time: Date;
-    active: boolean;
     signature: string;
     salt: string;
+    active: boolean;
     created_at: Date;
     updated_at: Date;
 }
 
+export interface RunnerListing extends Listing {
+    metadata: {
+        runner_id: number;
+        runner_name: string;
+        runner_avatar?: string;
+        rarity: CardRarity;
+        multiplier: number;
+        image_url: string;
+    };
+    order: {
+        trader: string;
+        side: number;
+        collection: string;
+        token_id: number;
+        payment_token: string;
+        price: string;
+        expiration_time: number;
+        salt: string;
+    };
+}
 export interface Offer {
     id: number;
     buyer_id: number;
