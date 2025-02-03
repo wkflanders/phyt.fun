@@ -16,6 +16,7 @@ import {
 } from '@/hooks/use-marketplace';
 import { Loader2, Filter, ArrowUpDown } from 'lucide-react';
 import type { CardRarity } from '@phyt/types';
+import { useGetUser } from '@/hooks/use-get-user';
 
 // Helper functions for UI
 const getRarityColor = (rarity: CardRarity) => {
@@ -69,6 +70,15 @@ export default function Marketplace() {
     const { toast } = useToast();
     const { address } = useAccount();
     const { ready } = usePrivy();
+    const { data: user } = useGetUser();
+
+    if (!ready || !user) {
+        return (
+            <div className="flex h-screen w-screen items-center justify-center bg-phyt_bg">
+                <p className="text-xl font-inter text-phyt_text_dark">Loading...</p>
+            </div>
+        );
+    }
 
     // Fetch listings with sorting & filtering (including only auctions if desired)
     const { data: listings = [], isLoading: isLoadingListings } = useListings({
@@ -86,7 +96,7 @@ export default function Marketplace() {
     const { mutate: purchaseListing, isPending: isPurchasing } = usePurchaseListing();
 
     // Mutation for seller creating auction listing
-    const { mutate: createListing, isPending: isCreatingListing } = useCreateListing();
+    const { mutate: createListing, isPending: isCreatingListing } = useCreateListing(user);
 
     // Buyer: handle placing a bid
     const handlePlaceBid = async () => {
@@ -156,11 +166,11 @@ export default function Marketplace() {
             setExpiration('');
         } catch (err) {
             console.error(err);
-            toast({
-                title: "Error",
-                description: "Failed to create auction. Please try again.",
-                variant: "destructive",
-            });
+            // toast({
+            //     title: "Error",
+            //     description: "Failed to create auction. Please try again.",
+            //     variant: "destructive",
+            // });
         }
     };
 
@@ -272,7 +282,7 @@ export default function Marketplace() {
                                             <div className="flex justify-between items-center">
                                                 <span className="text-phyt_text_secondary">Expires:</span>
                                                 <span className="text-sm text-phyt_text_secondary">
-                                                    {new Date(listing.expiration).toLocaleString()}
+                                                    {new Date(listing.expiration).toISOString()}
                                                 </span>
                                             </div>
                                         )}
