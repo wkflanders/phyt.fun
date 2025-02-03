@@ -8,116 +8,14 @@ import { Loader2, Filter, ArrowUpDown } from 'lucide-react';
 import { usePrivy } from '@privy-io/react-auth';
 import { useAccount } from 'wagmi';
 
-// Mock data - replace with actual API calls
-const mockListings = [
-    {
-        id: 1,
-        name: "Speed Runner #1",
-        rarity: "Common",
-        price: "0.05",
-        image: "https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut",
-        stats: {
-            speed: 75,
-            endurance: 80,
-            power: 65
-        }
-    },
-    {
-        id: 2,
-        name: "Elite Runner #42",
-        rarity: "Rare",
-        price: "0.15",
-        image: "https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut",
-        stats: {
-            speed: 85,
-            endurance: 90,
-            power: 88
-        }
-    },
-    {
-        id: 3,
-        name: "Speed Runner #3",
-        rarity: "Common",
-        price: "0.05",
-        image: "https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut",
-        stats: {
-            speed: 75,
-            endurance: 80,
-            power: 65
-        }
-    },
-    {
-        id: 4,
-        name: "Elite Runner #100",
-        rarity: "Rare",
-        price: "0.15",
-        image: "https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut",
-        stats: {
-            speed: 85,
-            endurance: 90,
-            power: 88
-        }
-    },
-];
 
 const MarketplaceListing = () => {
-    const [listings, setListings] = useState(mockListings);
     const [isLoading, setIsLoading] = useState(false);
     const [sortBy, setSortBy] = useState('price');
     const [filterRarity, setFilterRarity] = useState('all');
     const { toast } = useToast();
     const { address } = useAccount();
     const { ready } = usePrivy();
-
-    const handlePurchase = async (listingId: number) => {
-        if (!address) {
-            toast({
-                title: "Error",
-                description: "Please connect your wallet first",
-                variant: "destructive",
-            });
-            return;
-        }
-
-        setIsLoading(true);
-        try {
-            // Add contract interaction here
-            await new Promise(resolve => setTimeout(resolve, 2000)); // Simulated delay
-            toast({
-                title: "Success",
-                description: "NFT purchased successfully!",
-            });
-        } catch (error) {
-            toast({
-                title: "Error",
-                description: "Failed to purchase NFT",
-                variant: "destructive",
-            });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const getRarityColor = (rarity: string) => {
-        switch (rarity.toLowerCase()) {
-            case 'common': return 'text-gray-400';
-            case 'rare': return 'text-blue-400';
-            case 'exotic': return 'text-purple-400';
-            case 'legendary': return 'text-yellow-400';
-            default: return 'text-gray-400';
-        }
-    };
-
-    const getStatBar = (value: number) => {
-        return (
-            <div className="w-full bg-phyt_form rounded-full h-2">
-                <div
-                    className="bg-phyt_blue h-full rounded-full"
-                    style={{ width: `${value}%` }}
-                />
-            </div>
-        );
-    };
 
     return (
         <div className="w-full">
@@ -156,7 +54,7 @@ const MarketplaceListing = () => {
 
             {/* Listings Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {listings.map((listing) => (
+                {/* {listings.map((listing) => (
                     <Card key={listing.id} className="bg-phyt_form border-phyt_form_border overflow-hidden">
                         <CardContent className="p-4">
                             <div className="aspect-square relative mb-4">
@@ -208,7 +106,7 @@ const MarketplaceListing = () => {
                             </div>
                         </CardFooter>
                     </Card>
-                ))}
+                ))} */}
             </div>
         </div>
     );
