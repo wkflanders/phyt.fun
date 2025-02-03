@@ -10,7 +10,11 @@
         "PRIVY_SECRET_KEY",
         "DATABASE_URL",
         "NEXT_PUBLIC_*",
-        "BASE_RPC_URL"
+        "BASE_RPC_URL",
+        "EXCHANGE_ADDRESS",
+        "PHYT_CARD_ADDRESS",
+        "MINT_ADDRESS",
+        "EXECUTOR_ADDRESS"
       ]
     },
     "lint": {
@@ -27,8 +31,11 @@
         "PRIVY_SECRET_KEY",
         "DATABASE_URL",
         "NEXT_PUBLIC_*",
-        "BASE_RPC_URL"
-
+        "BASE_RPC_URL",
+        "EXCHANGE_ADDRESS",
+        "PHYT_CARD_ADDRESS",
+        "MINT_ADDRESS",
+        "EXECUTOR_ADDRESS"
       ]
     },
     "clean": {
