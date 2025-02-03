@@ -45,7 +45,7 @@ export const s3Service = {
         }
     },
     getImageUrl: (runnerId: number, rarity: CardRarity): string => {
-        return `https://d1o7ihod05ar3g.cloudfront.net/runners/${runnerId}/${rarity}.png`;
+        return `https://d5mhfgomyfg7p.cloudfront.net/runners/${runnerId}/${rarity}.png`;
     },
     uploadAvatar: async (file: Buffer) => {
         const bucketName = process.env.AWS_AVATAR_URL_BUCKET;
