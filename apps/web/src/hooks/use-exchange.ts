@@ -1,50 +1,121 @@
+// apps/web/src/hooks/use-exchange.ts
 import { usePublicClient, useWalletClient, useAccount } from 'wagmi';
 import { writeContract, simulateContract } from 'wagmi/actions';
-import { ExchangeAbi } from '@phyt/contracts';
+import { type Address, parseEther, keccak256, encodeAbiParameters, concat } from 'viem';
 import { config } from '@/lib/wagmi';
-import { useToast } from './use-toast';
-import { Order } from '@phyt/types';
-import { EXCHANGE_DOMAIN, ORDER_TYPE } from '@phyt/types';
-
-const EXCHANGE_ADDRESS = process.env.EXCHANGE_ADDRESS as `0x${string}`;
-const PHYT_CARDS_ADDRESS = process.env.PHYT_CARDS_ADDRESS as `0x${string}`;
-
-export interface UseExchangeConfig {
-    onSuccess?: (hash: `0x${string}`) => void;
-    onError?: (error: Error) => void;
-}
+import { ExchangeAbi } from '@phyt/contracts';
+import {
+    EXCHANGE_DOMAIN,
+    ORDER_TYPE,
+    type Order
+} from '@phyt/types';
+import { generateOrderHash } from '@/lib/utils';
 
 export function useExchange() {
     const publicClient = usePublicClient();
     const { data: walletClient } = useWalletClient();
     const { address } = useAccount();
-    const { toast } = useToast();
 
-    const signOrder = async (order: Order) => {
-        if (!walletClient) throw new Error('Wallet not connected');
+    // Sign a sell order (listing)
+    const signSellOrder = async ({
+        cardId,
+        takePrice
+    }: {
+        cardId: number;
+        takePrice: bigint;
+    }) => {
+        if (!walletClient || !address) {
+            throw new Error('Wallet not connected');
+        }
+
+        const order: Order = {
+            trader: address,
+            side: 1, // sell
+            collection: process.env.PHYT_CARDS_ADDRESS as `0x${string}`,
+            token_id: BigInt(cardId),
+            payment_token: '0x0000000000000000000000000000000000000000', // ETH
+            price: takePrice,
+            expiration_time: BigInt(Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60), // 7 days
+            merkle_root: '0x0000000000000000000000000000000000000000000000000000000000000000',
+            salt: BigInt(Math.floor(Math.random() * 1000000))
+        };
 
         const signature = await walletClient.signTypedData({
             domain: {
                 ...EXCHANGE_DOMAIN,
-                verifyingContract: EXCHANGE_DOMAIN.verifyingContract as `0x${string}`,
+                verifyingContract: process.env.EXCHANGE_ADDRESS as `0x${string}`,
             },
             types: ORDER_TYPE,
             primaryType: 'Order',
             message: order,
         });
 
-        return signature;
+        return {
+            order,
+            signature,
+            orderHash: generateOrderHash(order),
+        };
     };
 
-    const executeBuy = async (order: Order, signature: string, burnAfterPurchase: boolean = false) => {
+    // Sign a buy order (bid)
+    const signBuyOrder = async ({
+        listingId,
+        cardId,
+        bidAmount
+    }: {
+        listingId: number;
+        cardId: number;
+        bidAmount: bigint;
+    }) => {
+        if (!walletClient || !address) {
+            throw new Error('Wallet not connected');
+        }
+
+        const order: Order = {
+            trader: address,
+            side: 0, // buy
+            collection: process.env.PHYT_CARDS_ADDRESS as `0x${string}`,
+            token_id: BigInt(cardId),
+            payment_token: '0x0000000000000000000000000000000000000000', // ETH
+            price: bidAmount,
+            expiration_time: BigInt(Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60),
+            merkle_root: '0x0000000000000000000000000000000000000000000000000000000000000000',
+            salt: BigInt(Math.floor(Math.random() * 1000000))
+        };
+
+        const signature = await walletClient.signTypedData({
+            domain: {
+                ...EXCHANGE_DOMAIN,
+                verifyingContract: process.env.EXCHANGE_ADDRESS as `0x${string}`,
+            },
+            types: ORDER_TYPE,
+            primaryType: 'Order',
+            message: order,
+        });
+
+        return {
+            order,
+            signature,
+            orderHash: generateOrderHash(order),
+        };
+    };
+
+    // Execute an immediate purchase at the take price
+    const executeBuy = async ({
+        sellOrder,
+        signature,
+    }: {
+        sellOrder: Order;
+        signature: string;
+    }) => {
         if (!address) throw new Error('Wallet not connected');
 
         const { request } = await simulateContract(config, {
-            address: EXCHANGE_ADDRESS,
+            address: process.env.EXCHANGE_ADDRESS as `0x${string}`,
             abi: ExchangeAbi,
             functionName: 'buy',
-            args: [order, signature, burnAfterPurchase],
-            value: order.price,
+            args: [sellOrder, signature, false],
+            value: sellOrder.price,
             account: address,
         });
 
@@ -54,31 +125,26 @@ export function useExchange() {
         return { hash, receipt };
     };
 
-    const executeSell = async (order: Order, signature: string, tokenId: bigint, merkleProof: `0x${string}`[]) => {
+    // Execute a match between a bid and ask
+    const executeMatch = async ({
+        sellOrder,
+        buyOrder,
+        sellerSignature,
+        buyerSignature
+    }: {
+        sellOrder: Order;
+        buyOrder: Order;
+        sellerSignature: string;
+        buyerSignature: string;
+    }) => {
         if (!address) throw new Error('Wallet not connected');
 
         const { request } = await simulateContract(config, {
-            address: EXCHANGE_ADDRESS,
+            address: process.env.EXCHANGE_ADDRESS as `0x${string}`,
             abi: ExchangeAbi,
-            functionName: 'sell',
-            args: [order, signature, tokenId, merkleProof],
-            account: address,
-        });
-
-        const hash = await writeContract(config, request);
-        const receipt = await publicClient!.waitForTransactionReceipt({ hash });
-
-        return { hash, receipt };
-    };
-
-    const cancelOrder = async (order: Order) => {
-        if (!address) throw new Error('Wallet not connected');
-
-        const { request } = await simulateContract(config, {
-            address: EXCHANGE_ADDRESS,
-            abi: ExchangeAbi,
-            functionName: 'cancelOrder',
-            args: [order],
+            functionName: 'matchOrders',
+            args: [sellOrder, buyOrder, sellerSignature, buyerSignature],
+            value: buyOrder.price,
             account: address,
         });
 
@@ -89,9 +155,9 @@ export function useExchange() {
     };
 
     return {
-        signOrder,
+        signSellOrder,
+        signBuyOrder,
         executeBuy,
-        executeSell,
-        cancelOrder,
+        executeMatch,
     };
 }

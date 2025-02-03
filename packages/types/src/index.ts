@@ -309,48 +309,39 @@ export type Side = 'buy' | 'sell';
 
 export interface Order {
     trader: `0x${string}`;
-    side: 0 | 1; // 0 for buy, 1 for sell
-    collection: Address;
+    side: 0 | 1; // 0 for buy (bid), 1 for sell (ask)
+    collection: `0x${string}`;
     token_id: bigint;
-    payment_token: Address;
-    price: bigint;
+    payment_token: `0x${string}`;
+    price: bigint; // For sell orders: take price, For buy orders: bid price
     expiration_time: bigint;
     merkle_root: `0x${string}`;
     salt: bigint;
-}
-
-export interface CreateListingParams {
-    seller_id: number;
-    card_id: number;
-    price: number;
-    payment_token: string;
-    expiration_time: number;
-    signature: string;
-    salt: string;
-}
-
-export interface CreateOfferParams {
-    buyer_id: number;
-    card_id: number;
-    price: number;
-    payment_token: string;
-    expiration_time: number;
-    signature: string;
-    salt: string;
 }
 
 export interface Listing {
     id: number;
     seller_id: number;
     card_id: number;
-    price: number;
-    payment_token: string;
-    expiration_time: Date;
+    take_price: bigint; // Immediate purchase price
+    highest_bid: bigint; // Current highest bid
+    highest_bidder: `0x${string}` | null;
+    payment_token: `0x${string}`;
+    expiration_time: bigint;
     signature: string;
     salt: string;
     active: boolean;
     created_at: Date;
     updated_at: Date;
+}
+
+export interface Bid {
+    id: number;
+    listing_id: number;
+    bidder_id: number;
+    bid_amount: bigint;
+    signature: string; // Signed buy order
+    created_at: Date;
 }
 
 export interface RunnerListing extends Listing {
