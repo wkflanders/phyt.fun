@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
 import MarketplaceListing from '@/components/Marketplace/MarketplaceListing';
+import Marketplace from '@/components/Marketplace/Marketplace';
 
 export default function MarketplacePage() {
     return (
@@ -9,7 +12,7 @@ export default function MarketplacePage() {
                     <h1 className="text-4xl font-bold text-phyt_text mb-4">NFT Marketplace</h1>
                 </div>
 
-                <MarketplaceListing />
+                <Marketplace />
             </div>
         </div>
     );

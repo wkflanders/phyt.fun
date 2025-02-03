@@ -17,6 +17,7 @@ import {
 import { Loader2, Filter, ArrowUpDown } from 'lucide-react';
 import type { CardRarity } from '@phyt/types';
 
+// Helper functions for UI
 const getRarityColor = (rarity: CardRarity) => {
     const colors: Record<CardRarity, string> = {
         bronze: 'text-orange-600',
@@ -33,29 +34,43 @@ const getStatBar = (value: number) => {
     const percentage = (value / 100) * 100;
     return (
         <div className="w-full bg-gray-700 rounded-full h-2">
-            <div
-                className="bg-phyt_blue h-full rounded-full"
-                style={{ width: `${percentage}%` }}
-            />
+            <div className="bg-phyt_blue h-full rounded-full" style={{ width: `${percentage}%` }} />
         </div>
     );
 };
 
+// (Optional) Format remaining time if you want to display countdowns
+function formatTimeRemaining(expiration: string | number): string {
+    const exp = typeof expiration === 'string' ? Number(expiration) : expiration;
+    const secondsLeft = exp - Math.floor(Date.now() / 1000);
+    if (secondsLeft <= 0) return 'Expired';
+    const hours = Math.floor(secondsLeft / 3600);
+    const minutes = Math.floor((secondsLeft % 3600) / 60);
+    const seconds = secondsLeft % 60;
+    return `${hours}h ${minutes}m ${seconds}s`;
+}
+
 export default function Marketplace() {
-    const [isLoading, setIsLoading] = useState(false);
+    // Local states for filtering and sorting
     const [sortBy, setSortBy] = useState('price');
     const [filterRarity, setFilterRarity] = useState('all');
 
-    // State for bidding modal
+    // State for bidding modal (buyer flow)
     const [showBidModal, setShowBidModal] = useState(false);
     const [selectedListing, setSelectedListing] = useState<any>(null);
     const [bidAmount, setBidAmount] = useState('');
+
+    // State for auction creation modal (seller flow)
+    const [showAuctionModal, setShowAuctionModal] = useState(false);
+    const [auctionCardId, setAuctionCardId] = useState<number | null>(null);
+    const [takePrice, setTakePrice] = useState('');
+    const [expiration, setExpiration] = useState(''); // expect ISO string
 
     const { toast } = useToast();
     const { address } = useAccount();
     const { ready } = usePrivy();
 
-    // Fetch listings with sorting & filtering
+    // Fetch listings with sorting & filtering (including only auctions if desired)
     const { data: listings = [], isLoading: isLoadingListings } = useListings({
         sort:
             sortBy === 'price'
@@ -66,23 +81,20 @@ export default function Marketplace() {
         rarity: filterRarity !== 'all' ? [filterRarity] : undefined,
     });
 
+    // Mutations for buyer actions
     const { mutate: placeBid, isPending: isBidding } = usePlaceBid();
     const { mutate: purchaseListing, isPending: isPurchasing } = usePurchaseListing();
 
-    /**
-     * Handle user placing a bid in the modal
-     */
+    // Mutation for seller creating auction listing
+    const { mutate: createListing, isPending: isCreatingListing } = useCreateListing();
+
+    // Buyer: handle placing a bid
     const handlePlaceBid = async () => {
         if (!selectedListing || !bidAmount) return;
 
         try {
             const bidAmountBigInt = parseEther(bidAmount);
-
-            // Example check: must exceed the current highest bid
-            if (
-                selectedListing.highest_bid &&
-                bidAmountBigInt <= selectedListing.highest_bid
-            ) {
+            if (selectedListing.highest_bid && bidAmountBigInt <= selectedListing.highest_bid) {
                 toast({
                     title: 'Invalid bid',
                     description: 'Bid must be higher than the current highest bid.',
@@ -91,14 +103,12 @@ export default function Marketplace() {
                 return;
             }
 
-            // Place bid via our marketplace hook
             placeBid({
                 listingId: selectedListing.id,
                 cardId: selectedListing.card_id,
                 bidAmount: bidAmountBigInt,
             });
 
-            // Close the modal after placing the bid
             setShowBidModal(false);
             setSelectedListing(null);
             setBidAmount('');
@@ -112,16 +122,13 @@ export default function Marketplace() {
         }
     };
 
-    /**
-     * Handle purchasing the card at the seller’s take price
-     */
+    // Buyer: handle purchasing at the take price ("Buy Now")
     const handleBuyNow = (listing: any) => {
         if (!listing) return;
-
         purchaseListing(listing);
     };
 
-    // Example function: if the listing is expired, you might conditionally disable bidding or buying
+    // Helper: determine if the listing is expired
     const isListingExpired = (listing: any) => {
         if (!listing.expiration) return false;
         const now = Date.now();
@@ -129,10 +136,38 @@ export default function Marketplace() {
         return now > expirationTimestamp;
     };
 
+    // Seller: handle auction creation submission
+    const handleCreateAuction = async () => {
+        if (!auctionCardId || !takePrice || !expiration) return;
+
+        try {
+            await createListing({
+                cardId: auctionCardId,
+                takePrice: parseEther(takePrice),
+                expiration, // ISO string (or UNIX timestamp string, as expected by your backend)
+            });
+            toast({
+                title: "Auction Created",
+                description: "Your card is now on auction.",
+            });
+            setShowAuctionModal(false);
+            setAuctionCardId(null);
+            setTakePrice('');
+            setExpiration('');
+        } catch (err) {
+            console.error(err);
+            toast({
+                title: "Error",
+                description: "Failed to create auction. Please try again.",
+                variant: "destructive",
+            });
+        }
+    };
+
     return (
         <div className="w-full">
-            {/* Filters and Sort */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+            {/* Top Controls: Filters, Sort, and Create Auction */}
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
                         <Filter className="text-phyt_text_secondary" size={20} />
@@ -164,6 +199,13 @@ export default function Marketplace() {
                         <option value="created_at">Recently Listed</option>
                     </select>
                 </div>
+
+                {/* Create Auction Button (Seller Flow) */}
+                <div>
+                    <Button onClick={() => setShowAuctionModal(true)}>
+                        Create Auction
+                    </Button>
+                </div>
             </div>
 
             {/* Listings Grid */}
@@ -183,10 +225,7 @@ export default function Marketplace() {
                         const expired = isListingExpired(listing);
 
                         return (
-                            <Card
-                                key={listing.id}
-                                className="bg-phyt_form border-phyt_form_border overflow-hidden"
-                            >
+                            <Card key={listing.id} className="bg-phyt_form border-phyt_form_border overflow-hidden">
                                 <CardContent className="p-4">
                                     {/* Image & Rarity Badge */}
                                     <div className="aspect-square relative mb-4">
@@ -209,7 +248,7 @@ export default function Marketplace() {
                                         {listing.metadata.runner_name}
                                     </h3>
 
-                                    {/* Price & Multipliers */}
+                                    {/* Price, Bid, Multiplier, Expiration */}
                                     <div className="space-y-4">
                                         <div className="flex justify-between items-center">
                                             <span className="text-phyt_text_secondary">Buy Now</span>
@@ -218,9 +257,7 @@ export default function Marketplace() {
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center">
-                                            <span className="text-phyt_text_secondary">
-                                                Current Bid
-                                            </span>
+                                            <span className="text-phyt_text_secondary">Current Bid</span>
                                             <span className="text-lg text-phyt_text">
                                                 {formatEther(BigInt(highestBid))} ETH
                                             </span>
@@ -233,9 +270,7 @@ export default function Marketplace() {
                                         </div>
                                         {listing.expiration && (
                                             <div className="flex justify-between items-center">
-                                                <span className="text-phyt_text_secondary">
-                                                    Expires:
-                                                </span>
+                                                <span className="text-phyt_text_secondary">Expires:</span>
                                                 <span className="text-sm text-phyt_text_secondary">
                                                     {new Date(listing.expiration).toLocaleString()}
                                                 </span>
@@ -246,7 +281,7 @@ export default function Marketplace() {
 
                                 <CardFooter className="p-4 bg-black/20">
                                     <div className="flex items-center justify-between w-full gap-2">
-                                        {/* Place Bid */}
+                                        {/* Place Bid Button */}
                                         <Button
                                             onClick={() => {
                                                 setSelectedListing(listing);
@@ -255,25 +290,21 @@ export default function Marketplace() {
                                             className="flex-1 bg-phyt_form hover:bg-phyt_form/80 text-phyt_text"
                                             disabled={expired || isBidding}
                                         >
-                                            {isBidding && selectedListing?.id === listing.id
-                                                ? (
-                                                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                                                )
-                                                : null}
+                                            {isBidding && selectedListing?.id === listing.id ? (
+                                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                            ) : null}
                                             Place Bid
                                         </Button>
 
-                                        {/* Buy Now */}
+                                        {/* Buy Now Button */}
                                         <Button
                                             onClick={() => handleBuyNow(listing)}
                                             className="flex-1 bg-phyt_blue hover:bg-phyt_blue/90 text-white"
                                             disabled={expired || isPurchasing}
                                         >
-                                            {isPurchasing && selectedListing?.id === listing.id
-                                                ? (
-                                                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                                                )
-                                                : null}
+                                            {isPurchasing && selectedListing?.id === listing.id ? (
+                                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                            ) : null}
                                             Buy Now
                                         </Button>
                                     </div>
@@ -295,9 +326,7 @@ export default function Marketplace() {
                 title="Place a Bid"
             >
                 <div className="p-4">
-                    <h2 className="text-xl font-bold mb-4 text-phyt_text">
-                        Place a Bid
-                    </h2>
+                    <h2 className="text-xl font-bold mb-4 text-phyt_text">Place a Bid</h2>
                     {selectedListing && (
                         <div className="mb-4">
                             <div className="mb-2 flex justify-between">
@@ -334,10 +363,77 @@ export default function Marketplace() {
                             Cancel
                         </Button>
                         <Button onClick={handlePlaceBid} disabled={isBidding}>
-                            {isBidding ? (
+                            {isBidding ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                            Submit Bid
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Auction Creation Modal (Seller Flow) */}
+            <Modal
+                isOpen={showAuctionModal}
+                onClose={() => {
+                    setShowAuctionModal(false);
+                    setAuctionCardId(null);
+                    setTakePrice('');
+                    setExpiration('');
+                }}
+                title="Create Auction"
+            >
+                <div className="p-4">
+                    <h2 className="text-xl font-bold mb-4 text-phyt_text">Create Auction</h2>
+                    <Label htmlFor="card-id" className="text-phyt_text_secondary">
+                        Card ID
+                    </Label>
+                    <Input
+                        id="card-id"
+                        type="number"
+                        className="mb-4"
+                        value={auctionCardId || ''}
+                        onChange={(e) => setAuctionCardId(Number(e.target.value))}
+                        placeholder="Enter your card ID"
+                    />
+
+                    <Label htmlFor="take-price" className="text-phyt_text_secondary">
+                        Take Price (ETH)
+                    </Label>
+                    <Input
+                        id="take-price"
+                        className="mb-4"
+                        value={takePrice}
+                        onChange={(e) => setTakePrice(e.target.value)}
+                        placeholder="e.g., 1.5"
+                    />
+
+                    <Label htmlFor="expiration" className="text-phyt_text_secondary">
+                        Expiration Time
+                    </Label>
+                    <Input
+                        id="expiration"
+                        type="datetime-local"
+                        className="mb-4"
+                        value={expiration}
+                        onChange={(e) => setExpiration(e.target.value)}
+                    />
+
+                    <div className="flex justify-end gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setShowAuctionModal(false);
+                                setAuctionCardId(null);
+                                setTakePrice('');
+                                setExpiration('');
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button onClick={handleCreateAuction} disabled={isCreatingListing}>
+                            {isCreatingListing ? (
                                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
                             ) : null}
-                            Submit Bid
+                            Create Auction
                         </Button>
                     </div>
                 </div>

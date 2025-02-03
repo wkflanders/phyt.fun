@@ -33,30 +33,41 @@ export function useListings(filters?: ListingFilters) {
 }
 
 // Create a new listing
+// src/hooks/use-marketplace.ts (snippet)
 export function useCreateListing() {
     const { toast } = useToast();
     const { signSellOrder } = useExchange();
     const { address } = useAccount();
 
     return useMutation({
-        mutationFn: async ({ cardId, takePrice }: { cardId: number; takePrice: bigint; }) => {
+        mutationFn: async ({
+            cardId,
+            takePrice,
+            expiration, // added parameter
+        }: {
+            cardId: number;
+            takePrice: bigint;
+            expiration: string; // e.g. an ISO string or UNIX timestamp string
+        }) => {
             if (!address) throw new Error('Wallet not connected');
 
-            // 1. Sign the sell order with the user's wallet
+            // Sign the sell order with the expiration value included.
             const { order, signature, orderHash } = await signSellOrder({
                 cardId,
-                takePrice
-            });
+                takePrice,
+                expiration, // pass expiration to your signing logic
+            } as { cardId: number; takePrice: bigint; expiration: string; });
 
-            // 2. Store the listing in the database
+            // Send the auction listing to your API (make sure your API is updated to store expiration)
             const response = await fetch('/api/marketplace/listings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     sellOrder: order,
                     signature,
-                    orderHash
-                })
+                    orderHash,
+                    expiration, // include expiration on the backend
+                }),
             });
 
             if (!response.ok) {
@@ -76,11 +87,12 @@ export function useCreateListing() {
         onSuccess: () => {
             toast({
                 title: "Success",
-                description: "Your card has been listed for sale",
+                description: "Your card has been listed for auction",
             });
         }
     });
 }
+
 
 // Purchase a listed card
 export function usePurchaseListing() {
