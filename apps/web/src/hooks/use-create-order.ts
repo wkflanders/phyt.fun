@@ -3,7 +3,7 @@ import { useWalletClient, useAccount } from 'wagmi';
 import { useToast } from './use-toast';
 import { useExchange } from './use-exchange';
 import { Order } from '@phyt/types';
-import { generateOrderHash } from '@/lib/orderUtils';
+import { generateOrderHash } from '@/lib/utils';
 
 export function useCreateOrder() {
     const { signOrder } = useExchange();

@@ -4,6 +4,7 @@ import { ExchangeAbi } from '@phyt/contracts';
 import { config } from '@/lib/wagmi';
 import { useToast } from './use-toast';
 import { Order } from '@phyt/types';
+import { EXCHANGE_DOMAIN, ORDER_TYPE } from '@phyt/types';
 
 const EXCHANGE_ADDRESS = process.env.EXCHANGE_ADDRESS as `0x${string}`;
 const PHYT_CARDS_ADDRESS = process.env.PHYT_CARDS_ADDRESS as `0x${string}`;
@@ -12,27 +13,6 @@ export interface UseExchangeConfig {
     onSuccess?: (hash: `0x${string}`) => void;
     onError?: (error: Error) => void;
 }
-
-export const EXCHANGE_DOMAIN = {
-    name: 'Phyt Exchange',
-    version: '1',
-    chainId: 84532, // Base Sepolia
-    verifyingContract: EXCHANGE_ADDRESS,
-} as const;
-
-export const ORDER_TYPE = {
-    Order: [
-        { name: 'trader', type: 'address' },
-        { name: 'side', type: 'uint8' },
-        { name: 'collection', type: 'address' },
-        { name: 'token_id', type: 'uint256' },
-        { name: 'payment_token', type: 'address' },
-        { name: 'price', type: 'uint256' },
-        { name: 'expiration_time', type: 'uint256' },
-        { name: 'merkle_root', type: 'bytes32' },
-        { name: 'salt', type: 'uint256' },
-    ],
-} as const;
 
 export function useExchange() {
     const publicClient = usePublicClient();
@@ -44,7 +24,10 @@ export function useExchange() {
         if (!walletClient) throw new Error('Wallet not connected');
 
         const signature = await walletClient.signTypedData({
-            domain: EXCHANGE_DOMAIN,
+            domain: {
+                ...EXCHANGE_DOMAIN,
+                verifyingContract: EXCHANGE_DOMAIN.verifyingContract as `0x${string}`,
+            },
             types: ORDER_TYPE,
             primaryType: 'Order',
             message: order,

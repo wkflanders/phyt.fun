@@ -1,22 +1,26 @@
-import { Listing, Order } from '@phyt/types';
+import { ApiError, type Listing, type Order } from '@phyt/types';
 import { handleApiError } from '@/lib/utils';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
-interface ListingsResponse {
-    listings: Listing[];
-    cursor: string | null;
-}
+export const LISTINGS_QUERY_KEY = 'listings';
+export const getListingsQueryKey = (filters?: ListingsFilters) => [LISTINGS_QUERY_KEY, filters];
 
-interface ListingsParams {
-    cursor?: string;
+export interface ListingsFilters {
     status?: 'active' | 'completed';
     sort?: 'price_asc' | 'price_desc' | 'created_at';
     minPrice?: string;
     maxPrice?: string;
+    cursor?: string;
 }
 
-export async function getListings(params: ListingsParams = {}): Promise<ListingsResponse> {
+export interface ListingsResponse {
+    listings: Listing[];
+    cursor: string | null;
+    hasNextPage: boolean;
+}
+
+export async function getListings(params: ListingsFilters = {}): Promise<ListingsResponse> {
     const searchParams = new URLSearchParams();
     if (params.cursor) searchParams.set('cursor', params.cursor);
     if (params.status) searchParams.set('status', params.status);
@@ -24,9 +28,10 @@ export async function getListings(params: ListingsParams = {}): Promise<Listings
     if (params.minPrice) searchParams.set('minPrice', params.minPrice);
     if (params.maxPrice) searchParams.set('maxPrice', params.maxPrice);
 
-    const response = await fetch(`${API_URL}/marketplace/listings?${searchParams.toString()}`, {
-        credentials: 'include',
-    });
+    const response = await fetch(
+        `${API_URL}/marketplace/listings?${searchParams.toString()}`,
+        { credentials: 'include' }
+    );
 
     if (!response.ok) {
         throw await handleApiError(response);
@@ -54,11 +59,13 @@ export async function getListingsByRunner(
     return response.json();
 }
 
-export async function createListing(data: {
+export interface CreateListingPayload {
     order: Order;
     signature: string;
     orderHash: string;
-}): Promise<Listing> {
+}
+
+export async function createListing(data: CreateListingPayload): Promise<Listing> {
     const response = await fetch(`${API_URL}/marketplace/listings`, {
         method: 'POST',
         headers: {
