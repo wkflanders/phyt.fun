@@ -1,9 +1,9 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAccount } from 'wagmi';
 import { formatEther } from 'viem';
 import { useToast } from './use-toast';
 import { useExchange } from './use-exchange';
-import type { RunnerListing, Order } from '@phyt/types';
+import type { RunnerListing, Order, User } from '@phyt/types';
 
 interface ListingFilters {
     minPrice?: string;
@@ -11,6 +11,8 @@ interface ListingFilters {
     rarity?: string[];
     sort?: 'price_asc' | 'price_desc' | 'created_at';
 }
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
 // Fetch active listings
 export function useListings(filters?: ListingFilters) {
@@ -23,7 +25,11 @@ export function useListings(filters?: ListingFilters) {
             if (filters?.rarity) filters.rarity.forEach(r => searchParams.append('rarity', r));
             if (filters?.sort) searchParams.append('sort', filters.sort);
 
-            const response = await fetch(`/api/marketplace/listings?${searchParams.toString()}`);
+            const response = await fetch(`${API_URL}/marketplace/listings?${searchParams.toString()}`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+            });
             if (!response.ok) {
                 throw new Error('Failed to fetch listings');
             }
@@ -32,12 +38,64 @@ export function useListings(filters?: ListingFilters) {
     });
 }
 
+export const useOpenBids = (cardId: number) => {
+    return useQuery({
+        queryKey: ['openBids', cardId],
+        queryFn: async () => {
+            const res = await fetch(`${API_URL}/marketplace/cards/${cardId}/open-bids`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+            });
+            if (!res.ok) throw new Error('Failed to fetch open bids');
+            return res.json();
+        }
+    });
+};
+
+export const useUserBids = (userId: string) => {
+    return useQuery({
+        queryKey: ['userBids', userId],
+        queryFn: async () => {
+            const res = await fetch(`${API_URL}/marketplace/users/${userId}/bids`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+            });
+            if (!res.ok) throw new Error('Failed to fetch user bids');
+            return res.json();
+        },
+        enabled: !!userId
+    });
+};
+
+export const useAcceptOpenBid = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({ bidId, transactionHash }: { bidId: number; transactionHash: string; }) => {
+            const res = await fetch(`${API_URL}/marketplace/open-bids/${bidId}/accept`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ transactionHash })
+            });
+            if (!res.ok) throw new Error('Failed to accept bid');
+            return res.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['listings'] });
+            queryClient.invalidateQueries({ queryKey: ['openBids'] });
+        }
+    });
+};
+
 // Create a new listing
-// src/hooks/use-marketplace.ts (snippet)
-export function useCreateListing() {
+export function useCreateListing(user: User) {
     const { toast } = useToast();
     const { signSellOrder } = useExchange();
     const { address } = useAccount();
+    const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: async ({
@@ -50,26 +108,38 @@ export function useCreateListing() {
             expiration: string; // e.g. an ISO string or UNIX timestamp string
         }) => {
             if (!address) throw new Error('Wallet not connected');
-
             // Sign the sell order with the expiration value included.
             const { order, signature, orderHash } = await signSellOrder({
                 cardId,
                 takePrice,
-                expiration, // pass expiration to your signing logic
+                expiration, // pass expiration to  signing logic
             } as { cardId: number; takePrice: bigint; expiration: string; });
 
-            // Send the auction listing to your API (make sure your API is updated to store expiration)
-            const response = await fetch('/api/marketplace/listings', {
+            // Send the auction listing to API, aligning with the validation schema.
+            const response = await fetch(`${API_URL}/marketplace/listings`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    sellOrder: order,
+                    cardId,
+                    price: takePrice.toString(),
                     signature,
                     orderHash,
-                    expiration, // include expiration on the backend
-                }),
-            });
+                    orderData: {
+                        trader: order.trader,
+                        side: order.side,
+                        collection: order.collection,
+                        token_id: order.token_id.toString(),
+                        payment_token: order.payment_token,
+                        price: order.price.toString(),
+                        expiration_time: expiration,
+                        merkle_root: order.merkle_root,
+                        salt: order.salt.toString(),
+                    },
+                    user: user,
+                }, (_key, value) => typeof value === 'bigint' ? value.toString() : value),
 
+            });
             if (!response.ok) {
                 const error = await response.json();
                 throw new Error(error.message || 'Failed to create listing');
@@ -77,7 +147,18 @@ export function useCreateListing() {
 
             return response.json();
         },
+        onMutate: async (newListing) => {
+            await queryClient.cancelQueries({ queryKey: ['listings'] });
+            const previousListings = queryClient.getQueryData(['listings']);
+
+            queryClient.setQueryData(['listings'], (old: any) =>
+                Array.isArray(old) ? [...old, newListing] : [newListing]
+            );
+
+            return { previousListings };
+        },
         onError: (error: Error) => {
+            console.log(error);
             toast({
                 title: "Error",
                 description: error.message,
@@ -124,8 +205,9 @@ export function usePurchaseListing() {
             });
 
             // Notify backend of successful purchase
-            const response = await fetch(`/api/marketplace/listings/${listing.id}/complete`, {
+            const response = await fetch(`${API_URL}/marketplace/listings/${listing.id}/complete`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     hash,
@@ -173,8 +255,9 @@ export function usePlaceBid() {
             });
 
             // 2. Store the bid in the database
-            const response = await fetch('/api/marketplace/bids', {
+            const response = await fetch(`${API_URL}/marketplace/bids`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     order,
@@ -215,7 +298,11 @@ export function useUserListings() {
         queryFn: async () => {
             if (!address) throw new Error('Wallet not connected');
 
-            const response = await fetch(`/api/marketplace/users/${address}/listings`);
+            const response = await fetch(`${API_URL}/marketplace/users/${address}/listings`, {
+                method: "GET",
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+            });
             if (!response.ok) {
                 throw new Error('Failed to fetch user listings');
             }
