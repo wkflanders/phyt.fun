@@ -1,6 +1,6 @@
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useAccount } from 'wagmi';
-import { formatEther, parseEther } from 'viem';
+import { formatEther } from 'viem';
 import { useToast } from './use-toast';
 import { useExchange } from './use-exchange';
 import type { RunnerListing, Order } from '@phyt/types';
@@ -35,17 +35,17 @@ export function useListings(filters?: ListingFilters) {
 // Create a new listing
 export function useCreateListing() {
     const { toast } = useToast();
-    const { signOrder } = useExchange();
+    const { signSellOrder } = useExchange();
     const { address } = useAccount();
 
     return useMutation({
-        mutationFn: async ({ cardId, price }: { cardId: number; price: string; }) => {
+        mutationFn: async ({ cardId, takePrice }: { cardId: number; takePrice: bigint; }) => {
             if (!address) throw new Error('Wallet not connected');
 
             // 1. Sign the sell order with the user's wallet
-            const { order, signature, orderHash } = await signOrder({
+            const { order, signature, orderHash } = await signSellOrder({
                 cardId,
-                price: parseEther(price)
+                takePrice
             });
 
             // 2. Store the listing in the database
@@ -53,7 +53,7 @@ export function useCreateListing() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    order,
+                    sellOrder: order,
                     signature,
                     orderHash
                 })
@@ -93,7 +93,7 @@ export function usePurchaseListing() {
             if (!address) throw new Error('Wallet not connected');
 
             // Convert the listing data into the Order format
-            const order: Order = {
+            const sellOrder: Order = {
                 trader: listing.order.trader as `0x${string}`,
                 side: 1, // 1 for sell
                 collection: listing.order.collection as `0x${string}`,
@@ -107,9 +107,8 @@ export function usePurchaseListing() {
 
             // Execute the purchase transaction
             const { hash, receipt } = await executeBuy({
-                order,
-                signature: listing.signature,
-                burnAfterPurchase: false
+                sellOrder,
+                signature: listing.signature
             });
 
             // Notify backend of successful purchase
@@ -139,6 +138,57 @@ export function usePurchaseListing() {
             toast({
                 title: "Success",
                 description: "Purchase completed successfully",
+            });
+        }
+    });
+}
+
+// Place a bid on a listing
+export function usePlaceBid() {
+    const { toast } = useToast();
+    const { signBuyOrder } = useExchange();
+    const { address } = useAccount();
+
+    return useMutation({
+        mutationFn: async ({ listingId, cardId, bidAmount }: { listingId: number; cardId: number; bidAmount: bigint; }) => {
+            if (!address) throw new Error('Wallet not connected');
+
+            // 1. Sign the buy order
+            const { order, signature, orderHash } = await signBuyOrder({
+                listingId,
+                cardId,
+                bidAmount
+            });
+
+            // 2. Store the bid in the database
+            const response = await fetch('/api/marketplace/bids', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    order,
+                    signature,
+                    orderHash
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to place bid');
+            }
+
+            return response.json();
+        },
+        onError: (error: Error) => {
+            toast({
+                title: "Error",
+                description: error.message,
+                variant: "destructive",
+            });
+        },
+        onSuccess: () => {
+            toast({
+                title: "Success",
+                description: "Your bid has been placed",
             });
         }
     });
