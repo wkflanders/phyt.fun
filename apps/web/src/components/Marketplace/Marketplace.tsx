@@ -202,7 +202,7 @@ export default function Marketplace() {
 
                 {/* Create Auction Button (Seller Flow) */}
                 <div>
-                    <Button onClick={() => setShowAuctionModal(true)}>
+                    <Button className="text-white" onClick={() => setShowAuctionModal(true)}>
                         Create Auction
                     </Button>
                 </div>
@@ -389,7 +389,7 @@ export default function Marketplace() {
                     <Input
                         id="card-id"
                         type="number"
-                        className="mb-4"
+                        className="mb-4 text-white"
                         value={auctionCardId || ''}
                         onChange={(e) => setAuctionCardId(Number(e.target.value))}
                         placeholder="Enter your card ID"
@@ -400,7 +400,7 @@ export default function Marketplace() {
                     </Label>
                     <Input
                         id="take-price"
-                        className="mb-4"
+                        className="mb-4 text-white"
                         value={takePrice}
                         onChange={(e) => setTakePrice(e.target.value)}
                         placeholder="e.g., 1.5"
@@ -412,7 +412,7 @@ export default function Marketplace() {
                     <Input
                         id="expiration"
                         type="datetime-local"
-                        className="mb-4"
+                        className="mb-4 text-white"
                         value={expiration}
                         onChange={(e) => setExpiration(e.target.value)}
                     />
@@ -420,6 +420,7 @@ export default function Marketplace() {
                     <div className="flex justify-end gap-2">
                         <Button
                             variant="outline"
+                            className="text-white"
                             onClick={() => {
                                 setShowAuctionModal(false);
                                 setAuctionCardId(null);
@@ -429,7 +430,7 @@ export default function Marketplace() {
                         >
                             Cancel
                         </Button>
-                        <Button onClick={handleCreateAuction} disabled={isCreatingListing}>
+                        <Button className="text-white" onClick={handleCreateAuction} disabled={isCreatingListing}>
                             {isCreatingListing ? (
                                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
                             ) : null}
