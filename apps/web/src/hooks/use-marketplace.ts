@@ -16,7 +16,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
 // Fetch active listings
 export function useListings(filters?: ListingFilters) {
-    return useQuery({
+    return useQuery<RunnerListing[], Error>({
         queryKey: ['listings', filters],
         queryFn: async () => {
             const searchParams = new URLSearchParams();
