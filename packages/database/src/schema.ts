@@ -199,41 +199,50 @@ export const listings = pgTable("listings", {
     id: serial("id").primaryKey(),
     card_id: integer("card_id").notNull().references(() => cards.id, { onDelete: 'set null' }),
     seller_id: integer("seller_id").notNull().references(() => users.id, { onDelete: 'set null' }),
-    price: doublePrecision("price").notNull(),
-    payment_token: varchar("payment_token", { length: 42 }).notNull(),
-    expiration_time: timestamp("expiration_time", { precision: 3 }).notNull(),
+    buyer_id: integer("buyer_id").references(() => users.id, { onDelete: 'set null' }),
+    price: varchar("price").notNull(),
     signature: varchar("signature").notNull(),
-    salt: varchar("salt").notNull(),
-    active: boolean("active").default(true),
+    order_hash: varchar("order_hash").notNull().unique(),
+    order_data: jsonb("order_data").notNull(),
+    expiration_time: timestamp("expiration_time", { precision: 3 }).notNull(),
+    status: varchar("status").notNull().default('active'),
+    transaction_hash: varchar("transaction_hash", { length: 66 }),
+    highest_bid: varchar("highest_bid"),
+    highest_bidder_id: integer("highest_bidder_id").references(() => users.id, { onDelete: 'set null' }),
     updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
     created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
 }, (table) => [
     index("listings_card_idx").on(table.card_id),
     index("listings_seller_idx").on(table.seller_id),
-    index("listings_active_idx").on(table.active),
+    index("listings_buyer_idx").on(table.buyer_id),
+    index("listings_status_idx").on(table.status),
     index("listings_created_at_idx").on(table.created_at),
     index("listings_updated_at_idx").on(table.updated_at),
 ]);
 
-// Add new offers table following the same pattern
-export const offers = pgTable("offers", {
+export const bids = pgTable("bids", {
     id: serial("id").primaryKey(),
-    card_id: integer("card_id").notNull().references(() => cards.id, { onDelete: 'set null' }),
-    buyer_id: integer("buyer_id").notNull().references(() => users.id, { onDelete: 'set null' }),
-    price: doublePrecision("price").notNull(),
-    payment_token: varchar("payment_token", { length: 42 }).notNull(),
-    expiration_time: timestamp("expiration_time", { precision: 3 }).notNull(),
+    listing_id: integer("listing_id").references(() => listings.id, { onDelete: 'set null' }), // Made optional
+    card_id: integer("card_id").notNull().references(() => cards.id, { onDelete: 'set null' }), // Added direct card reference
+    bidder_id: integer("bidder_id").notNull().references(() => users.id, { onDelete: 'set null' }),
+    price: varchar("price").notNull(),
     signature: varchar("signature").notNull(),
-    salt: varchar("salt").notNull(),
-    active: boolean("active").default(true),
+    order_hash: varchar("order_hash").notNull().unique(),
+    order_data: jsonb("order_data").notNull(),
+    bid_type: varchar("bid_type").notNull().default('listing'), // 'listing' or 'open'
+    status: varchar("status").notNull().default('active'),
+    expiration_time: timestamp("expiration_time", { precision: 3 }).notNull(), // Added expiration for open bids
+    accepted_at: timestamp("accepted_at", { precision: 3 }),
     updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
     created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
 }, (table) => [
-    index("offers_card_idx").on(table.card_id),
-    index("offers_buyer_idx").on(table.buyer_id),
-    index("offers_active_idx").on(table.active),
-    index("offers_created_at_idx").on(table.created_at),
-    index("offers_updated_at_idx").on(table.updated_at),
+    index("bids_listing_idx").on(table.listing_id),
+    index("bids_card_idx").on(table.card_id),
+    index("bids_bidder_idx").on(table.bidder_id),
+    index("bids_status_idx").on(table.status),
+    index("bids_type_idx").on(table.bid_type),
+    index("bids_created_at_idx").on(table.created_at),
+    index("bids_updated_at_idx").on(table.updated_at),
 ]);
 
 export const transactions = pgTable("transactions", {
