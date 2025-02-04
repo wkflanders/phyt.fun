@@ -15,6 +15,13 @@
       "when": 1738519595019,
       "tag": "0001_goofy_marrow",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1738596448426,
+      "tag": "0002_first_kid_colt",
+      "breakpoints": true
     }
   ]
 }
