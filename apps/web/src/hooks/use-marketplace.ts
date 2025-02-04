@@ -100,21 +100,22 @@ export function useCreateListing(user: User) {
     return useMutation({
         mutationFn: async ({
             cardId,
+            tokenId,
             takePrice,
             expiration, // added parameter
         }: {
             cardId: number;
+            tokenId: number;
             takePrice: bigint;
             expiration: string; // e.g. an ISO string or UNIX timestamp string
         }) => {
             if (!address) throw new Error('Wallet not connected');
             // Sign the sell order with the expiration value included.
             const { order, signature, orderHash } = await signSellOrder({
-                cardId,
+                tokenId,
                 takePrice,
                 expiration, // pass expiration to  signing logic
-            } as { cardId: number; takePrice: bigint; expiration: string; });
-
+            } as { tokenId: number; takePrice: bigint; expiration: string; });
             // Send the auction listing to API, aligning with the validation schema.
             const response = await fetch(`${API_URL}/marketplace/listings`, {
                 method: 'POST',
