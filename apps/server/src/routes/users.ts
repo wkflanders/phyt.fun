@@ -102,4 +102,16 @@ router.post('/create', upload.single('avatar'), async (req, res) => {
     }
 });
 
+router.get('/cards/:privyId', async (req, res) => {
+    try {
+        const cards = await userService.getCardsByPrivyId(req.params.privyId);
+        return res.status(200).json(cards);
+    } catch (error: any) {
+        console.error("Error in GET /users/:privyId/cards:", error);
+        return res.status(error.statusCode || 500).json({
+            error: error.message || "Failed to fetch user cards"
+        });
+    }
+});
+
 export { router as userRouter };
