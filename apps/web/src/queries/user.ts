@@ -59,3 +59,19 @@ export async function createUser({ formData }: CreateUserInput): Promise<User> {
 
     return response.json();
 }
+
+export async function getUserCards(privyId: string) {
+    const response = await fetch(`${API_URL}/users/cards/${privyId}`, {
+        credentials: 'include',
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw {
+            error: error.error || 'Failed to fetch user cards',
+            status: response.status
+        };
+    }
+
+    return response.json();
+}
