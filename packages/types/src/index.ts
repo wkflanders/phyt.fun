@@ -379,24 +379,3 @@ export interface Offer {
     buyer: any;
     card: Card;
 }
-
-export const EXCHANGE_DOMAIN = {
-    name: 'Phyt Exchange',
-    version: '1',
-    chainId: 84532, // Base Sepolia
-    verifyingContract: process.env.EXCHANGE_ADDRESS,
-} as const;
-
-export const ORDER_TYPE = {
-    Order: [
-        { name: 'trader', type: 'address' },
-        { name: 'side', type: 'uint8' },
-        { name: 'collection', type: 'address' },
-        { name: 'token_id', type: 'uint256' },
-        { name: 'payment_token', type: 'address' },
-        { name: 'price', type: 'uint256' },
-        { name: 'expiration_time', type: 'uint256' },
-        { name: 'merkle_root', type: 'bytes32' },
-        { name: 'salt', type: 'uint256' },
-    ],
-} as const;
