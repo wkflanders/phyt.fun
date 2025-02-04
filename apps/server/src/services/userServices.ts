@@ -1,6 +1,6 @@
 // apps/server/src/services/userServices.ts
 import { db, eq, or, desc } from '@phyt/database';
-import { users, transactions } from '@phyt/database';
+import { users, transactions, cards, card_metadata } from '@phyt/database';
 import { DatabaseError, NotFoundError, DuplicateError, ValidationError } from '@phyt/types';
 import { s3Service } from '../lib/awsClient';
 
@@ -87,6 +87,35 @@ export const userService = {
             throw new DatabaseError('Failed to fetch user transactions');
         }
     },
+
+    getCardsByPrivyId: async (privyId: string) => {
+        try {
+            const [user] = await db.select()
+                .from(users)
+                .where(eq(users.privy_id, privyId))
+                .limit(1);
+
+            if (!user) throw new NotFoundError('User not found');
+
+            const userCards = await db.select({
+                id: cards.id,
+                tokenId: cards.token_id,
+                ownerId: cards.owner_id,
+                imageUrl: card_metadata.image_url,
+                rarity: card_metadata.rarity,
+                multiplier: card_metadata.multiplier
+            })
+                .from(cards)
+                .innerJoin(card_metadata, eq(cards.token_id, card_metadata.token_id))
+                .where(eq(cards.owner_id, user.id));
+
+            return userCards;
+        } catch (error) {
+            if (error instanceof NotFoundError) throw error;
+            throw new DatabaseError('Failed to fetch user cards');
+        }
+    },
+
 
     createUser: async (userData: {
         email: string;
