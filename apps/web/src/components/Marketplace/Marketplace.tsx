@@ -95,9 +95,6 @@ export default function Marketplace() {
     const { mutate: placeBid, isPending: isBidding } = usePlaceBid();
     const { mutate: purchaseListing, isPending: isPurchasing } = usePurchaseListing();
 
-    // Mutation for seller creating auction listing
-    const { mutate: createListing, isPending: isCreatingListing } = useCreateListing(user);
-
     // Buyer: handle placing a bid
     const handlePlaceBid = async () => {
         if (!selectedListing || !bidAmount) return;
@@ -144,34 +141,6 @@ export default function Marketplace() {
         const now = Date.now();
         const expirationTimestamp = new Date(listing.expiration).getTime();
         return now > expirationTimestamp;
-    };
-
-    // Seller: handle auction creation submission
-    const handleCreateAuction = async () => {
-        if (!auctionCardId || !takePrice || !expiration) return;
-
-        try {
-            await createListing({
-                cardId: auctionCardId,
-                takePrice: parseEther(takePrice),
-                expiration, // ISO string (or UNIX timestamp string, as expected by your backend)
-            });
-            toast({
-                title: "Auction Created",
-                description: "Your card is now on auction.",
-            });
-            setShowAuctionModal(false);
-            setAuctionCardId(null);
-            setTakePrice('');
-            setExpiration('');
-        } catch (err) {
-            console.error(err);
-            // toast({
-            //     title: "Error",
-            //     description: "Failed to create auction. Please try again.",
-            //     variant: "destructive",
-            // });
-        }
     };
 
     return (
@@ -439,12 +408,6 @@ export default function Marketplace() {
                             }}
                         >
                             Cancel
-                        </Button>
-                        <Button className="text-white" onClick={handleCreateAuction} disabled={isCreatingListing}>
-                            {isCreatingListing ? (
-                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                            ) : null}
-                            Create Auction
                         </Button>
                     </div>
                 </div>
