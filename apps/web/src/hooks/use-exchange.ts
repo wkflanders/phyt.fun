@@ -88,11 +88,11 @@ export function useExchange() {
 
     // Sign a sell order (listing)
     const signSellOrder = async ({
-        cardId,
+        tokenId,
         takePrice,
         expiration
     }: {
-        cardId: number;
+        tokenId: number;
         takePrice: bigint;
         expiration: string;
     }) => {
@@ -110,7 +110,7 @@ export function useExchange() {
             trader: address,
             side: 1, // sell
             collection: PHYT_CARDS_ADDRESS as `0x${string}`,
-            token_id: BigInt(cardId),
+            token_id: BigInt(tokenId),
             payment_token: '0x0000000000000000000000000000000000000000', // ETH
             price: takePrice,
             expiration_time: BigInt(new Date(expiration).getTime()),
