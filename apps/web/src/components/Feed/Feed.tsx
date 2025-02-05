@@ -190,10 +190,10 @@ const RunMap: FC<RunMapProps> = ({ coordinates, distance }) => {
 
                 {/* Scale bar */}
                 <g transform={`translate(${padding}, ${height + 15})`}>
-                    <line x1="0" y1="0" x2={pixelsPerMile} y2="0" stroke="#3B82F6" strokeWidth="2" />
-                    <line x1="0" y1="-3" x2="0" y2="3" stroke="#3B82F6" strokeWidth="2" />
-                    <line x1={pixelsPerMile} y1="-3" x2={pixelsPerMile} y2="3" stroke="#3B82F6" strokeWidth="2" />
-                    <text x={pixelsPerMile / 2} y="15" textAnchor="middle" fill="#3B82F6" className="text-xs">
+                    <line x1="0" y1="0" x2={pixelsPerMile} y2="0" stroke="#d1d1d1" strokeWidth="2" />
+                    <line x1="0" y1="-3" x2="0" y2="3" stroke="#d1d1d1" strokeWidth="2" />
+                    <line x1={pixelsPerMile} y1="-3" x2={pixelsPerMile} y2="3" stroke="#d1d1d1" strokeWidth="2" />
+                    <text x={pixelsPerMile / 2} y="15" textAnchor="middle" fill="#d1d1d1" className="text-xs">
                         1 mile
                     </text>
                 </g>
@@ -201,7 +201,7 @@ const RunMap: FC<RunMapProps> = ({ coordinates, distance }) => {
                 {/* Path */}
                 <path
                     d={`M ${transformedPath.map(([x, y]) => `${x},${y}`).join(' L ')}`}
-                    stroke="#3B82F6"
+                    stroke="#bdbdbd"
                     strokeWidth="3"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -215,7 +215,7 @@ const RunMap: FC<RunMapProps> = ({ coordinates, distance }) => {
                         cx={x}
                         cy={y}
                         r={i === 0 || i === transformedPath.length - 1 ? 4 : 2}
-                        fill={i === 0 ? '#22C55E' : i === transformedPath.length - 1 ? '#EF4444' : '#3B82F6'}
+                        fill={i === 0 ? '#d1d1d1' : i === transformedPath.length - 1 ? '#d1d1d1' : '#bdbdbd'}
                     />
                 ))}
             </svg>
@@ -234,7 +234,7 @@ interface MetricWidgetProps {
 
 const MetricWidget: FC<MetricWidgetProps> = ({ icon: Icon, label, value }) => (
     <div className="flex flex-col items-center bg-phyt_form bg-opacity-10 rounded-lg p-3">
-        <Icon size={20} className="text-phyt_blue mb-1" />
+        <Icon size={20} className="text-phyt_text mb-1" />
         <span className="text-sm text-phyt_text_secondary">{label}</span>
         <span className="text-phyt_text font-semibold">{value}</span>
     </div>
@@ -267,7 +267,7 @@ export const Feed: FC = () => {
 
     return (
         <div className="flex-1 overflow-y-auto h-screen">
-            <div className="max-w-2xl mx-auto py-6 px-4">
+            <div className="max-w-2xl mx-auto px-4">
                 <div className="rounded-xl overflow-hidden">
                     <div>
                         <div className="flex gap-8">
