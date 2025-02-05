@@ -4,17 +4,9 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { useGetUserCards } from '@/hooks/use-get-user-cards';
 import { Loader2 } from 'lucide-react';
-import { CardRarity, User } from '@phyt/types';
+import { CardRarity, CardWithMetadata, User } from '@phyt/types';
 import { OrderBookModal } from './OrderBook';
-
-export interface CardResponse {
-    id: number;
-    tokenId: number;
-    ownerId: number;
-    imageUrl: string;
-    rarity: CardRarity;
-    multiplier: number;
-}
+import { CardModal } from './CardModal';
 
 interface InventoryProps {
     user: User;
@@ -25,7 +17,6 @@ export const Inventory = ({
 }: InventoryProps) => {
     const { data: cards, isLoading, error } = useGetUserCards();
     const [selectedCard, setSelectedCard] = useState<any>(null);
-
     if (isLoading) {
         return (
             <div className="flex-1 flex items-center justify-center">
@@ -46,7 +37,7 @@ export const Inventory = ({
         <div className="flex-1 overflow-y-auto">
             <div className="max-w-7xl mx-auto py-8 px-6">
                 <div className="grid grid-cols-3">
-                    {cards?.map((card: CardResponse) => (
+                    {cards?.map((card: CardWithMetadata) => (
                         <div
                             key={card.id}
                             onClick={() => {
@@ -55,8 +46,8 @@ export const Inventory = ({
                             className="cursor-pointer transition-transform hover:scale-105"
                         >
                             <Image
-                                src={card.imageUrl}
-                                alt={`Card ${card.tokenId}`}
+                                src={card.metadata.image_url}
+                                alt={`Card ${card.metadata.token_id}`}
                                 width={400}
                                 height={600}
                                 className="rounded-lg w-1/2 object-cover cursor-pointer transition-transform hover:scale-105"
@@ -71,7 +62,7 @@ export const Inventory = ({
                     </div>
                 )}
             </div>
-            <OrderBookModal
+            <CardModal
                 user={user}
                 card={selectedCard}
                 isOpen={!!selectedCard}

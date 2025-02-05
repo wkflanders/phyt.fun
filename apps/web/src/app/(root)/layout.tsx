@@ -16,19 +16,29 @@ export default function Layout({ children }: { children: React.ReactNode; }) {
     useEffect(() => {
         if (!ready) return;
 
-        // If we never got a privyUser at all, we know we can't proceed
         if (!privyUser) {
-            router.push("/onboard");
+            router.push("/");
             return;
         }
 
-        // Now we wait until our DB user query is no longer loading
+        if (!privyUser) {
+            router.push("/");
+            return;
+        }
+
+        // Wait until our DB user query is no longer loading/fetching
         if (!isLoading && !isFetching) {
-            // If the query ended in error or we have no DB user, redirect
-            if (error || !dbUser) {
+            // Check the error status to differentiate what happened
+            if (error) {
+                console.log(error);
+                if (error.status === 404) {
+                    router.push("/onboard");
+                } else {
+                    console.error("Server error while fetching user:", error.error);
+                }
+            } else if (!dbUser) {
                 router.push("/onboard");
             } else {
-                // We have a DB user, so we can render the app
                 setAuthCheckDone(true);
             }
         }

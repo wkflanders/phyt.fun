@@ -1,11 +1,10 @@
 // apps/server/src/services/userServices.ts
 import { db, eq, or, desc } from '@phyt/database';
 import { users, transactions, cards, card_metadata } from '@phyt/database';
-import { DatabaseError, NotFoundError, DuplicateError, ValidationError } from '@phyt/types';
+import { DatabaseError, NotFoundError, DuplicateError, ValidationError, CardWithMetadata } from '@phyt/types';
 import { s3Service } from '../lib/awsClient';
 
 const DEFAULT_AVATAR = 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut';
-const env = process.env.NODE_ENV === 'production' ? 'prod' : 'dev';
 
 export const userService = {
     getUserByPrivyId: async (privyId: string) => {
@@ -20,7 +19,9 @@ export const userService = {
             if (!user) throw new NotFoundError('User not found');
             return user;
         } catch (error) {
-            if (error instanceof NotFoundError || error instanceof ValidationError) throw error;
+            if (error instanceof NotFoundError || error instanceof ValidationError) {
+                throw error;
+            }
             throw new DatabaseError('Failed to fetch user by Privy ID');
         }
     },
@@ -88,7 +89,7 @@ export const userService = {
         }
     },
 
-    getCardsByPrivyId: async (privyId: string) => {
+    getCardsByPrivyId: async (privyId: string): Promise<CardWithMetadata[]> => {
         try {
             const [user] = await db.select()
                 .from(users)
@@ -97,19 +98,17 @@ export const userService = {
 
             if (!user) throw new NotFoundError('User not found');
 
-            const userCards = await db.select({
-                id: cards.id,
-                tokenId: cards.token_id,
-                ownerId: cards.owner_id,
-                imageUrl: card_metadata.image_url,
-                rarity: card_metadata.rarity,
-                multiplier: card_metadata.multiplier
-            })
+            const userCards = await db.select()
                 .from(cards)
                 .innerJoin(card_metadata, eq(cards.token_id, card_metadata.token_id))
                 .where(eq(cards.owner_id, user.id));
 
-            return userCards;
+            return userCards.map(({ cards, card_metadata }) => ({
+                ...cards,
+                metadata: {
+                    ...card_metadata,
+                }
+            }));
         } catch (error) {
             if (error instanceof NotFoundError) throw error;
             throw new DatabaseError('Failed to fetch user cards');

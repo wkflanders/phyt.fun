@@ -1,4 +1,4 @@
-import { Transaction, User } from "@phyt/types";
+import { CardWithMetadata, Transaction, User } from "@phyt/types";
 import { ApiError, CreateUserInput } from "@phyt/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
@@ -60,7 +60,7 @@ export async function createUser({ formData }: CreateUserInput): Promise<User> {
     return response.json();
 }
 
-export async function getUserCards(privyId: string) {
+export async function getUserCards(privyId: string): Promise<CardWithMetadata[]> {
     const response = await fetch(`${API_URL}/users/cards/${privyId}`, {
         credentials: 'include',
     });
@@ -72,6 +72,5 @@ export async function getUserCards(privyId: string) {
             status: response.status
         };
     }
-
     return response.json();
 }

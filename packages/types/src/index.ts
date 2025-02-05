@@ -82,9 +82,8 @@ export interface Card {
     pack_purchase_id: number | null;
     token_id: number,
     acquisition_type: AcquisitionType;
-    updated_at: string;
-    created_at: string;
-    owner?: User;
+    updated_at: Date | null;
+    created_at: Date | null;
 }
 
 export interface CardMetadata extends Pick<Card, 'token_id'> {
@@ -94,7 +93,7 @@ export interface CardMetadata extends Pick<Card, 'token_id'> {
     rarity: CardRarity;
     image_url: string;
     multiplier: number;
-    created_at: string;
+    created_at: Date | null;
 }
 
 export interface CardWithMetadata extends Card {
@@ -212,7 +211,7 @@ export interface PaginationParams {
     orderDir?: 'asc' | 'desc';
 }
 
-export interface ApiError {
+export interface ApiError extends Error {
     error: string;
     status: number;
 }

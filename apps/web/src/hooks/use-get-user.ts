@@ -1,13 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { usePrivy } from "@privy-io/react-auth";
 import { getUser } from "@/queries/user";
+import { User, ApiError } from '@phyt/types';
 
 import { getUserQueryKey, USER_QUERY_KEY } from '@/queries/user';
 
 export function useGetUser() {
     const { user: privyUser, ready } = usePrivy();
 
-    return useQuery({
+    return useQuery<User, ApiError>({
         queryKey: [USER_QUERY_KEY, privyUser?.id],
         queryFn: async ({ queryKey }) => {
             console.log("Query function executing for:", queryKey[1]);
