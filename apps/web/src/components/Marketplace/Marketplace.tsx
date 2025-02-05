@@ -66,7 +66,7 @@ const Marketplace = () => {
     }
 
     return (
-        <div className="flex flex-col p-8 space-y-8">
+        <div className="flex flex-col space-y-8">
             {/* Filter Bar */}
             <Card className=" border-phyt_form">
                 <CardContent className="flex justify-between items-center p-4">
@@ -105,9 +105,9 @@ const Marketplace = () => {
             </Card>
 
             {/* Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"> {/* Adjusted grid and gap */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                 {listings.length === 0 ? (
-                    <div className="col-span-full text-center text-phyt_text_secondary py-12">
+                    <div key="no-listings" className="col-span-full text-center text-phyt_text_secondary py-12">
                         No listings found
                     </div>
                 ) : (
@@ -115,16 +115,18 @@ const Marketplace = () => {
                         <Card
                             key={listing.id}
                             onClick={() => setSelectedListing(listing)}
-                            className="cursor-pointer border-0 shadow-0 bg-transparent"
+                            className="cursor-pointer border-0 shadow-0 bg-transparent w-full"
                         >
                             <CardContent className="p-0 overflow-hidden">
-                                <div className="aspect-[2/3] relative"> {/* Added aspect ratio container */}
-                                    <Image
-                                        src={listing.metadata.image_url}
-                                        alt={`Card ${listing.metadata.runner_name}`}
-                                        fill
-                                        className="rounded-lg object-contain p-5 hover:scale-105 transition-transform duration-200"
-                                    />
+                                <div className="w-full pb-[150%] relative">
+                                    <div className="absolute inset-0">
+                                        <Image
+                                            src={listing.metadata.image_url}
+                                            alt={`Card ${listing.metadata.runner_name}`}
+                                            fill
+                                            className="rounded-lg object-contain p-5 hover:scale-105 transition-transform duration-200"
+                                        />
+                                    </div>
                                 </div>
                             </CardContent>
                             <CardFooter className="flex flex-col space-y-2 bg-phyt_form bg-opacity-20 p-4">
