@@ -105,9 +105,9 @@ const Marketplace = () => {
             </Card>
 
             {/* Grid */}
-            <div className="grid grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"> {/* Adjusted grid and gap */}
                 {listings.length === 0 ? (
-                    <div className="col-span-3 text-center text-phyt_text_secondary py-12">
+                    <div className="col-span-full text-center text-phyt_text_secondary py-12">
                         No listings found
                     </div>
                 ) : (
@@ -115,16 +115,17 @@ const Marketplace = () => {
                         <Card
                             key={listing.id}
                             onClick={() => setSelectedListing(listing)}
-                            className="cursor-pointer"
+                            className="cursor-pointer border-0 shadow-0 bg-transparent"
                         >
-                            <CardContent className="p-0 transition-transform hover:scale-105 overflow-hidden">
-                                <Image
-                                    src={listing.metadata.image_url}
-                                    alt={`Card ${listing.metadata.runner_name}`}
-                                    width={600}
-                                    height={900}
-                                    className="w-lg object-cover"
-                                />
+                            <CardContent className="p-0 overflow-hidden">
+                                <div className="aspect-[2/3] relative"> {/* Added aspect ratio container */}
+                                    <Image
+                                        src={listing.metadata.image_url}
+                                        alt={`Card ${listing.metadata.runner_name}`}
+                                        fill
+                                        className="rounded-lg object-contain p-5 hover:scale-105 transition-transform duration-200"
+                                    />
+                                </div>
                             </CardContent>
                             <CardFooter className="flex flex-col space-y-2 bg-phyt_form bg-opacity-20 p-4">
                                 <div className="flex justify-between items-center w-full">
