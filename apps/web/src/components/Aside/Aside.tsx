@@ -19,13 +19,13 @@ import Link from 'next/link';
 
 export const Aside = () => {
     return (
-        <div className="flex flex-col gap-20 bg-black items-center h-full w-80 pt-12 pr-2 border-r-2 border-phyt_form">
+        <div className="flex flex-col gap-20 bg-transparent items-center h-full w-80 pt-12 pr-2 overflow-y-hidden">
             <div className="">
                 <Link href="/">
                     <Image src="https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFduORvackTPlRILfDrtYWge59yzhSjpFisE6v" alt="PHYT" width={250} height={250} />
                 </Link>
             </div>
-            <ul className="flex flex-col gap-10 pr-16">
+            <ul className="flex flex-col gap-5 pr-16">
                 <AsideItem
                     title='Home'
                     icon="https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFjCYt24i2WN9i60TEnCxu4AG71LvblfVDYBOj"
