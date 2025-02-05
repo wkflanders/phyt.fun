@@ -268,8 +268,8 @@ export const Feed: FC = () => {
     return (
         <div className="flex-1 overflow-y-auto h-screen">
             <div className="max-w-2xl mx-auto py-6 px-4">
-                <div className="bg-black rounded-xl overflow-hidden">
-                    <div className="border-b border-phyt_form">
+                <div className="rounded-xl overflow-hidden">
+                    <div>
                         <div className="flex gap-8">
                             <TabButton isActive={activeTab === 'following'} onClick={() => setActiveTab('following')}>
                                 Following
@@ -283,7 +283,7 @@ export const Feed: FC = () => {
                     <div className="p-4">
                         <div className="space-y-6">
                             {mockPosts.map((post) => (
-                                <div key={post.id} className="bg-black rounded-xl p-4 border border-phyt_form">
+                                <div key={post.id} className="rounded-xl p-4">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="flex items-center gap-3">
                                             <img
@@ -292,7 +292,7 @@ export const Feed: FC = () => {
                                                 className="w-10 h-10 rounded-full"
                                             />
                                             <div>
-                                                <h3 className="text-phyt_text font-semibold">{post.user.name} <span className="text-phyt_text_third">| RUNNER</span></h3>
+                                                <h3 className="text-phyt_text font-semibold">{post.user.name} <span className="text-phyt_text_secondary">| RUNNER</span></h3>
                                                 <p className="text-phyt_text_secondary text-sm">{post.time}</p>
                                             </div>
                                         </div>
