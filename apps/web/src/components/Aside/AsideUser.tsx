@@ -70,7 +70,7 @@ export const AsideUser = () => {
                         className="rounded-full border-2 border-phyt_form_border"
                     />
                     <div className="flex-1 min-w-0">
-                        <p className="text-phyt_text_secondary text-sm">Profile not found</p>
+                        <p className="hidden sm:block text-phyt_text_secondary text-sm">Profile not found</p>
                     </div>
                 </div>
             </div>
@@ -80,7 +80,7 @@ export const AsideUser = () => {
     // Success state with user data
     return (
         <div className="w-full">
-            <div className="flex items-center gap-4 rounded-xl">
+            <div className="flex gap-4 rounded-xl">
                 <Image
                     src={user.avatar_url}
                     alt={user.username}

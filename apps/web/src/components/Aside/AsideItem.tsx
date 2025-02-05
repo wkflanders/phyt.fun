@@ -23,15 +23,15 @@ export const AsideItem = ({ title, href, icon, alt }: AsideItemProps) => {
         <Image
           src={icon}
           alt={alt}
-          height={25}
-          width={25}
+          height={20}
+          width={20}
           className={`transition-all duration-200 ease-in-out ${isActive
             ? "brightness-100 opacity"
             : "brightness-50 grayscale opacity-50"
             } group-hover:brightness-100 group-hover:opacity-100`}
         />
         <h1
-          className={`text-xl font-inter transition ${isActive ? "text-white" : "text-gray-600"
+          className={`hidden sm:block text-xl font-inter transition ${isActive ? "text-white" : "text-gray-600"
             } group-hover:text-white`}
         >
           {title}
