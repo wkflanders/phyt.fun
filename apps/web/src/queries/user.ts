@@ -30,7 +30,6 @@ export async function getUserTransactions(privyId: string): Promise<Transaction[
     });
 
     const data = await response.json();
-    console.log(data);
 
     if (!response.ok) {
         throw {

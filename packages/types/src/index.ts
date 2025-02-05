@@ -81,6 +81,7 @@ export interface Card {
     owner_id: number;
     pack_purchase_id: number | null;
     token_id: number,
+    is_burned: boolean,
     acquisition_type: AcquisitionType;
     updated_at: Date | null;
     created_at: Date | null;
@@ -320,16 +321,18 @@ export interface Order {
 
 export interface Listing {
     id: number;
+    buyer_id: number;
     seller_id: number;
     card_id: number;
-    take_price: bigint; // Immediate purchase price
+    price: string; // Take price
     highest_bid: bigint; // Current highest bid
     highest_bidder: `0x${string}` | null;
-    payment_token: `0x${string}`;
     expiration_time: bigint;
     signature: string;
-    salt: string;
-    active: boolean;
+    order_hash: string;
+    order_data: Order;
+    transaction_hash: string | null;
+    status: string;
     created_at: Date;
     updated_at: Date;
 }
@@ -376,5 +379,12 @@ export interface Offer {
     created_at: Date;
     updated_at: Date;
     buyer: any;
+    card: Card;
+}
+
+export interface MarketListing {
+    listing: Listing;
+    metadata: CardMetadata;
+    seller: User;
     card: Card;
 }

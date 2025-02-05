@@ -7,14 +7,14 @@ import { useAccount } from 'wagmi';
 import { Loader2, Filter, ArrowUpDown } from 'lucide-react';
 import { MarketModal } from './MarketModal';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { RunnerListing } from '@phyt/types';
+import { Listing, MarketListing } from '@phyt/types';
 import { formatEther } from 'viem';
 
 type SortOption = 'created_at' | 'price_asc' | 'price_desc';
 type RarityFilter = 'all' | 'bronze' | 'silver' | 'gold' | 'sapphire' | 'ruby' | 'opal';
 
 const Marketplace = () => {
-    const [selectedListing, setSelectedListing] = useState<RunnerListing | null>(null);
+    const [selectedListing, setSelectedListing] = useState<MarketListing | null>(null);
     const [sortBy, setSortBy] = useState<SortOption>('created_at');
     const [filterRarity, setFilterRarity] = useState<RarityFilter>('all');
 
@@ -22,14 +22,13 @@ const Marketplace = () => {
     const { address } = useAccount();
     const { ready } = usePrivy();
 
-    const { data: listings = [], isLoading } = useListings({
+    const { data: marketListings = [], isLoading } = useListings({
         sort: sortBy,
         rarity: filterRarity !== 'all' ? [filterRarity] : undefined,
     });
-
     const { mutate: purchaseListing, isPending: isPurchasing } = usePurchaseListing();
 
-    const handleBuyNow = (listing: RunnerListing) => {
+    const handleBuyNow = (listing: Listing) => {
         if (!ready || !address) {
             toast({
                 title: 'Error',
@@ -105,41 +104,41 @@ const Marketplace = () => {
             </Card>
 
             {/* Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                {listings.length === 0 ? (
-                    <div key="no-listings" className="col-span-full text-center text-phyt_text_secondary py-12">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+                {marketListings.length === 0 ? (
+                    <div className="col-span-full text-center text-phyt_text_secondary py-12">
                         No listings found
                     </div>
                 ) : (
-                    listings.map((listing) => (
+                    marketListings.map((marketListing: MarketListing) => (
                         <Card
-                            key={listing.id}
-                            onClick={() => setSelectedListing(listing)}
-                            className="cursor-pointer border-0 shadow-0 bg-transparent w-full"
+                            key={marketListing.listing.id}
+                            onClick={() => {
+                                setSelectedListing(marketListing);
+                            }}
+                            className="cursor-pointer border-0 shadow-0 bg-transparent w-[200px]"
                         >
-                            <CardContent className="p-0 overflow-hidden">
-                                <div className="w-full pb-[150%] relative">
-                                    <div className="absolute inset-0">
-                                        <Image
-                                            src={listing.metadata.image_url}
-                                            alt={`Card ${listing.metadata.runner_name}`}
-                                            fill
-                                            className="rounded-lg object-contain p-5 hover:scale-105 transition-transform duration-200"
-                                        />
-                                    </div>
+                            <CardContent className="p-0">
+                                <div className="relative w-[200px] h-[300px]">
+                                    <Image
+                                        src={marketListing.metadata.image_url}
+                                        alt={`Card ${marketListing.metadata.runner_name}`}
+                                        fill
+                                        className="object-contain hover:scale-105 transition-transform duration-200"
+                                    />
                                 </div>
                             </CardContent>
                             <CardFooter className="flex flex-col space-y-2 bg-phyt_form bg-opacity-20 p-4">
                                 <div className="flex justify-between items-center w-full">
-                                    <span className="text-phyt_text_secondary text-sm">Take Price:</span>
-                                    <span className="text-phyt_blue font-semibold">
-                                        {formatEther(BigInt(listing.order?.price || 0))} ETH
+                                    <span className="text-phyt_text_secondary text-sm">Buy Now</span>
+                                    <span className="text-phyt_text">
+                                        {formatEther(BigInt(marketListing.listing.price || 0))} ETH
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center w-full">
-                                    <span className="text-phyt_text_secondary text-sm">Highest Bid:</span>
-                                    <span className="text-phyt_text">
-                                        {formatEther(BigInt(listing.highest_bid || 0))} ETH
+                                    <span className="text-phyt_text_secondary text-sm">Highest Bid</span>
+                                    <span className="text-phyt_text_secondary">
+                                        {formatEther(BigInt(marketListing.listing.highest_bid || 0))} ETH
                                     </span>
                                 </div>
                             </CardFooter>
@@ -149,7 +148,7 @@ const Marketplace = () => {
             </div>
 
             <MarketModal
-                listing={selectedListing}
+                marketListing={selectedListing}
                 isOpen={!!selectedListing}
                 onClose={() => setSelectedListing(null)}
                 onBuyNow={handleBuyNow}

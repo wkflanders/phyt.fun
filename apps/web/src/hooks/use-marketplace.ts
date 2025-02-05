@@ -3,7 +3,7 @@ import { useAccount } from 'wagmi';
 import { formatEther } from 'viem';
 import { useToast } from './use-toast';
 import { useExchange } from './use-exchange';
-import type { RunnerListing, Order, User } from '@phyt/types';
+import type { MarketListing, Order, User, Runner, Listing } from '@phyt/types';
 
 interface ListingFilters {
     minPrice?: string;
@@ -16,7 +16,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
 // Fetch active listings
 export function useListings(filters?: ListingFilters) {
-    return useQuery<RunnerListing[], Error>({
+    return useQuery<MarketListing[], Error>({
         queryKey: ['listings', filters],
         queryFn: async () => {
             const searchParams = new URLSearchParams();
@@ -33,7 +33,7 @@ export function useListings(filters?: ListingFilters) {
             if (!response.ok) {
                 throw new Error('Failed to fetch listings');
             }
-            return response.json() as Promise<RunnerListing[]>;
+            return response.json() as Promise<MarketListing[]>;
         }
     });
 }
@@ -183,20 +183,20 @@ export function usePurchaseListing() {
     const { address } = useAccount();
 
     return useMutation({
-        mutationFn: async (listing: RunnerListing) => {
+        mutationFn: async (listing: Listing) => {
             if (!address) throw new Error('Wallet not connected');
 
             // Convert the listing data into the Order format
             const sellOrder: Order = {
-                trader: listing.order.trader as `0x${string}`,
+                trader: listing.order_data.trader as `0x${string}`,
                 side: 1, // 1 for sell
-                collection: listing.order.collection as `0x${string}`,
-                token_id: BigInt(listing.order.token_id),
-                payment_token: listing.order.payment_token as `0x${string}`,
-                price: BigInt(listing.order.price),
-                expiration_time: BigInt(listing.order.expiration_time),
+                collection: listing.order_data.collection as `0x${string}`,
+                token_id: BigInt(listing.order_data.token_id),
+                payment_token: listing.order_data.payment_token as `0x${string}`,
+                price: BigInt(listing.order_data.price),
+                expiration_time: BigInt(listing.order_data.expiration_time),
                 merkle_root: '0x0000000000000000000000000000000000000000000000000000000000000000' as `0x${string}`,
-                salt: BigInt(listing.order.salt)
+                salt: BigInt(listing.order_data.salt)
             };
 
             // Execute the purchase transaction
@@ -307,7 +307,7 @@ export function useUserListings() {
             if (!response.ok) {
                 throw new Error('Failed to fetch user listings');
             }
-            return response.json() as Promise<RunnerListing[]>;
+            return response.json() as Promise<MarketListing[]>;
         },
         enabled: !!address
     });

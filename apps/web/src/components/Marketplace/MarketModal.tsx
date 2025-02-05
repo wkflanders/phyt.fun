@@ -1,17 +1,17 @@
 import React from 'react';
 import Image from 'next/image';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Modal } from '@/components/Modal';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Heart, MessageCircle, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { formatEther } from 'viem';
-import { CardRarity, RunnerListing } from '@phyt/types';
+import { CardRarity, Listing, MarketListing } from '@phyt/types';
 
 interface MarketModalProps {
-    listing: RunnerListing | null;
+    marketListing: MarketListing | null;
     isOpen: boolean;
     onClose: () => void;
-    onBuyNow: (listing: RunnerListing) => void;
+    onBuyNow: (listing: Listing) => void;
     isPurchasing: boolean;
 }
 
@@ -28,93 +28,146 @@ const getRarityColor = (rarity: CardRarity) => {
 };
 
 export const MarketModal = ({
-    listing,
+    marketListing,
     isOpen,
     onClose,
     onBuyNow,
     isPurchasing
 }: MarketModalProps) => {
     const { toast } = useToast();
+    console.log(marketListing);
 
-    if (!listing) return null;
+    if (!marketListing) return null;
 
     return (
-        <Modal
-            isOpen={isOpen}
-            onClose={onClose}
-            title="Card Details"
-        >
-            <div className="flex flex-col items-center gap-6 p-4">
-                {/* Card Image */}
-                <Image
-                    src={listing.metadata.image_url}
-                    alt={`Card ${listing.metadata.runner_name}`}
-                    width={200}
-                    height={300}
-                    className="rounded-lg"
-                />
+        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <DialogContent className="bg-phyt_bg w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+                <DialogTitle></DialogTitle>
+                <div className="grid grid-cols-2 grid-rows-2 gap-4">
+                    {/* (1,1) Card Image */}
+                    <div className="col-span-1 row-span-1 flex justify-center items-center">
+                        <Image
+                            src={marketListing.metadata.image_url}
+                            alt={`Card ${marketListing.listing.order_data.token_id}`}
+                            width={200}
+                            height={300}
+                            className="rounded-lg w-[300px] h-[500px]"
+                        />
+                    </div>
 
-                {/* Card Details */}
-                <div className="w-full space-y-4">
-                    <div className="bg-phyt_form p-4 rounded-lg">
-                        <div className="flex justify-between items-center mb-2">
-                            <span className="text-phyt_text_secondary">Rarity:</span>
-                            <span className={getRarityColor(listing.metadata.rarity)}>
-                                {listing.metadata.rarity.toUpperCase()}
-                            </span>
-                        </div>
-                        <div className="flex justify-between items-center mb-2">
-                            <span className="text-phyt_text_secondary">Take Price:</span>
-                            <span className="text-phyt_blue">
-                                {formatEther(BigInt(listing.order?.price || 0))} ETH
-                            </span>
-                        </div>
-                        <div className="flex justify-between items-center mb-2">
-                            <span className="text-phyt_text_secondary">Highest Offer:</span>
-                            <span className="text-phyt_text">
-                                {formatEther(BigInt(listing.highest_bid || 0))} ETH
-                            </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                            <span className="text-phyt_text_secondary">Expires:</span>
-                            <span className="text-phyt_text_secondary">
-                                {new Date(String(listing.expiration_time)).toLocaleString()}
-                            </span>
+                    {/* (1,2) Price Over Time Chart */}
+                    <div className="col-span-1 row-span-1">
+                        <div className="bg-gray-800 rounded-lg p-4 flex items-center justify-center">
+                            <p className="text-white">Price Over Time Chart</p>
                         </div>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-4">
-                        <Button
-                            onClick={() => onBuyNow(listing)}
-                            disabled={isPurchasing}
-                            className="flex-1 bg-phyt_blue hover:bg-phyt_blue/80"
-                        >
-                            {isPurchasing ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Buying...
-                                </>
-                            ) : (
-                                'Buy Now'
-                            )}
-                        </Button>
-                        <Button
-                            className="flex-1 bg-phyt_form border border-phyt_form_border hover:bg-phyt_form/80"
-                            onClick={() => {
-                                toast({
-                                    title: 'Coming Soon',
-                                    description: 'Bidding feature will be available soon!',
-                                });
-                            }}
-                        >
-                            Place Bid
-                        </Button>
+                    {/* (2,1) Price Info & Actions */}
+                    <div className="col-span-1 row-span-1">
+                        <div className="space-y-4">
+                            <div className="flex gap-4">
+                                <div className="bg-black p-4 rounded-lg border border-gray-800 flex-1">
+                                    <p className="text-sm text-phyt_text_secondary mb-1">Take Price</p>
+                                    <p className="text-lg font-bold text-white">
+                                        {formatEther(BigInt(marketListing.listing.price || 0))} ETH
+                                    </p>
+                                </div>
+                                <div className="bg-black p-4 rounded-lg border border-gray-800 flex-1">
+                                    <p className="text-sm text-phyt_text_secondary mb-1">Highest bid</p>
+                                    <p className="text-lg font-bold text-white">
+                                        {formatEther(BigInt(marketListing.listing.highest_bid || 0))} ETH
+                                    </p>
+                                </div>
+                                <div className="bg-black p-4 rounded-lg border border-gray-800 flex-1">
+                                    <p className="text-sm text-phyt_text_secondary mb-1">Last sale</p>
+                                    <p className="text-lg font-bold text-white">--</p>
+                                </div>
+                            </div>
+
+                            {/* Button Rows */}
+                            <div className="space-y-2">
+                                {/* Buy Now Button (Full Width) */}
+                                <Button
+                                    onClick={() => onBuyNow(marketListing.listing)}
+                                    disabled={isPurchasing}
+                                    className="w-full bg-phyt_blue hover:bg-phyt_blue/80"
+                                >
+                                    {isPurchasing ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Buying...
+                                        </>
+                                    ) : (
+                                        'Buy Now'
+                                    )}
+                                </Button>
+
+                                {/* Batch Buy and Bid Buttons Row */}
+                                <div className="grid grid-cols-2 gap-2">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                            toast({
+                                                title: "Coming Soon",
+                                                description: "Batch buy functionality will be available soon!",
+                                            });
+                                        }}
+                                        className="border-gray-800 text-white hover:bg-gray-800"
+                                    >
+                                        Batch Buy
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                            toast({
+                                                title: "Coming Soon",
+                                                description: "Bid functionality will be available soon!",
+                                            });
+                                        }}
+                                        className="border-gray-800 text-white hover:bg-gray-800"
+                                    >
+                                        Place Bid
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {/* Social Actions */}
+                            <div className="flex items-center justify-between pt-2 border-t border-phyt_form">
+                                <button className="flex items-center gap-2 text-phyt_text_secondary hover:text-phyt_blue">
+                                    <Heart size={20} />
+                                    <span>124</span>
+                                </button>
+                                <button className="flex items-center gap-2 text-phyt_text_secondary hover:text-phyt_blue">
+                                    <MessageCircle size={20} />
+                                    <span>18</span>
+                                </button>
+                                <button className="flex items-center gap-2 text-phyt_text_secondary hover:text-phyt_blue">
+                                    <Share2 size={20} />
+                                    <span>5</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* (2,2) Runner's Stats */}
+                    <div className="col-span-1 row-span-1">
+                        <div className="bg-gray-800 p-4 rounded-lg space-y-2">
+                            <div>
+                                <p className="text-sm text-phyt_text_secondary">Total Distance Ran</p>
+                                <p className="text-lg font-bold text-white">X mi</p>
+                            </div>
+                            <div>
+                                <p className="text-sm text-phyt_text_secondary">Pace</p>
+                                <p className="text-lg font-bold text-white">Y /mi</p>
+                            </div>
+                            <div>
+                                <p className="text-sm text-phyt_text_secondary">Best Time</p>
+                                <p className="text-lg font-bold text-white">Z</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </Modal>
+            </DialogContent>
+        </Dialog>
     );
 };
-
-export default MarketModal;
