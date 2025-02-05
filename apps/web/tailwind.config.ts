@@ -10,11 +10,11 @@ export default {
 	theme: {
 		extend: {
 			fontFamily: {
-				'inconsolata': [
+				inconsolata: [
 					'Inconsolata',
 					'sans-serif'
 				],
-				'inter': [
+				inter: [
 					'Inter',
 					'sans-serif'
 				]
@@ -113,8 +113,8 @@ export default {
 			},
 			backgroundImage: {
 				pattern: "url('/pattern.webp')",
-				'blue_pattern': "url('/pattern.webp')",
-				'pixel_mozaic': "url('/bg.png')"
+				blue_pattern: "url('/pattern.webp')",
+				pixel_mozaic: "url('/bg.png')"
 			}
 		}
 	},
