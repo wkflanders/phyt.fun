@@ -75,7 +75,9 @@ export default function Layout({ children }: { children: React.ReactNode; }) {
 
     return (
         <main className="h-screen w-full bg-pixel_mozaic">
-            <div className="flex h-full w-full px-80 pt-12 overflow-y-hidden">
+            <div className="flex h-full w-full 
+                px-4 sm:px-6 md:px-12 lg:px-24 xl:px-40 2xl:px-80 
+                pt-12 overflow-y-hidden">
                 <Aside />
                 {children}
             </div>
