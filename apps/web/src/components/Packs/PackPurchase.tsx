@@ -82,7 +82,7 @@ const PackPurchase = () => {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-phyt_gray">
+        <div className="flex flex-col items-center justify-center min-h-screen">
             <div className="relative w-full flex flex-col items-center pt-8">
                 {/* Container for animations */}
                 <div className="relative w-96 h-96">
@@ -102,7 +102,7 @@ const PackPurchase = () => {
                             }}
                         >
                             <img
-                                src="https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkF5PKMhQqxTsFCJlkUW48SROmbuD3H2fP9eIhg"
+                                src="https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkF010pjQxYM4A9LIyVQelGKUJ5iPZqbu3rRfgX"
                                 alt="Closed Mystery Pack"
                                 className="w-full h-full object-contain"
                             />
