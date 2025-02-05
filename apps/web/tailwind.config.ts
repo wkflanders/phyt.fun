@@ -112,7 +112,9 @@ export default {
 				xs: '480px'
 			},
 			backgroundImage: {
-				pattern: "url('/pattern.webp')"
+				pattern: "url('/pattern.webp')",
+				'blue_pattern': "url('/pattern.webp')",
+				'pixel_mozaic': "url('/bg.png')"
 			}
 		}
 	},
