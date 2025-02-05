@@ -1,12 +1,12 @@
 import { Feed } from "@/components/Feed/Feed";
-import { WalletCard } from "@/components/WalletCard";
+import { WalletPopover } from "@/components/WalletPopover";
 
 export default function Home() {
   return (
     <div className="flex flex-1 gap-4">
       <Feed />
       <div className="hidden lg:block">
-        <WalletCard />
+        <WalletPopover />
       </div>
     </div>
   );
