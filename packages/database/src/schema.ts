@@ -99,7 +99,7 @@ export const cards = pgTable("cards", {
     pack_purchase_id: integer("pack_purchase_id").references(() => pack_purchases.id, { onDelete: 'set null' }),
     token_id: integer("token_id").notNull().unique(),
     acquisition_type: enum_acquisition_type("acquisition_type").notNull().default('mint'),
-    is_burned: boolean("is_burned").default(false),
+    is_burned: boolean("is_burned").notNull().default(false),
     updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
     created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
 }, (table) => [
