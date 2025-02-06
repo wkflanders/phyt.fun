@@ -114,7 +114,9 @@ export default {
 			backgroundImage: {
 				pattern: "url('/pattern.webp')",
 				blue_pattern: "url('/pattern.webp')",
-				pixel_mozaic: "url('/bg.png')"
+				pixel_mozaic: "url('/bg.png')",
+				radiant_waves: "url('/bg_1.png')",
+				waves_card: "url('/card.png')"
 			}
 		}
 	},

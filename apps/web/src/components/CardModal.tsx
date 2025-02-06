@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { Button } from '@/components/ui/button';
 import { SellModal } from './SellModal';
 import { User, CardWithMetadata } from '@phyt/types';
 import Image from 'next/image';
-import { parseEther } from 'viem';
-import { useCreateListing } from '@/hooks/use-marketplace';
 import { useToast } from '@/hooks/use-toast';
 
 interface CardModalProps {
@@ -16,41 +15,18 @@ interface CardModalProps {
 }
 
 export const CardModal = ({ user, isOpen, onClose, card }: CardModalProps) => {
-    const [isSellMode, setIsSellMode] = useState(false);
-    const [listingPrice, setListingPrice] = useState('');
-    const [expirationHours, setExpirationHours] = useState('24');
+    const [isSellModal, setIsSellModal] = useState(false);
     const { toast } = useToast();
-    const createListing = useCreateListing(user);
 
     if (!card) return null;
 
-    const handleCreateListing = async () => {
-        try {
-            const expiration = new Date();
-            expiration.setHours(expiration.getHours() + parseInt(expirationHours));
-
-            await createListing.mutateAsync({
-                cardId: card.id,
-                tokenId: card.token_id,
-                takePrice: parseEther(listingPrice),
-                expiration: expiration.toISOString()
-            });
-
-            setIsSellMode(false);
-            onClose();
-        } catch (error) {
-            toast({
-                title: "Error",
-                description: "Failed to create listing",
-                variant: "destructive"
-            });
-        }
-    };
-
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="bg-phyt_bg w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-                <DialogTitle></DialogTitle>
+            <DialogContent className="bg-waves_card bg-cover w-full max-w-6xl max-h-[90vh] overflow-y-hidden">
+                <VisuallyHidden>
+                    <DialogTitle></DialogTitle>
+                    <DialogDescription></DialogDescription>
+                </VisuallyHidden>
                 <div className="grid grid-cols-2 grid-rows-2 gap-4">
                     {/* (1,1) Card Image */}
                     <div className="col-span-1 row-span-1 flex justify-center items-center">
@@ -99,7 +75,7 @@ export const CardModal = ({ user, isOpen, onClose, card }: CardModalProps) => {
                                     Buy
                                 </Button>
                                 <Button
-                                    onClick={() => setIsSellMode(true)}
+                                    onClick={() => setIsSellModal(true)}
                                     className="w-full bg-phyt_blue hover:bg-phyt_blue/80"
                                 >
                                     Sell
@@ -140,8 +116,9 @@ export const CardModal = ({ user, isOpen, onClose, card }: CardModalProps) => {
                 </div>
 
                 <SellModal
-                    isOpen={isSellMode}
-                    onClose={() => setIsSellMode(false)}
+                    user={user}
+                    isOpen={isSellModal}
+                    onClose={() => setIsSellModal(false)}
                     card={card}
                 />
             </DialogContent>

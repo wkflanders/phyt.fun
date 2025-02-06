@@ -258,15 +258,11 @@ const TabButton: FC<TabButtonProps> = ({ isActive, onClick, children }) => (
     </button>
 );
 
-/** ---------------------------------------
- *   4) Finally, the typed Feed component
- * ---------------------------------------
- */
 export const Feed: FC = () => {
     const [activeTab, setActiveTab] = useState<'following' | 'trending'>('following');
 
     return (
-        <div className="flex-1 overflow-y-auto h-screen">
+        <div className="flex-1 overflow-y-auto h-screen to-black/20 from-blue-500/20">
             <div className="max-w-2xl mx-auto px-4">
                 <div className="rounded-xl overflow-hidden">
                     <div>

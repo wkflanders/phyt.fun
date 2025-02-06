@@ -8,12 +8,12 @@ export type TransactionType = 'packPurchase' | 'marketplaceSale' | 'rewardPayout
 export type UserRole = 'admin' | 'user' | 'runner';
 
 export const RarityWeights = {
-    bronze: 50,
-    silver: 25,
-    gold: 15,
-    sapphire: 7,
-    ruby: 2,
-    opal: 1,
+    bronze: 70,
+    silver: 20,
+    gold: 9,
+    sapphire: 0,
+    ruby: 1,
+    opal: 0,
 } as const;
 
 export const RarityMultipliers: Record<CardRarity, number> = {

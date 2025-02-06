@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from '@/components/ui/button';
 import { Loader2, Heart, MessageCircle, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -35,14 +36,16 @@ export const MarketModal = ({
     isPurchasing
 }: MarketModalProps) => {
     const { toast } = useToast();
-    console.log(marketListing);
 
     if (!marketListing) return null;
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="bg-phyt_bg w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-                <DialogTitle></DialogTitle>
+            <DialogContent className="bg-phyt_bg w-full max-w-6xl max-h-[90vh] overflow-y-hidden">
+                <VisuallyHidden>
+                    <DialogTitle></DialogTitle>
+                    <DialogDescription></DialogDescription>
+                </VisuallyHidden>
                 <div className="grid grid-cols-2 grid-rows-2 gap-4">
                     {/* (1,1) Card Image */}
                     <div className="col-span-1 row-span-1 flex justify-center items-center">
@@ -129,22 +132,6 @@ export const MarketModal = ({
                                         Place Bid
                                     </Button>
                                 </div>
-                            </div>
-
-                            {/* Social Actions */}
-                            <div className="flex items-center justify-between pt-2 border-t border-phyt_form">
-                                <button className="flex items-center gap-2 text-phyt_text_secondary hover:text-phyt_blue">
-                                    <Heart size={20} />
-                                    <span>124</span>
-                                </button>
-                                <button className="flex items-center gap-2 text-phyt_text_secondary hover:text-phyt_blue">
-                                    <MessageCircle size={20} />
-                                    <span>18</span>
-                                </button>
-                                <button className="flex items-center gap-2 text-phyt_text_secondary hover:text-phyt_blue">
-                                    <Share2 size={20} />
-                                    <span>5</span>
-                                </button>
                             </div>
                         </div>
                     </div>

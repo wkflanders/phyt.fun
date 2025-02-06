@@ -97,8 +97,8 @@ export const WalletPopover = () => {
         <Popover>
             <PopoverTrigger asChild>
                 <Button variant="default" className="w-full justify-between">
-                    <Wallet className="text-phyt_text_secondary" size={24} />
-                    <p className="text-phyt_text_secondary">Your Wallet</p>
+                    <Wallet className="text-phyt_text_secondary" size={48} />
+                    <p className="text-lg font-normal text-phyt_text_secondary">Your Wallet</p>
                 </Button>
             </PopoverTrigger>
 

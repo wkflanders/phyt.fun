@@ -4,10 +4,8 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { Inventory } from './Inventory';
 import { Loader2 } from 'lucide-react';
-import { CardRarity } from '@phyt/types';
 import { useGetUser } from '@/hooks/use-get-user';
 import { Wallet, Award, Trophy, Clock } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 export const Profile = () => {
     const { data: user, isLoading: userLoading, error: userError } = useGetUser();
