@@ -10,7 +10,9 @@ export function cn(...inputs: ClassValue[]) {
 export const handleApiError = async (response: Response): Promise<ApiError> => {
   const errorData = await response.json();
   return {
-    error: errorData.error || 'An unexpected error has occurred',
+    name: 'ApiError',
+    message: errorData.error || 'An unexpected error has occurred',
+    error: errorData.error,
     status: response.status
   };
 };
