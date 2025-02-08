@@ -76,3 +76,18 @@ export const openBidSchema = z.object({
     }, { required_error: "Order data is required" }),
     expirationTime: z.string({ required_error: "Expiration time is required" })
 });
+
+export const workoutSchema = z.object({
+    start_time: z.string().datetime(),
+    end_time: z.string().datetime(),
+    duration_seconds: z.number(),
+    distance_m: z.number(),
+    average_pace_sec: z.number().optional().nullable(),
+    calories_burned: z.number().optional().nullable(),
+    step_count: z.number().optional().nullable(),
+    elevation_gain_m: z.number().optional().nullable(),
+    average_heart_rate: z.number().optional().nullable(),
+    max_heart_rate: z.number().optional().nullable(),
+    device_id: z.string().optional().nullable(),
+    gps_route_data: z.string().optional().nullable(),
+});
