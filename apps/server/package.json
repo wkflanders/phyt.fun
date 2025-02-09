@@ -9,7 +9,7 @@
     "lint": "eslint . --ext .ts",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist .turbo node_modules",
-    "update-runner": "ts-node ./src/scripts/updateRole.ts"
+    "update-role": "ts-node ./src/scripts/updateRole.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.738.0",
