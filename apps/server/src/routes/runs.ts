@@ -11,7 +11,7 @@ const router: Router = express.Router();
 
 router.use(validateAuth);
 
-router.get('/runner/:runnerId', async (req, res) => {
+router.get('/:runnerId', async (req, res) => {
     try {
         const runnerId = parseInt(req.params.runnerId);
         if (isNaN(runnerId)) {
@@ -49,7 +49,7 @@ router.get('/:runId', async (req, res) => {
 });
 
 // Submit batch workouts
-router.post('/workouts/batch/:privyId', validateSchema(z.array(workoutSchema)), async (req, res) => {
+router.post('/batch/:privyId', validateSchema(z.array(workoutSchema)), async (req, res) => {
     try {
         const { privyId } = req.params;
         const workouts = req.body;
@@ -73,7 +73,7 @@ router.post('/workouts/batch/:privyId', validateSchema(z.array(workoutSchema)), 
     }
 });
 
-router.post('/workout/:privyId', validateSchema(workoutSchema), async (req, res) => {
+router.post('/single/:privyId', validateSchema(workoutSchema), async (req, res) => {
     try {
         const { privyId } = req.params;
         const workout = req.body;
