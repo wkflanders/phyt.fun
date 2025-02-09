@@ -37,6 +37,64 @@ export const runService = {
         }
     },
 
+    createRunByPrivyId: async ({ privyId, workout }: {
+        privyId: string,
+        workout: any;
+    }) => {
+        try {
+            return await withTransaction(async (tx) => {
+                // 1. Get user and runner records
+                const [user] = await db
+                    .select()
+                    .from(users)
+                    .where(eq(users.privy_id, privyId));
+
+                if (!user) {
+                    throw new NotFoundError('User not found');
+                }
+
+                const [runner] = await db
+                    .select()
+                    .from(runners)
+                    .where(eq(runners.user_id, user.id));
+
+                if (!runner) {
+                    throw new NotFoundError('Runner record not found');
+                }
+
+                // 2. Insert the run
+                const [insertedRun] = await db
+                    .insert(runs)
+                    .values({
+                        runner_id: runner.id,
+                        start_time: new Date(workout.start_time),
+                        end_time: new Date(workout.end_time),
+                        duration_seconds: workout.duration_seconds,
+                        distance_m: workout.distance_m,
+                        average_pace_sec: workout.average_pace_sec || null,
+                        calories_burned: workout.calories_burned || null,
+                        step_count: workout.step_count || null,
+                        elevation_gain_m: workout.elevation_gain_m || null,
+                        average_heart_rate: workout.average_heart_rate || null,
+                        max_heart_rate: workout.max_heart_rate || null,
+                        device_id: workout.device_id || null,
+                        gps_route_data: workout.gps_route_data || null,
+                        verification_status: 'pending' as const,
+                        raw_data_json: workout
+                    })
+                    .returning();
+
+                // 3. Update runner stats
+                await updateRunnerStats(runner.id);
+
+                return insertedRun;
+            });
+        } catch (error) {
+            console.error('Error in createRunByPrivyId:', error);
+            throw error;
+        }
+    },
+
     createRunsBatchByPrivyId: async ({ privyId, workouts }: {
         privyId: string,
         workouts: any[];

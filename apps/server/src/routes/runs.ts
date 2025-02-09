@@ -73,6 +73,29 @@ router.post('/workouts/batch/:privyId', validateSchema(z.array(workoutSchema)), 
     }
 });
 
+router.post('/workout/:privyId', validateSchema(workoutSchema), async (req, res) => {
+    try {
+        const { privyId } = req.params;
+        const workout = req.body;
+
+        const result = await runService.createRunByPrivyId({
+            privyId,
+            workout
+        });
+
+        return res.status(201).json({
+            message: 'Workout processed successfully',
+            run: result
+        });
+    } catch (error) {
+        console.error('Failed to process workout:', error);
+        if (error instanceof NotFoundError) {
+            return res.status(404).json({ error: error.message });
+        }
+        return res.status(500).json({ error: 'Failed to process workout' });
+    }
+});
+
 // Update run verification status
 router.patch('/:runId/verify', validateSchema(
     z.object({
