@@ -4,12 +4,24 @@ import React from "react";
 import { useGetUser } from "@/hooks/use-get-user";
 import Image from "next/image";
 import { usePrivy } from "@privy-io/react-auth";
+import { User } from '@phyt/types';
 
 const DEFAULT_AVATAR = "https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut";
 
-export const AsideUser = () => {
+interface AsideUserProps {
+    user: User | undefined;
+    isLoading: boolean;
+    isFetching: boolean;
+    error: any;
+}
+
+export const AsideUser = ({
+    user,
+    isLoading,
+    isFetching,
+    error
+}: AsideUserProps) => {
     const { user: privyUser, ready } = usePrivy();
-    const { data: user, isLoading, isFetching, error } = useGetUser();
 
     // Component is mounted but Privy is not ready
     if (!ready) {

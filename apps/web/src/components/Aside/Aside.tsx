@@ -3,6 +3,7 @@
 import React from 'react';
 import { AsideItem } from './AsideItem';
 import { AsideUser } from './AsideUser';
+import { useGetUser } from '@/hooks/use-get-user';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -18,6 +19,7 @@ import Link from 'next/link';
 */
 
 export const Aside = () => {
+    const { data: user, isLoading, isFetching, error } = useGetUser();
     return (
         <div className="flex flex-col gap-20 bg-transparent items-start h-full w-20 sm:w-80 overflow-y-hidden">
             <div className="">
@@ -60,10 +62,25 @@ export const Aside = () => {
                         href="/leaderboard"
                     />
                 </div>
+                {user?.role === 'admin' && (
+                    <div className="flex flex-col gap-5 mt-8">
+                        <AsideItem
+                            title='Admin'
+                            icon="https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFYwsAHsPCduK0erjAyG7QSRxcnhM5Iv3YskTm"
+                            alt="Admin"
+                            href="/admin"
+                        />
+                    </div>
+                )}
             </ul>
             <div className="mt-auto mb-6">
                 <Link href="/profile">
-                    <AsideUser />
+                    <AsideUser
+                        user={user}
+                        isLoading={isLoading}
+                        isFetching={isFetching}
+                        error={error}
+                    />
                 </Link>
             </div>
         </div>
