@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import { useRouter } from 'next/navigation';
-import { useGetUser } from '@/hooks/use-get-user';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -14,28 +13,35 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useGetUser } from '@/hooks/use-get-user';
+import {
+    usePendingRunners,
+    usePendingRuns,
+    useApproveRunner,
+    useUpdateRunVerification
+} from '@/hooks/use-admin';
 import {
     Users,
     Activity,
-    Shield,
-    Flag,
     Search,
     RefreshCw,
     CheckCircle,
     XCircle,
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 
 const AdminDashboard = () => {
     const router = useRouter();
-    const { toast } = useToast();
-    const { user: privyUser, ready } = usePrivy();
-    const { data: user, isLoading } = useGetUser();
+    const { ready } = usePrivy();
     const [searchTerm, setSearchTerm] = useState('');
-    const [activeTab, setActiveTab] = useState('users');
+    const { data: user, isLoading: userLoading } = useGetUser();
+
+    const { data: pendingRunners = [], isLoading: loadingRunners } = usePendingRunners();
+    const { data: pendingRuns = [], isLoading: loadingRuns } = usePendingRuns();
+    const approveRunnerMutation = useApproveRunner();
+    const verifyRunMutation = useUpdateRunVerification();
 
     // Protect the route
-    if (!ready || isLoading) {
+    if (!ready || userLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <RefreshCw className="w-6 h-6 animate-spin text-phyt_blue" />
@@ -48,78 +54,46 @@ const AdminDashboard = () => {
         return null;
     }
 
-    // Mock data - replace with actual API calls
-    const mockUsers = [
-        { id: 1, username: "user1", email: "user1@example.com", role: "user", status: "active" },
-        { id: 2, username: "user2", email: "user2@example.com", role: "runner", status: "active" },
-    ];
+    const filteredRunners = pendingRunners.filter(runner =>
+        runner.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        runner.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
-    const mockRuns = [
-        { id: 1, user: "user1", distance: "5.2km", time: "25:30", status: "pending" },
-        { id: 2, user: "user2", distance: "3.1km", time: "15:45", status: "verified" },
-    ];
-
-    const mockReports = [
-        { id: 1, type: "User", subject: "Suspicious activity", status: "pending" },
-        { id: 2, type: "Run", subject: "Invalid data", status: "resolved" },
-    ];
-
-    const handleVerifyRun = (runId: number) => {
-        toast({
-            title: "Success",
-            description: `Run ${runId} has been verified`,
-        });
-    };
-
-    const handleFlagRun = (runId: number) => {
-        toast({
-            title: "Success",
-            description: `Run ${runId} has been flagged`,
-        });
-    };
+    const filteredRuns = pendingRuns.filter(run =>
+        run.runner_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <div className="flex-1 p-8 overflow-y-auto">
-            <h1 className="text-3xl font-bold text-phyt_text mb-8">Admin Dashboard</h1>
+            <h1 className="text-3xl font-bold text-phyt_text mb-8">Admin</h1>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <Card className="bg-phyt_form border-phyt_form_border">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium text-phyt_text">
-                            Total Users
+                            Pending Runners
                         </CardTitle>
                         <Users className="h-4 w-4 text-phyt_blue" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-phyt_text">2,845</div>
+                        <div className="text-2xl font-bold text-phyt_text">{pendingRunners.length}</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-phyt_form border-phyt_form_border">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium text-phyt_text">
-                            Active Runs
+                            Pending Runs
                         </CardTitle>
                         <Activity className="h-4 w-4 text-phyt_blue" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-phyt_text">245</div>
-                    </CardContent>
-                </Card>
-                <Card className="bg-phyt_form border-phyt_form_border">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-phyt_text">
-                            Pending Reports
-                        </CardTitle>
-                        <Flag className="h-4 w-4 text-phyt_blue" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-phyt_text">12</div>
+                        <div className="text-2xl font-bold text-phyt_text">{pendingRuns.length}</div>
                     </CardContent>
                 </Card>
             </div>
 
             <div className="space-y-4">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 mb-4">
                     <div className="relative flex-1">
                         <Search className="absolute left-2 top-2.5 h-4 w-4 text-phyt_text_secondary" />
                         <Input
@@ -131,39 +105,63 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                <Tabs defaultValue="users" className="space-y-4">
+                <Tabs defaultValue="runners" className="space-y-4">
                     <TabsList className="bg-phyt_form">
-                        <TabsTrigger value="users" className="text-phyt_text">Users</TabsTrigger>
-                        <TabsTrigger value="runs" className="text-phyt_text">Runs</TabsTrigger>
-                        <TabsTrigger value="reports" className="text-phyt_text">Reports</TabsTrigger>
+                        <TabsTrigger value="runners" className="text-phyt_text">Pending Runners</TabsTrigger>
+                        <TabsTrigger value="runs" className="text-phyt_text">Pending Runs</TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="users">
+                    <TabsContent value="runners">
                         <Card className="bg-phyt_form border-phyt_form_border">
                             <Table>
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead className="text-phyt_text">Username</TableHead>
                                         <TableHead className="text-phyt_text">Email</TableHead>
-                                        <TableHead className="text-phyt_text">Role</TableHead>
-                                        <TableHead className="text-phyt_text">Status</TableHead>
+                                        <TableHead className="text-phyt_text">Applied At</TableHead>
                                         <TableHead className="text-phyt_text">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {mockUsers.map((user) => (
-                                        <TableRow key={user.id}>
-                                            <TableCell className="text-phyt_text">{user.username}</TableCell>
-                                            <TableCell className="text-phyt_text">{user.email}</TableCell>
-                                            <TableCell className="text-phyt_text">{user.role}</TableCell>
-                                            <TableCell className="text-phyt_text">{user.status}</TableCell>
-                                            <TableCell>
-                                                <Button variant="outline" size="sm">
-                                                    Edit
-                                                </Button>
+                                    {loadingRunners ? (
+                                        <TableRow>
+                                            <TableCell colSpan={4} className="text-center text-phyt_text">
+                                                <RefreshCw className="w-4 h-4 animate-spin inline mr-2" />
+                                                Loading runners...
                                             </TableCell>
                                         </TableRow>
-                                    ))}
+                                    ) : filteredRunners.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={4} className="text-center text-phyt_text">
+                                                No pending runners found
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        filteredRunners.map((runner) => (
+                                            <TableRow key={runner.id}>
+                                                <TableCell className="text-phyt_text">{runner.username}</TableCell>
+                                                <TableCell className="text-phyt_text">{runner.email}</TableCell>
+                                                <TableCell className="text-phyt_text">
+                                                    {new Date(runner.created_at).toLocaleDateString()}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => approveRunnerMutation.mutate(runner.id)}
+                                                        disabled={approveRunnerMutation.isPending}
+                                                    >
+                                                        {approveRunnerMutation.isPending ? (
+                                                            <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                                                        ) : (
+                                                            <CheckCircle className="w-4 h-4 mr-2" />
+                                                        )}
+                                                        Approve
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
                                 </TableBody>
                             </Table>
                         </Card>
@@ -174,69 +172,69 @@ const AdminDashboard = () => {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead className="text-phyt_text">User</TableHead>
+                                        <TableHead className="text-phyt_text">Runner</TableHead>
                                         <TableHead className="text-phyt_text">Distance</TableHead>
                                         <TableHead className="text-phyt_text">Time</TableHead>
-                                        <TableHead className="text-phyt_text">Status</TableHead>
+                                        <TableHead className="text-phyt_text">Date</TableHead>
                                         <TableHead className="text-phyt_text">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {mockRuns.map((run) => (
-                                        <TableRow key={run.id}>
-                                            <TableCell className="text-phyt_text">{run.user}</TableCell>
-                                            <TableCell className="text-phyt_text">{run.distance}</TableCell>
-                                            <TableCell className="text-phyt_text">{run.time}</TableCell>
-                                            <TableCell className="text-phyt_text">{run.status}</TableCell>
-                                            <TableCell className="space-x-2">
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => handleVerifyRun(run.id)}
-                                                >
-                                                    <CheckCircle className="w-4 h-4 mr-1" />
-                                                    Verify
-                                                </Button>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => handleFlagRun(run.id)}
-                                                >
-                                                    <XCircle className="w-4 h-4 mr-1" />
-                                                    Flag
-                                                </Button>
+                                    {loadingRuns ? (
+                                        <TableRow>
+                                            <TableCell colSpan={5} className="text-center text-phyt_text">
+                                                <RefreshCw className="w-4 h-4 animate-spin inline mr-2" />
+                                                Loading runs...
                                             </TableCell>
                                         </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </Card>
-                    </TabsContent>
-
-                    <TabsContent value="reports">
-                        <Card className="bg-phyt_form border-phyt_form_border">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="text-phyt_text">Type</TableHead>
-                                        <TableHead className="text-phyt_text">Subject</TableHead>
-                                        <TableHead className="text-phyt_text">Status</TableHead>
-                                        <TableHead className="text-phyt_text">Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {mockReports.map((report) => (
-                                        <TableRow key={report.id}>
-                                            <TableCell className="text-phyt_text">{report.type}</TableCell>
-                                            <TableCell className="text-phyt_text">{report.subject}</TableCell>
-                                            <TableCell className="text-phyt_text">{report.status}</TableCell>
-                                            <TableCell>
-                                                <Button variant="outline" size="sm">
-                                                    Review
-                                                </Button>
+                                    ) : filteredRuns.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={5} className="text-center text-phyt_text">
+                                                No pending runs found
                                             </TableCell>
                                         </TableRow>
-                                    ))}
+                                    ) : (
+                                        filteredRuns.map((run) => (
+                                            <TableRow key={run.run.id}>
+                                                <TableCell className="text-phyt_text">{run.runner_name}</TableCell>
+                                                <TableCell className="text-phyt_text">
+                                                    {(run.run.distance_m / 1000).toFixed(2)} km
+                                                </TableCell>
+                                                <TableCell className="text-phyt_text">
+                                                    {new Date(run.run.duration_seconds * 1000).toISOString().substr(11, 8)}
+                                                </TableCell>
+                                                <TableCell className="text-phyt_text">
+                                                    {new Date(run.run.created_at).toLocaleDateString()}
+                                                </TableCell>
+                                                <TableCell className="space-x-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => verifyRunMutation.mutate({
+                                                            runId: run.run.id,
+                                                            status: 'verified'
+                                                        })}
+                                                        disabled={verifyRunMutation.isPending}
+                                                    >
+                                                        <CheckCircle className="w-4 h-4 mr-1" />
+                                                        Verify
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => verifyRunMutation.mutate({
+                                                            runId: run.run.id,
+                                                            status: 'flagged'
+                                                        })}
+                                                        disabled={verifyRunMutation.isPending}
+                                                    >
+                                                        <XCircle className="w-4 h-4 mr-1" />
+                                                        Flag
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
                                 </TableBody>
                             </Table>
                         </Card>
