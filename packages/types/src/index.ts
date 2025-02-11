@@ -140,6 +140,29 @@ export interface Runner {
     best_mile_time: number | null;
 }
 
+export interface PendingRunner {
+    id: number;
+    username: string;
+    email: string;
+    created_at: string;
+    role: string;
+    privy_id: string;
+    wallet_address?: string;
+    avatar_url?: string;
+}
+
+export interface PendingRun {
+    run: {
+        id: number;
+        runner_id: number;
+        distance_m: number;
+        duration_seconds: number;
+        created_at: string;
+        verification_status: 'pending' | 'verified' | 'flagged';
+    };
+    runner_name: string;
+}
+
 export interface RunnerResult {
     id: number;
     updated_at: string;
