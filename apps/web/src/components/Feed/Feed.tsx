@@ -1,6 +1,6 @@
 'use client';
 
-import React, { FC, useState } from 'react';
+import React, { FC, useState, useEffect, useRef } from 'react';
 import {
     Heart,
     MessageCircle,
@@ -262,7 +262,7 @@ export const Feed: FC = () => {
     const [activeTab, setActiveTab] = useState<'following' | 'trending'>('following');
 
     return (
-        <div className="flex-1 overflow-y-auto h-screen">
+        <div className="flex-1 overflow-y-auto h-screen scrollbar-none">
             <div className="max-w-3xl mx-auto px-4">
                 <div className="rounded-xl overflow-hidden">
                     <div>
@@ -276,11 +276,12 @@ export const Feed: FC = () => {
                         </div>
                     </div>
 
-                    <div className="space-y-2 ">
+                    <div className="mb-20">
                         {mockPosts.map((post) => (
-                            <div key={post.id} className="card-wrapper" style={{ minHeight: '75vh' }}>
+                            <div key={post.id} className="card-wrapper">
                                 <div className="card-content">
                                     <div className="rounded-xl p-4">
+                                        {/* Post header */}
                                         <div className="flex items-center justify-between mb-4">
                                             <div className="flex items-center gap-3">
                                                 <img
@@ -289,7 +290,10 @@ export const Feed: FC = () => {
                                                     className="w-10 h-10 rounded-full"
                                                 />
                                                 <div>
-                                                    <h3 className="text-phyt_text font-semibold">{post.user.name} <span className="text-phyt_text_secondary">| RUNNER</span></h3>
+                                                    <h3 className="text-phyt_text font-semibold">
+                                                        {post.user.name}
+                                                        <span className="text-phyt_text_secondary">| RUNNER</span>
+                                                    </h3>
                                                     <p className="text-phyt_text_secondary text-sm">{post.time}</p>
                                                 </div>
                                             </div>

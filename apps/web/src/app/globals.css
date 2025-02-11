@@ -140,23 +140,35 @@
     transform: rotateY(180deg);
   }
 
+  .feed-container {
+    max-width: 2xl;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+  
+  /* Update card wrapper styles */
   .card-wrapper {
     @apply relative overflow-hidden rounded-2xl;
+    min-height: 200px;
+    margin-bottom: 2rem;
+    /* Remove height: fit-content as it's not needed */
   }
 
-  /* Gradient */
+/* Gradient */
   .card-wrapper::before {
-    background: conic-gradient(
-      #40d1db 0deg,
-      transparent 240deg
-    );
-
-    @apply absolute left-[-25%] top-[-25%] h-[150%] w-[150%] animate-border-spin content-[''];
+      background: conic-gradient(
+          #40d1db 0deg,
+          transparent 240deg
+      );
+      @apply absolute left-[-25%] top-[-25%] h-[150%] w-[150%] animate-border-spin content-[''];
   }
 
   /* Body */
   .card-content {
-    @apply absolute left-[1px] top-[1px] h-[calc(100%-2px)] w-[calc(100%-2px)] rounded-2xl bg-gradient-to-b from-card_blue-200 to-card_blue-100;
+      position: relative; /* Change from absolute to relative */
+      margin: 1px; /* Instead of absolute positioning with left/top */
+      min-height: calc(200px - 2px);
+      @apply rounded-2xl bg-gradient-to-b from-card_blue-200 to-card_blue-100;
   }
 }
 
