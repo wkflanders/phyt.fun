@@ -31,11 +31,11 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
 
     return (
         <div
-            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4"
             onClick={onClose}
         >
             <div
-                className="relative w-full max-w-lg bg-black border-2 border-phyt_form rounded-lg p-6"
+                className="relative w-full max-w-lg bg-gradient-to-b from-card_blue-200/80 to-card_blue-100/100 rounded-xl p-6"
                 onClick={e => e.stopPropagation()}
             >
                 <div className="flex items-center justify-between mb-4">

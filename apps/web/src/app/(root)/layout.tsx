@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { usePrivy } from "@privy-io/react-auth";
 import { Aside } from "@/components/Aside/Aside";
 import { useGetUser } from "@/hooks/use-get-user";
+import { WalletPopover } from "@/components/WalletPopover";
 
 export default function Layout({ children }: { children: React.ReactNode; }) {
     const router = useRouter();
@@ -76,10 +77,13 @@ export default function Layout({ children }: { children: React.ReactNode; }) {
     return (
         <main className="h-screen w-full bg-pixel_mozaic overflow-hidden">
             <div className="flex h-full w-full 
-                px-4 sm:px-6 md:px-12 lg:px-24 xl:px-40 2xl:px-80 
+                px-4 sm:px-6 md:px-12 lg:px-24 xl:px-40 2xl:px-60 
                 pt-12 overflow-y-hidden">
                 <Aside />
                 {children}
+                <div className="hidden lg:block">
+                    <WalletPopover />
+                </div>
             </div>
         </main>
     );

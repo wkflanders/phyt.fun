@@ -78,7 +78,7 @@ export const WalletPopover = () => {
 
     if (!ready || isConnecting || isGetUserLoading) {
         return (
-            <Card className="w-96 h-[400px] bg-black border-2 border-phyt_form flex items-center justify-center">
+            <Card className="w-96 h-[400px] bg-gradient-to-b from-card_blue-200 to-card_blue-100 flex items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-phyt_text_secondary" />
             </Card>
         );
@@ -97,20 +97,20 @@ export const WalletPopover = () => {
         <Popover>
             <PopoverTrigger asChild>
                 <Button variant="default" className="w-full justify-between">
-                    <Wallet className="text-phyt_text_secondary" size={48} />
-                    <p className="text-lg font-normal text-phyt_text_secondary">Your Wallet</p>
+                    <Wallet className="text-phyt_text" size={48} />
+                    <p className="text-lg font-normal text-phyt_text">Your Wallet</p>
                 </Button>
             </PopoverTrigger>
 
             <PopoverContent className="border-0 w-96 space-y-4 p-4">
-                <Card className="bg-black border-0 bg-opacity-10">
+                <Card className="bg-gradient-to-b from-card_blue-200 to-card_blue-100 border-0">
                     <CardHeader>
                         <CardTitle className="text-phyt_text flex items-center gap-2">
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-6">
-                            <div className="bg-phyt_form bg-opacity-10 p-4 rounded-lg">
+                            <div className="bg-card_blue-100 bg-opacity-30 p-4 rounded-lg">
                                 <p className="text-phyt_text_secondary text-sm mb-1">Wallet Address</p>
                                 <div className="flex items-center gap-2">
                                     <p className="font-mono text-phyt_text">
@@ -127,7 +127,7 @@ export const WalletPopover = () => {
                                 </div>
                             </div>
 
-                            <div className="bg-phyt_form bg-opacity-10 p-4 rounded-lg">
+                            <div className="bg-card_blue-100 bg-opacity-30 p-4 rounded-lg">
                                 <p className="text-phyt_text_secondary text-sm mb-1">Balance</p>
                                 {isBalanceLoading ? (
                                     <Loader2 className="h-4 w-4 animate-spin text-phyt_blue" />
@@ -143,7 +143,7 @@ export const WalletPopover = () => {
                             <div className="grid grid-cols-3 gap-2">
                                 <Button
                                     variant="default"
-                                    className="flex flex-col bg-phyt_form bg-opacity-10 hover:bg-phyt_form hover:bg-opacity-40  items-center gap-2 h-auto py-4 border-phyt_form_border text-phyt_text hover:text-phyt_text"
+                                    className="flex flex-col bg-card_blue-200/50 bg-opacity-30 rounded-xl hover:bg-phyt_form hover:bg-opacity-40  items-center gap-2 h-auto py-4 text-phyt_text hover:text-phyt_text"
                                     onClick={() => setActiveModal('deposit')}
                                 >
                                     <ArrowDownLeft size={20} className="text-phyt_text" />
@@ -152,7 +152,7 @@ export const WalletPopover = () => {
 
                                 <Button
                                     variant="default"
-                                    className="flex flex-col items-center gap-2 h-auto py-4 border-phyt_form_border bg-phyt_form bg-opacity-10 hover:bg-phyt_form hover:bg-opacity-40 text-phyt_text hover:text-phyt_text"
+                                    className="flex flex-col bg-card_blue-200/50 bg-opacity-30 rounded-xl items-center gap-2 h-auto py-4 hover:bg-phyt_form hover:bg-opacity-40 text-phyt_text hover:text-phyt_text"
                                     onClick={() => handleFundWallet(address)}
                                 >
                                     <CreditCard size={20} className="text-phyt_text" />
@@ -161,7 +161,7 @@ export const WalletPopover = () => {
 
                                 <Button
                                     variant="default"
-                                    className="flex flex-col items-center gap-2 h-auto py-4 border-phyt_form_border bg-phyt_form bg-opacity-10 hover:bg-phyt_form hover:bg-opacity-40 text-phyt_text hover:text-phyt_text"
+                                    className="flex flex-col bg-card_blue-200/50 bg-opacity-30 rounded-xl items-center gap-2 h-auto py-4 hover:bg-phyt_form hover:bg-opacity-40 text-phyt_text hover:text-phyt_text"
                                     onClick={() => setActiveModal('history')}
                                 >
                                     <History size={20} className="text-phyt_text" />
@@ -223,7 +223,7 @@ export const WalletPopover = () => {
                                         </p>
                                     ) : (
                                         transactions?.map((tx, index) => ( // Map through transactions and display them
-                                            <div key={index} className="border-b border-phyt_form last:border-0 pb-3 last:pb-0">
+                                            <div key={index} className="border-b border-phyt_text last:border-0 pb-3 last:pb-0">
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-2">
                                                         {tx.from_user_id === user?.id ? ( // Check if the user is the sender
