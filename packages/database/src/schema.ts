@@ -22,6 +22,10 @@ export const enum_transactions_transaction_type = pgEnum("enum_transactions_tran
 export const enum_users_role = pgEnum("enum_users_role", [
     'admin', 'user', 'runner'
 ]);
+export const enum_runner_status = pgEnum("enum_runner_status", [
+    'pending', 'active', 'inactive'
+]);
+
 
 // Tables
 export const users = pgTable("users", {
@@ -48,6 +52,7 @@ export const runners = pgTable("runners", {
     total_distance_m: doublePrecision("total_distance_m").default(0),
     total_runs: integer("total_runs").default(0),
     best_mile_time: doublePrecision("best_mile_time"),
+    status: enum_runner_status("status").default('pending'),
     updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
     created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
 }, (table) => [

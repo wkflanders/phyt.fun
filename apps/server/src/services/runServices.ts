@@ -37,6 +37,52 @@ export const runService = {
         }
     },
 
+    applyToBeRunner: async (privyId: string) => {
+        try {
+            return await withTransaction(async (tx) => {
+                // 1. Get user record
+                const [user] = await db
+                    .select()
+                    .from(users)
+                    .where(eq(users.privy_id, privyId));
+
+                if (!user) {
+                    throw new NotFoundError('User not found');
+                }
+
+                // 2. Check if user is already a runner
+                const [runner] = await db
+                    .select()
+                    .from(runners)
+                    .where(eq(runners.user_id, user.id));
+
+                if (runner.status === 'pending') {
+                    return 'already_submitted';
+                } else if (runner.status === 'active') {
+                    return 'already_runner';
+                }
+
+                // 3. Create runner record
+                await db
+                    .insert(runners)
+                    .values({
+                        user_id: user.id,
+                        average_pace: null,
+                        total_distance_m: 0,
+                        total_runs: 0,
+                        best_mile_time: null,
+                        status: 'pending' as const
+                    });
+
+                return 'pending';
+            });
+        } catch (error) {
+            console.error('Error applying to be runner:', error);
+            if (error instanceof NotFoundError) throw error;
+            throw new DatabaseError('Failed to apply to be runner');
+        }
+    },
+
     createRunByPrivyId: async ({ privyId, workout }: {
         privyId: string,
         workout: any;
@@ -94,7 +140,7 @@ export const runService = {
             throw error;
         }
     },
-
+    // Need a verification algorithm function
     createRunsBatchByPrivyId: async ({ privyId, workouts }: {
         privyId: string,
         workouts: any[];
