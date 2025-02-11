@@ -163,7 +163,7 @@ const RunMap: FC<RunMapProps> = ({ coordinates, distance }) => {
         ) / pathLengthInMiles;
 
     return (
-        <div className="bg-phyt_form bg-opacity-10 rounded-xl p-4 mb-4 w-full">
+        <div className="bg-card_blue-100 bg-opacity-30 rounded-xl p-4 mb-4 w-full">
             <svg className="w-full aspect-[2/1]" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet">
                 <g className="grid-lines" stroke="#3B82F680" strokeWidth="0.5">
                     {[...Array(Math.floor(height / gridSize))].map((_, i) => (
@@ -233,7 +233,7 @@ interface MetricWidgetProps {
 }
 
 const MetricWidget: FC<MetricWidgetProps> = ({ icon: Icon, label, value }) => (
-    <div className="flex flex-col items-center bg-phyt_form bg-opacity-10 rounded-lg p-3">
+    <div className="flex flex-col items-center bg-card_blue-100 bg-opacity-30 rounded-lg p-3">
         <Icon size={20} className="text-phyt_text mb-1" />
         <span className="text-sm text-phyt_text_secondary">{label}</span>
         <span className="text-phyt_text font-semibold">{value}</span>
@@ -262,7 +262,7 @@ export const Feed: FC = () => {
     const [activeTab, setActiveTab] = useState<'following' | 'trending'>('following');
 
     return (
-        <div className="flex-1 overflow-y-auto h-screen to-black/20 from-blue-500/20">
+        <div className="flex-1 overflow-y-auto h-screen">
             <div className="max-w-2xl mx-auto px-4">
                 <div className="rounded-xl overflow-hidden">
                     <div>
@@ -276,54 +276,56 @@ export const Feed: FC = () => {
                         </div>
                     </div>
 
-                    <div className="p-4">
-                        <div className="space-y-6">
-                            {mockPosts.map((post) => (
-                                <div key={post.id} className="rounded-xl p-4">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="flex items-center gap-3">
-                                            <img
-                                                src={post.user.avatar}
-                                                alt={post.user.name}
-                                                className="w-10 h-10 rounded-full"
-                                            />
-                                            <div>
-                                                <h3 className="text-phyt_text font-semibold">{post.user.name} <span className="text-phyt_text_secondary">| RUNNER</span></h3>
-                                                <p className="text-phyt_text_secondary text-sm">{post.time}</p>
+                    <div className="space-y-2 ">
+                        {mockPosts.map((post) => (
+                            <div key={post.id} className="card-wrapper min-h-[610px]">
+                                <div className="card-content">
+                                    <div className="rounded-xl p-4">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <div className="flex items-center gap-3">
+                                                <img
+                                                    src={post.user.avatar}
+                                                    alt={post.user.name}
+                                                    className="w-10 h-10 rounded-full"
+                                                />
+                                                <div>
+                                                    <h3 className="text-phyt_text font-semibold">{post.user.name} <span className="text-phyt_text_secondary">| RUNNER</span></h3>
+                                                    <p className="text-phyt_text_secondary text-sm">{post.time}</p>
+                                                </div>
                                             </div>
+                                            <button className="text-phyt_text_secondary hover:text-phyt_text">
+                                                <MoreHorizontal size={20} />
+                                            </button>
                                         </div>
-                                        <button className="text-phyt_text_secondary hover:text-phyt_text">
-                                            <MoreHorizontal size={20} />
-                                        </button>
-                                    </div>
 
-                                    <p className="text-phyt_text mb-4">{post.content}</p>
+                                        <p className="text-phyt_text mb-4">{post.content}</p>
 
-                                    <RunMap coordinates={post.runData.coordinates} distance={post.runData.distance} />
+                                        <RunMap coordinates={post.runData.coordinates} distance={post.runData.distance} />
 
-                                    <div className="grid grid-cols-3 gap-4 mb-4">
-                                        <MetricWidget icon={Ruler} label="Distance" value={`${post.runData.distance} mi`} />
-                                        <MetricWidget icon={Timer} label="Pace" value={`${post.runData.pace} /mi`} />
-                                        <MetricWidget icon={Navigation} label="Time" value={post.runData.time} />
-                                    </div>
+                                        <div className="grid grid-cols-3 gap-4 mb-4">
+                                            <MetricWidget icon={Ruler} label="Distance" value={`${post.runData.distance} mi`} />
+                                            <MetricWidget icon={Timer} label="Pace" value={`${post.runData.pace} /mi`} />
+                                            <MetricWidget icon={Navigation} label="Time" value={post.runData.time} />
+                                        </div>
 
-                                    <div className="flex items-center justify-between pt-2 border-t border-phyt_form">
-                                        <button className="flex items-center gap-2 text-phyt_text_secondary hover:text-phyt_blue">
-                                            <Heart size={20} />
-                                            <span>{post.likes}</span>
-                                        </button>
-                                        <button className="flex items-center gap-2 text-phyt_text_secondary hover:text-phyt_blue">
-                                            <MessageCircle size={20} />
-                                            <span>{post.comments}</span>
-                                        </button>
-                                        <button className="flex items-center gap-2 text-phyt_text_secondary hover:text-phyt_blue">
-                                            <Share2 size={20} />
-                                            <span>{post.shares}</span>
-                                        </button>
+                                        <div className="flex items-center justify-between pt-2 border-t border-phyt_form">
+                                            <button className="flex items-center gap-2 text-phyt_text_secondary hover:text-phyt_blue">
+                                                <Heart size={20} />
+                                                <span>{post.likes}</span>
+                                            </button>
+                                            <button className="flex items-center gap-2 text-phyt_text_secondary hover:text-phyt_blue">
+                                                <MessageCircle size={20} />
+                                                <span>{post.comments}</span>
+                                            </button>
+                                            <button className="flex items-center gap-2 text-phyt_text_secondary hover:text-phyt_blue">
+                                                <Share2 size={20} />
+                                                <span>{post.shares}</span>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>

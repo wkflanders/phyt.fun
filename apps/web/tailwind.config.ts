@@ -1,7 +1,6 @@
 import type { Config } from "tailwindcss";
 
 export default {
-	darkMode: ["class"],
 	content: [
 		"./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
 		"./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -77,6 +76,10 @@ export default {
 				gray: {
 					'100': '#CBD5E1'
 				},
+				card_blue: {
+					'100': '#06080E',
+					'200': '#121622'
+				},
 				phyt_blue: '#00F6FB',
 				phyt_red: '#FE205D',
 				phyt_bg: '#101010',
@@ -117,6 +120,16 @@ export default {
 				pixel_mozaic: "url('/bg.png')",
 				radiant_waves: "url('/bg_1.png')",
 				waves_card: "url('/card.png')"
+			},
+			keyframes: {
+				'border-spin': {
+					'100%': {
+						transform: 'rotate(-360deg)',
+					},
+				},
+			},
+			animation: {
+				'border-spin': 'border-spin 120s linear infinite',
 			}
 		}
 	},
