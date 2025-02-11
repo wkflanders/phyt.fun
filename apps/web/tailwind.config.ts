@@ -129,7 +129,7 @@ export default {
 				},
 			},
 			animation: {
-				'border-spin': 'border-spin 120s linear infinite',
+				'border-spin': 'border-spin 200s linear infinite',
 			}
 		}
 	},

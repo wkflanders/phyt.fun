@@ -21,7 +21,7 @@ import Link from 'next/link';
 export const Aside = () => {
     const { data: user, isLoading, isFetching, error } = useGetUser();
     return (
-        <div className="flex flex-col gap-20 bg-transparent items-start h-full w-20 sm:w-80 overflow-y-hidden">
+        <div className="flex flex-col gap-20 bg-transparent items-start h-full w-20 sm:w-60 overflow-y-hidden">
             <div className="">
                 <Link href="/">
                     <Image src="https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFduORvackTPlRILfDrtYWge59yzhSjpFisE6v" alt="PHYT" width={250} height={250} />

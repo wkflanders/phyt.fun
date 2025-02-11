@@ -147,8 +147,7 @@
   /* Gradient */
   .card-wrapper::before {
     background: conic-gradient(
-      #FE205D 0deg,
-      #00F6FB 0deg,
+      #40d1db 0deg,
       transparent 240deg
     );
 

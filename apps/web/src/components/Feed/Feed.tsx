@@ -263,7 +263,7 @@ export const Feed: FC = () => {
 
     return (
         <div className="flex-1 overflow-y-auto h-screen">
-            <div className="max-w-2xl mx-auto px-4">
+            <div className="max-w-3xl mx-auto px-4">
                 <div className="rounded-xl overflow-hidden">
                     <div>
                         <div className="flex gap-8">
@@ -278,7 +278,7 @@ export const Feed: FC = () => {
 
                     <div className="space-y-2 ">
                         {mockPosts.map((post) => (
-                            <div key={post.id} className="card-wrapper min-h-[610px]">
+                            <div key={post.id} className="card-wrapper" style={{ minHeight: '75vh' }}>
                                 <div className="card-content">
                                     <div className="rounded-xl p-4">
                                         <div className="flex items-center justify-between mb-4">
