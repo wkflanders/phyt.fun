@@ -7,6 +7,13 @@ import { useAccount } from 'wagmi';
 import { Loader2, Filter, ArrowUpDown } from 'lucide-react';
 import { MarketModal } from './MarketModal';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { Listing, MarketListing } from '@phyt/types';
 import { formatEther } from 'viem';
 
@@ -65,40 +72,40 @@ const Marketplace = () => {
     }
 
     return (
-        <div className="flex flex-col space-y-8">
+        <div className="flex flex-col space-y-8 mx-auto lg:mx-0 w-5/6 lg:w-auto">
             {/* Filter Bar */}
-            <Card className=" border-phyt_form">
+            <Card className="border-0">
                 <CardContent className="flex justify-between items-center p-4">
                     <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                            <Filter className="text-phyt_text_secondary" size={20} />
-                            <select
-                                className="bg-phyt_form text-phyt_text border border-phyt_form_border rounded-md p-2"
-                                value={filterRarity}
-                                onChange={(e) => setFilterRarity(e.target.value as RarityFilter)}
-                            >
-                                <option value="all">All Rarities</option>
-                                <option value="bronze">Bronze</option>
-                                <option value="silver">Silver</option>
-                                <option value="gold">Gold</option>
-                                <option value="sapphire">Sapphire</option>
-                                <option value="ruby">Ruby</option>
-                                <option value="opal">Opal</option>
-                            </select>
+                        <div className="flex items-center gap-0">
+                            <Filter className="text-phyt_text" size={20} />
+                            <Select value={filterRarity} onValueChange={(value) => setFilterRarity(value as RarityFilter)}>
+                                <SelectTrigger className="bg-transparent text-md text-phyt_text border-0">
+                                    <SelectValue placeholder="All Rarities" />
+                                </SelectTrigger>
+                                <SelectContent className="border-0">
+                                    <SelectItem className="text-phyt_text focus:text-phyt_text focus:text-opacity-50 focus:cursor-pointer" value="all">All Rarities</SelectItem>
+                                    <SelectItem className="text-phyt_text focus:text-phyt_text focus:text-opacity-50 focus:cursor-pointer" value="bronze">Bronze</SelectItem>
+                                    <SelectItem className="text-phyt_text focus:text-phyt_text focus:text-opacity-50 focus:cursor-pointer" value="silver">Silver</SelectItem>
+                                    <SelectItem className="text-phyt_text focus:text-phyt_text focus:text-opacity-50 focus:cursor-pointer" value="gold">Gold</SelectItem>
+                                    <SelectItem className="text-phyt_text focus:text-phyt_text focus:text-opacity-50 focus:cursor-pointer" value="ruby">Ruby</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <ArrowUpDown className="text-phyt_text_secondary" size={20} />
-                        <select
-                            className="bg-phyt_form text-phyt_text border border-phyt_form_border rounded-md p-2"
-                            value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value as SortOption)}
-                        >
-                            <option value="created_at">Recently Listed</option>
-                            <option value="price_asc">Price: Low to High</option>
-                            <option value="price_desc">Price: High to Low</option>
-                        </select>
+                        <ArrowUpDown className="text-phyt_text" size={20} />
+                        <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
+                            <SelectTrigger className="bg-transparent text-md text-phyt_text border-0">
+                                <SelectValue className="text-lg" placeholder="Sort By" />
+                            </SelectTrigger>
+                            <SelectContent className="border-0">
+                                <SelectItem className="text-phyt_text focus:text-phyt_text focus:text-opacity-50 focus:cursor-pointer" value="created_at">Recently Listed</SelectItem>
+                                <SelectItem className="text-phyt_text focus:text-phyt_text focus:text-opacity-50 focus:cursor-pointer" value="price_asc">Price: Low to High</SelectItem>
+                                <SelectItem className="text-phyt_text focus:text-phyt_text focus:text-opacity-50 focus:cursor-pointer" value="price_desc">Price: High to Low</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
                 </CardContent>
             </Card>
@@ -106,7 +113,7 @@ const Marketplace = () => {
             {/* Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {marketListings.length === 0 ? (
-                    <div className="col-span-full text-center text-phyt_text_secondary py-12">
+                    <div className="col-span-full text-center text-lg text-phyt_text text-opacity-50 py-12">
                         No listings found
                     </div>
                 ) : (
@@ -154,7 +161,7 @@ const Marketplace = () => {
                 onBuyNow={handleBuyNow}
                 isPurchasing={isPurchasing}
             />
-        </div>
+        </div >
     );
 };
 
