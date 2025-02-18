@@ -3,8 +3,8 @@ services:
     image: postgres:15
     container_name: phyt_postgres
     environment:
-      POSTGRES_USER: phyt
-      POSTGRES_PASSWORD: phyt
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: phyt
     ports:
       - "5432:5432"
@@ -20,8 +20,8 @@ services:
     image: dpage/pgadmin4
     container_name: phyt_pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@phyt.fun
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
       - "5050:80"
     depends_on:
