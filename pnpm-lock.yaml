@@ -251,12 +251,9 @@ importers:
 
   packages/database:
     dependencies:
-      '@neondatabase/serverless':
-        specifier: ^0.10.4
-        version: 0.10.4
       drizzle-orm:
         specifier: ^0.39.1
-        version: 0.39.1(@neondatabase/serverless@0.10.4)(@types/pg@8.11.11)(pg@8.13.1)
+        version: 0.39.1(@types/pg@8.11.11)(pg@8.13.1)
       drizzle-seed:
         specifier: ^0.3.1
         version: 0.3.1(drizzle-orm@0.39.1)
@@ -2754,12 +2751,6 @@ packages:
       tslib: 2.8.1
     dev: false
 
-  /@neondatabase/serverless@0.10.4:
-    resolution: {integrity: sha512-2nZuh3VUO9voBauuh+IGYRhGU/MskWHt1IuZvHcJw6GLjDgtqj/KViKo7SIrLdGLdot7vFbiRRw+BgEy3wT9HA==}
-    dependencies:
-      '@types/pg': 8.11.6
-    dev: false
-
   /@next/env@15.1.5:
     resolution: {integrity: sha512-jg8ygVq99W3/XXb9Y6UQsritwhjc+qeiO7QrGZRYOfviyr/HcdnhdBQu4gbp2rBIh2ZyBYTBMWbPw3JSCb0GHw==}
     dev: false
@@ -4891,14 +4882,6 @@ packages:
       pg-protocol: 1.7.0
       pg-types: 4.0.2
 
-  /@types/pg@8.11.6:
-    resolution: {integrity: sha512-/2WmmBXHLsfRqzfHW7BNZ8SbYzE8OSk7i3WjFYvfgRHj7S1xj+16Je5fUKv3lVdVzk/zn9TXOqf+avFCFIE0yQ==}
-    dependencies:
-      '@types/node': 22.12.0
-      pg-protocol: 1.7.0
-      pg-types: 4.0.2
-    dev: false
-
   /@types/qs@6.9.18:
     resolution: {integrity: sha512-kK7dgTYDyGqS+e2Q4aK9X3D7q234CIZ1Bv0q/7Z5IwRDoADNU81xXJK/YVyLbLTZCoIwUoDoffFeF+p/eIklAA==}
     dev: true
@@ -6815,7 +6798,7 @@ packages:
       - supports-color
     dev: true
 
-  /drizzle-orm@0.39.1(@neondatabase/serverless@0.10.4)(@types/pg@8.11.11)(pg@8.13.1):
+  /drizzle-orm@0.39.1(@types/pg@8.11.11)(pg@8.13.1):
     resolution: {integrity: sha512-2bDHlzTY31IDmrYn8i+ZZrxK8IyBD4mPZ7JmZdVDQj2tpBZXs/gxB/1kK5pSvkjxPUMNOVsTnoGkSltgjuJwcA==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
@@ -6907,7 +6890,6 @@ packages:
       sqlite3:
         optional: true
     dependencies:
-      '@neondatabase/serverless': 0.10.4
       '@types/pg': 8.11.11
       pg: 8.13.1
     dev: false
@@ -6920,7 +6902,7 @@ packages:
       drizzle-orm:
         optional: true
     dependencies:
-      drizzle-orm: 0.39.1(@neondatabase/serverless@0.10.4)(@types/pg@8.11.11)(pg@8.13.1)
+      drizzle-orm: 0.39.1(@types/pg@8.11.11)(pg@8.13.1)
       pure-rand: 6.1.0
     dev: false
 

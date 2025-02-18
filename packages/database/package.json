@@ -15,7 +15,6 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^0.10.4",
     "drizzle-orm": "^0.39.1",
     "drizzle-seed": "^0.3.1",
     "pg": "^8.13.1",
