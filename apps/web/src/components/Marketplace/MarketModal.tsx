@@ -41,7 +41,7 @@ export const MarketModal = ({
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="bg-phyt_bg w-full max-w-6xl max-h-[90vh] overflow-y-hidden">
+            <DialogContent className="bg-waves_card w-full max-w-6xl max-h-[90vh] overflow-y-hidden">
                 <VisuallyHidden>
                     <DialogTitle></DialogTitle>
                     <DialogDescription></DialogDescription>
