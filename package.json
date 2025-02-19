@@ -11,7 +11,9 @@
     "type-check": "turbo type-check",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
-    "db:reset": "docker compose down -v && docker compose up -d"
+    "db:start": "docker compose start",
+    "db:stop": "docker compose stop",
+    "db:clean": "docker compose down -v"
   },
   "devDependencies": {
     "@types/node": "^22.10.9",
