@@ -36,12 +36,12 @@ export const Inventory = ({
     return (
         <div className="h-full overflow-y-auto">
             <div className="container mx-auto p-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-items-center">
+                <div className="grid gap-4 justify-items-center grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
                     {cards?.map((card: CardWithMetadata) => (
                         <div
                             key={card.id}
                             onClick={() => setSelectedCard(card)}
-                            className="w-60 h-96 relative cursor-pointer"
+                            className="w-full aspect-[3/4] relative cursor-pointer"
                         >
                             <Image
                                 src={card.metadata.image_url}
