@@ -75,14 +75,16 @@ export default function Layout({ children }: { children: React.ReactNode; }) {
     }
 
     return (
-        <main className="h-screen w-full bg-pixel_mozaic overflow-hidden">
+        <main className="h-screen bg-background 
+            bg-primary-blotch 
+            bg-blend-overlay 
+            backdrop-blur-md "
+        >
             <div className="flex h-full w-full 
                 px-2 sm:px-4 md:px-12 lg:px-24 xl:px-40 2xl:px-60 
                 pt-12 overflow-y-hidden">
-                <Aside />
-                {children}
+                {/* {children} */}
                 <div className="hidden lg:block">
-                    <WalletPopover />
                 </div>
             </div>
         </main>
