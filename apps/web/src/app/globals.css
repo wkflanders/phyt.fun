@@ -12,34 +12,24 @@
   :root {
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --background: #0E0E10;
+    --foreground: #F5F5F5;
+    --text-dim: #939195;
+    --border: #1C1C1E;
+    --form: #1E1F25;
+    --primary: #0EF9FE;
+    --primary-shade: #0DA0A4;
+    --primary-gradient-start: #0EF9FE;
+    --primary-gradient-end: #087E81;
+    --secondary: #FE205D;
+    --secondary-shade: #CB1648;
+    --card: #1E1F25;
+    --card-foreground: #F5F5F5;
+    --popover: #1E1F25;
+    --popover-foreground: #F5F5F5;
+    --sidebar: rgba(14, 14, 16, 0.5);
+    --navbar: rgba(14, 14, 16, 0.5);
   }
-
-  @layer base {
-    :root {
-      --chart-1: 12 76% 61%;
-      --chart-2: 173 58% 39%;
-      --chart-3: 197 37% 24%;
-      --chart-4: 43 74% 66%;
-      --chart-5: 27 87% 67%;
-    }
-   
-    .dark {
-      --chart-1: 220 70% 50%;
-      --chart-2: 160 60% 45%;
-      --chart-3: 30 80% 55%;
-      --chart-4: 280 65% 60%;
-      --chart-5: 340 75% 55%;
-    }
-  }
-
   *{
     -ms-overflow-style: none;
   }
