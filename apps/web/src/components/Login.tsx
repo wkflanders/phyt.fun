@@ -74,7 +74,7 @@ export const Login = () => {
             <Button
                 onClick={login}
                 disabled={isLoading || !ready}
-                className="text-xl font-inconsolata font-bold w-full h-14 bg-red hover:bg-red-100 hover:text-phyt_text_dark"
+                className="text-xl font-inconsolata font-bold w-full h-14 bg-secondary hover:bg-red-100 hover:text-phyt_text_dark"
             >
                 {isLoading ? 'LOGGING IN...' : 'LOGIN'}
             </Button>
