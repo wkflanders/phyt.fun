@@ -65,7 +65,10 @@ export default {
 				blue_pattern: "url('/pattern.webp')",
 				pixel_mozaic: "url('/bg.png')",
 				radiant_waves: "url('/bg_1.png')",
-				waves_card: "url('/card.png')"
+				waves_card: "url('/card.png')",
+				"primary-gradient": "linear-gradient(90deg, var(--primary-gradient-start), var(--primary-gradient-end))",
+				"primary-blotch": "radial-gradient(at 30% 30%, rgba(14,249,254,0.1), transparent 70%)"
+
 			},
 			keyframes: {
 				'border-spin': {
