@@ -131,13 +131,15 @@ export interface LineupCard {
 
 export interface Runner {
     id: number;
-    updated_at: string;
-    created_at: string;
     user_id: number;
-    average_pace: number | null;
+    username: string;
+    avatar_url: string;
     total_distance_m: number;
+    average_pace: number | null;
     total_runs: number;
     best_mile_time: number | null;
+    created_at: string;
+    updated_at: string;
 }
 
 export interface PendingRunner {
