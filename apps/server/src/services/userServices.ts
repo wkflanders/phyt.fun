@@ -17,6 +17,7 @@ export const userService = {
                 .limit(1);
 
             if (!user) throw new NotFoundError('User not found');
+            console.log(user);
             return user;
         } catch (error) {
             if (error instanceof NotFoundError || error instanceof ValidationError) {

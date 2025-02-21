@@ -47,7 +47,8 @@ router.get('/:privyId', async (req, res) => {
             username: user.username,
             avatar_url: user.avatar_url,
             role: user.role,
-            wallet_address: user.wallet_address
+            wallet_address: user.wallet_address,
+            phytness_points: user.phytness_points
         });
     } catch (error: any) {
         console.error("Error in GET /:privyId:", error);
