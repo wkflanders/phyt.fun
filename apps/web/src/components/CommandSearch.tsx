@@ -1,87 +1,181 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
     Command,
+    CommandList,
     CommandEmpty,
     CommandGroup,
     CommandInput,
     CommandItem,
-    CommandList,
-} from '@/components/ui/command';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { useGetRunners } from '@/hooks/use-get-runners';
-import { Loader2 } from 'lucide-react';
+} from "@/components/ui/command";
+import { Search } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useGetRunners } from "@/hooks/use-get-runners";
 
-export const CommandSearch = () => {
-    const [search, setSearch] = useState('');
-    const [isOpen, setIsOpen] = useState(false);
+export function CommandSearch() {
+    const [open, setOpen] = useState(false);
+    const [search, setSearch] = useState("");
     const router = useRouter();
     const { data: runners = [], isLoading } = useGetRunners();
 
-    // Filter runners based on search input
     const filteredRunners = runners.filter((runner) =>
         runner.username.toLowerCase().includes(search.toLowerCase())
     );
 
-    return (
-        <div className="relative w-1/4">
-            <Command className="rounded-md bg-black border-0 bg-opacity-15 backdrop-blur-md">
-                <CommandInput
-                    placeholder="Search runners..."
-                    value={search}
-                    onValueChange={(value) => {
-                        setSearch(value);
-                        setIsOpen(true);
-                    }}
-                    onFocus={() => setIsOpen(true)}
-                    onBlur={() => setTimeout(() => setIsOpen(false), 100)}
-                    className="flex h-9 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 border-0"
+    const handleOpenSearch = () => {
+        setOpen(true);
+        document.body.style.overflow = "hidden";
+        window.addEventListener("keydown", handleKeyDown);
+    };
 
-                />
-                {isOpen && (
-                    <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-lg bg-black bg-opacity-15 backdrop-blur-sm">
-                        <CommandList className="max-h-[300px] overflow-y-auto p-1">
-                            <CommandEmpty>No runners found.</CommandEmpty>
-                            <CommandGroup>
-                                {isLoading ? (
-                                    <div className="flex items-center justify-center py-6">
-                                        <Loader2 className="h-4 w-4 animate-spin" />
+    const handleCloseSearch = () => {
+        setOpen(false);
+        document.body.style.overflow = "unset";
+        window.removeEventListener("keydown", handleKeyDown);
+    };
+
+    const handleKeyDown = (e: any) => {
+        if (e.key === "Escape") handleCloseSearch();
+    };
+
+    if (typeof window !== "undefined") {
+        window.onkeydown = (e) => {
+            if (e.key === "/" && !open) {
+                e.preventDefault();
+                handleOpenSearch();
+            }
+        };
+    }
+
+    return (
+        <>
+            <button
+                onClick={handleOpenSearch}
+                className="w-1/4 flex cursor-text items-center gap-2 rounded-lg bg-gray-800/20 border border-gray-700 px-5 py-2 text-sm hover:bg-gray-900/20 transition-colors backdrop-blur-md"
+                aria-label="Search runners"
+            >
+                <Search className="h-4 w-4 text-gray-400" />
+                <span className="text-gray-400">Search runners</span>
+                <span className="ml-auto text-xs text-gray-500 border border-gray-600 px-2 py-0.5 rounded">/</span>
+            </button>
+
+            {open && (
+                <>
+                    <div
+                        className="fixed inset-0 z-[9999] bg-black/20 cursor-default"
+                        onClick={handleCloseSearch}
+                        role="button"
+                        tabIndex={-1}
+                        aria-label="Close search"
+                        style={{
+                            position: 'fixed',
+                            top: 0,
+                            right: 0,
+                            bottom: 0,
+                            left: 0,
+                            width: '100vw',
+                            height: '100vh'
+                        }}
+                    />
+
+                    <div className="fixed inset-0 z-[10000] flex items-start justify-center p-4 pt-[10vh] pointer-events-none">
+                        <div className="w-full max-w-3xl rounded-xl shadow-2xl overflow-hidden pointer-events-auto">
+                            <div className="relative">
+                                <Command className="overflow-visible bg-slate-900/10 pt-3 backdrop-blur-sm">
+                                    <div className="flex items-center px-3">
+                                        <CommandInput
+                                            placeholder="Search runners..."
+                                            value={search}
+                                            onValueChange={setSearch}
+                                            className="flex-1 py-4 text-xl bg-transparent border-none focus:outline-none focus:ring-0"
+                                            autoFocus
+                                        />
                                     </div>
-                                ) : (
-                                    filteredRunners.map((runner) => (
-                                        <CommandItem
-                                            key={runner.id}
-                                            value={runner.username}
-                                            onSelect={() => {
-                                                // Navigate to runner's profile or show their stats
-                                                router.push(`/runner/${runner.id}`);
-                                                setIsOpen(false);
-                                            }}
-                                            className="flex items-center gap-2 px-4 py-2"
-                                        >
-                                            <div className="flex flex-1 items-center gap-2">
-                                                <Image
-                                                    src={runner.avatar_url}
-                                                    alt={runner.username}
-                                                    width={24}
-                                                    height={24}
-                                                    className="rounded-full"
-                                                />
-                                                <span>{runner.username}</span>
+
+                                    <div className="p-3">
+                                        {search.length > 0 ? (
+                                            <CommandList className="max-h-[60vh] py-2 overflow-y-auto">
+                                                <CommandEmpty className="py-6 text-center text-gray-400">
+                                                    No runners found.
+                                                </CommandEmpty>
+                                                <CommandGroup heading="Runners">
+                                                    {isLoading ? (
+                                                        <div className="flex justify-center py-6">
+                                                            <div className="h-5 w-5 rounded-full border-2 border-r-transparent border-white/30 animate-spin" />
+                                                        </div>
+                                                    ) : (
+                                                        filteredRunners.map((runner) => (
+                                                            <CommandItem
+                                                                key={runner.id}
+                                                                onSelect={() => {
+                                                                    router.push(`/runner/${runner.id}`);
+                                                                    handleCloseSearch();
+                                                                }}
+                                                                className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-800/60 rounded-lg"
+                                                            >
+                                                                <Image
+                                                                    src={runner.avatar_url}
+                                                                    alt={runner.username}
+                                                                    width={38}
+                                                                    height={38}
+                                                                    className="rounded-full"
+                                                                />
+                                                                <div>
+                                                                    <p className="font-medium text-white">{runner.username}</p>
+                                                                    <p className="text-sm text-gray-400">{String(runner.id).slice(0, 8)}...</p>
+                                                                </div>
+                                                            </CommandItem>
+                                                        ))
+                                                    )}
+                                                </CommandGroup>
+                                            </CommandList>
+                                        ) : (
+                                            <div className="py-8">
+                                                <h3 className="text-gray-400 text-sm font-medium px-4 mb-3">TRENDING RUNNERS</h3>
+                                                <CommandList className="max-h-[60vh] overflow-y-auto">
+                                                    {isLoading ? (
+                                                        <div className="flex justify-center py-6">
+                                                            <div className="h-5 w-5 rounded-full border-2 border-r-transparent border-white/30 animate-spin" />
+                                                        </div>
+                                                    ) : (
+                                                        runners.slice(0, 5).map((runner) => (
+                                                            <CommandItem
+                                                                key={runner.id}
+                                                                onSelect={() => {
+                                                                    router.push(`/runner/${runner.id}`);
+                                                                    handleCloseSearch();
+                                                                }}
+                                                                className="flex items-center justify-between px-4 py-3 cursor-pointer rounded-lg"
+                                                            >
+                                                                <div className="flex items-center gap-3">
+                                                                    <Image
+                                                                        src={runner.avatar_url}
+                                                                        alt={runner.username}
+                                                                        width={38}
+                                                                        height={38}
+                                                                        className="rounded-full"
+                                                                    />
+                                                                    <div>
+                                                                        <p className="font-medium text-white">{runner.username}</p>
+                                                                        <p className="text-sm text-gray-400">{Math.floor(Math.random() * 10000)} runs</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="text-sm text-gray-300 font-medium">
+                                                                    {(Math.random() * 0.01).toFixed(4)} ETH
+                                                                </div>
+                                                            </CommandItem>
+                                                        ))
+                                                    )}
+                                                </CommandList>
                                             </div>
-                                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                                <span>{runner.total_distance_m / 1000}km</span>
-                                                <span>{runner.average_pace}/km</span>
-                                                <span>{runner.total_runs} runs</span>
-                                            </div>
-                                        </CommandItem>
-                                    ))
-                                )}
-                            </CommandGroup>
-                        </CommandList>
+                                        )}
+                                    </div>
+                                </Command>
+                            </div>
+                        </div>
                     </div>
-                )}
-            </Command>
-        </div>
+                </>
+            )}
+        </>
     );
-};
+}
