@@ -18,16 +18,14 @@ export const CommandSearch = () => {
     const router = useRouter();
     const { data: runners = [], isLoading } = useGetRunners();
 
-    console.log(runners);
-
     // Filter runners based on search input
     const filteredRunners = runners.filter((runner) =>
         runner.username.toLowerCase().includes(search.toLowerCase())
     );
 
     return (
-        <div className="relative w-full max-w-md">
-            <Command className="rounded-lg border shadow-md glass-effect">
+        <div className="relative w-1/4">
+            <Command className="rounded-md bg-black border-0 bg-opacity-15 backdrop-blur-md">
                 <CommandInput
                     placeholder="Search runners..."
                     value={search}
@@ -37,9 +35,11 @@ export const CommandSearch = () => {
                     }}
                     onFocus={() => setIsOpen(true)}
                     onBlur={() => setTimeout(() => setIsOpen(false), 100)}
+                    className="flex h-9 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 border-0"
+
                 />
                 {isOpen && (
-                    <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-lg border glass-effect">
+                    <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-lg bg-black bg-opacity-15 backdrop-blur-sm">
                         <CommandList className="max-h-[300px] overflow-y-auto p-1">
                             <CommandEmpty>No runners found.</CommandEmpty>
                             <CommandGroup>

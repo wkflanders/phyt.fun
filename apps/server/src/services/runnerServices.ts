@@ -29,8 +29,6 @@ export const runnerService = {
                 .innerJoin(users, eq(runners.user_id, users.id))
                 .where(and(...conditions));
 
-            console.log(query.orderBy(runners.total_distance_m));
-
             return await query.orderBy(runners.total_distance_m);
         } catch (error) {
             console.error('Error getting all runners:', error);

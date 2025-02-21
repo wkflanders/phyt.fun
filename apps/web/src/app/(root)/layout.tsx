@@ -28,9 +28,7 @@ export default function Layout({ children }: { children: React.ReactNode; }) {
             return;
         }
 
-        // Wait until our DB user query is no longer loading/fetching
         if (!isLoading && !isFetching) {
-            // Check the error status to differentiate what happened
             if (error) {
                 console.log(error);
                 if (error.status === 404) {
@@ -79,11 +77,9 @@ export default function Layout({ children }: { children: React.ReactNode; }) {
         <main className="h-screen bg-background 
             bg-primary-blotch 
             bg-blend-overlay 
-            backdrop-blur-md "
+            backdrop-blur-md"
         >
-            <div className="flex h-full w-full 
-                px-2 sm:px-4 md:px-12 lg:px-24 xl:px-40 2xl:px-60 
-                pt-12 overflow-y-hidden">
+            <div className="h-full w-full overflow-y-hidden">
                 <Navbar />
                 {/* {children} */}
                 <div className="hidden lg:block">

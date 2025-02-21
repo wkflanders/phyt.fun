@@ -27,8 +27,8 @@
     --card-foreground: #F5F5F5;
     --popover: #1E1F25;
     --popover-foreground: #F5F5F5;
-    --sidebar: rgba(14, 14, 16, 0.5);
-    --navbar: rgba(14, 14, 16, 0.5);
+    --sidebar: rgba(14, 14, 16, 0.4);
+    --navbar: rgba(14, 14, 16, 0.2);
   }
   *{
     -ms-overflow-style: none;
