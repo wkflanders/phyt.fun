@@ -2,4 +2,4 @@ export * from './schema';
 export * from './relations';
 export * from './drizzle';
 export * from './transactions';
-export { eq, and, desc, asc, or, not, sql, gt, lt, gte, lte, ne, isNull } from 'drizzle-orm';
+export { eq, and, desc, asc, or, not, sql, gt, lt, gte, lte, ne, like, isNull } from 'drizzle-orm';
