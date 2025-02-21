@@ -16,7 +16,7 @@ export const Navbar = () => {
 
     if (userLoading || !user) {
         return (
-            <div className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="sticky top-0 z-50 w-full nav-glass">
                 <div className="container flex h-14 items-center">
                     <div className="flex flex-1 items-center justify-between">
                         <CommandSearch />

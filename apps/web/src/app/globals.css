@@ -12,10 +12,10 @@
   :root {
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --background: #0E0E10;
+    --background: #1E1D1D;
     --foreground: #F5F5F5;
     --text-dim: #939195;
-    --border: #1C1C1E;
+    --border: #323030;
     --form: #1E1F25;
     --primary: #0EF9FE;
     --primary-shade: #0DA0A4;
@@ -165,5 +165,27 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .glass-effect {
+    @apply bg-opacity-20 backdrop-blur-md border border-white/10;
+  }
+  
+  .card-glass {
+    @apply bg-card bg-opacity-30 backdrop-blur-md border border-white/10;
+  }
+  
+  .form-glass {
+    @apply bg-form bg-opacity-30 backdrop-blur-md border border-white/10;
+  }
+  
+  .nav-glass {
+    @apply bg-navbar backdrop-blur-md border-b border-white/10;
+  }
+  
+  .sidebar-glass {
+    @apply bg-sidebar backdrop-blur-md border-r border-white/10;
   }
 }
