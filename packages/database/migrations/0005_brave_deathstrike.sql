@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "phytness_points" integer DEFAULT 0;

@@ -36,6 +36,7 @@ export interface User {
     privy_id: string;
     avatar_url: string;
     wallet_address: string | null;
+    phytness_points: number;
 }
 
 export interface CreateUserInput {

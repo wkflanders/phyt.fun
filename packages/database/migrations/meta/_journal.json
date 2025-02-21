@@ -36,6 +36,13 @@
       "when": 1739251909202,
       "tag": "0004_robust_moonstone",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1740167759879,
+      "tag": "0005_brave_deathstrike",
+      "breakpoints": true
     }
   ]
 }

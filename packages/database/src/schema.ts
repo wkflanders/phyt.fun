@@ -38,6 +38,7 @@ export const users = pgTable("users", {
     privy_id: varchar("privy_id"),
     wallet_address: varchar("wallet_address"),
     avatar_url: varchar("avatar_url").default('https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut'),
+    phytness_points: integer("phytness_points").default(0),
 }, (table) => [
     uniqueIndex("users_email_idx").on(table.email),
     uniqueIndex("users_username_idx").on(table.username),
