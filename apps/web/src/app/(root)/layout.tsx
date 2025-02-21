@@ -7,6 +7,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import { Aside } from "@/components/Aside/Aside";
 import { useGetUser } from "@/hooks/use-get-user";
 import { WalletPopover } from "@/components/WalletPopover";
+import Navbar from "@/components/Navbar";
 
 export default function Layout({ children }: { children: React.ReactNode; }) {
     const router = useRouter();
@@ -83,6 +84,7 @@ export default function Layout({ children }: { children: React.ReactNode; }) {
             <div className="flex h-full w-full 
                 px-2 sm:px-4 md:px-12 lg:px-24 xl:px-40 2xl:px-60 
                 pt-12 overflow-y-hidden">
+                <Navbar />
                 {/* {children} */}
                 <div className="hidden lg:block">
                 </div>
