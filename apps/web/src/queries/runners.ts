@@ -2,19 +2,44 @@ import { ApiError, Runner } from '@phyt/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
-export async function getAllRunners(): Promise<Runner[]> {
-    const response = await fetch(`${API_URL}/runners/all`, {
-        credentials: 'include',
-    });
+export const getRunnersQueryKey = () => ['runners'];
+export const getRunnerQueryKey = (id: number) => ['runners', id];
 
-    const data = await response.json();
-
-    if (!response.ok) {
-        throw {
-            error: data.error || 'Failed to fetch user',
-            status: response.status
-        } as ApiError;
+export async function getRunners(search?: string): Promise<Runner[]> {
+    const searchParams = new URLSearchParams();
+    if (search) {
+        searchParams.append('search', search);
     }
 
-    return data;
+    const response = await fetch(
+        `${API_URL}/runners?${searchParams.toString()}`,
+        {
+            method: 'GET',
+            credentials: 'include',
+        }
+    );
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to fetch runners');
+    }
+
+    return response.json();
+}
+
+export async function getRunner(id: number): Promise<Runner> {
+    const response = await fetch(
+        `${API_URL}/runners/${id}`,
+        {
+            method: 'GET',
+            credentials: 'include',
+        }
+    );
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to fetch runner');
+    }
+
+    return response.json();
 }
