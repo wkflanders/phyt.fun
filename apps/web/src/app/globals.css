@@ -12,7 +12,7 @@
   :root {
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --background: #1E1D1D;
+    --background: #171717;
     --foreground: #F5F5F5;
     --text-dim: #939195;
     --border: #323030;
@@ -100,7 +100,7 @@
   }
 
   .auth-container {
-    @apply relative flex flex-col-reverse text-text sm:flex-row;
+    @apply relative flex flex-col-reverse text-text sm:flex-row bg-pattern;
   }
 
   .auth-form {

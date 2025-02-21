@@ -51,12 +51,12 @@ export function CommandSearch() {
         <>
             <button
                 onClick={handleOpenSearch}
-                className="w-1/4 flex cursor-text items-center gap-2 rounded-lg bg-black-700/10 border border-gray-700 px-5 py-2.5 text-sm hover:bg-black/15 transition-colors backdrop-blur-md"
+                className="w-1/3 flex cursor-text items-center gap-2 rounded-xl bg-black-700/10 border border-white/20 px-5 py-2.5 text-md hover:bg-black/15 transition-colors backdrop-blur-md"
                 aria-label="Search runners"
             >
-                <Search className="h-4 w-4 text-gray-400" />
-                <span className="text-gray-400">Search runners</span>
-                <span className="ml-auto text-xs text-gray-500 border border-gray-600 px-2 py-0.5 rounded">/</span>
+                <Search className="h-4 w-4 text-text" />
+                <span className="text-text">Search runners</span>
+                <span className="ml-auto text-xs text-text border border-white/20 px-2 py-0.5 rounded">/</span>
             </button>
 
             {open && (
@@ -95,7 +95,7 @@ export function CommandSearch() {
                                     <div className="p-3">
                                         {search.length > 0 ? (
                                             <CommandList className="max-h-[60vh] py-2 overflow-y-auto">
-                                                <CommandEmpty className="py-6 text-center text-gray-400">
+                                                <CommandEmpty className="py-6 text-center text-text-dim">
                                                     No runners found.
                                                 </CommandEmpty>
                                                 <CommandGroup heading="Runners">
@@ -121,8 +121,8 @@ export function CommandSearch() {
                                                                     className="rounded-full"
                                                                 />
                                                                 <div>
-                                                                    <p className="font-medium text-white">{runner.username}</p>
-                                                                    <p className="text-sm text-gray-400">{String(runner.id).slice(0, 8)}...</p>
+                                                                    <p className="font-medium text-text">{runner.username}</p>
+                                                                    <p className="text-md text-text-dim">{String(runner.id).slice(0, 8)}...</p>
                                                                 </div>
                                                             </CommandItem>
                                                         ))
@@ -131,7 +131,7 @@ export function CommandSearch() {
                                             </CommandList>
                                         ) : (
                                             <div className="py-8">
-                                                <h3 className="text-gray-400 text-sm font-medium px-4 mb-3">TRENDING RUNNERS</h3>
+                                                <h3 className="text-text-dim text-md font-medium px-4 mb-3">TRENDING RUNNERS</h3>
                                                 <CommandList className="max-h-[60vh] overflow-y-auto">
                                                     {isLoading ? (
                                                         <div className="flex justify-center py-6">
@@ -156,11 +156,11 @@ export function CommandSearch() {
                                                                         className="rounded-full"
                                                                     />
                                                                     <div>
-                                                                        <p className="font-medium text-white">{runner.username}</p>
-                                                                        <p className="text-sm text-gray-400">{Math.floor(Math.random() * 10000)} runs</p>
+                                                                        <p className="font-medium text-text">{runner.username}</p>
+                                                                        <p className="text-md text-text-dim">{Math.floor(Math.random() * 10000)} runs</p>
                                                                     </div>
                                                                 </div>
-                                                                <div className="text-sm text-gray-300 font-medium">
+                                                                <div className="text-md text-text-dim font-medium">
                                                                     {(Math.random() * 0.01).toFixed(4)} ETH
                                                                 </div>
                                                             </CommandItem>
