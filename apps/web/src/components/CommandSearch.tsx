@@ -51,7 +51,7 @@ export function CommandSearch() {
         <>
             <button
                 onClick={handleOpenSearch}
-                className="w-1/4 flex cursor-text items-center gap-2 rounded-lg bg-gray-800/20 border border-gray-700 px-5 py-2 text-sm hover:bg-gray-900/20 transition-colors backdrop-blur-md"
+                className="w-1/4 flex cursor-text items-center gap-2 rounded-lg bg-black-700/10 border border-gray-700 px-5 py-2.5 text-sm hover:bg-black/15 transition-colors backdrop-blur-md"
                 aria-label="Search runners"
             >
                 <Search className="h-4 w-4 text-gray-400" />

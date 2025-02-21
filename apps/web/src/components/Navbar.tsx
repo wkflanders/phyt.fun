@@ -16,13 +16,27 @@ export const Navbar = () => {
 
     if (userLoading || !user) {
         return (
-            <div className="sticky top-0 z-50 w-full nav-glass backdrop-blur-sm">
-                <div className="flex h-14 items-center">
-                    <div className="flex flex-1 items-center justify-between">
-                        <CommandSearch />
-                        <div className="flex items-center gap-4">
+            <div className="flex h-16 items-center top-0 sticky z-50 w-full nav-glass backdrop-blur-sm">
+                <div className="flex flex-1 items-center justify-between px-16">
+                    <CommandSearch />
+
+                    <div className="flex items-center gap-6">
+                        {/* PHYT Points - Loading */}
+                        <div className="flex items-center gap-2">
+                            <Trophy className="h-5 w-5 text-muted" />
+                            <div className="h-4 w-20 animate-pulse rounded bg-muted" />
+                        </div>
+
+                        {/* Wallet Balance - Loading */}
+                        <div className="flex items-center gap-2">
+                            <div className="h-5 w-5 animate-pulse rounded bg-muted" />
+                            <div className="h-4 w-24 animate-pulse rounded bg-muted hidden sm:block" />
+                        </div>
+
+                        {/* User Profile - Loading */}
+                        <div className="flex items-center gap-2">
                             <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
-                            <div className="h-4 w-24 animate-pulse rounded bg-muted" />
+                            <div className="h-4 w-20 animate-pulse rounded bg-muted hidden sm:block" />
                         </div>
                     </div>
                 </div>
@@ -31,7 +45,7 @@ export const Navbar = () => {
     }
 
     return (
-        <div className="flex h-14 items-center top-0 sticky z-50 w-100 nav-glass backdrop-blur-sm">
+        <div className="flex h-16 items-center top-0 sticky z-50 w-100 nav-glass backdrop-blur-sm">
             <div className="flex flex-1 items-center justify-between px-16">
                 <CommandSearch />
 
