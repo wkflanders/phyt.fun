@@ -1,70 +1,78 @@
+import React from 'react';
+import Image from 'next/image';
+import { useAccount, useBalance } from 'wagmi';
+import { CommandSearch } from '@/components/CommandSearch';
 import { useGetUser } from '@/hooks/use-get-user';
-import {
-    NavigationMenu,
-    NavigationMenuContent,
-    NavigationMenuItem,
-    NavigationMenuLink,
-    NavigationMenuList,
-    NavigationMenuTrigger,
-    navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
+import { Trophy } from 'lucide-react';
+import { WalletPopover } from '@/components/WalletPopover';
+import { formatEther } from 'viem';
 
 export const Navbar = () => {
+    const { data: user, isLoading: userLoading } = useGetUser();
+    const { address } = useAccount();
+    const { data: balance } = useBalance({
+        address: address as `0x${string}`,
+    });
+
+    if (userLoading || !user) {
+        return (
+            <div className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <div className="container flex h-14 items-center">
+                    <div className="flex flex-1 items-center justify-between">
+                        <CommandSearch />
+                        <div className="flex items-center gap-4">
+                            <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
+                            <div className="h-4 w-24 animate-pulse rounded bg-muted" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="container flex h-14 items-center">
-                <NavigationMenu>
-                    <NavigationMenuTrigger>
-                        <button
-                            className={navigationMenuTriggerStyle}
-                        >
-                            <span className="sr-only">Open main menu</span>
-                            <svg
-                                className="w-6 h-6"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M4 6h16M4 12h16m-7 6h7"
-                                />
-                            </svg>
-                        </button>
-                    </NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                        <NavigationMenuList>
-                            <NavigationMenuItem>
-                                <NavigationMenuLink href="/">
-                                    Home
-                                </NavigationMenuLink>
-                            </NavigationMenuItem>
-                            <NavigationMenuItem>
-                                <NavigationMenuLink href="/marketplace">
-                                    Marketplace
-                                </NavigationMenuLink>
-                            </NavigationMenuItem>
-                            <NavigationMenuItem>
-                                <NavigationMenuLink href="/pack">
-                                    Packs
-                                </NavigationMenuLink>
-                            </NavigationMenuItem>
-                            <NavigationMenuItem>
-                                <NavigationMenuLink href="/competition">
-                                    Competitions
-                                </NavigationMenuLink>
-                            </NavigationMenuItem>
-                            <NavigationMenuItem>
-                                <NavigationMenuLink href="/leaderboard">
-                                    Leaderboard
-                                </NavigationMenuLink>
-                            </NavigationMenuItem>
-                        </NavigationMenuList>
-                    </NavigationMenuContent>
-                </NavigationMenu>
+                <div className="flex flex-1 items-center justify-between">
+                    <CommandSearch />
+
+                    <div className="flex items-center gap-6">
+                        {/* PHYT Points */}
+                        <div className="flex items-center gap-2">
+                            <Trophy className="h-5 w-5 text-phyt_blue" />
+                            <span className="text-sm font-medium">
+                                1,234 PHYT
+                            </span>
+                        </div>
+
+                        {/* Wallet Balance */}
+                        <div className="flex items-center gap-2">
+                            <WalletPopover />
+                            <div className="hidden sm:block">
+                                <p className="text-sm font-medium">
+                                    {balance ? `${Number(formatEther(balance.value)).toFixed(4)} ETH` : '0.0000 ETH'}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* User Profile */}
+                        <div className="flex items-center gap-2">
+                            <Image
+                                src={user.avatar_url}
+                                alt={user.username}
+                                width={32}
+                                height={32}
+                                className="rounded-full"
+                            />
+                            <span className="hidden text-sm font-medium sm:block">
+                                {user.username}
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );
 };
+
+export default Navbar;
