@@ -55,7 +55,7 @@ export const Sidebar = () => {
                             key={index}
                         >
                             <div
-                                className={`mb-4 flex cursor-pointer items-center rounded-md p-2 hover:bg-gray-800 
+                                className={`mb-4 flex cursor-pointer items-center rounded-md p-2 hover:bg-black/20
                                 ${active ? 'text-text' : 'text-text-dim'}`}
                             >
                                 <item.icon size={20} className="shrink-0" />
