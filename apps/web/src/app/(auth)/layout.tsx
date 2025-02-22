@@ -3,7 +3,7 @@ import React from 'react';
 
 export default function Layout({ children }: { children: React.ReactNode; }) {
     return (
-        <main className="auth-container bg-pattern">
+        <main className="auth-container">
             <section className="auth-form">
                 <div className="auth-box">
                     <div className="flex flex-row gap-3 my-8">

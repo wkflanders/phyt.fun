@@ -100,11 +100,11 @@
   }
 
   .auth-container {
-    @apply relative flex flex-col-reverse text-text sm:flex-row bg-pattern;
+    @apply relative flex flex-col-reverse text-text sm:flex-row;
   }
 
   .auth-form {
-    @apply my-auto flex h-full min-h-screen flex-1 items-center bg-pattern bg-cover bg-top bg-background px-5 py-10;
+    @apply my-auto flex h-full min-h-screen bg-blue_pattern flex-1 items-center px-5 py-10;
   }
 
   .auth-box {
