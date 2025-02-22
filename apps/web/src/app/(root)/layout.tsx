@@ -49,14 +49,14 @@ export default function Layout({ children }: { children: React.ReactNode; }) {
                 <Navbar />
 
                 {/* Conditional content */}
-                <div className="pl-56 pt-16 h-full">
+                <div className="pl-56 h-full">
                     {!authCheckDone ? (
                         <div className="flex flex-col items-center justify-center h-full">
                             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                         </div>
                     ) : (
                         <div className="h-full overflow-y-auto">
-                            {/* {children} */}
+                            {children}
                         </div>
                     )}
                 </div>

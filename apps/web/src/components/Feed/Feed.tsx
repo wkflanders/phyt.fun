@@ -262,7 +262,7 @@ export const Feed: FC = () => {
     const [activeTab, setActiveTab] = useState<'following' | 'trending'>('following');
 
     return (
-        <div className="flex-1 overflow-y-auto h-screen scrollbar-none">
+        <div className="flex-1 overflow-y-auto scrollbar-none">
             <div className="max-w-3xl mx-auto px-4">
                 <div className="rounded-xl overflow-hidden">
                     <div>
