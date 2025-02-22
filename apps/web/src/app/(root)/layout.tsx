@@ -4,10 +4,9 @@ import React, { useEffect, useState } from "react";
 import Image from 'next/image';
 import { useRouter } from "next/navigation";
 import { usePrivy } from "@privy-io/react-auth";
-import { Aside } from "@/components/Aside/Aside";
 import { useGetUser } from "@/hooks/use-get-user";
-import { WalletPopover } from "@/components/WalletPopover";
-import Navbar from "@/components/Navbar";
+import { Navbar } from "@/components/Navbar";
+import { Sidebar } from "@/components/Sidebar";
 
 export default function Layout({ children }: { children: React.ReactNode; }) {
     const router = useRouter();
@@ -17,11 +16,6 @@ export default function Layout({ children }: { children: React.ReactNode; }) {
 
     useEffect(() => {
         if (!ready) return;
-
-        if (!privyUser) {
-            router.push("/");
-            return;
-        }
 
         if (!privyUser) {
             router.push("/");
@@ -44,35 +38,6 @@ export default function Layout({ children }: { children: React.ReactNode; }) {
         }
     }, [ready, privyUser, dbUser, error, isLoading, isFetching, router]);
 
-    if (!authCheckDone) {
-        return (
-            <div className="relative h-screen w-screen bg-phyt_bg">
-                {/* <Image
-                    src="https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFtMbRka3eIV0DWvzEjTGN8LRyCBrUu2QqfF5J"
-                    alt="auth-img"
-                    fill
-                    className="object-cover opacity-10"
-                /> */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <Image
-                        src="https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFduORvackTPlRILfDrtYWge59yzhSjpFisE6v"
-                        alt="logo"
-                        width={400}
-                        height={400}
-                    />
-                    <div className="mt-4 text-phyt_text text-xl flex items-center">
-                        <span>Loading</span>
-                        <span className="flex ml-1">
-                            <span style={{ animationDelay: "0s" }} className="inline-block animate-bounce">.</span>
-                            <span style={{ animationDelay: ".2s" }} className="inline-block animate-bounce">.</span>
-                            <span style={{ animationDelay: ".4s" }} className="inline-block animate-bounce">.</span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <main className="h-screen bg-background 
             bg-primary-blotch 
@@ -80,9 +45,20 @@ export default function Layout({ children }: { children: React.ReactNode; }) {
             backdrop-blur-md"
         >
             <div className="h-full w-full overflow-y-hidden">
+                <Sidebar />
                 <Navbar />
-                {/* {children} */}
-                <div className="hidden lg:block">
+
+                {/* Conditional content */}
+                <div className="pl-56 pt-16 h-full">
+                    {!authCheckDone ? (
+                        <div className="flex flex-col items-center justify-center h-full">
+                            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                    ) : (
+                        <div className="h-full overflow-y-auto">
+                            {/* {children} */}
+                        </div>
+                    )}
                 </div>
             </div>
         </main>
