@@ -34,7 +34,7 @@ export const Sidebar = () => {
         >
             <div className="flex items-center px-4 py-2">
                 <div className="flex items-center">
-                    <span className="font-semibold text-white">
+                    <span className="font-semibold text-text">
                         <Image
                             src="https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFduORvackTPlRILfDrtYWge59yzhSjpFisE6v"
                             alt="PHYT"
@@ -56,7 +56,7 @@ export const Sidebar = () => {
                         >
                             <div
                                 className={`mb-4 flex cursor-pointer items-center rounded-md p-2 hover:bg-gray-800 
-                                ${active ? 'text-white' : 'text-gray-300'}`}
+                                ${active ? 'text-text' : 'text-text-dim'}`}
                             >
                                 <item.icon size={20} className="shrink-0" />
                                 <span className="ml-4 font-medium">

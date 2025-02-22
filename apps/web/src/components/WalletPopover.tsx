@@ -38,10 +38,8 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
         address: address as `0x${string}`,
     });
 
-    // Create a ref to the popover container
     const popoverRef = useRef<HTMLDivElement>(null);
 
-    // Click outside listener: if click occurs outside popover, close it.
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
             if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
@@ -107,7 +105,7 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
         return (
             <div ref={popoverRef} className="absolute top-16 right-16 z-50">
                 <Card className="w-96 h-[400px] bg-card/30 border border-white/10 flex items-center justify-center">
-                    <Loader2 className="h-8 w-8 animate-spin text-text_dim" />
+                    <Loader2 className="h-8 w-8 animate-spin text-text-dim" />
                 </Card>
             </div>
         );
@@ -134,13 +132,13 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
                 <CardContent >
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <p className="text-md text-text_dim">Your Wallet Address</p>
+                            <p className="text-md text-text">Your Wallet Address</p>
                             <div className="flex items-center gap-2 p-3 bg-phyt_form bg-opacity-10 rounded-lg">
                                 <code className="flex-1 font-mono text-md text-text break-all">{formatAddress(address)}</code>
                                 <Button
                                     size="sm"
                                     variant="ghost"
-                                    className="shrink-0 text-text_dim hover:text-text"
+                                    className="shrink-0 text-text-dim hover:text-text"
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         copyAddress();
@@ -149,7 +147,7 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
                                     {copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
                                 </Button>
                             </div>
-                            <p className="text-xs text-text_dim">
+                            <p className="text-xs text-text-dim">
                                 Send only ETH or Base compatible tokens to this address.
                             </p>
                         </div>
@@ -181,7 +179,7 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
                                 <Loader2 className="h-8 w-8 animate-spin text-phyt_blue" />
                             </div>
                         ) : transactions?.length === 0 ? (
-                            <p className="text-text_dim text-center">No transactions found</p>
+                            <p className="text-text-dim text-center">No transactions found</p>
                         ) : (
                             transactions?.map((tx, index) => (
                                 <div key={index} className="border-b border-phyt_text last:border-0 pb-3 last:pb-0">
@@ -196,14 +194,14 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
                                                 <p className="text-md text-text">
                                                     {tx.from_user_id === user?.id ? 'Sent' : 'Received'}
                                                 </p>
-                                                <p className="text-xs text-text_dim">
+                                                <p className="text-xs text-text-dim">
                                                     {formatTimestamp(tx.created_at)}
                                                 </p>
                                             </div>
                                         </div>
                                         <div className="text-right">
                                             <p className="text-sm text-text">{tx.token_amount} Tokens</p>
-                                            <p className="text-xs text-text_dim">{tx.transaction_type}</p>
+                                            <p className="text-xs text-text-dim">{tx.transaction_type}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -226,7 +224,7 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
                 <CardContent >
                     <div className="space-y-6">
                         <div className="p-4 rounded-lg">
-                            <p className="text-text_dim text-lg mb-1">Wallet Address</p>
+                            <p className="text-text text-lg mb-1">Wallet Address</p>
                             <div className="flex items-center gap-2">
                                 <p className="font-mono text-text">{formatAddress(address)}</p>
                                 <Button
@@ -236,14 +234,14 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
                                         e.stopPropagation();
                                         copyAddress();
                                     }}
-                                    className="text-text_dim hover:text-text"
+                                    className="text-text-dim hover:text-text"
                                 >
                                     {copied ? <Check size={16} /> : <Copy size={16} />}
                                 </Button>
                             </div>
                         </div>
                         <div className="p-4 rounded-lg">
-                            <p className="text-text_dim text-lg mb-1">Balance</p>
+                            <p className="text-text text-lg mb-1">Balance</p>
                             {isBalanceLoading ? (
                                 <Loader2 className="h-4 w-4 animate-spin text-phyt_blue" />
                             ) : (
