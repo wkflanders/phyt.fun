@@ -1,5 +1,4 @@
 import type { Address } from 'viem';
-import { type WaitForTransactionReceiptReturnType } from "@wagmi/core";
 
 export type CardRarity = 'bronze' | 'silver' | 'gold' | 'sapphire' | 'ruby' | 'opal';
 export type AcquisitionType = 'mint' | 'transfer' | 'marketplace';
@@ -109,6 +108,7 @@ export interface Competition {
     event_name: string;
     start_time: string;
     end_time: string;
+    jackpot: number;
     distance_m: number | null;
     event_type: string | null;
 }
