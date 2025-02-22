@@ -43,6 +43,13 @@
       "when": 1740167759879,
       "tag": "0005_brave_deathstrike",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1740216182623,
+      "tag": "0006_hot_aqueduct",
+      "breakpoints": true
     }
   ]
 }

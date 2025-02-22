@@ -136,6 +136,7 @@ export const competitions = pgTable("competitions", {
     end_time: timestamp("end_time", { precision: 3 }).notNull(),
     distance_m: doublePrecision("distance_m"),
     event_type: varchar("event_type"),
+    jackpot: doublePrecision("jackpot").default(0),
     updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
     created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
 }, (table) => [
