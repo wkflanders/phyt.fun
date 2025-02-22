@@ -51,12 +51,12 @@ export function CommandSearch() {
         <>
             <button
                 onClick={handleOpenSearch}
-                className="w-1/3 flex cursor-text items-center gap-2 rounded-xl bg-black-700/10 border border-white/20 px-5 py-2.5 text-md hover:bg-black/15 transition-colors backdrop-blur-md"
+                className="w-1/3 flex cursor-text items-center gap-2 rounded-xl bg-black-700/10 border border-white/10 px-5 py-2.5 text-md hover:bg-black/15 transition-colors backdrop-blur-md"
                 aria-label="Search runners"
             >
                 <Search className="h-4 w-4 text-text" />
                 <span className="text-text">Search runners</span>
-                <span className="ml-auto text-xs text-text border border-white/20 px-2 py-0.5 rounded">/</span>
+                <span className="ml-auto text-xs text-text border border-white/10 px-2 py-0.5 rounded">/</span>
             </button>
 
             {open && (
@@ -101,7 +101,7 @@ export function CommandSearch() {
                                                 <CommandGroup heading="Runners">
                                                     {isLoading ? (
                                                         <div className="flex justify-center py-6">
-                                                            <div className="h-5 w-5 rounded-full border-2 border-r-transparent border-white/30 animate-spin" />
+                                                            <div className="h-5 w-5 rounded-full border-2 border-r-transparent border-white/10 animate-spin" />
                                                         </div>
                                                     ) : (
                                                         filteredRunners.map((runner) => (
@@ -135,7 +135,7 @@ export function CommandSearch() {
                                                 <CommandList className="max-h-[60vh] overflow-y-auto">
                                                     {isLoading ? (
                                                         <div className="flex justify-center py-6">
-                                                            <div className="h-5 w-5 rounded-full border-2 border-r-transparent border-white/30 animate-spin" />
+                                                            <div className="h-5 w-5 rounded-full border-2 border-r-transparent border-white/10 animate-spin" />
                                                         </div>
                                                     ) : (
                                                         runners.slice(0, 5).map((runner) => (
