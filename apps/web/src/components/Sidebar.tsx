@@ -1,7 +1,7 @@
 import React from 'react';
 import {
     Home,
-    Package,
+    PackageSearch,
     ShoppingCart,
     Trophy,
     BarChart2
@@ -15,7 +15,7 @@ export const Sidebar = () => {
 
     const menuItems = [
         { icon: Home, label: 'Home', href: '/' },
-        { icon: Package, label: 'Packs', href: '/pack' },
+        { icon: PackageSearch, label: 'Packs', href: '/pack' },
         { icon: ShoppingCart, label: 'Marketplace', href: '/marketplace' },
         { icon: Trophy, label: 'Competition', href: '/competition' },
         { icon: BarChart2, label: 'Leaderboard', href: '/leaderboard' },
