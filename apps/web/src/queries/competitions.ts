@@ -1,0 +1,25 @@
+import { Competition } from '@phyt/types';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+
+export const COMPETITIONS_QUERY_KEY = 'competitions';
+export const getCompetitionsQueryKey = () => [COMPETITIONS_QUERY_KEY];
+
+export async function getCompetitions(): Promise<Competition[]> {
+    const response = await fetch(`${API_URL}/competitions`, {
+        method: 'GET',
+        credentials: 'include',
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to fetch competitions');
+    }
+
+    return response.json();
+}
+
+export async function getMajorCompetitions(): Promise<Competition[]> {
+    const allCompetitions = await getCompetitions();
+    return allCompetitions.filter(comp => comp.event_type === 'major');
+}
