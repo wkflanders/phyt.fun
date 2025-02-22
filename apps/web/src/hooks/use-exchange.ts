@@ -1,4 +1,3 @@
-// apps/web/src/hooks/use-exchange.ts
 import { usePublicClient, useWalletClient, useAccount } from 'wagmi';
 import { writeContract, simulateContract } from 'wagmi/actions';
 import { type Address, parseEther, keccak256, encodeAbiParameters, concat } from 'viem';
