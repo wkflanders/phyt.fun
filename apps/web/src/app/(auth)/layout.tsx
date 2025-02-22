@@ -4,7 +4,7 @@ import React from 'react';
 export default function Layout({ children }: { children: React.ReactNode; }) {
     return (
         <main className="auth-container">
-            <section className="auth-form">
+            <section className="auth-form bg-[url('https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFUZyXx4E6ySthNuLs5WiFPfOGvoMI7ValHjBJ')] bg-cover">
                 <div className="auth-box">
                     <div className="flex flex-row gap-3 my-8">
                         <Image src="https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFduORvackTPlRILfDrtYWge59yzhSjpFisE6v" alt="logo" width={400} height={400} />

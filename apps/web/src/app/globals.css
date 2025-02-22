@@ -104,7 +104,7 @@
   }
 
   .auth-form {
-    @apply my-auto flex h-full min-h-screen bg-blue_pattern flex-1 items-center px-5 py-10;
+    @apply my-auto flex h-full min-h-screen flex-1 items-center px-5 py-10;
   }
 
   .auth-box {
