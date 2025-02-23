@@ -96,7 +96,7 @@ export const OnboardForm = ({
                         <FormItem>
                             <FormLabel className="font-inter">Username</FormLabel>
                             <FormControl>
-                                <Input className="border-2 border-phyt_form_border h-14 text-phyt_text font-inter" {...field} />
+                                <Input className="border-2 h-14 text-text font-inter" {...field} />
                             </FormControl>
                             <FormDescription className="font-inter">
                                 This is your public display name
@@ -154,7 +154,7 @@ export const OnboardForm = ({
                 <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="text-xl font-inconsolata font-bold w-full h-14 bg-red hover:bg-red-100 hover:text-phyt_text_dark"
+                    className="text-xl font-inconsolata font-bold w-full h-14 bg-secondary hover:bg-secondary-shade"
                 >
                     {isSubmitting ? (
                         <>
