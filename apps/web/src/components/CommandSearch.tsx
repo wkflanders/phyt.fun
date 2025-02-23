@@ -51,10 +51,10 @@ export function CommandSearch() {
         <>
             <button
                 onClick={handleOpenSearch}
-                className="w-1/3 flex cursor-text items-center gap-2 rounded-xl bg-black-700/10 border border-white/10 px-5 py-2.5 text-md hover:bg-black/15 transition-colors backdrop-blur-md"
+                className="w-1/3 flex cursor-text items-center gap-2 rounded-xl bg-black/10 border border-white/10 px-5 py-2.5 text-md hover:bg-black/15 transition-colors backdrop-blur-md"
                 aria-label="Search runners"
             >
-                <Search className="h-4 w-4 text-text" />
+                <Search className="w-4 h-4 text-text" />
                 <span className="text-text">Search runners</span>
                 <span className="ml-auto text-xs text-text border border-white/10 px-2 py-0.5 rounded">/</span>
             </button>
@@ -79,9 +79,9 @@ export function CommandSearch() {
                     />
 
                     <div className="fixed inset-0 z-[10000] flex items-start justify-center p-4 pt-[10vh] pointer-events-none">
-                        <div className="w-full max-w-3xl rounded-xl shadow-2xl overflow-hidden pointer-events-auto">
+                        <div className="w-full max-w-3xl overflow-hidden shadow-2xl pointer-events-auto rounded-xl">
                             <div className="relative">
-                                <Command className="overflow-visible bg-neutral-900 bg-opacity-90 pt-3">
+                                <Command className="pt-3 overflow-visible bg-neutral-900 bg-opacity-95">
                                     <div className="flex items-center px-3">
                                         <CommandInput
                                             placeholder="Search runners..."
@@ -101,7 +101,7 @@ export function CommandSearch() {
                                                 <CommandGroup heading="Runners">
                                                     {isLoading ? (
                                                         <div className="flex justify-center py-6">
-                                                            <div className="h-5 w-5 rounded-full border-2 border-r-transparent border-white/10 animate-spin" />
+                                                            <div className="w-5 h-5 border-2 rounded-full border-r-transparent border-white/10 animate-spin" />
                                                         </div>
                                                     ) : (
                                                         filteredRunners.map((runner) => (
@@ -111,7 +111,7 @@ export function CommandSearch() {
                                                                     router.push(`/runner/${runner.id}`);
                                                                     handleCloseSearch();
                                                                 }}
-                                                                className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-black/30 rounded-lg"
+                                                                className="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer hover:bg-black/30"
                                                             >
                                                                 <Image
                                                                     src={runner.avatar_url}
@@ -131,11 +131,11 @@ export function CommandSearch() {
                                             </CommandList>
                                         ) : (
                                             <div className="py-8">
-                                                <h3 className="text-text-dim text-md font-medium px-4 mb-3">TRENDING RUNNERS</h3>
+                                                <h3 className="px-4 mb-3 font-medium text-text-dim text-md">TRENDING RUNNERS</h3>
                                                 <CommandList className="max-h-[60vh] overflow-y-auto">
                                                     {isLoading ? (
                                                         <div className="flex justify-center py-6">
-                                                            <div className="h-5 w-5 rounded-full border-2 border-r-transparent border-white/10 animate-spin" />
+                                                            <div className="w-5 h-5 border-2 rounded-full border-r-transparent border-white/10 animate-spin" />
                                                         </div>
                                                     ) : (
                                                         runners.slice(0, 5).map((runner) => (
@@ -145,7 +145,7 @@ export function CommandSearch() {
                                                                     router.push(`/runner/${runner.id}`);
                                                                     handleCloseSearch();
                                                                 }}
-                                                                className="flex items-center justify-between px-4 py-3 cursor-pointer rounded-lg hover:bg-black/30"
+                                                                className="flex items-center justify-between px-4 py-3 rounded-lg cursor-pointer hover:bg-black/30"
                                                             >
                                                                 <div className="flex items-center gap-3">
                                                                     <Image
@@ -160,7 +160,7 @@ export function CommandSearch() {
                                                                         <p className="text-md text-text-dim">{Math.floor(Math.random() * 10000)} runs</p>
                                                                     </div>
                                                                 </div>
-                                                                <div className="text-md text-text-dim font-medium">
+                                                                <div className="font-medium text-md text-text-dim">
                                                                     {(Math.random() * 0.01).toFixed(4)} ETH
                                                                 </div>
                                                             </CommandItem>
