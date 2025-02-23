@@ -145,7 +145,7 @@ export function CommandSearch() {
                                                                     router.push(`/runner/${runner.id}`);
                                                                     handleCloseSearch();
                                                                 }}
-                                                                className="flex items-center justify-between px-4 py-3 cursor-pointer rounded-lg"
+                                                                className="flex items-center justify-between px-4 py-3 cursor-pointer rounded-lg hover:bg-black/30"
                                                             >
                                                                 <div className="flex items-center gap-3">
                                                                     <Image
