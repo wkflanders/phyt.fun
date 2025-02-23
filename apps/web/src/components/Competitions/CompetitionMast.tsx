@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { useGetMajorCompetitions } from '@/hooks/use-get-competitions';
-import { Loader2, Calendar, Trophy, TrophyIcon, Footprints } from 'lucide-react';
+import { Loader2, Calendar, TrophyIcon, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { EthIcon, PhytIcon } from '@/lib/icons';
@@ -124,7 +124,7 @@ export const CompetitionMast = () => {
                             });
                         }}
                     >
-                        <Footprints className="w-4 h-4 mr-2" />
+                        <Layers className="w-4 h-4 mr-2" />
                         Build Your Deck
                     </Button>
 
