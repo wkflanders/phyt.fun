@@ -259,7 +259,7 @@ export const WalletPopover: React.FC = () => {
                     </div>
                 </Button>
             </PopoverTrigger>
-            <PopoverContent align="center" className="w-96 bg-zinc-900/20 backdrop-blur-xl border border-white/10 shadow-lg">
+            <PopoverContent align="center" className="w-96 bg-zinc-900/20 backdrop-blur-xl border border-white/10 shadow-lg mt-2.5">
                 {content}
             </PopoverContent>
         </Popover>
