@@ -111,7 +111,7 @@ export function CommandSearch() {
                                                                     router.push(`/runner/${runner.id}`);
                                                                     handleCloseSearch();
                                                                 }}
-                                                                className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-800/60 rounded-lg"
+                                                                className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-black/30 rounded-lg"
                                                             >
                                                                 <Image
                                                                     src={runner.avatar_url}
