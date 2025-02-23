@@ -65,7 +65,7 @@ export const CompetitionMast = () => {
     const imageUrl = `https://d5mhfgomyfg7p.cloudfront.net/competitions/${featuredCompetition.id}.png`;
 
     return (
-        <div className="relative w-full h-96 overflow-hidden rounded-xl mb-8 mx-16">
+        <div className="relative w-full h-96 overflow-hidden rounded-xl">
             <div className="absolute inset-0 z-0">
                 <Image
                     src={imageUrl}
