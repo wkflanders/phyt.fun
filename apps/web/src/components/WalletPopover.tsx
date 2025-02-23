@@ -104,7 +104,7 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
     if (!ready || isConnecting || isGetUserLoading) {
         return (
             <div ref={popoverRef} className="absolute top-16 right-16 z-50">
-                <Card className="w-96 h-[400px] bg-card/30 border border-white/10 flex items-center justify-center">
+                <Card className="w-96 h-[400px] bg-card border border-white/10 flex items-center justify-center">
                     <Loader2 className="h-8 w-8 animate-spin text-text-dim" />
                 </Card>
             </div>
@@ -133,7 +133,7 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <p className="text-md text-text">Your Wallet Address</p>
-                            <div className="flex items-center gap-2 p-3 bg-phyt_form bg-opacity-10 rounded-lg">
+                            <div className="flex items-center gap-2 p-3 rounded-lg">
                                 <code className="flex-1 font-mono text-md text-text break-all">{formatAddress(address)}</code>
                                 <Button
                                     size="sm"
@@ -292,14 +292,13 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
     }
 
     return (
-        <div onClick={onClose} className="fixed inset-0 z-40">
-            {/* The popover container stops the click event from propagating to the overlay */}
+        <div className="fixed inset-0 z-40 cursor-default" onClick={onClose}>
             <div
                 ref={popoverRef}
                 onClick={(e) => e.stopPropagation()}
-                className="absolute top-16 right-16 z-50"
+                className="fixed top-16 right-16 z-50"
             >
-                <Card className="w-96 bg-card/30 border border-white/10 shadow-lg backdrop-blur-lg cursor-default">
+                <Card className="w-96 bg-zinc-900/90 backdrop-blur-xl border border-white/10 shadow-lg">
                     {content}
                 </Card>
             </div>
