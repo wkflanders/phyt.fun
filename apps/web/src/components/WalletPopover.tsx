@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { usePrivy, useFundWallet } from '@privy-io/react-auth';
 import { useAccount, useBalance } from 'wagmi';
 import { formatEther } from 'viem';
@@ -19,12 +19,9 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useGetUserTransactions } from '@/hooks/use-get-user-transactions';
 import { useGetUser } from '@/hooks/use-get-user';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 
-interface WalletPopoverProps {
-    onClose?: () => void;
-}
-
-export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
+export const WalletPopover: React.FC = () => {
     const { ready } = usePrivy();
     const { address, isConnecting } = useAccount();
     const { toast } = useToast();
@@ -37,20 +34,6 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
     const { data: balanceData, isLoading: isBalanceLoading } = useBalance({
         address: address as `0x${string}`,
     });
-
-    const popoverRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const handleClickOutside = (e: MouseEvent) => {
-            if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
-                onClose && onClose();
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [onClose]);
 
     const formatAddress = (addr: string | undefined) => {
         if (!addr) return '';
@@ -103,11 +86,9 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
 
     if (!ready || isConnecting || isGetUserLoading) {
         return (
-            <div ref={popoverRef} className="absolute top-16 right-16 z-50">
-                <Card className="w-96 h-[400px] bg-card border border-white/10 flex items-center justify-center">
-                    <Loader2 className="h-8 w-8 animate-spin text-text-dim" />
-                </Card>
-            </div>
+            <Card className="w-96 h-[400px] bg-card border border-white/10 flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-text-dim" />
+            </Card>
         );
     }
 
@@ -115,21 +96,15 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
     if (view === 'deposit') {
         content = (
             <>
-                <CardHeader >
-                    <div className="flex items-center gap-2 ">
-                        <Button
-                            variant="ghost"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setView('main');
-                            }}
-                        >
+                <CardHeader>
+                    <div className="flex items-center gap-2">
+                        <Button variant="ghost" onClick={(e) => { e.stopPropagation(); setView('main'); }}>
                             <ArrowLeft size={20} />
                         </Button>
                         <CardTitle className="text-text">Deposit Funds</CardTitle>
                     </div>
                 </CardHeader>
-                <CardContent >
+                <CardContent>
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <p className="text-md text-text">Your Wallet Address</p>
@@ -139,10 +114,7 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
                                     size="sm"
                                     variant="ghost"
                                     className="shrink-0 text-text-dim hover:text-text"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        copyAddress();
-                                    }}
+                                    onClick={(e) => { e.stopPropagation(); copyAddress(); }}
                                 >
                                     {copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
                                 </Button>
@@ -158,21 +130,15 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
     } else if (view === 'history') {
         content = (
             <>
-                <CardHeader >
+                <CardHeader>
                     <div className="flex items-center gap-2">
-                        <Button
-                            variant="ghost"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setView('main');
-                            }}
-                        >
+                        <Button variant="ghost" onClick={(e) => { e.stopPropagation(); setView('main'); }}>
                             <ArrowLeft size={20} />
                         </Button>
                         <CardTitle className="text-text">Transaction History</CardTitle>
                     </div>
                 </CardHeader>
-                <CardContent >
+                <CardContent>
                     <div className="space-y-4">
                         {isTransactionLoading ? (
                             <div className="flex items-center justify-center">
@@ -212,16 +178,15 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
             </>
         );
     } else {
-        // Main view
         content = (
             <>
-                <CardHeader >
+                <CardHeader>
                     <CardTitle className="text-text flex items-center gap-2">
                         <Wallet className="h-5 w-5" />
                         <span className="text-lg">Your Wallet</span>
                     </CardTitle>
                 </CardHeader>
-                <CardContent >
+                <CardContent>
                     <div className="space-y-6">
                         <div className="p-4 rounded-lg">
                             <p className="text-text text-lg mb-1">Wallet Address</p>
@@ -230,10 +195,7 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
                                 <Button
                                     size="sm"
                                     variant="ghost"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        copyAddress();
-                                    }}
+                                    onClick={(e) => { e.stopPropagation(); copyAddress(); }}
                                     className="text-text-dim hover:text-text"
                                 >
                                     {copied ? <Check size={16} /> : <Copy size={16} />}
@@ -254,10 +216,7 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
                             <Button
                                 variant="default"
                                 className="flex flex-col bg-transparent rounded-xl hover:bg-card items-center gap-2 h-auto py-4 text-text hover:text-text border border-white/10"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setView('deposit');
-                                }}
+                                onClick={(e) => { e.stopPropagation(); setView('deposit'); }}
                             >
                                 <ArrowDownLeft size={20} className="text-text" />
                                 <span className="text-xs">Deposit</span>
@@ -265,10 +224,7 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
                             <Button
                                 variant="default"
                                 className="flex flex-col bg-transparent rounded-xl hover:bg-card items-center gap-2 h-auto py-4 border border-white/10"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleFundWallet(address);
-                                }}
+                                onClick={(e) => { e.stopPropagation(); handleFundWallet(address); }}
                             >
                                 <CreditCard size={20} className="text-text" />
                                 <span className="text-xs">Buy</span>
@@ -276,10 +232,7 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
                             <Button
                                 variant="default"
                                 className="flex flex-col bg-transparent rounded-xl hover:bg-card items-center gap-2 h-auto py-4 border border-white/10"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setView('history');
-                                }}
+                                onClick={(e) => { e.stopPropagation(); setView('history'); }}
                             >
                                 <History size={20} className="text-text" />
                                 <span className="text-xs">History</span>
@@ -292,16 +245,23 @@ export const WalletPopover: React.FC<WalletPopoverProps> = ({ onClose }) => {
     }
 
     return (
-        <div className="fixed inset-0 z-40 cursor-default" onClick={onClose}>
-            <div
-                ref={popoverRef}
-                onClick={(e) => e.stopPropagation()}
-                className="fixed top-16 right-16 z-50"
-            >
-                <Card className="w-96 bg-zinc-900/90 backdrop-blur-xl border border-white/10 shadow-lg">
-                    {content}
-                </Card>
-            </div>
-        </div>
+        <Popover>
+            <PopoverTrigger asChild>
+                <Button variant="ghost" className="p-0">
+                    <div className="hidden lg:block">
+                        <p className="text-md font-medium">
+                            {isBalanceLoading
+                                ? 'Loading...'
+                                : balanceData
+                                    ? `${Number(formatEther(balanceData.value)).toFixed(4)} ETH`
+                                    : '0.0000 ETH'}
+                        </p>
+                    </div>
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent align="center" className="w-96 bg-zinc-900/20 backdrop-blur-xl border border-white/10 shadow-lg">
+                {content}
+            </PopoverContent>
+        </Popover>
     );
 };
