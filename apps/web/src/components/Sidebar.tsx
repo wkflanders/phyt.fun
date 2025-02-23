@@ -1,17 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Home,
     PackageSearch,
     ShoppingCart,
     Trophy,
-    BarChart2
+    BarChart2,
+    Gift
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 export const Sidebar = () => {
     const pathname = usePathname();
+    const [isExpanded, setIsExpanded] = useState(false);
 
     const menuItems = [
         { icon: Home, label: 'Home', href: '/' },
@@ -19,6 +22,7 @@ export const Sidebar = () => {
         { icon: ShoppingCart, label: 'Marketplace', href: '/marketplace' },
         { icon: Trophy, label: 'Competition', href: '/competition' },
         { icon: BarChart2, label: 'Leaderboard', href: '/leaderboard' },
+        { icon: Gift, label: 'Rewards', href: '/rewards' },
     ];
 
     const isActive = (href: string) => {
@@ -30,19 +34,44 @@ export const Sidebar = () => {
 
     return (
         <div
-            className="fixed left-0 top-0 z-50 h-screen w-56 sidebar-glass"
+            className={cn(
+                "fixed left-0 top-0 z-50 h-screen transition-all duration-300 ease-in-out sidebar-glass",
+                isExpanded ? "w-56" : "w-16"
+            )}
+            onMouseEnter={() => setIsExpanded(true)}
+            onMouseLeave={() => setIsExpanded(false)}
         >
-            <div className="flex items-center px-4 py-2">
+            <div className="flex items-center px-4 py-2 mt-1">
                 <div className="flex items-center">
                     <span className="font-semibold text-text">
-                        <Image
-                            src="https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFduORvackTPlRILfDrtYWge59yzhSjpFisE6v"
-                            alt="PHYT"
-                            width={300}
-                            height={300}
-                        />
+                        <div
+                            className={cn(
+                                "relative h-14 w-36 transition-all duration-300 overflow-hidden",
+                                "clip-sidebar"
+                            )}
+                            style={{
+                                clipPath: isExpanded
+                                    ? 'inset(0 0 0 0)' // Fully visible when expanded
+                                    : 'inset(0 calc(100% - 2rem) 0 0)', // Clipped to 4rem (w-16) when collapsed
+                            }}
+                        >
+                            <Image
+                                src="https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFduORvackTPlRILfDrtYWge59yzhSjpFisE6v"
+                                alt="PHYT"
+                                width={150}
+                                height={40}
+                                className="object-cover"
+                            />
+                        </div>
                     </span>
-                    <span className="ml-2 rounded-sm bg-gray-700 px-1 py-0.5 text-xs">BETA</span>
+                    <span
+                        className={cn(
+                            "ml-2 rounded-sm bg-secondary-shade px-1 py-0.5 text-xs transition-all duration-200",
+                            isExpanded ? "opacity-100" : "opacity-0"
+                        )}
+                    >
+                        BETA
+                    </span>
                 </div>
             </div>
 
@@ -53,13 +82,23 @@ export const Sidebar = () => {
                         <Link
                             href={item.href}
                             key={index}
+                            className="block"
                         >
                             <div
-                                className={`mb-4 flex cursor-pointer items-center rounded-md p-2 hover:bg-black/20
-                                ${active ? 'text-text' : 'text-text-dim'}`}
+                                className={cn(
+                                    "mb-4 flex cursor-pointer items-center rounded-md p-2 hover:bg-black/20 transition-all duration-300",
+                                    active ? 'text-text' : 'text-text-dim'
+                                )}
                             >
                                 <item.icon size={20} className="shrink-0" />
-                                <span className="ml-4 font-medium">
+                                <span
+                                    className={cn(
+                                        "ml-4 font-medium whitespace-nowrap overflow-hidden transition-all duration-300",
+                                        isExpanded
+                                            ? "max-w-full opacity-100"
+                                            : "max-w-0 opacity-0"
+                                    )}
+                                >
                                     {item.label}
                                 </span>
                             </div>
