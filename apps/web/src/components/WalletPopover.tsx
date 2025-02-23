@@ -84,15 +84,15 @@ export const WalletPopover: React.FC = () => {
         });
     };
 
+    let content;
     if (!ready || isConnecting || isGetUserLoading) {
-        return (
-            <Card className="w-96 h-[400px] bg-card border border-white/10 flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-text-dim" />
-            </Card>
+        content = (
+            <>
+                <Loader2 className="w-8 h-8 animate-spin text-text-dim" />
+            </>
         );
     }
 
-    let content;
     if (view === 'deposit') {
         content = (
             <>
@@ -109,7 +109,7 @@ export const WalletPopover: React.FC = () => {
                         <div className="space-y-2">
                             <p className="text-md text-text">Your Wallet Address</p>
                             <div className="flex items-center gap-2 p-3 rounded-lg">
-                                <code className="flex-1 font-mono text-md text-text break-all">{formatAddress(address)}</code>
+                                <code className="flex-1 font-mono break-all text-md text-text">{formatAddress(address)}</code>
                                 <Button
                                     size="sm"
                                     variant="ghost"
@@ -142,13 +142,13 @@ export const WalletPopover: React.FC = () => {
                     <div className="space-y-4">
                         {isTransactionLoading ? (
                             <div className="flex items-center justify-center">
-                                <Loader2 className="h-8 w-8 animate-spin text-phyt_blue" />
+                                <Loader2 className="w-8 h-8 animate-spin text-phyt_blue" />
                             </div>
                         ) : transactions?.length === 0 ? (
-                            <p className="text-text-dim text-center">No transactions found</p>
+                            <p className="text-center text-text-dim">No transactions found</p>
                         ) : (
                             transactions?.map((tx, index) => (
-                                <div key={index} className="border-b border-phyt_text last:border-0 pb-3 last:pb-0">
+                                <div key={index} className="pb-3 border-b border-phyt_text last:border-0 last:pb-0">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             {tx.from_user_id === user?.id ? (
@@ -181,15 +181,15 @@ export const WalletPopover: React.FC = () => {
         content = (
             <>
                 <CardHeader>
-                    <CardTitle className="text-text flex items-center gap-2">
-                        <Wallet className="h-5 w-5" />
+                    <CardTitle className="flex items-center gap-2 text-text">
+                        <Wallet className="w-5 h-5" />
                         <span className="text-lg">Your Wallet</span>
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-6">
                         <div className="p-4 rounded-lg">
-                            <p className="text-text text-lg mb-1">Wallet Address</p>
+                            <p className="mb-1 text-lg text-text">Wallet Address</p>
                             <div className="flex items-center gap-2">
                                 <p className="font-mono text-text">{formatAddress(address)}</p>
                                 <Button
@@ -203,9 +203,9 @@ export const WalletPopover: React.FC = () => {
                             </div>
                         </div>
                         <div className="p-4 rounded-lg">
-                            <p className="text-text text-lg mb-1">Balance</p>
+                            <p className="mb-1 text-lg text-text">Balance</p>
                             {isBalanceLoading ? (
-                                <Loader2 className="h-4 w-4 animate-spin text-phyt_blue" />
+                                <Loader2 className="w-4 h-4 animate-spin text-phyt_blue" />
                             ) : (
                                 <p className="text-lg text-text">
                                     ≈ {balanceData ? Number(formatEther(balanceData.value)).toFixed(3) : '0.000'} ETH
@@ -215,7 +215,7 @@ export const WalletPopover: React.FC = () => {
                         <div className="grid grid-cols-3 gap-2">
                             <Button
                                 variant="default"
-                                className="flex flex-col bg-transparent rounded-xl hover:bg-card items-center gap-2 h-auto py-4 text-text hover:text-text border border-white/10"
+                                className="flex flex-col items-center h-auto gap-2 py-4 bg-transparent border rounded-xl hover:bg-card text-text hover:text-text border-white/10"
                                 onClick={(e) => { e.stopPropagation(); setView('deposit'); }}
                             >
                                 <ArrowDownLeft size={20} className="text-text" />
@@ -223,7 +223,7 @@ export const WalletPopover: React.FC = () => {
                             </Button>
                             <Button
                                 variant="default"
-                                className="flex flex-col bg-transparent rounded-xl hover:bg-card items-center gap-2 h-auto py-4 border border-white/10"
+                                className="flex flex-col items-center h-auto gap-2 py-4 bg-transparent border rounded-xl hover:bg-card border-white/10"
                                 onClick={(e) => { e.stopPropagation(); handleFundWallet(address); }}
                             >
                                 <CreditCard size={20} className="text-text" />
@@ -231,7 +231,7 @@ export const WalletPopover: React.FC = () => {
                             </Button>
                             <Button
                                 variant="default"
-                                className="flex flex-col bg-transparent rounded-xl hover:bg-card items-center gap-2 h-auto py-4 border border-white/10"
+                                className="flex flex-col items-center h-auto gap-2 py-4 bg-transparent border rounded-xl hover:bg-card border-white/10"
                                 onClick={(e) => { e.stopPropagation(); setView('history'); }}
                             >
                                 <History size={20} className="text-text" />
@@ -249,7 +249,7 @@ export const WalletPopover: React.FC = () => {
             <PopoverTrigger asChild>
                 <Button variant="ghost" className="p-0">
                     <div className="hidden lg:block">
-                        <p className="text-md font-medium">
+                        <p className="font-medium text-md">
                             {isBalanceLoading
                                 ? 'Loading...'
                                 : balanceData
