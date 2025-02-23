@@ -36,6 +36,7 @@ export default {
 				primary: {
 					DEFAULT: "var(--primary)",
 					shade: "var(--primary-shade)",
+					faded: "var(--primary-faded)",
 					gradientStart: "var(--primary-gradient-start)",
 					gradientEnd: "var(--primary-gradient-end)",
 				},
