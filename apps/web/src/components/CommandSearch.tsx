@@ -81,7 +81,7 @@ export function CommandSearch() {
                     <div className="fixed inset-0 z-[10000] flex items-start justify-center p-4 pt-[10vh] pointer-events-none">
                         <div className="w-full max-w-3xl rounded-xl shadow-2xl overflow-hidden pointer-events-auto">
                             <div className="relative">
-                                <Command className="overflow-visible bg-slate-900/10 pt-3 backdrop-blur-sm">
+                                <Command className="overflow-visible bg-neutral-900 bg-opacity-90 pt-3">
                                     <div className="flex items-center px-3">
                                         <CommandInput
                                             placeholder="Search runners..."
