@@ -95,7 +95,7 @@ const RunMap = ({ coordinates, distance }: { coordinates: Array<[number, number]
     ) / pathLengthInMiles;
 
     return (
-        <div className="bg-black/20 backdrop-blur-md rounded-xl p-4 mb-4 w-full border border-white/10">
+        <div className="w-full p-4 mb-4 border bg-black/20 backdrop-blur-md rounded-xl border-white/10">
             <svg className="w-full aspect-[2/1]" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet">
                 <g className="grid-lines" stroke="rgba(59, 130, 246, 0.5)" strokeWidth="0.5">
                     {[...Array(Math.floor(height / 20))].map((_, i) => (
@@ -153,10 +153,10 @@ const RunMap = ({ coordinates, distance }: { coordinates: Array<[number, number]
 };
 
 const MetricWidget = ({ icon: Icon, label, value }: { icon: any; label: string; value: string; }) => (
-    <div className="flex flex-col items-center bg-black/20 backdrop-blur-md rounded-lg p-3 border border-white/10">
-        <Icon size={20} className="text-primary mb-1" />
+    <div className="flex flex-col items-center p-3 border rounded-lg bg-black/20 backdrop-blur-md border-white/10">
+        <Icon size={20} className="mb-1 text-primary-shade" />
         <span className="text-sm text-text-dim">{label}</span>
-        <span className="text-text font-semibold">{value}</span>
+        <span className="font-semibold text-text">{value}</span>
     </div>
 );
 
@@ -164,7 +164,7 @@ export const Feed = () => {
     return (
         <div className="w-full">
             {mockPosts.map((post) => (
-                <div key={post.id} className="mb-8 bg-black/10 backdrop-blur-md rounded-xl border border-white/10 overflow-hidden">
+                <div key={post.id} className="overflow-hidden transition-colors border-t cursor-pointer border-white/10 hover:bg-black/10 duration-400">
                     <div className="p-6">
                         {/* Post header */}
                         <div className="flex items-center justify-between mb-4">
@@ -177,19 +177,19 @@ export const Feed = () => {
                                     className="rounded-full"
                                 />
                                 <div>
-                                    <h3 className="text-text font-semibold">
+                                    <h3 className="font-semibold text-text">
                                         {post.user.name}
-                                        <span className="text-primary ml-2">| RUNNER</span>
+                                        <span className="text-text-dim"> | RUNNER</span>
                                     </h3>
-                                    <p className="text-text-dim text-sm">{post.time}</p>
+                                    <p className="text-sm text-text-dim">{post.time}</p>
                                 </div>
                             </div>
-                            <button className="p-2 text-text-dim hover:text-text rounded-full hover:bg-white/5 transition-colors">
+                            <button className="p-2 transition-colors rounded-full text-text-dim hover:text-text hover:bg-white/5">
                                 <MoreHorizontal size={20} />
                             </button>
                         </div>
 
-                        <p className="text-text mb-4">{post.content}</p>
+                        <p className="mb-4 text-text">{post.content}</p>
 
                         <RunMap coordinates={post.runData.coordinates} distance={post.runData.distance} />
 
@@ -199,16 +199,16 @@ export const Feed = () => {
                             <MetricWidget icon={Navigation} label="Time" value={post.runData.time} />
                         </div>
 
-                        <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                            <button className="flex items-center gap-2 text-text-dim hover:text-primary p-2 rounded-lg hover:bg-white/5 transition-colors">
+                        <div className="flex items-center justify-between pt-1">
+                            <button className="flex items-center gap-2 p-2 transition-colors rounded-full text-text-dim hover:text-rose-600 hover:bg-rose-600/5">
                                 <Heart size={20} />
                                 <span>{post.likes}</span>
                             </button>
-                            <button className="flex items-center gap-2 text-text-dim hover:text-primary p-2 rounded-lg hover:bg-white/5 transition-colors">
+                            <button className="flex items-center gap-2 p-2 transition-colors rounded-full text-text-dim hover:text-primary-shade hover:bg-primary-faded">
                                 <MessageCircle size={20} />
                                 <span>{post.comments}</span>
                             </button>
-                            <button className="flex items-center gap-2 text-text-dim hover:text-primary p-2 rounded-lg hover:bg-white/5 transition-colors">
+                            <button className="flex items-center gap-2 p-2 transition-colors rounded-full text-text-dim hover:text-emerald-500 hover:bg-emerald-500/5">
                                 <Share2 size={20} />
                                 <span>{post.shares}</span>
                             </button>
