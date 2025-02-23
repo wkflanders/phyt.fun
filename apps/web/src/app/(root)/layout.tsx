@@ -69,15 +69,12 @@ export default function Layout({ children }: { children: React.ReactNode; }) {
                  bg-blend-overlay 
                  backdrop-blur-md"
         >
-            {/* We keep `overflow-y-hidden` here so only the child will scroll */}
             <div className="h-full w-full overflow-y-hidden">
                 <Sidebar />
 
-                {/* Pass down whether we are scrolled */}
                 <Navbar scrolled={scrolled} />
 
-                {/* The main content area that is scrollable */}
-                <div className="pl-56 h-full">
+                <div className="pl-12 h-full">
                     {!authCheckDone ? (
                         <div className="flex flex-col items-center justify-center h-full">
                             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
