@@ -13,7 +13,11 @@
     "db:down": "docker compose down",
     "db:start": "docker compose start",
     "db:stop": "docker compose stop",
-    "db:clean": "docker compose down -v"
+    "db:clean": "docker compose down -v",
+    "db:generate": "pnpm --filter @phyt/database run db:generate",
+    "db:migrate": "pnpm --filter @phyt/database run db:migrate",
+    "db:studio": "pnpm --filter @phyt/database run db:studio",
+    "db:seed": "pnpm --filter @phyt/database run db:seed"
   },
   "devDependencies": {
     "@types/node": "^22.10.9",
