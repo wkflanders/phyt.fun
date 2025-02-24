@@ -26,6 +26,21 @@ export const enum_runner_status = pgEnum("enum_runner_status", [
     'pending', 'active', 'inactive'
 ]);
 
+export const enum_posts_status = pgEnum("enum_posts_status", [
+    'visible', 'hidden', 'deleted'
+]);
+
+export const enum_reaction_type = pgEnum("enum_reaction_type", [
+    'like', 'funny', 'insightful', 'fire'
+]);
+
+export const enum_report_status = pgEnum("enum_report_status", [
+    'pending', 'reviewed', 'dismissed'
+]);
+
+export const enum_report_reason = pgEnum("enum_report_reason", [
+    'spam', 'harassment', 'inappropriate', 'other'
+]);
 
 // Tables
 export const users = pgTable("users", {
@@ -37,6 +52,8 @@ export const users = pgTable("users", {
     role: enum_users_role("role").default('user').notNull(),
     privy_id: varchar("privy_id"),
     wallet_address: varchar("wallet_address"),
+    twitter_handle: varchar("twitter_handle"),
+    strava_handle: varchar("strava_handle"),
     avatar_url: varchar("avatar_url").default('https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut'),
     phytness_points: integer("phytness_points").default(0),
 }, (table) => [
@@ -77,6 +94,7 @@ export const runs = pgTable("runs", {
     max_heart_rate: integer("max_heart_rate"),
     device_id: varchar("device_id"),
     gps_route_data: varchar("gps_route_data"),
+    is_posted: boolean("is_posted").default(false),
     verification_status: enum_runs_verification_status("verification_status").default('pending'),
     raw_data_json: jsonb("raw_data_json"),
     updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
@@ -287,4 +305,89 @@ export const user_device_authorizations = pgTable("user_device_authorizations", 
     index("user_device_authorizations_user_idx").on(table.user_id),
     index("user_device_authorizations_created_at_idx").on(table.created_at),
     index("user_device_authorizations_updated_at_idx").on(table.updated_at),
+]);
+
+export const posts = pgTable("posts", {
+    id: serial("id").primaryKey(),
+    user_id: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+    run_id: integer("run_id").notNull().references(() => runs.id, { onDelete: 'cascade' }),
+    status: enum_posts_status("status").default('visible'),
+    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+}, (table) => [
+    index("posts_user_idx").on(table.user_id),
+    index("posts_run_idx").on(table.run_id),
+    index("posts_created_at_idx").on(table.created_at),
+    index("posts_updated_at_idx").on(table.updated_at),
+]);
+
+export const comments = pgTable("comments", {
+    id: serial("id").primaryKey(),
+    post_id: integer("post_id").notNull().references(() => posts.id, { onDelete: 'cascade' }),
+    user_id: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+    content: varchar("content").notNull(),
+    parent_comment_id: integer("parent_comment_id").references(() => comments.id, { onDelete: 'cascade' }),
+    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+}, (table) => [
+    index("comments_post_idx").on(table.post_id),
+    index("comments_user_idx").on(table.user_id),
+    index("comments_parent_idx").on(table.parent_comment_id),
+    index("comments_created_at_idx").on(table.created_at),
+]);
+
+export const reactions = pgTable("reactions", {
+    id: serial("id").primaryKey(),
+    user_id: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+    post_id: integer("post_id").references(() => posts.id, { onDelete: 'cascade' }),
+    comment_id: integer("comment_id").references(() => comments.id, { onDelete: 'cascade' }),
+    type: enum_reaction_type("type").notNull(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+}, (table) => [
+    index("reactions_post_idx").on(table.post_id),
+    index("reactions_comment_idx").on(table.comment_id),
+    index("reactions_user_idx").on(table.user_id),
+    uniqueIndex("reactions_post_unique_idx").on(table.user_id, table.post_id, table.type),
+    uniqueIndex("reactions_comment_unique_idx").on(table.user_id, table.comment_id, table.type),
+]);
+
+export const follows = pgTable("follows", {
+    id: serial("id").primaryKey(),
+    follower_id: integer("follower_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+    following_id: integer("following_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+}, (table) => [
+    index("follows_follower_idx").on(table.follower_id),
+    index("follows_following_idx").on(table.following_id),
+    uniqueIndex("follows_unique_idx").on(table.follower_id, table.following_id),
+]);
+
+export const profile_views = pgTable("profile_views", {
+    id: serial("id").primaryKey(),
+    profile_id: integer("profile_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+    viewer_id: integer("viewer_id").references(() => users.id, { onDelete: 'set null' }),
+    ip_address: varchar("ip_address"),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+}, (table) => [
+    index("profile_views_profile_idx").on(table.profile_id),
+    index("profile_views_created_at_idx").on(table.created_at),
+    index("profile_views_ip_recent_idx").on(table.ip_address, table.created_at),
+]);
+
+export const reports = pgTable("reports", {
+    id: serial("id").primaryKey(),
+    reporter_id: integer("reporter_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+    post_id: integer("post_id").references(() => posts.id, { onDelete: 'cascade' }),
+    comment_id: integer("comment_id").references(() => comments.id, { onDelete: 'cascade' }),
+    reason: enum_report_reason("reason").notNull(),
+    details: varchar("details"),
+    status: enum_report_status("status").default('pending'),
+    reviewed_by: integer("reviewed_by").references(() => users.id, { onDelete: 'set null' }),
+    reviewed_at: timestamp("reviewed_at", { precision: 3 }),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+}, (table) => [
+    index("reports_reporter_idx").on(table.reporter_id),
+    index("reports_post_idx").on(table.post_id),
+    index("reports_comment_idx").on(table.comment_id),
+    index("reports_status_idx").on(table.status),
 ]);
