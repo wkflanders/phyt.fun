@@ -71,6 +71,7 @@ export const runners = pgTable("runners", {
     total_runs: integer("total_runs").default(0),
     best_mile_time: doublePrecision("best_mile_time"),
     status: enum_runner_status("status").default('pending'),
+    is_pooled: boolean("is_pooled").default(false),
     updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
     created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
 }, (table) => [

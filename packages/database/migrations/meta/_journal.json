@@ -57,6 +57,13 @@
       "when": 1740474039914,
       "tag": "0007_mature_whizzer",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1740478164706,
+      "tag": "0008_steep_calypso",
+      "breakpoints": true
     }
   ]
 }
