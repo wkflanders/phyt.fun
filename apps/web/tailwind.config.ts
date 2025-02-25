@@ -67,7 +67,7 @@ export default {
 				radiant_waves: "url('/bg_1.png')",
 				waves_card: "url('/card.png')",
 				"primary-gradient": "linear-gradient(90deg, var(--primary-gradient-start), var(--primary-gradient-end))",
-				"primary-blotch": "radial-gradient(at 10% 10%, rgba(14,249,254,0.7), transparent 70%)"
+				"primary-blotch": "radial-gradient(at 10% 10%, rgba(14,249,254,0.9), transparent 60%)"
 
 			},
 			keyframes: {

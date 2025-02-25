@@ -20,15 +20,15 @@
     --primary: rgb(14, 249, 254);
     --primary-shade: rgb(13, 160, 164);
     --primary-faded: rgb(14, 249, 254, 0.05);
-    --primary-gradient-start: rgb(14, 249, 254);
-    --primary-gradient-end: rgb(8, 126, 129);
+    --primary-gradient-start: rgb(14, 249, 254, 0.7);
+    --primary-gradient-end: rgb(203, 22, 72, 0.7);
     --secondary: rgb(254, 32, 93);
     --secondary-shade: rgb(203, 22, 72);
     --card: rgb(30, 31, 37);
     --card-foreground: rgb(245, 245, 245);
     --popover: rgb(30, 31, 37);
     --popover-foreground: rgb(245, 245, 245);
-    --sidebar: rgba(14, 14, 16, 0.4);
+    --sidebar: rgba(14, 14, 16, 0.7);
     --navbar: rgba(37, 37, 37, 0.2);
   }
   *{
@@ -71,7 +71,7 @@
 
 @layer components {
   .root-container {
-    @apply flex min-h-screen flex-1 flex-col bg-black px-5 sm:px-10 md:px-16;
+    @apply flex flex-col flex-1 min-h-screen px-5 bg-black sm:px-10 md:px-16;
   }
 
   .upload-btn {
@@ -79,7 +79,7 @@
   }
 
   .upload-filename {
-    @apply mt-1 text-center text-xs;
+    @apply mt-1 text-xs text-center;
   }
 }
 
@@ -105,15 +105,15 @@
   }
 
   .auth-form {
-    @apply my-auto flex h-full min-h-screen flex-1 items-center px-5 py-10;
+    @apply flex items-center flex-1 h-full min-h-screen px-5 py-10 my-auto;
   }
 
   .auth-box {
-    @apply gradient-vertical mx-auto flex max-w-xl flex-col gap-6 rounded-lg p-10;
+    @apply flex flex-col max-w-xl gap-6 p-10 mx-auto rounded-lg gradient-vertical;
   }
 
   .auth-illustration {
-    @apply sticky h-40 w-full sm:top-0 sm:h-screen sm:flex-1;
+    @apply sticky w-full h-40 sm:top-0 sm:h-screen sm:flex-1;
   }
 
   .perspective-1000 {
@@ -171,15 +171,15 @@
 
 @layer utilities {
   .glass-effect {
-    @apply bg-opacity-20 backdrop-blur-md border border-white/10;
+    @apply border bg-opacity-20 backdrop-blur-md border-white/10;
   }
   
   .card-glass {
-    @apply bg-card bg-opacity-30 backdrop-blur-md border border-white/10;
+    @apply border bg-card bg-opacity-30 backdrop-blur-md border-white/10;
   }
   
   .form-glass {
-    @apply bg-form bg-opacity-30 backdrop-blur-md border border-white/10;
+    @apply border bg-form bg-opacity-30 backdrop-blur-md border-white/10;
   }
   
   .nav-glass {
@@ -187,6 +187,6 @@
   }
   
   .sidebar-glass {
-    @apply bg-sidebar backdrop-blur-md border-r border-white/10;
+    @apply border-r bg-stone-900/50 backdrop-blur-xl border-white/10;
   }
 }
