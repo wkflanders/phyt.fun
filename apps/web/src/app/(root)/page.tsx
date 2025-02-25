@@ -5,15 +5,22 @@ import { Trophy, Dumbbell, Flame } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="flex flex-col w-full pt-16 pb-16">
-      <div className="w-full px-8 md:px-16 mb-8">
-        <CompetitionMast />
-      </div>
-      <div className="flex justify-center gap-8 px-8 md:px-16">
-        <div className="flex-1 lg:max-w-[50%]">
-          <Feed />
+    <>
+      <div className="flex flex-col items-center justify-center w-full border-b h-1/3 bg-primary-gradient backdrop-blur-md border-white/10">
+        <div className="w-4/5 mt-72">
+          <CompetitionMast />
         </div>
       </div>
-    </div>
+      <div className="border-b bg-background h-72 border-white/10">
+      </div>
+      <div>
+        <div className="flex justify-center gap-8 bg-background">
+          <div className="flex-1 lg:max-w-[50%] pt-12">
+            <Feed />
+          </div>
+        </div>
+      </div>
+    </>
+
   );
 }

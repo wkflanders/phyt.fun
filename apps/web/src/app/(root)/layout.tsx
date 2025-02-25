@@ -64,20 +64,17 @@ export default function Layout({ children }: { children: React.ReactNode; }) {
 
     return (
         <main
-            className="h-screen bg-background 
-                 bg-primary-blotch 
-                 bg-blend-overlay 
-                 backdrop-blur-md"
+            className="h-screen bg-background bg-primary-blotch bg-blend-overlay backdrop-blur-lg"
         >
-            <div className="h-full w-full overflow-y-hidden">
+            <div className="w-full h-full overflow-y-hidden">
                 <Sidebar />
 
                 <Navbar scrolled={scrolled} />
 
-                <div className="pl-12 h-full">
+                <div className="h-full">
                     {!authCheckDone ? (
                         <div className="flex flex-col items-center justify-center h-full">
-                            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                            <div className="w-8 h-8 border-4 rounded-full border-primary border-t-transparent animate-spin"></div>
                         </div>
                     ) : (
                         <div className="h-full overflow-y-auto" ref={scrollRef}>
