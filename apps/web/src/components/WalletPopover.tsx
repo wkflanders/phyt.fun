@@ -247,7 +247,7 @@ export const WalletPopover: React.FC = () => {
     return (
         <Popover>
             <PopoverTrigger asChild>
-                <Button variant="ghost" className="p-0">
+                <Button variant="ghost" className="rounded-xl hover:bg-black/20 data-[state=open]:bg-black/20">
                     <div className="hidden lg:block">
                         <p className="font-medium text-md">
                             {isBalanceLoading

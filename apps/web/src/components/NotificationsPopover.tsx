@@ -15,7 +15,7 @@ export const NotificationsPopover = () => {
     return (
         <Popover>
             <PopoverTrigger asChild>
-                <Button variant="ghost" className="p-0">
+                <Button variant="ghost" className="rounded-xl hover:bg-black/20 data-[state=open]:bg-black/20">
                     <Bell size={20} className="text-text" />
                 </Button>
             </PopoverTrigger>
