@@ -1,8 +1,10 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import { Heart, MessageCircle, Share2, MoreHorizontal, Timer, Navigation, Ruler } from 'lucide-react';
 import Image from 'next/image';
 
-// Types
+// Types remain the same
 interface User {
     name: string;
     avatar: string;
@@ -26,13 +28,13 @@ interface Post {
     time: string;
 }
 
-// Mock data
+// Mock data remains the same
 const mockPosts: Post[] = [
     {
         id: 1,
         user: {
-            name: 'boatsandlogs',
-            avatar: 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFzH1tTYSPrsGziypw0WOcRQSY1DebF2V6ATHX',
+            name: 'gphyt',
+            avatar: 'https://d1za1h12no9co6.cloudfront.net/00f5c89d-465c-4414-a22f-ccbfd1003e7a.png',
         },
         content: 'lightwork',
         runData: {
@@ -66,6 +68,25 @@ const mockPosts: Post[] = [
     },
 ];
 
+// Tab interface
+interface TabProps {
+    label: string;
+    isActive: boolean;
+    onClick: () => void;
+}
+
+const Tab = ({ label, isActive, onClick }: TabProps) => (
+    <button
+        onClick={onClick}
+        className={`px-6 py-4 text-2xl transition-colors text-text-dim duration-200 ${isActive
+            ? 'text-white'
+            : 'text-text-dim hover:text-text'
+            }`}
+    >
+        {label}
+    </button>
+);
+
 const RunMap = ({ coordinates, distance }: { coordinates: Array<[number, number]>; distance: string; }) => {
     const padding = 20;
     const scaleBarHeight = 30;
@@ -95,9 +116,9 @@ const RunMap = ({ coordinates, distance }: { coordinates: Array<[number, number]
     ) / pathLengthInMiles;
 
     return (
-        <div className="w-full p-4 mb-4 border bg-black/20 backdrop-blur-md rounded-xl border-white/10">
+        <div className="w-full p-4 mb-4 backdrop-blur-md rounded-xl">
             <svg className="w-full aspect-[2/1]" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet">
-                <g className="grid-lines" stroke="rgba(59, 130, 246, 0.5)" strokeWidth="0.5">
+                <g className="grid-lines" stroke="rgba(59, 130, 246, 0.4)" strokeWidth="0.7">
                     {[...Array(Math.floor(height / 20))].map((_, i) => (
                         <line
                             key={`h${i}`}
@@ -153,7 +174,7 @@ const RunMap = ({ coordinates, distance }: { coordinates: Array<[number, number]
 };
 
 const MetricWidget = ({ icon: Icon, label, value }: { icon: any; label: string; value: string; }) => (
-    <div className="flex flex-col items-center p-3 border rounded-lg bg-black/20 backdrop-blur-md border-white/10">
+    <div className="flex flex-col items-center p-3 backdrop-blur-md">
         <Icon size={20} className="mb-1 text-primary-shade" />
         <span className="text-sm text-text-dim">{label}</span>
         <span className="font-semibold text-text">{value}</span>
@@ -161,14 +182,37 @@ const MetricWidget = ({ icon: Icon, label, value }: { icon: any; label: string; 
 );
 
 export const Feed = () => {
+    const [activeTab, setActiveTab] = useState<'all' | 'following' | 'trending'>('all');
+
     return (
         <div className="w-full">
+            <div className="flex items-center">
+                <Tab
+                    label="All"
+                    isActive={activeTab === 'all'}
+                    onClick={() => setActiveTab('all')}
+                />
+                <div className="w-[2px] h-8 mx-1 bg-white/20"></div>
+                <Tab
+                    label="Trending"
+                    isActive={activeTab === 'trending'}
+                    onClick={() => setActiveTab('trending')}
+                />
+                <div className="w-[2px] h-8 mx-1 bg-white/20"></div>
+                <Tab
+                    label="Following"
+                    isActive={activeTab === 'following'}
+                    onClick={() => setActiveTab('following')}
+                />
+            </div>
+
+            {/* Posts */}
             {mockPosts.map((post) => (
-                <div key={post.id} className="overflow-hidden transition-colors border-t cursor-pointer border-white/10 hover:bg-black/10 duration-400">
+                <div key={post.id} className="overflow-hidden transition-colors border-b cursor-pointer border-white/10 hover:bg-black/10 duration-400">
                     <div className="p-6">
                         {/* Post header */}
                         <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-5">
                                 <Image
                                     src={post.user.avatar}
                                     alt={post.user.name}
@@ -177,10 +221,13 @@ export const Feed = () => {
                                     className="rounded-full"
                                 />
                                 <div>
-                                    <h3 className="font-semibold text-text">
-                                        {post.user.name}
-                                        <span className="text-text-dim"> | RUNNER</span>
-                                    </h3>
+                                    <div className="flex items-center">
+                                        <h3 className="text-text">
+                                            {post.user.name}
+                                        </h3>
+                                        <div className="w-px h-6 mx-4 bg-white/20"></div>
+                                        <p className="text-text-dim">RUNNER</p>
+                                    </div>
                                     <p className="text-sm text-text-dim">{post.time}</p>
                                 </div>
                             </div>
@@ -188,9 +235,6 @@ export const Feed = () => {
                                 <MoreHorizontal size={20} />
                             </button>
                         </div>
-
-                        <p className="mb-4 text-text">{post.content}</p>
-
                         <RunMap coordinates={post.runData.coordinates} distance={post.runData.distance} />
 
                         <div className="grid grid-cols-3 gap-4 mb-4">
