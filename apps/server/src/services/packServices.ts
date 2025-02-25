@@ -104,13 +104,11 @@ export const packService = {
             functionName: 'getPackPrice',
             args: [mintConfigId]
         });
-        console.log('made it to packPrice');
         return packPrice;
     },
 
     purchasePack: async (data: PackPurchaseNotif): Promise<PackPurchaseResponse> => {
         const { buyerId, hash, packPrice } = data;
-        console.log(hash);
 
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
