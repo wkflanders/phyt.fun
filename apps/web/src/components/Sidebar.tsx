@@ -22,7 +22,6 @@ export const Sidebar = () => {
         { icon: ShoppingCart, label: 'Marketplace', href: '/marketplace' },
         { icon: Trophy, label: 'Competition', href: '/competition' },
         { icon: BarChart2, label: 'Leaderboard', href: '/leaderboard' },
-        { icon: Gift, label: 'Rewards', href: '/rewards' },
     ];
 
     const isActive = (href: string) => {
@@ -75,7 +74,7 @@ export const Sidebar = () => {
                 </div>
             </div>
 
-            <div className="mt-8 px-3">
+            <div className="px-3 mt-8">
                 {menuItems.map((item, index) => {
                     const active = isActive(item.href);
                     return (
