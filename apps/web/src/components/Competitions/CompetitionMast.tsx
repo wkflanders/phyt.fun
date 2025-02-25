@@ -14,15 +14,15 @@ export const CompetitionMast = () => {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center h-64 w-full bg-black/50 rounded-xl">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <div className="flex items-center justify-center w-full h-64 bg-black/50 rounded-xl">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
         );
     }
 
     if (error || !majorCompetitions || majorCompetitions.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center h-64 w-full bg-black/50 rounded-xl text-text-dim">
+            <div className="flex flex-col items-center justify-center w-full h-64 bg-black/50 rounded-xl text-text-dim">
                 <p>No major competitions available at the moment.</p>
             </div>
         );
@@ -65,7 +65,7 @@ export const CompetitionMast = () => {
     const imageUrl = `https://d5mhfgomyfg7p.cloudfront.net/competitions/${featuredCompetition.id}.png`;
 
     return (
-        <div className="relative w-full h-96 overflow-hidden rounded-xl">
+        <div className="relative w-full overflow-hidden h-96 rounded-xl">
             <div className="absolute inset-0 z-0">
                 <Image
                     src={imageUrl}
@@ -78,39 +78,39 @@ export const CompetitionMast = () => {
             </div>
 
             {/* Content */}
-            <div className="relative z-10 h-full flex flex-col justify-end p-8">
+            <div className="relative z-10 flex flex-col justify-end h-full p-8">
                 <div className={`inline-flex items-center text-sm font-medium mb-2 ${statusColor}`}>
-                    <span className="flex h-2 w-2 rounded-full mr-2 animate-pulse"
+                    <span className="flex w-2 h-2 mr-2 rounded-full animate-pulse"
                         style={{ backgroundColor: '#FE205D' }} />
                     {statusText}
                 </div>
 
-                <h1 className="text-4xl font-bold text-white mb-2">
+                <h1 className="mb-2 text-4xl font-bold text-white">
                     {featuredCompetition.event_name}
                 </h1>
 
                 <div className="flex items-center mb-4 text-text-dim">
-                    <Calendar className="h-4 w-4 mr-2" />
+                    <Calendar className="w-6 h-6 mr-2" />
                     <span>
                         {formatDate(startDate)} - {formatDate(endDate)}
                     </span>
                 </div>
 
                 <div className="flex items-center mb-4 text-text-dim">
-                    <TrophyIcon className="h-5 w-5 mr-2" />
-                    <span className="mr-0.5">
+                    <TrophyIcon className="w-6 h-6 mr-2" />
+                    <EthIcon color={'text-text-dim'} />
+                    <span className="mr-2">
                         {featuredCompetition.jackpot}
                     </span>
-                    <EthIcon color={'text-text-dim'} />
-                    <span className="ml-2 mr-0.5">
+                    <PhytIcon color={`text-text-dim`} />
+                    <span className="ml-0.5">
                         1,000
                     </span>
-                    PHYT
                 </div>
 
                 {featuredCompetition.distance_m && (
-                    <p className="text-text-dim mb-6">
-                        Min. {featuredCompetition.distance_m} Miles
+                    <p className="mb-6 text-text-dim">
+                        {featuredCompetition.distance_m} Miles
                     </p>
                 )}
 
