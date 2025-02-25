@@ -1,6 +1,6 @@
 import { CompetitionMast } from "@/components/Competitions/CompetitionMast";
 import { Feed } from "@/components/Feed/Feed";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ActivityBox } from "@/components/ActivityBox";
 import { Trophy, Dumbbell, Flame } from "lucide-react";
 
 export default function Home() {
@@ -15,9 +15,10 @@ export default function Home() {
       </div>
       <div>
         <div className="flex justify-center gap-8 bg-background">
-          <div className="flex-1 lg:max-w-[50%] pt-12">
+          <div className="flex-1 lg:max-w-[40%] pt-12">
             <Feed />
           </div>
+          <ActivityBox />
         </div>
       </div>
     </>

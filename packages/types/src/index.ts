@@ -414,3 +414,14 @@ export interface MarketListing {
     seller: User;
     card: Card;
 }
+
+export interface RunnerActivity {
+    id: number;
+    runner_id: number;
+    username: string;
+    avatar_url: string;
+    distance_m: number;
+    completed_at: string;
+    is_pooled: boolean;
+    time_ago: string;
+}
