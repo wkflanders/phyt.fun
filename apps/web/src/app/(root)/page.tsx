@@ -14,8 +14,8 @@ export default function Home() {
       <div className="border-b bg-background h-72 border-white/10">
       </div>
       <div>
-        <div className="flex justify-center gap-8 bg-background">
-          <div className="flex-1 lg:max-w-[40%] pt-12">
+        <div className="flex justify-center gap-8 bg-background pt-12">
+          <div className="flex-1 lg:max-w-[40%]">
             <Feed />
           </div>
           <ActivityBox />

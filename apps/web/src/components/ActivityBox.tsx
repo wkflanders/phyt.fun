@@ -8,22 +8,22 @@ import { cn } from '@/lib/utils';
 import { useGetRunnerActivities } from '@/hooks/use-get-runner-activities';
 import { RunnerActivity } from '@phyt/types';
 
-type TabType = 'all' | 'pooled' | 'following';
+type TabType = 'all' | 'pooled';
 
 export const ActivityBox: React.FC = () => {
     const [activeTab, setActiveTab] = useState<TabType>('all');
     const { data: activities, isLoading, isError } = useGetRunnerActivities(activeTab !== 'all' ? activeTab : undefined);
 
     return (
-        <Card className="w-1/5 bg-transparent border-0">
+        <Card className="w-1/5 bg-transparent rounded-none border-0 border-l border-white/10">
             <CardHeader className="pb-2">
-                <CardTitle className="text-phyt_text flex items-center gap-2">
-                    <Zap className="text-phyt_blue" size={20} />
+                <CardTitle className="text-text text-2xl flex font-normal items-center gap-2">
+                    <Zap className="text-text" size={20} />
                     Recent Activity
                 </CardTitle>
             </CardHeader>
 
-            <div className="flex border-b border-phyt_form">
+            <div className="flex">
                 <TabButton
                     isActive={activeTab === 'all'}
                     onClick={() => setActiveTab('all')}
@@ -37,13 +37,6 @@ export const ActivityBox: React.FC = () => {
                     icon={<Users size={16} />}
                 >
                     Pooled
-                </TabButton>
-                <TabButton
-                    isActive={activeTab === 'following'}
-                    onClick={() => setActiveTab('following')}
-                    icon={<Heart size={16} />}
-                >
-                    Following
                 </TabButton>
             </div>
 
@@ -83,10 +76,10 @@ const TabButton: React.FC<TabButtonProps> = ({ isActive, onClick, children, icon
     <button
         onClick={onClick}
         className={cn(
-            'flex items-center gap-1 px-4 py-2 text-sm transition-colors flex-1 justify-center',
+            'flex items-center gap-1 px-4 py-2 text-md transition-colors flex-1 justify-center',
             isActive
-                ? 'text-phyt_blue border-b-2 border-phyt_blue'
-                : 'text-phyt_text_secondary hover:text-phyt_text'
+                ? 'text-text'
+                : 'text-text-dim hover:text-text'
         )}
     >
         {icon}

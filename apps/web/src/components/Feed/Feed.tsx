@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Heart, MessageCircle, Share2, MoreHorizontal, Timer, Navigation, Ruler } from 'lucide-react';
+import { Heart, MessageCircle, Share2, MoreHorizontal, Timer, Navigation, Ruler, ArrowDown, TrendingUp } from 'lucide-react';
 import Image from 'next/image';
 
 // Types remain the same
@@ -73,16 +73,18 @@ interface TabProps {
     label: string;
     isActive: boolean;
     onClick: () => void;
+    icon?: React.ReactNode;
 }
 
-const Tab = ({ label, isActive, onClick }: TabProps) => (
+const Tab = ({ label, isActive, onClick, icon }: TabProps) => (
     <button
         onClick={onClick}
-        className={`px-6 py-4 text-2xl transition-colors text-text-dim duration-200 ${isActive
+        className={`flex items-center gap-2 px-6 py-4 text-2xl transition-colors text-text-dim duration-200 ${isActive
             ? 'text-white'
             : 'text-text-dim hover:text-text'
             }`}
     >
+        {icon}
         {label}
     </button>
 );
@@ -191,18 +193,21 @@ export const Feed = () => {
                     label="All"
                     isActive={activeTab === 'all'}
                     onClick={() => setActiveTab('all')}
+                    icon={<ArrowDown size={24} />}
                 />
                 <div className="w-[2px] h-8 mx-1 bg-white/20"></div>
                 <Tab
                     label="Trending"
                     isActive={activeTab === 'trending'}
                     onClick={() => setActiveTab('trending')}
+                    icon={<TrendingUp size={24} />}
                 />
                 <div className="w-[2px] h-8 mx-1 bg-white/20"></div>
                 <Tab
                     label="Following"
                     isActive={activeTab === 'following'}
                     onClick={() => setActiveTab('following')}
+                    icon={<Heart size={24} />}
                 />
             </div>
 
