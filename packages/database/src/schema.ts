@@ -324,18 +324,31 @@ export const posts = pgTable("posts", {
 
 export const comments = pgTable("comments", {
     id: serial("id").primaryKey(),
-    post_id: integer("post_id").notNull().references(() => posts.id, { onDelete: 'cascade' }),
-    user_id: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+    post_id: integer("post_id")
+        .notNull()
+        .references(() => posts.id, { onDelete: 'cascade' }),
+    user_id: integer("user_id")
+        .notNull()
+        .references(() => users.id, { onDelete: 'cascade' }),
     content: varchar("content").notNull(),
-    parent_comment_id: integer("parent_comment_id").references(() => comments.id, { onDelete: 'cascade' }),
+    parent_comment_id: integer("parent_comment_id"),
     updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
     created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
-}, (table) => [
-    index("comments_post_idx").on(table.post_id),
-    index("comments_user_idx").on(table.user_id),
-    index("comments_parent_idx").on(table.parent_comment_id),
-    index("comments_created_at_idx").on(table.created_at),
-]);
+}, (table) => {
+    return {
+        // Self-referencing FK:
+        parentCommentFK: foreignKey({
+            columns: [table.parent_comment_id],
+            foreignColumns: [table.id],
+        }),
+
+        // Indexes
+        postIdx: index("comments_post_idx").on(table.post_id),
+        userIdx: index("comments_user_idx").on(table.user_id),
+        parentIdx: index("comments_parent_idx").on(table.parent_comment_id),
+        createdAtIdx: index("comments_created_at_idx").on(table.created_at),
+    };
+});
 
 export const reactions = pgTable("reactions", {
     id: serial("id").primaryKey(),
