@@ -5,6 +5,9 @@ import { marketplaceRouter } from './marketplace';
 import { runRouter } from './runs';
 import { runnerRouter } from './runners';
 import { competitionsRouter } from './competitions';
+import { postsRouter } from './posts';
+import { commentsRouter } from './comments';
+import { reactionsRouter } from './reactions';
 
 const router: Router = Router();
 
@@ -19,5 +22,11 @@ router.use('/workouts/runs', runRouter);
 router.use('/runners', runnerRouter);
 
 router.use('/competitions', competitionsRouter);
+
+router.use('/posts', postsRouter);
+
+router.use('/comments', commentsRouter);
+
+router.use('/reactions', reactionsRouter);
 
 export default router;
