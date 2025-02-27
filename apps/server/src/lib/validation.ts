@@ -100,3 +100,24 @@ export const createPostSchema = z.object({
 export const updatePostSchema = z.object({
     status: z.enum(['visible', 'hidden', 'deleted'])
 });
+
+export const createCommentSchema = z.object({
+    post_id: z.number({ required_error: 'Post ID is required' }),
+    content: z.string({ required_error: 'Comment content is required' }).min(1, 'Comment cannot be empty'),
+    parent_comment_id: z.number().optional()
+});
+
+export const updateCommentSchema = z.object({
+    content: z.string({ required_error: 'Comment content is required' }).min(1, 'Comment cannot be empty')
+});
+
+export const createReactionSchema = z.object({
+    post_id: z.number().optional(),
+    comment_id: z.number().optional(),
+    type: z.enum(['like', 'funny', 'insightful', 'fire'], {
+        required_error: 'Reaction type is required'
+    })
+}).refine(
+    data => data.post_id || data.comment_id,
+    { message: 'Either post_id or comment_id is required' }
+);
