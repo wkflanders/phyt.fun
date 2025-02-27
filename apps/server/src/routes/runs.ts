@@ -4,7 +4,7 @@ import { validateAuth } from '../middleware/auth';
 import { validateSchema } from '../middleware/validator';
 import { workoutSchema, createPostSchema } from '../lib/validation';
 import { runService } from '../services/runServices';
-import { postService } from 'src/services/postServices';
+import { postService } from '../services/postServices';
 import { NotFoundError, DatabaseError } from '@phyt/types';
 import { z } from 'zod';
 
