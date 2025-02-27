@@ -255,6 +255,28 @@ export const runService = {
             if (error instanceof NotFoundError) throw error;
             throw new DatabaseError('Failed to delete run');
         }
+    },
+
+    markRunAsPosted: async (runId: number) => {
+        try {
+            const [updatedRun] = await db
+                .update(runs)
+                .set({
+                    is_posted: true,
+                    updated_at: new Date()
+                })
+                .where(eq(runs.id, runId))
+                .returning();
+            if (!updatedRun) {
+                throw new NotFoundError('Run not found');
+            }
+
+            return updatedRun;
+        } catch (error) {
+            console.error('Error marking run as posted:', error);
+            if (error instanceof NotFoundError) throw error;
+            throw new DatabaseError('Failed to mark run as posted');
+        }
     }
 };
 
