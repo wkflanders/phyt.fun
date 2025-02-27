@@ -425,3 +425,20 @@ export interface RunnerActivity {
     is_pooled: boolean;
     time_ago: string;
 }
+
+export type PostFilter = 'all' | 'following' | 'trending';
+export type PostStatus = 'visible' | 'hidden' | 'deleted';
+
+export interface PostsQueryParams {
+    page?: number;
+    limit?: number;
+    filter?: PostFilter;
+}
+
+export interface CommentsQueryParams {
+    page?: number;
+    limit?: number;
+    parentOnly?: boolean;
+}
+
+export type ReactionType = 'like' | 'funny' | 'insightful' | 'fire';
