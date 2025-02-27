@@ -2,8 +2,9 @@
 import express, { Router } from 'express';
 import { validateAuth } from '../middleware/auth';
 import { validateSchema } from '../middleware/validator';
-import { workoutSchema } from '../lib/validation';
+import { workoutSchema, createPostSchema } from '../lib/validation';
 import { runService } from '../services/runServices';
+import { postService } from 'src/services/postServices';
 import { NotFoundError, DatabaseError } from '@phyt/types';
 import { z } from 'zod';
 
@@ -107,16 +108,24 @@ router.post('/batch/:privyId', validateSchema(z.array(workoutSchema)), async (re
 router.post('/single/:privyId', validateSchema(workoutSchema), async (req, res) => {
     try {
         const { privyId } = req.params;
-        const workout = req.body;
+        const { post: toPost, ...workout } = req.body;
 
-        const result = await runService.createRunByPrivyId({
+        const run = await runService.createRunByPrivyId({
             privyId,
             workout
         });
 
+        let createdPost = null;
+        if (toPost && run) {
+            createdPost = await postService.createPost(run.id);
+
+            await runService.markRunAsPosted(run.id);
+        }
+
         return res.status(201).json({
             message: 'Workout processed successfully',
-            run: result
+            run,
+            post: createdPost
         });
     } catch (error) {
         console.error('Failed to process workout:', error);
@@ -124,6 +133,30 @@ router.post('/single/:privyId', validateSchema(workoutSchema), async (req, res) 
             return res.status(404).json({ error: error.message });
         }
         return res.status(500).json({ error: 'Failed to process workout' });
+    }
+});
+
+router.post('/:runId/post', validateSchema(createPostSchema), async (requestAnimationFrame, res) => {
+    try {
+        const runId = parseInt(requestAnimationFrame.params.runId);
+        if (isNaN(runId)) {
+            return res.status(400).json({ error: 'Invalid run Id' });
+        }
+
+        const createdPost = await postService.createPost(runId);
+
+        await runService.markRunAsPosted(runId);
+
+        return res.status(201).json({
+            message: 'Post created successfully',
+            createdPost
+        });
+    } catch (error) {
+        console.error('Failed to create a post from run: ', error);
+        if (error instanceof NotFoundError) {
+            return res.status(404).json({ error: error.message });
+        }
+        return res.status(500).json({ error: 'Failed to create a post from run' });
     }
 });
 
