@@ -91,3 +91,12 @@ export const workoutSchema = z.object({
     device_id: z.string().optional().nullable(),
     gps_route_data: z.string().optional().nullable(),
 });
+
+export const createPostSchema = z.object({
+    run_id: z.number({ required_error: 'Run ID is required' }),
+    content: z.string().optional()
+});
+
+export const updatePostSchema = z.object({
+    status: z.enum(['visible', 'hidden', 'deleted'])
+});

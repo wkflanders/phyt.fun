@@ -16,8 +16,8 @@ export const ActivityBox: React.FC = () => {
 
     return (
         <Card className="w-1/5 bg-transparent rounded-none border-0 border-l border-white/10">
-            <CardHeader className="pb-2">
-                <CardTitle className="text-text text-2xl flex font-normal items-center gap-2">
+            <CardHeader className="pb-4 pt-0">
+                <CardTitle className="text-text text-2xl flex font-normal items-center justify-center gap-2">
                     <Zap className="text-text" size={20} />
                     Recent Activity
                 </CardTitle>

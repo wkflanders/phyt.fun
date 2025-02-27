@@ -79,7 +79,7 @@ interface TabProps {
 const Tab = ({ label, isActive, onClick, icon }: TabProps) => (
     <button
         onClick={onClick}
-        className={`flex items-center gap-2 px-6 py-4 text-2xl transition-colors text-text-dim duration-200 ${isActive
+        className={`flex items-center gap-2 px-6 pb-2 text-2xl transition-colors text-text-dim duration-200 ${isActive
             ? 'text-white'
             : 'text-text-dim hover:text-text'
             }`}
