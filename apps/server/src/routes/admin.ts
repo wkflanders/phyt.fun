@@ -1,7 +1,7 @@
 import express, { Router } from 'express';
 import { validateAuth } from '../middleware/auth';
 import { validateAdmin } from '../middleware/admin';
-import { adminService } from '../services/admin';
+import { adminService } from '../services/adminServices';
 
 const router: Router = express.Router();
 
