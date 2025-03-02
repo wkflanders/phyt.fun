@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { useGetMajorCompetitions } from '@/hooks/use-get-competitions';
+import { useGetMajorCompetitions } from '@/hooks/use-competitions';
 import { Loader2, Calendar, TrophyIcon, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
