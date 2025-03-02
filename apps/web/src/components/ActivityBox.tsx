@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 import { Zap, Users, Heart, ArrowDown, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useGetRunnerActivities } from '@/hooks/use-get-runner-activities';
+import { useGetRunnerActivities } from '@/hooks/use-runners';
 import { RunnerActivity } from '@phyt/types';
 
 type TabType = 'all' | 'pooled';

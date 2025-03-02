@@ -10,7 +10,7 @@ import {
 import { Search } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useGetRunners } from "@/hooks/use-get-runners";
+import { useGetRunners } from "@/hooks/use-runners";
 
 export function CommandSearch() {
     const [open, setOpen] = useState(false);
