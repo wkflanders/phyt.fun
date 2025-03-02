@@ -3,7 +3,7 @@ import React from "react";
 import Image from "next/image";
 import { useAccount, useBalance } from "wagmi";
 import { CommandSearch } from "@/components/CommandSearch";
-import { useGetUser } from "@/hooks/use-get-user";
+import { useGetUser } from "@/hooks/use-users";
 import { WalletPopover } from "@/components/WalletPopover";
 import { NotificationsPopover } from "./NotificationsPopover";
 import { Bell } from "lucide-react";

@@ -6,7 +6,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import { OnboardForm } from '@/components/OnboardForm';
 import { onboardFormSchema } from '@/lib/validation';
 import { useToast } from '@/hooks/use-toast';
-import { useCreateUser } from '@/hooks/use-create-user';
+import { useCreateUser } from '@/hooks/use-users';
 import { ApiError } from '@phyt/types';
 
 export default function OnboardPage() {

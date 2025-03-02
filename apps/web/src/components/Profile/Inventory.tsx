@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { useGetUserCards } from '@/hooks/use-get-user-cards';
+import { useGetUserCards } from '@/hooks/use-users';
 import { Loader2 } from 'lucide-react';
 import { CardWithMetadata, User } from '@phyt/types';
 import { CardModal } from '../CardModal';

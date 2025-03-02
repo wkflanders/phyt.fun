@@ -17,8 +17,8 @@ import {
     ArrowUp,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useGetUserTransactions } from '@/hooks/use-get-user-transactions';
-import { useGetUser } from '@/hooks/use-get-user';
+import { useGetUserTransactions } from '@/hooks/use-users';
+import { useGetUser } from '@/hooks/use-users';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 
 export const WalletPopover: React.FC = () => {

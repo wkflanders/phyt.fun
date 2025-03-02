@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { Inventory } from './Inventory';
 import { Loader2 } from 'lucide-react';
-import { useGetUser } from '@/hooks/use-get-user';
+import { useGetUser } from '@/hooks/use-users';
 import { Wallet, Award, Trophy, Clock } from 'lucide-react';
 
 export const Profile = () => {

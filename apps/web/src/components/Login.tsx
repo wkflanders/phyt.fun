@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { ApiError } from '@phyt/types';
 import { getUserQueryKey } from '@/queries/user';
 
-
 export const Login = () => {
     const router = useRouter();
     const searchParams = useSearchParams();

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { usePurchasePack } from '@/hooks/use-purchase-pack';
-import { useGetUser } from '@/hooks/use-get-user';
+import { useGetUser } from '@/hooks/use-users';
 import { Loader2 } from 'lucide-react';
 import { usePrivy } from '@privy-io/react-auth';
 import { useAccount, useBalance } from 'wagmi';

@@ -13,7 +13,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { useGetUser } from '@/hooks/use-get-user';
+import { useGetUser } from '@/hooks/use-users';
 import {
     usePendingRunners,
     usePendingRuns,
