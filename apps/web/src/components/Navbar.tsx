@@ -74,13 +74,16 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
                     ) : (
                         <div className="flex items-center gap-4 px-4 py-2 transition-colors duration-200 group rounded-xl hover:bg-black/20 hover:cursor-pointer">
                             {user?.avatar_url ? (
-                                <Image
-                                    src={user.avatar_url}
-                                    alt="avatar"
-                                    width={32}
-                                    height={32}
-                                    className="rounded-full"
-                                />
+                                <div className="relative w-8 h-8 overflow-hidden rounded-full">
+                                    <Image
+                                        src={user.avatar_url}
+                                        alt="avatar"
+                                        width={32}
+                                        height={32}
+                                        className="object-cover"
+                                        style={{ width: '100%', height: '100%' }}
+                                    />
+                                </div>
                             ) : (
                                 <div className="w-8 h-8 rounded-full bg-gray-700/50 animate-pulse" />
                             )}
