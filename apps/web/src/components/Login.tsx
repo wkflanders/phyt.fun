@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { getUser } from "@/queries/user";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 import { ApiError } from '@phyt/types';
 import { getUserQueryKey } from '@/queries/user';
 
@@ -15,7 +14,6 @@ export const Login = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { ready } = usePrivy();
-    const { toast } = useToast();
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -53,11 +51,6 @@ export const Login = () => {
                         router.push(redirectTo);
                     } catch (error) {
                         const apiError = error as ApiError;
-                        toast({
-                            title: "Error",
-                            description: apiError.error || `${apiError}`,
-                            variant: "destructive",
-                        });
                     }
                 }
             } catch (error) {
