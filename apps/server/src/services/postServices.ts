@@ -1,4 +1,3 @@
-import { NotFound } from '@aws-sdk/client-s3';
 import { db, eq, and, desc, asc, or, not, like, sql } from '@phyt/database';
 import { posts, users, runners, runs, comments, reactions, follows } from '@phyt/database';
 import { NotFoundError, DatabaseError } from '@phyt/types';
