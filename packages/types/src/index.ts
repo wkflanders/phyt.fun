@@ -434,6 +434,33 @@ export interface PostsQueryParams {
     limit?: number;
     filter?: PostFilter;
 }
+export interface Comment {
+    id: number;
+    post_id: number;
+    user_id: number;
+    content: string;
+    parent_comment_id: number | null;
+    updated_at: Date | null;
+    created_at: Date | null;
+}
+
+export interface CommentPagination {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+}
+
+export interface CommentsResponse {
+    comments: Array<{
+        comment: Comment;
+        user: {
+            username: string;
+            avatar_url: string | null;
+        },
+    }>,
+    pagination?: CommentPagination;
+}
 
 export interface CommentsQueryParams {
     page?: number;
