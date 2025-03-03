@@ -434,6 +434,47 @@ export interface PostsQueryParams {
     limit?: number;
     filter?: PostFilter;
 }
+
+export interface Post {
+    id: number;
+    user_id: number;
+    run_id: number;
+    status: "visible" | "hidden" | "deleted";
+    updated_at: Date | null;
+    created_at: Date | null;
+}
+
+export interface PostsResponse {
+    posts: Array<{
+        post: Post,
+        user: {
+            username: string;
+            avatar_url: string | null;
+            role: "admin" | "user" | "runner";
+            is_pooled: boolean;
+        },
+        run: {
+            distance_m: number;
+            duration_seconds: number;
+            average_pace_sec: null | number;
+            elevation_gain_m: null | number;
+            start_time: Date;
+        },
+        stats: {
+            comments: number;
+        };
+    }>,
+    pagination?: PostPagination;
+}
+
+export interface PostPagination {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    nextPage: number | undefined;
+}
+
 export interface Comment {
     id: number;
     post_id: number;

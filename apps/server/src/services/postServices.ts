@@ -39,12 +39,14 @@ export const postService = {
 
     getPostById: async (postId: number) => {
         try {
-            const post = await db
+            const query = db
                 .select({
                     post: posts,
                     user: {
                         username: users.username,
-                        avatar_url: users.avatar_url
+                        avatar_url: users.avatar_url,
+                        role: users.role,
+                        is_pooled: runners.is_pooled,
                     },
                     run: {
                         distance_m: runs.distance_m,
@@ -52,22 +54,28 @@ export const postService = {
                         average_pace_sec: runs.average_pace_sec,
                         elevation_gain_m: runs.elevation_gain_m,
                         start_time: runs.start_time,
-                        end_time: runs.end_time
-                    }
+                        end_time: runs.end_time,
+                    },
+                    stats: {
+                        comments: countFn(comments.id).as("comments"),
+                    },
                 })
                 .from(posts)
                 .innerJoin(users, eq(posts.user_id, users.id))
                 .innerJoin(runs, eq(posts.run_id, runs.id))
+                .innerJoin(runners, eq(posts.user_id, runners.user_id))
                 .where(eq(posts.id, postId))
-                .limit(1);
-            if (!post.length) {
+                .groupBy(posts.id, users.id, runs.id, runners.id);
+
+            const [post] = await query;
+            if (!post) {
                 throw new NotFoundError(`Post with ID ${postId} not found`);
             }
-            return post[0];
+            return post;
         } catch (error) {
-            console.error('Error getting post by ID:', error);
+            console.error("Error getting post by ID:", error);
             if (error instanceof NotFoundError) throw error;
-            throw new DatabaseError('Failed to get post');
+            throw new DatabaseError("Failed to get post");
         }
     },
 

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from './use-toast';
-import { ApiError, PostsQueryParams } from '@phyt/types';
+import { ApiError, PostsQueryParams, PostsResponse, Post } from '@phyt/types';
 import {
     fetchPosts,
     fetchPostById,
@@ -10,30 +10,44 @@ import {
     deletePost,
     POST_QUERY_KEYS
 } from '../queries/posts';
+import { usePrivy } from '@privy-io/react-auth';
 
 export function useGetPosts(params: PostsQueryParams = {}) {
     const { page = 1, limit = 10, filter = 'all' } = params;
+    const { getAccessToken } = usePrivy();
 
-    return useQuery({
+    return useQuery<PostsResponse, ApiError>({
         queryKey: POST_QUERY_KEYS.list({ page, limit, filter }),
-        queryFn: () => fetchPosts({ page, limit, filter })
+        queryFn: async () => {
+            const token = await getAccessToken();
+            return fetchPosts({ page, limit, filter }, token);
+        },
     });
 }
 
 export function useGetPost(postId: number) {
-    return useQuery({
+    const { getAccessToken } = usePrivy();
+
+    return useQuery<Post, ApiError>({
         queryKey: POST_QUERY_KEYS.detail(postId),
-        queryFn: () => fetchPostById(postId),
+        queryFn: async () => {
+            const token = await getAccessToken();
+            return fetchPostById(postId, token);
+        },
         enabled: !!postId
     });
 }
 
-export function useUserPosts(userId: number, params: { page?: number, limit?: number; } = {}) {
+export function useUserPosts(userId: number, params: PostsQueryParams = {}) {
     const { page = 1, limit = 10 } = params;
+    const { getAccessToken } = usePrivy();
 
-    return useQuery({
+    return useQuery<PostsResponse, ApiError>({
         queryKey: POST_QUERY_KEYS.userPosts(userId, { page, limit }),
-        queryFn: () => fetchUserPosts(userId, { page, limit }),
+        queryFn: async () => {
+            const token = await getAccessToken();
+            return fetchUserPosts(userId, { page, limit }, token);
+        },
         enabled: !!userId
     });
 }
@@ -41,9 +55,13 @@ export function useUserPosts(userId: number, params: { page?: number, limit?: nu
 export function useCreatePost() {
     const queryClient = useQueryClient();
     const { toast } = useToast();
+    const { getAccessToken } = usePrivy();
 
-    return useMutation({
-        mutationFn: createPost,
+    return useMutation<Post, ApiError, { run_id: number, content?: string; }>({
+        mutationFn: async (postData) => {
+            const token = await getAccessToken();
+            return createPost(postData, token);
+        },
         onSuccess: () => {
             toast({
                 title: 'Success',
@@ -64,9 +82,13 @@ export function useCreatePost() {
 export function useUpdatePostStatus() {
     const queryClient = useQueryClient();
     const { toast } = useToast();
+    const { getAccessToken } = usePrivy();
 
-    return useMutation({
-        mutationFn: updatePostStatus,
+    return useMutation<Post, ApiError, { postId: number, status: 'visible' | 'hidden' | 'deleted'; }>({
+        mutationFn: async (updatePostData) => {
+            const token = await getAccessToken();
+            return updatePostStatus(updatePostData, token);
+        },
         onSuccess: (_, variables) => {
             toast({
                 title: 'Success',
@@ -88,9 +110,13 @@ export function useUpdatePostStatus() {
 export function useDeletePost() {
     const queryClient = useQueryClient();
     const { toast } = useToast();
+    const { getAccessToken } = usePrivy();
 
-    return useMutation({
-        mutationFn: deletePost,
+    return useMutation<Post, ApiError, number>({
+        mutationFn: async (postId) => {
+            const token = await getAccessToken();
+            return deletePost(postId, token);
+        },
         onSuccess: (_, postId) => {
             toast({
                 title: 'Success',

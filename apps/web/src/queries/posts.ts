@@ -1,4 +1,4 @@
-import { ApiError, PostsQueryParams } from '@phyt/types';
+import { ApiError, PostsQueryParams, PostsResponse, Post } from '@phyt/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
@@ -12,7 +12,7 @@ export const POST_QUERY_KEYS = {
         ['userPosts', userId, params] as const,
 };
 
-export async function fetchPosts(params: PostsQueryParams = {}) {
+export async function fetchPosts(params: PostsQueryParams = {}, token: string | null): Promise<PostsResponse> {
     const { page = 1, limit = 10, filter = 'all' } = params;
 
     const searchParams = new URLSearchParams();
@@ -24,8 +24,9 @@ export async function fetchPosts(params: PostsQueryParams = {}) {
 
     const response = await fetch(`${API_URL}/posts?${searchParams.toString()}`, {
         method: 'GET',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+            "Authorization": `Bearer ${token}`,
+        }
     });
 
     if (!response.ok) {
@@ -40,11 +41,12 @@ export async function fetchPosts(params: PostsQueryParams = {}) {
 }
 
 // Function to fetch a specific post by ID
-export async function fetchPostById(postId: number) {
+export async function fetchPostById(postId: number, token: string | null): Promise<Post> {
     const response = await fetch(`${API_URL}/posts/${postId}`, {
         method: 'GET',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+            "Authorization": `Bearer ${token}`,
+        }
     });
 
     if (!response.ok) {
@@ -59,7 +61,7 @@ export async function fetchPostById(postId: number) {
 }
 
 // Function to fetch posts by a specific user
-export async function fetchUserPosts(userId: number, params: { page?: number, limit?: number; } = {}) {
+export async function fetchUserPosts(userId: number, params: { page?: number, limit?: number; } = {}, token: string | null): Promise<PostsResponse> {
     const { page = 1, limit = 10 } = params;
 
     const searchParams = new URLSearchParams();
@@ -68,8 +70,9 @@ export async function fetchUserPosts(userId: number, params: { page?: number, li
 
     const response = await fetch(`${API_URL}/posts/user/${userId}?${searchParams.toString()}`, {
         method: 'GET',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+            "Authorization": `Bearer ${token}`,
+        }
     });
 
     if (!response.ok) {
@@ -84,11 +87,13 @@ export async function fetchUserPosts(userId: number, params: { page?: number, li
 }
 
 // Function to create a new post
-export async function createPost(data: { run_id: number, content?: string; }) {
+export async function createPost(data: { run_id: number, content?: string; }, token: string | null): Promise<Post> {
     const response = await fetch(`${API_URL}/posts`, {
         method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            "Authorization": `Bearer: ${token}`,
+            "Content-Type": "application/json"
+        },
         body: JSON.stringify(data)
     });
 
@@ -104,11 +109,13 @@ export async function createPost(data: { run_id: number, content?: string; }) {
 }
 
 // Function to update a post's status
-export async function updatePostStatus({ postId, status }: { postId: number, status: 'visible' | 'hidden' | 'deleted'; }) {
+export async function updatePostStatus({ postId, status }: { postId: number, status: 'visible' | 'hidden' | 'deleted'; }, token: string | null): Promise<Post> {
     const response = await fetch(`${API_URL}/posts/${postId}`, {
         method: 'PATCH',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            "Authorization": `Bearer: ${token}`,
+            "Content-Type": "application/json"
+        },
         body: JSON.stringify({ status })
     });
 
@@ -124,11 +131,12 @@ export async function updatePostStatus({ postId, status }: { postId: number, sta
 }
 
 // Function to delete a post
-export async function deletePost(postId: number) {
+export async function deletePost(postId: number, token: string | null): Promise<Post> {
     const response = await fetch(`${API_URL}/posts/${postId}`, {
         method: 'DELETE',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+            "Authorization": `Bearer: ${token}`,
+        },
     });
 
     if (!response.ok) {
