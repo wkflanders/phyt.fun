@@ -495,6 +495,23 @@ export interface Comment {
     created_at: Date | null;
 }
 
+export interface CommentCreateRequest {
+    post_id: number,
+    content: string,
+    parent_comment_id?: number;
+}
+
+export interface CommentUpdateRequest {
+    commentId: number;
+    content: string;
+}
+
+export interface CommentQueryParams {
+    page?: number;
+    limit?: number;
+    parentOnly?: boolean;
+}
+
 export interface CommentPagination {
     page: number;
     limit: number;
@@ -502,7 +519,7 @@ export interface CommentPagination {
     totalPages: number;
 }
 
-export interface CommentsResponse {
+export interface CommentResponse {
     comments: {
         comment: Comment;
         user: {
@@ -511,12 +528,6 @@ export interface CommentsResponse {
         },
     }[],
     pagination?: CommentPagination;
-}
-
-export interface CommentsQueryParams {
-    page?: number;
-    limit?: number;
-    parentOnly?: boolean;
 }
 
 export type Reaction = 'like' | 'funny' | 'insightful' | 'fire';

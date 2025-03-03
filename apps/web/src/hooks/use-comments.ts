@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from './use-toast';
-import { ApiError, CommentsQueryParams, CommentsResponse } from '@phyt/types';
+import { ApiError, CommentQueryParams, CommentCreateRequest, CommentUpdateRequest, CommentResponse } from '@phyt/types';
 import {
     fetchPostComments,
     fetchCommentReplies,
@@ -13,11 +13,11 @@ import {
 import { POST_QUERY_KEYS } from '../queries/posts';
 import { usePrivy } from '@privy-io/react-auth';
 
-export function usePostComments(postId: number, params: CommentsQueryParams = {}) {
+export function usePostComments(postId: number, params: CommentQueryParams = {}) {
     const { page = 1, limit = 20, parentOnly = false } = params;
     const { getAccessToken } = usePrivy();
 
-    return useQuery<CommentsResponse, ApiError>({
+    return useQuery<CommentResponse, ApiError>({
         queryKey: COMMENT_QUERY_KEYS.postComments(postId, { page, limit, parentOnly }),
         queryFn: async () => {
             const token = await getAccessToken();
@@ -27,11 +27,11 @@ export function usePostComments(postId: number, params: CommentsQueryParams = {}
     });
 }
 
-export function useCommentReplies(commentId: number, params: CommentsQueryParams = {}) {
+export function useCommentReplies(commentId: number, params: CommentQueryParams = {}) {
     const { page = 1, limit = 20 } = params;
     const { getAccessToken } = usePrivy();
 
-    return useQuery<CommentsResponse, ApiError>({
+    return useQuery<CommentResponse, ApiError>({
         queryKey: COMMENT_QUERY_KEYS.replies(commentId, { page, limit }),
         queryFn: async () => {
             const token = await getAccessToken();
@@ -59,11 +59,7 @@ export function useCreateComment() {
     const { toast } = useToast();
     const { getAccessToken } = usePrivy();
 
-    return useMutation<Comment, ApiError, {
-        post_id: number,
-        content: string,
-        parent_comment_id?: number;
-    }>({
+    return useMutation<Comment, ApiError, CommentCreateRequest>({
         mutationFn: async (commentData) => {
             const token = await getAccessToken();
             return createComment(commentData, token);
@@ -105,7 +101,7 @@ export function useUpdateComment() {
     const { toast } = useToast();
     const { getAccessToken } = usePrivy();
 
-    return useMutation<Comment, ApiError, { commentId: number; content: string; }>({
+    return useMutation<Comment, ApiError, CommentUpdateRequest>({
         mutationFn: async (commentData) => {
             const token = await getAccessToken();
             return updateComment(commentData, token);
