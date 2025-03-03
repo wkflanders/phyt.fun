@@ -1,4 +1,4 @@
-import { Competition } from '@phyt/types';
+import { Competition, ApiError } from '@phyt/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
@@ -15,7 +15,10 @@ export async function getCompetitions(token: string | null): Promise<Competition
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Failed to fetch competitions');
+        throw {
+            error: error.error || 'Failed to fetch comment',
+            status: response.status
+        } as ApiError;
     }
 
     return response.json();
