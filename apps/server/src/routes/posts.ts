@@ -72,14 +72,10 @@ router.get('/user/:userId', async (req, res) => {
 // Create a new post (for an existing run)
 router.post('/', validateSchema(createPostSchema), async (req, res) => {
     try {
-        const { run_id } = req.body;  // Keep using run_id from request body
-        // Since postService.createPost only accepts runId, simply pass that
+        const { run_id } = req.body;
         const post = await postService.createPost(run_id);
 
-        return res.status(201).json({
-            message: 'Post created successfully',
-            post
-        });
+        return res.status(201).json(post);
     } catch (error) {
         console.error('Error creating post:', error);
         if (error instanceof NotFoundError) {
@@ -102,10 +98,7 @@ router.patch('/:id', validateSchema(updatePostSchema), async (req, res) => {
         // TODO: Add authorization check - user can only update their own posts
         const post = await postService.updatePostStatus(postId, status);
 
-        return res.status(200).json({
-            message: 'Post updated successfully',
-            post
-        });
+        return res.status(200).json(post);
     } catch (error) {
         console.error('Error updating post:', error);
         if (error instanceof NotFoundError) {
@@ -126,10 +119,7 @@ router.delete('/:id', async (req, res) => {
         // TODO: Add authorization check - user can only delete their own posts
         const deletedPost = await postService.deletePost(postId);
 
-        return res.status(200).json({
-            message: 'Post deleted successfully',
-            post: deletedPost
-        });
+        return res.status(200).json(deletedPost);
     } catch (error) {
         console.error('Error deleting post:', error);
         if (error instanceof NotFoundError) {
