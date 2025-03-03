@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from './use-toast';
-import { ApiError, PostsQueryParams, PostsResponse, Post } from '@phyt/types';
+import { ApiError, PostQueryParams, PostUpdateRequest, PostCreateRequest, PostResponse, Post } from '@phyt/types';
 import {
     fetchPosts,
     fetchPostById,
@@ -12,11 +12,11 @@ import {
 } from '../queries/posts';
 import { usePrivy } from '@privy-io/react-auth';
 
-export function useGetPosts(params: PostsQueryParams = {}) {
+export function useGetPosts(params: PostQueryParams = {}) {
     const { page = 1, limit = 10, filter = 'all' } = params;
     const { getAccessToken } = usePrivy();
 
-    return useQuery<PostsResponse, ApiError>({
+    return useQuery<PostResponse, ApiError>({
         queryKey: POST_QUERY_KEYS.list({ page, limit, filter }),
         queryFn: async () => {
             const token = await getAccessToken();
@@ -38,11 +38,11 @@ export function useGetPost(postId: number) {
     });
 }
 
-export function useUserPosts(userId: number, params: PostsQueryParams = {}) {
+export function useUserPosts(userId: number, params: PostQueryParams = {}) {
     const { page = 1, limit = 10 } = params;
     const { getAccessToken } = usePrivy();
 
-    return useQuery<PostsResponse, ApiError>({
+    return useQuery<PostResponse, ApiError>({
         queryKey: POST_QUERY_KEYS.userPosts(userId, { page, limit }),
         queryFn: async () => {
             const token = await getAccessToken();
@@ -57,7 +57,7 @@ export function useCreatePost() {
     const { toast } = useToast();
     const { getAccessToken } = usePrivy();
 
-    return useMutation<Post, ApiError, { run_id: number, content?: string; }>({
+    return useMutation<Post, ApiError, PostCreateRequest>({
         mutationFn: async (postData) => {
             const token = await getAccessToken();
             return createPost(postData, token);
@@ -84,7 +84,7 @@ export function useUpdatePostStatus() {
     const { toast } = useToast();
     const { getAccessToken } = usePrivy();
 
-    return useMutation<Post, ApiError, { postId: number, status: 'visible' | 'hidden' | 'deleted'; }>({
+    return useMutation<Post, ApiError, PostUpdateRequest>({
         mutationFn: async (updatePostData) => {
             const token = await getAccessToken();
             return updatePostStatus(updatePostData, token);

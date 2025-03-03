@@ -429,7 +429,7 @@ export interface RunnerActivity {
 export type PostFilter = 'all' | 'following' | 'trending';
 export type PostStatus = 'visible' | 'hidden' | 'deleted';
 
-export interface PostsQueryParams {
+export interface PostQueryParams {
     page?: number;
     limit?: number;
     filter?: PostFilter;
@@ -444,7 +444,17 @@ export interface Post {
     created_at: Date | null;
 }
 
-export interface PostsResponse {
+export interface PostUpdateRequest {
+    postId: number;
+    status: 'visible' | 'hidden' | 'deleted';
+}
+
+export interface PostCreateRequest {
+    run_id: number;
+    content?: string;
+}
+
+export interface PostResponse {
     posts: {
         post: Post,
         user: {
