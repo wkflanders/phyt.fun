@@ -1,4 +1,4 @@
-import { ApiError, CommentsQueryParams } from '@phyt/types';
+import { ApiError, CommentsQueryParams, CommentsResponse } from '@phyt/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
@@ -12,7 +12,7 @@ export const COMMENT_QUERY_KEYS = {
         ['commentReplies', commentId, params] as const
 };
 
-export async function fetchPostComments(postId: number, params: CommentsQueryParams = {}) {
+export async function fetchPostComments(postId: number, params: CommentsQueryParams = {}, token: string | null): Promise<CommentsResponse> {
     const { page = 1, limit = 20, parentOnly = false } = params;
 
     const searchParams = new URLSearchParams();
@@ -22,8 +22,9 @@ export async function fetchPostComments(postId: number, params: CommentsQueryPar
 
     const response = await fetch(`${API_URL}/comments/post/${postId}?${searchParams.toString()}`, {
         method: 'GET',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
     });
 
     if (!response.ok) {
@@ -38,7 +39,7 @@ export async function fetchPostComments(postId: number, params: CommentsQueryPar
 }
 
 // Function to fetch replies to a comment
-export async function fetchCommentReplies(commentId: number, params: { page?: number, limit?: number; } = {}) {
+export async function fetchCommentReplies(commentId: number, params: CommentsQueryParams = {}, token: string | null): Promise<CommentsResponse> {
     const { page = 1, limit = 20 } = params;
 
     const searchParams = new URLSearchParams();
@@ -47,8 +48,9 @@ export async function fetchCommentReplies(commentId: number, params: { page?: nu
 
     const response = await fetch(`${API_URL}/comments/replies/${commentId}?${searchParams.toString()}`, {
         method: 'GET',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
     });
 
     if (!response.ok) {
@@ -63,11 +65,12 @@ export async function fetchCommentReplies(commentId: number, params: { page?: nu
 }
 
 // Function to fetch a single comment by ID
-export async function fetchComment(commentId: number) {
+export async function fetchComment(commentId: number, token: string | null): Promise<CommentsResponse> {
     const response = await fetch(`${API_URL}/comments/${commentId}`, {
         method: 'GET',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
     });
 
     if (!response.ok) {
@@ -82,16 +85,18 @@ export async function fetchComment(commentId: number) {
 }
 
 // Function to create a comment or reply
-export async function createComment(data: {
+export async function createComment(commentData: {
     post_id: number,
     content: string,
     parent_comment_id?: number;
-}) {
+}, token: string | null): Promise<Comment> {
     const response = await fetch(`${API_URL}/comments`, {
         method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        headers: {
+            "Authorization": `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(commentData)
     });
 
     if (!response.ok) {
@@ -112,11 +117,13 @@ export async function updateComment({
 }: {
     commentId: number,
     content: string;
-}) {
+}, token: string | null): Promise<Comment> {
     const response = await fetch(`${API_URL}/comments/${commentId}`, {
         method: 'PATCH',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            "Authorization": `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
         body: JSON.stringify({ content })
     });
 
@@ -132,11 +139,13 @@ export async function updateComment({
 }
 
 // Function to delete a comment
-export async function deleteComment(commentId: number) {
+export async function deleteComment(commentId: number, token: string | null): Promise<Comment> {
     const response = await fetch(`${API_URL}/comments/${commentId}`, {
         method: 'DELETE',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+            "Authorization": `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
     });
 
     if (!response.ok) {

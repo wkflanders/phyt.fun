@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from './use-toast';
-import { ApiError, CommentsQueryParams } from '@phyt/types';
+import { ApiError, CommentsQueryParams, CommentsResponse } from '@phyt/types';
 import {
     fetchPostComments,
     fetchCommentReplies,
@@ -11,31 +11,45 @@ import {
     COMMENT_QUERY_KEYS
 } from '../queries/comments';
 import { POST_QUERY_KEYS } from '../queries/posts';
+import { usePrivy } from '@privy-io/react-auth';
 
 export function usePostComments(postId: number, params: CommentsQueryParams = {}) {
     const { page = 1, limit = 20, parentOnly = false } = params;
+    const { getAccessToken } = usePrivy();
 
-    return useQuery({
+    return useQuery<CommentsResponse, ApiError>({
         queryKey: COMMENT_QUERY_KEYS.postComments(postId, { page, limit, parentOnly }),
-        queryFn: () => fetchPostComments(postId, { page, limit, parentOnly }),
+        queryFn: async () => {
+            const token = await getAccessToken();
+            return fetchPostComments(postId, { page, limit, parentOnly }, token);
+        },
         enabled: !!postId
     });
 }
 
-export function useCommentReplies(commentId: number, params: { page?: number, limit?: number; } = {}) {
+export function useCommentReplies(commentId: number, params: CommentsQueryParams = {}) {
     const { page = 1, limit = 20 } = params;
+    const { getAccessToken } = usePrivy();
 
-    return useQuery({
+    return useQuery<CommentsResponse, ApiError>({
         queryKey: COMMENT_QUERY_KEYS.replies(commentId, { page, limit }),
-        queryFn: () => fetchCommentReplies(commentId, { page, limit }),
+        queryFn: async () => {
+            const token = await getAccessToken();
+            return fetchCommentReplies(commentId, { page, limit }, token);
+        },
         enabled: !!commentId
     });
 }
 
 export function useComment(commentId: number) {
-    return useQuery({
+    const { getAccessToken } = usePrivy();
+
+    return useQuery<CommentsResponse, ApiError>({
         queryKey: COMMENT_QUERY_KEYS.detail(commentId),
-        queryFn: () => fetchComment(commentId),
+        queryFn: async () => {
+            const token = await getAccessToken();
+            return fetchComment(commentId, token);
+        },
         enabled: !!commentId
     });
 }
@@ -43,9 +57,17 @@ export function useComment(commentId: number) {
 export function useCreateComment() {
     const queryClient = useQueryClient();
     const { toast } = useToast();
+    const { getAccessToken } = usePrivy();
 
-    return useMutation({
-        mutationFn: createComment,
+    return useMutation<Comment, ApiError, {
+        post_id: number,
+        content: string,
+        parent_comment_id?: number;
+    }>({
+        mutationFn: async (commentData) => {
+            const token = await getAccessToken();
+            return createComment(commentData, token);
+        },
         onSuccess: (_, variables) => {
             toast({
                 title: 'Success',
@@ -81,9 +103,13 @@ export function useCreateComment() {
 export function useUpdateComment() {
     const queryClient = useQueryClient();
     const { toast } = useToast();
+    const { getAccessToken } = usePrivy();
 
-    return useMutation({
-        mutationFn: updateComment,
+    return useMutation<Comment, ApiError, { commentId: number; content: string; }>({
+        mutationFn: async (commentData) => {
+            const token = await getAccessToken();
+            return updateComment(commentData, token);
+        },
         onSuccess: (_, variables) => {
             toast({
                 title: 'Success',
@@ -106,9 +132,13 @@ export function useUpdateComment() {
 export function useDeleteComment() {
     const queryClient = useQueryClient();
     const { toast } = useToast();
+    const { getAccessToken } = usePrivy();
 
-    return useMutation({
-        mutationFn: deleteComment,
+    return useMutation<Comment, ApiError, number>({
+        mutationFn: async (commentId) => {
+            const token = await getAccessToken();
+            return deleteComment(commentId, token);
+        },
         onSuccess: (_, commentId) => {
             toast({
                 title: 'Success',

@@ -85,10 +85,7 @@ router.post('/', validateSchema(createCommentSchema), async (req, res) => {
             parentCommentId: parent_comment_id
         });
 
-        return res.status(201).json({
-            message: 'Comment created successfully',
-            comment
-        });
+        return res.status(201).json(comment);
     } catch (error) {
         console.error('Error creating comment:', error);
         if (error instanceof NotFoundError) {
@@ -111,10 +108,7 @@ router.patch('/:id', validateSchema(updateCommentSchema), async (req, res) => {
         // TODO: Add authorization check - user can only update their own comments
         const comment = await commentService.updateComment(commentId, { content });
 
-        return res.status(200).json({
-            message: 'Comment updated successfully',
-            comment
-        });
+        return res.status(200).json(comment);
     } catch (error) {
         console.error('Error updating comment:', error);
         if (error instanceof NotFoundError) {
@@ -135,10 +129,7 @@ router.delete('/:id', async (req, res) => {
         // TODO: Add authorization check - user can only delete their own comments
         const deletedComment = await commentService.deleteComment(commentId);
 
-        return res.status(200).json({
-            message: 'Comment deleted successfully',
-            comment: deletedComment
-        });
+        return res.status(200).json(deletedComment);
     } catch (error) {
         console.error('Error deleting comment:', error);
         if (error instanceof NotFoundError) {
