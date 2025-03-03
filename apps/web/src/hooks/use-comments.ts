@@ -44,7 +44,7 @@ export function useCommentReplies(commentId: number, params: CommentsQueryParams
 export function useComment(commentId: number) {
     const { getAccessToken } = usePrivy();
 
-    return useQuery<CommentsResponse, ApiError>({
+    return useQuery<Comment, ApiError>({
         queryKey: COMMENT_QUERY_KEYS.detail(commentId),
         queryFn: async () => {
             const token = await getAccessToken();

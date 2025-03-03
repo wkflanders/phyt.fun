@@ -65,7 +65,7 @@ export async function fetchCommentReplies(commentId: number, params: CommentsQue
 }
 
 // Function to fetch a single comment by ID
-export async function fetchComment(commentId: number, token: string | null): Promise<CommentsResponse> {
+export async function fetchComment(commentId: number, token: string | null): Promise<Comment> {
     const response = await fetch(`${API_URL}/comments/${commentId}`, {
         method: 'GET',
         headers: {

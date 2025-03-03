@@ -211,11 +211,13 @@ export const commentService = {
         try {
             const [comment] = await db
                 .select({
-                    comment: comments,
-                    user: {
-                        username: users.username,
-                        avatar_url: users.avatar_url
-                    }
+                    id: comments.id,
+                    post_id: comments.post_id,
+                    user_id: comments.user_id,
+                    content: comments.content,
+                    parent_comment_id: comments.parent_comment_id,
+                    updated_at: comments.updated_at,
+                    created_at: comments.created_at,
                 })
                 .from(comments)
                 .innerJoin(users, eq(comments.user_id, users.id))
