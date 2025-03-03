@@ -71,7 +71,7 @@ export const runners = pgTable("runners", {
     total_runs: integer("total_runs").default(0),
     best_mile_time: doublePrecision("best_mile_time"),
     status: enum_runner_status("status").default('pending'),
-    is_pooled: boolean("is_pooled").default(false),
+    is_pooled: boolean("is_pooled").default(false).notNull(),
     updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
     created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
 }, (table) => [
@@ -312,7 +312,7 @@ export const posts = pgTable("posts", {
     id: serial("id").primaryKey(),
     user_id: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
     run_id: integer("run_id").notNull().references(() => runs.id, { onDelete: 'cascade' }),
-    status: enum_posts_status("status").default('visible'),
+    status: enum_posts_status("status").default('visible').notNull(),
     updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
     created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
 }, (table) => [
@@ -341,8 +341,6 @@ export const comments = pgTable("comments", {
             columns: [table.parent_comment_id],
             foreignColumns: [table.id],
         }),
-
-        // Indexes
         postIdx: index("comments_post_idx").on(table.post_id),
         userIdx: index("comments_user_idx").on(table.user_id),
         parentIdx: index("comments_parent_idx").on(table.parent_comment_id),

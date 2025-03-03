@@ -71,6 +71,13 @@
       "when": 1740556481745,
       "tag": "0009_common_magik",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1741005139700,
+      "tag": "0010_tranquil_justin_hammer",
+      "breakpoints": true
     }
   ]
 }
