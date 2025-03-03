@@ -445,7 +445,7 @@ export interface Post {
 }
 
 export interface PostsResponse {
-    posts: Array<{
+    posts: {
         post: Post,
         user: {
             username: string;
@@ -463,7 +463,7 @@ export interface PostsResponse {
         stats: {
             comments: number;
         };
-    }>,
+    }[],
     pagination?: PostPagination;
 }
 
@@ -493,13 +493,13 @@ export interface CommentPagination {
 }
 
 export interface CommentsResponse {
-    comments: Array<{
+    comments: {
         comment: Comment;
         user: {
             username: string;
             avatar_url: string | null;
         },
-    }>,
+    }[],
     pagination?: CommentPagination;
 }
 
@@ -509,4 +509,17 @@ export interface CommentsQueryParams {
     parentOnly?: boolean;
 }
 
-export type ReactionType = 'like' | 'funny' | 'insightful' | 'fire';
+export type Reaction = 'like' | 'funny' | 'insightful' | 'fire';
+
+export type ReactionCount = Record<string, number>;
+
+export interface ReactionToggleRequest {
+    post_id?: number;
+    comment_id?: number;
+    type: Reaction;
+}
+
+export interface ReactionToggleResponse {
+    action: 'added' | 'removed';
+    reaction: Reaction;
+}

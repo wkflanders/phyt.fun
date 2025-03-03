@@ -56,20 +56,18 @@ export const reactionService = {
                 ))
                 .limit(1);
 
-            // If the reaction exists, delete it (toggle off)
             if (existingReaction.length) {
-                const [deleted] = await db
+                const [deletedReaction] = await db
                     .delete(reactions)
                     .where(eq(reactions.id, existingReaction[0].id))
                     .returning();
 
                 return {
                     action: 'removed' as const,
-                    reaction: deleted
+                    reaction: deletedReaction.type
                 };
             }
 
-            // Otherwise, create a new reaction (toggle on)
             const [newReaction] = await db
                 .insert(reactions)
                 .values({
@@ -82,7 +80,7 @@ export const reactionService = {
 
             return {
                 action: 'added' as const,
-                reaction: newReaction
+                reaction: newReaction.type
             };
         } catch (error) {
             console.error('Error toggling reaction:', error);

@@ -1,4 +1,4 @@
-import { ApiError, ReactionType } from '@phyt/types';
+import { ApiError, Reaction, ReactionCount, ReactionToggleRequest, ReactionToggleResponse } from '@phyt/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
@@ -16,11 +16,12 @@ export const REACTION_QUERY_KEYS = {
     }
 };
 
-export async function fetchPostReactions(postId: number) {
+export async function fetchPostReactions(postId: number, token: string | null): Promise<ReactionCount> {
     const response = await fetch(`${API_URL}/reactions/post/${postId}`, {
         method: 'GET',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+            "Authorization": `Bearer ${token}`,
+        }
     });
 
     if (!response.ok) {
@@ -35,11 +36,12 @@ export async function fetchPostReactions(postId: number) {
 }
 
 // Function to fetch reactions for a comment
-export async function fetchCommentReactions(commentId: number) {
+export async function fetchCommentReactions(commentId: number, token: string | null): Promise<ReactionCount> {
     const response = await fetch(`${API_URL}/reactions/comment/${commentId}`, {
         method: 'GET',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+            "Authorization": `Bearer ${token}`,
+        }
     });
 
     if (!response.ok) {
@@ -54,11 +56,12 @@ export async function fetchCommentReactions(commentId: number) {
 }
 
 // Function to fetch user's reactions for a post
-export async function fetchUserPostReactions(postId: number) {
+export async function fetchUserPostReactions(postId: number, token: string | null): Promise<Reaction[]> {
     const response = await fetch(`${API_URL}/reactions/user/post/${postId}`, {
         method: 'GET',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+            "Authorization": `Bearer ${token}`,
+        }
     });
 
     if (!response.ok) {
@@ -73,11 +76,12 @@ export async function fetchUserPostReactions(postId: number) {
 }
 
 // Function to fetch user's reactions for a comment
-export async function fetchUserCommentReactions(commentId: number) {
+export async function fetchUserCommentReactions(commentId: number, token: string | null): Promise<Reaction[]> {
     const response = await fetch(`${API_URL}/reactions/user/comment/${commentId}`, {
         method: 'GET',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+            "Authorization": `Bearer ${token}`,
+        }
     });
 
     if (!response.ok) {
@@ -92,15 +96,13 @@ export async function fetchUserCommentReactions(commentId: number) {
 }
 
 // Function to toggle a reaction (add or remove)
-export async function toggleReaction(data: {
-    post_id?: number;
-    comment_id?: number;
-    type: ReactionType;
-}) {
+export async function toggleReaction(data: ReactionToggleRequest, token: string | null): Promise<ReactionToggleResponse> {
     const response = await fetch(`${API_URL}/reactions`, {
         method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+        },
         body: JSON.stringify(data)
     });
 

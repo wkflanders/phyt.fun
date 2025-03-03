@@ -21,10 +21,7 @@ router.post('/', validateSchema(createReactionSchema), async (req, res) => {
             type
         });
 
-        return res.status(200).json({
-            message: `Reaction ${result.action}`,
-            reaction: result.reaction
-        });
+        return res.status(200).json(result);
     } catch (error) {
         console.error('Error toggling reaction:', error);
         if (error instanceof NotFoundError) {
