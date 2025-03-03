@@ -6,16 +6,22 @@ import { simulateContract, writeContract } from "wagmi/actions";
 import { PackDetails, PackPurchaseInput, PackPurchaseResponse } from "@phyt/types";
 import { notifyServerPackTxn, fetchPackDetails } from "@/queries/packs";
 import { config } from "@/lib/wagmi";
+import { usePrivy } from '@privy-io/react-auth';
 
 const MINTER = '0x7Ee08f7d4707F94C2f2664327D16cF6b30cA87D1';
 
 export function usePurchasePack() {
     const { toast } = useToast();
+    const { getAccessToken } = usePrivy();
 
-    return useMutation<PackPurchaseResponse, Error, PackPurchaseInput>({
-        mutationFn: async ({ buyerId, buyerAddress }: PackPurchaseInput) => {
+    return useMutation<PackPurchaseResponse, Error, {
+        buyerId: number;
+        buyerAddress: `0x${string}`;
+    }>({
+        mutationFn: async ({ buyerId, buyerAddress }) => {
+            const token = await getAccessToken();
             // Get config and price
-            const { mintConfigId, packPrice, merkleProof } = await fetchPackDetails(buyerAddress as `0x${string}`) as PackDetails;
+            const { mintConfigId, packPrice, merkleProof } = await fetchPackDetails(buyerAddress as `0x${string}`, token) as PackDetails;
 
             console.log('Proof array:', merkleProof);
 
@@ -39,7 +45,7 @@ export function usePurchasePack() {
                 buyerId,
                 hash,
                 packPrice
-            });
+            }, token);
 
             console.log(response);
             return response;

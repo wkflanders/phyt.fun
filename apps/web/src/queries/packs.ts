@@ -2,12 +2,11 @@ import { ApiError, PackDetails, PackPurchaseNotif, PackPurchaseResponse } from "
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
-export async function fetchPackDetails(wallet_address: `0x${string}`): Promise<PackDetails> {
+export async function fetchPackDetails(wallet_address: `0x${string}`, token: string | null): Promise<PackDetails> {
     const response = await fetch(`${API_URL}/packs/init/${wallet_address}`, {
         method: 'GET',
-        credentials: 'include',
         headers: {
-            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${token}`
         },
     });
 
@@ -26,13 +25,13 @@ export async function fetchPackDetails(wallet_address: `0x${string}`): Promise<P
 export async function notifyServerPackTxn({
     buyerId,
     hash,
-    packPrice
-}: PackPurchaseNotif): Promise<PackPurchaseResponse> {
+    packPrice,
+}: PackPurchaseNotif, token: string | null): Promise<PackPurchaseResponse> {
     const resp = await fetch(`${API_URL}/packs/purchase`, {
         method: 'POST',
-        credentials: 'include',
         headers: {
-            'Content-Type': 'application/json'
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
         },
         body: JSON.stringify({ buyerId, hash, packPrice }),
     });
