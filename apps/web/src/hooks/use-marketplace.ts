@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAccount } from 'wagmi';
-import { formatEther } from 'viem';
 import { useToast } from './use-toast';
 import { useExchange } from './use-exchange';
-import type { MarketListing, Order, User, Runner, Listing } from '@phyt/types';
+import { MarketListing, Order, User, Runner, Listing, ApiError } from '@phyt/types';
+import { usePrivy } from '@privy-io/react-auth';
 
 interface ListingFilters {
     minPrice?: string;
@@ -16,9 +16,12 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
 // Fetch active listings
 export function useListings(filters?: ListingFilters) {
+    const { getAccessToken } = usePrivy();
+
     return useQuery<MarketListing[], Error>({
         queryKey: ['listings', filters],
         queryFn: async () => {
+            const token = await getAccessToken();
             const searchParams = new URLSearchParams();
             if (filters?.minPrice) searchParams.append('minPrice', filters.minPrice);
             if (filters?.maxPrice) searchParams.append('maxPrice', filters.maxPrice);
@@ -27,8 +30,9 @@ export function useListings(filters?: ListingFilters) {
 
             const response = await fetch(`${API_URL}/marketplace/listings?${searchParams.toString()}`, {
                 method: 'GET',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
             });
             if (!response.ok) {
                 throw new Error('Failed to fetch listings');
@@ -39,13 +43,17 @@ export function useListings(filters?: ListingFilters) {
 }
 
 export const useOpenBids = (cardId: number) => {
+    const { getAccessToken } = usePrivy();
+
     return useQuery({
         queryKey: ['openBids', cardId],
         queryFn: async () => {
+            const token = await getAccessToken();
             const res = await fetch(`${API_URL}/marketplace/cards/${cardId}/open-bids`, {
                 method: 'GET',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
             });
             if (!res.ok) throw new Error('Failed to fetch open bids');
             return res.json();
@@ -54,13 +62,17 @@ export const useOpenBids = (cardId: number) => {
 };
 
 export const useUserBids = (userId: string) => {
+    const { getAccessToken } = usePrivy();
+
     return useQuery({
         queryKey: ['userBids', userId],
         queryFn: async () => {
+            const token = await getAccessToken();
             const res = await fetch(`${API_URL}/marketplace/users/${userId}/bids`, {
                 method: 'GET',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
             });
             if (!res.ok) throw new Error('Failed to fetch user bids');
             return res.json();
@@ -71,13 +83,18 @@ export const useUserBids = (userId: string) => {
 
 export const useAcceptOpenBid = () => {
     const queryClient = useQueryClient();
+    const { getAccessToken } = usePrivy();
 
     return useMutation({
         mutationFn: async ({ bidId, transactionHash }: { bidId: number; transactionHash: string; }) => {
+            const token = await getAccessToken();
             const res = await fetch(`${API_URL}/marketplace/open-bids/${bidId}/accept`, {
                 method: 'POST',
                 credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify({ transactionHash })
             });
             if (!res.ok) throw new Error('Failed to accept bid');
@@ -96,6 +113,7 @@ export function useCreateListing(user: User) {
     const { signSellOrder } = useExchange();
     const { address } = useAccount();
     const queryClient = useQueryClient();
+    const { getAccessToken } = usePrivy();
 
     return useMutation({
         mutationFn: async ({
@@ -109,6 +127,7 @@ export function useCreateListing(user: User) {
             takePrice: bigint;
             expiration: string; // e.g. an ISO string or UNIX timestamp string
         }) => {
+            const token = await getAccessToken();
             if (!address) throw new Error('Wallet not connected');
             // Sign the sell order with the expiration value included.
             const { order, signature, orderHash } = await signSellOrder({
@@ -120,7 +139,10 @@ export function useCreateListing(user: User) {
             const response = await fetch(`${API_URL}/marketplace/listings`, {
                 method: 'POST',
                 credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify({
                     cardId,
                     price: takePrice.toString(),
@@ -181,9 +203,11 @@ export function usePurchaseListing() {
     const { toast } = useToast();
     const { executeBuy } = useExchange();
     const { address } = useAccount();
+    const { getAccessToken } = usePrivy();
 
     return useMutation({
         mutationFn: async (listing: Listing) => {
+            const token = await getAccessToken();
             if (!address) throw new Error('Wallet not connected');
 
             // Convert the listing data into the Order format
@@ -209,7 +233,10 @@ export function usePurchaseListing() {
             const response = await fetch(`${API_URL}/marketplace/listings/${listing.id}/complete`, {
                 method: 'POST',
                 credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify({
                     hash,
                     buyer: address
@@ -243,9 +270,11 @@ export function usePlaceBid() {
     const { toast } = useToast();
     const { signBuyOrder } = useExchange();
     const { address } = useAccount();
+    const { getAccessToken } = usePrivy();
 
     return useMutation({
         mutationFn: async ({ listingId, cardId, bidAmount }: { listingId: number; cardId: number; bidAmount: bigint; }) => {
+            const token = await getAccessToken();
             if (!address) throw new Error('Wallet not connected');
 
             // 1. Sign the buy order
@@ -259,7 +288,10 @@ export function usePlaceBid() {
             const response = await fetch(`${API_URL}/marketplace/bids`, {
                 method: 'POST',
                 credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify({
                     order,
                     signature,
@@ -293,16 +325,20 @@ export function usePlaceBid() {
 // Get user's active listings
 export function useUserListings() {
     const { address } = useAccount();
+    const { getAccessToken } = usePrivy();
 
     return useQuery({
         queryKey: ['user-listings', address],
         queryFn: async () => {
+            const token = await getAccessToken();
             if (!address) throw new Error('Wallet not connected');
 
             const response = await fetch(`${API_URL}/marketplace/users/${address}/listings`, {
                 method: "GET",
                 credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                },
             });
             if (!response.ok) {
                 throw new Error('Failed to fetch user listings');
