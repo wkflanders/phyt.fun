@@ -1,4 +1,4 @@
-import { db, eq, and, desc, asc, or, not, like, sql } from '@phyt/database';
+import { db, eq, and, desc, asc, or, not, like, sql, count as countFn } from '@phyt/database';
 import { posts, users, runners, runs, comments, reactions, follows } from '@phyt/database';
 import { NotFoundError, DatabaseError } from '@phyt/types';
 
@@ -89,10 +89,10 @@ export const postService = {
                 .select({
                     post: posts,
                     user: {
-                        id: users.id,
                         username: users.username,
                         avatar_url: users.avatar_url,
-                        is_runner: sql`users.role = 'runner'`
+                        role: users.role,
+                        is_pooled: runners.is_pooled,
                     },
                     run: {
                         distance_m: runs.distance_m,
@@ -103,13 +103,14 @@ export const postService = {
                         end_time: runs.end_time
                     },
                     stats: {
-                        likes: sql`(SELECT COUNT(*) FROM reactions WHERE reactions.post_id = posts.id AND reactions.type = 'like')`,
-                        comments: sql`(SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id)`
+                        comments: countFn(comments.id).as("comments"),
                     }
                 })
                 .from(posts)
                 .innerJoin(users, eq(posts.user_id, users.id))
                 .innerJoin(runs, eq(posts.run_id, runs.id))
+                .innerJoin(runners, eq(posts.user_id, runners.user_id))
+                .groupBy(posts.id, users.id, runs.id, runners.id)
                 .where(eq(posts.status, 'visible'));
 
             // Apply filter if specified
@@ -144,9 +145,8 @@ export const postService = {
 
             const results = await query.limit(limit).offset(offset);
 
-            // Get total count for pagination
             const [{ count }] = await db
-                .select({ count: sql`COUNT(*)` })
+                .select({ count: countFn(posts.id) })
                 .from(posts)
                 .where(eq(posts.status, 'visible'));
 
@@ -186,8 +186,7 @@ export const postService = {
                         end_time: runs.end_time
                     },
                     stats: {
-                        likes: sql`(SELECT COUNT(*) FROM reactions WHERE reactions.post_id = posts.id AND reactions.type = 'like')`,
-                        comments: sql`(SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id)`
+                        comments: countFn(comments.id).as("comments"),
                     }
                 })
                 .from(posts)
@@ -202,7 +201,7 @@ export const postService = {
 
             // Get total count for pagination
             const [{ count }] = await db
-                .select({ count: sql`COUNT(*)` })
+                .select({ count: countFn(posts.id) })
                 .from(posts)
                 .where(and(
                     eq(posts.user_id, userId),
