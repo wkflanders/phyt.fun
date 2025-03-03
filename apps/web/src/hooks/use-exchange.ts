@@ -1,9 +1,9 @@
 import { usePublicClient, useWalletClient, useAccount } from 'wagmi';
 import { writeContract, simulateContract } from 'wagmi/actions';
-import { type Address, parseEther, keccak256, encodeAbiParameters, concat } from 'viem';
+import { keccak256, encodeAbiParameters, concat } from 'viem';
 import { config } from '@/lib/wagmi';
 import { ExchangeAbi } from '@phyt/contracts';
-import { type Order } from '@phyt/types';
+import { Order } from '@phyt/types';
 
 const EXCHANGE_ADDRESS = process.env.EXCHANGE_ADDRESS! || "0x50480bDEF93a26f45B33aa2c26A00108bbC358c3";
 const PHYT_CARDS_ADDRESS = process.env.PHYT_CARDS_ADDRESS! || "0x8a1c168113088F7414fc637817859Afa87fb4244";
