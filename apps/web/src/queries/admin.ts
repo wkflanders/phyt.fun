@@ -1,13 +1,21 @@
 import { PendingRunner, PendingRun } from '@phyt/types';
+import { ApiError } from 'next/dist/server/api-utils';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
 export const PENDING_RUNNERS_QUERY_KEY = 'pendingRunners';
 export const PENDING_RUNS_QUERY_KEY = 'pendingRuns';
 
-export const getPendingRunners = async (): Promise<PendingRunner[]> => {
+export const getPendingRunners = async (token: string | null): Promise<PendingRunner[]> => {
+    if (!token) {
+        throw new Error("No token available. Is user logged in with privy?");
+    }
+
     const response = await fetch(`${API_URL}/api/admin/pending-runners`, {
-        credentials: 'include',
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
     });
 
     if (!response.ok) {
@@ -17,9 +25,16 @@ export const getPendingRunners = async (): Promise<PendingRunner[]> => {
     return response.json();
 };
 
-export const getPendingRuns = async (): Promise<PendingRun[]> => {
+export const getPendingRuns = async (token: string | null): Promise<PendingRun[]> => {
+    if (!token) {
+        throw new Error("No token available. Is user logged in with privy?");
+    }
+
     const response = await fetch(`${API_URL}/api/admin/pending-runs`, {
-        credentials: 'include',
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
     });
 
     if (!response.ok) {
@@ -29,11 +44,15 @@ export const getPendingRuns = async (): Promise<PendingRun[]> => {
     return response.json();
 };
 
-export const approveRunner = async (runnerId: number) => {
+export const approveRunner = async (runnerId: number, token: string | null) => {
+    if (!token) {
+        throw new Error("No token available. Is user logged in with privy?");
+    }
+
     const response = await fetch(`${API_URL}/api/admin/runners/${runnerId}/approve`, {
         method: 'POST',
-        credentials: 'include',
         headers: {
+            "Authorization": `Bearer ${token}`,
             'Content-Type': 'application/json',
         },
     });
@@ -45,11 +64,15 @@ export const approveRunner = async (runnerId: number) => {
     return response.json();
 };
 
-export const updateRunVerification = async (runId: number, status: 'verified' | 'flagged') => {
+export const updateRunVerification = async (runId: number, status: 'verified' | 'flagged', token: string | null) => {
+    if (!token) {
+        throw new Error("No token available. Is user logged in with privy?");
+    }
+
     const response = await fetch(`${API_URL}/api/admin/runs/${runId}/verify`, {
         method: 'PATCH',
-        credentials: 'include',
         headers: {
+            "Authorization": `Bearer ${token}`,
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ status }),

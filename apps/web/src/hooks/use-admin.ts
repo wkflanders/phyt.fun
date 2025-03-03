@@ -8,27 +8,40 @@ import {
     PENDING_RUNS_QUERY_KEY
 } from '@/queries/admin';
 import { useToast } from './use-toast';
+import { getAccessToken, usePrivy } from '@privy-io/react-auth';
 
 export function usePendingRunners() {
+    const { getAccessToken } = usePrivy();
     return useQuery({
         queryKey: [PENDING_RUNNERS_QUERY_KEY],
-        queryFn: getPendingRunners
+        queryFn: async () => {
+            const token = await getAccessToken();
+            return getPendingRunners(token);
+        }
     });
 }
 
 export function usePendingRuns() {
+    const { getAccessToken } = usePrivy();
     return useQuery({
         queryKey: [PENDING_RUNS_QUERY_KEY],
-        queryFn: getPendingRuns
+        queryFn: async () => {
+            const token = await getAccessToken();
+            return getPendingRuns(token);
+        }
     });
 }
 
 export function useApproveRunner() {
     const queryClient = useQueryClient();
     const { toast } = useToast();
+    const { getAccessToken } = usePrivy();
 
     return useMutation({
-        mutationFn: approveRunner,
+        mutationFn: async (runnerId: number) => {
+            const token = await getAccessToken();
+            return approveRunner(runnerId, token);
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: [PENDING_RUNNERS_QUERY_KEY] });
             toast({
@@ -49,10 +62,13 @@ export function useApproveRunner() {
 export function useUpdateRunVerification() {
     const queryClient = useQueryClient();
     const { toast } = useToast();
+    const { getAccessToken } = usePrivy();
 
     return useMutation({
-        mutationFn: ({ runId, status }: { runId: number; status: 'verified' | 'flagged'; }) =>
-            updateRunVerification(runId, status),
+        mutationFn: async ({ runId, status }: { runId: number; status: 'verified' | 'flagged'; }) => {
+            const token = await getAccessToken();
+            updateRunVerification(runId, status, token);
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: [PENDING_RUNS_QUERY_KEY] });
             toast({
