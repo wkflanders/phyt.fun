@@ -75,8 +75,9 @@ export const WalletPopover: React.FC = () => {
         }
     };
 
-    const formatTimestamp = (timestamp: string) => {
-        return new Date(timestamp).toLocaleDateString('en-US', {
+    const formatTimestamp = (timestamp: string | Date) => {
+        const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+        return date.toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
             hour: '2-digit',

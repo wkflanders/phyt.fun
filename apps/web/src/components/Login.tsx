@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from '@/components/ui/button';
 import { ApiError } from '@phyt/types';
 import { getUserQueryKey } from '@/queries/user';
+import { useGetUser } from '@/hooks/use-users';
 
 export const Login = () => {
     const router = useRouter();
@@ -34,17 +35,7 @@ export const Login = () => {
                     router.push('/onboard');
                 } else {
                     try {
-                        const userData = await getUser(user.id);
-                        console.log('Setting user data in cache:', userData);
-
-                        const queryKey = getUserQueryKey(user.id);
-
-                        await queryClient.setQueryData(queryKey, userData, {
-                            updatedAt: Date.now()
-                        });
-
-                        const cachedData = queryClient.getQueryData(queryKey);
-                        console.log('Verified cached data:', cachedData);
+                        const { data } = useGetUser();
 
                         const redirectTo = searchParams.get('redirect') || '/';
                         router.push(redirectTo);
