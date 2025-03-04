@@ -7,9 +7,12 @@ export const USER_QUERY_KEY = "user";
 export const TRANSACTIONS_QUERY_KEY = "transactions";
 export const getUserQueryKey = (privyId: string) => [USER_QUERY_KEY, privyId];
 
-export async function getUser(privyId: string): Promise<User> {
+export async function getUser(privyId: string, token: string | null): Promise<User> {
     const response = await fetch(`${API_URL}/users/${privyId}`, {
-        credentials: 'include',
+        method: 'GET',
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
     });
 
     const data = await response.json();
@@ -24,9 +27,12 @@ export async function getUser(privyId: string): Promise<User> {
     return data;
 }
 
-export async function getUserTransactions(privyId: string): Promise<Transaction[]> {
+export async function getUserTransactions(privyId: string, token: string | null): Promise<Transaction[]> {
     const response = await fetch(`${API_URL}/users/transactions/${privyId}`, {
-        credentials: 'include',
+        method: 'GET',
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
     });
 
     const data = await response.json();
@@ -41,11 +47,13 @@ export async function getUserTransactions(privyId: string): Promise<Transaction[
     return data;
 }
 
-export async function createUser({ formData }: CreateUserInput): Promise<User> {
+export async function createUser({ formData }: CreateUserInput, token: string | null): Promise<User> {
     const response = await fetch(`${API_URL}/users/create`, {
         method: 'POST',
+        headers: {
+            "Authorization": `Bearer ${token}`
+        },
         body: formData,
-        credentials: 'include'
     });
 
     if (!response.ok) {
@@ -53,15 +61,18 @@ export async function createUser({ formData }: CreateUserInput): Promise<User> {
         throw {
             error: error.error || 'Failed to create user',
             status: response.status
-        };
+        } as ApiError;;
     }
 
     return response.json();
 }
 
-export async function getUserCards(privyId: string): Promise<CardWithMetadata[]> {
+export async function getUserCards(privyId: string, token: string | null): Promise<CardWithMetadata[]> {
     const response = await fetch(`${API_URL}/users/cards/${privyId}`, {
-        credentials: 'include',
+        method: 'GET',
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
     });
 
     if (!response.ok) {
@@ -69,7 +80,7 @@ export async function getUserCards(privyId: string): Promise<CardWithMetadata[]>
         throw {
             error: error.error || 'Failed to fetch user cards',
             status: response.status
-        };
+        } as ApiError;;
     }
     return response.json();
 }

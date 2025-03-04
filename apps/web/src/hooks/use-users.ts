@@ -9,19 +9,20 @@ import {
     USER_QUERY_KEY,
     TRANSACTIONS_QUERY_KEY
 } from '@/queries/user';
-import { User, ApiError, CardWithMetadata, CreateUserInput } from '@phyt/types';
+import { User, ApiError, CardWithMetadata, CreateUserInput, Transaction } from '@phyt/types';
 
 export function useGetUser() {
-    const { user: privyUser, ready } = usePrivy();
+    const { user: privyUser, ready, getAccessToken } = usePrivy();
 
     return useQuery<User, ApiError>({
         queryKey: [USER_QUERY_KEY, privyUser?.id],
-        queryFn: async ({ queryKey }) => {
+        queryFn: async () => {
             if (!privyUser?.id) {
                 throw new Error("No authenticated user");
             }
+            const token = await getAccessToken();
 
-            const userData = await getUser(privyUser.id);
+            const userData = await getUser(privyUser.id, token);
             return userData;
         },
         enabled: Boolean(ready && privyUser?.id),
@@ -34,11 +35,14 @@ export function useGetUser() {
 
 export function useCreateUser() {
     const queryClient = useQueryClient();
+    const { getAccessToken } = usePrivy();
 
-    return useMutation({
-        mutationFn: createUser,
+    return useMutation<User, ApiError, CreateUserInput>({
+        mutationFn: async ({ formData }) => {
+            const token = await getAccessToken();
+            return createUser({ formData }, token);
+        },
         onSuccess: (data: User, { formData }) => {
-            // Get privy_id from formData
             const privyId = formData.get('privy_id') as string;
             const queryKey = getUserQueryKey(privyId);
 
@@ -52,18 +56,17 @@ export function useCreateUser() {
 }
 
 export function useGetUserTransactions() {
-    const { user: privyUser, ready } = usePrivy();
+    const { user: privyUser, ready, getAccessToken } = usePrivy();
 
-    return useQuery({
+    return useQuery<Transaction[], ApiError>({
         queryKey: [TRANSACTIONS_QUERY_KEY, privyUser?.id],
-        queryFn: async ({ queryKey }) => {
-            console.log("Query function executing for:", queryKey[1]);
-
+        queryFn: async () => {
             if (!privyUser?.id) {
                 throw new Error("No authenticated user");
             }
+            const token = await getAccessToken();
 
-            const transactionData = await getUserTransactions(privyUser.id);
+            const transactionData = await getUserTransactions(privyUser.id, token);
             return transactionData;
         },
         enabled: Boolean(ready && privyUser?.id),
@@ -73,15 +76,17 @@ export function useGetUserTransactions() {
 }
 
 export function useGetUserCards() {
-    const { user: privyUser, ready } = usePrivy();
+    const { user: privyUser, ready, getAccessToken } = usePrivy();
 
-    return useQuery({
+    return useQuery<CardWithMetadata[], ApiError>({
         queryKey: ["userCards", privyUser?.id],
-        queryFn: async (): Promise<CardWithMetadata[]> => {
+        queryFn: async () => {
             if (!privyUser?.id) {
                 throw new Error("No authenticated user");
             }
-            return getUserCards(privyUser.id);
+            const token = await getAccessToken();
+
+            return getUserCards(privyUser.id, token);
         },
         enabled: Boolean(ready && privyUser?.id),
     });
