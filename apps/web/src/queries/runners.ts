@@ -6,19 +6,18 @@ export const getRunnersQueryKey = () => ['runners'];
 export const RUNNER_ACTIVITIES_QUERY_KEY = "runnerActivities";
 export const getRunnerQueryKey = (id: number) => ['runners', id];
 
-export async function getRunners(search?: string): Promise<Runner[]> {
+export async function getRunners(token: string | null, search?: string): Promise<Runner[]> {
     const searchParams = new URLSearchParams();
     if (search) {
         searchParams.append('search', search);
     }
 
-    const response = await fetch(
-        `${API_URL}/runners?${searchParams.toString()}`,
-        {
-            method: 'GET',
-            credentials: 'include',
+    const response = await fetch(`${API_URL}/runners?${searchParams.toString()}`, {
+        method: 'GET',
+        headers: {
+            "Authorization": `Bearer ${token}`
         }
-    );
+    });
 
     if (!response.ok) {
         const error = await response.json();
@@ -28,14 +27,13 @@ export async function getRunners(search?: string): Promise<Runner[]> {
     return response.json();
 }
 
-export async function getRunner(id: number): Promise<Runner> {
-    const response = await fetch(
-        `${API_URL}/runners/runner/${id}`,
-        {
-            method: 'GET',
-            credentials: 'include',
+export async function getRunner(id: number, token: string | null): Promise<Runner> {
+    const response = await fetch(`${API_URL}/runners/runner/${id}`, {
+        method: 'GET',
+        headers: {
+            "Authorization": `Bearer ${token}`
         }
-    );
+    });
 
     if (!response.ok) {
         const error = await response.json();
@@ -45,11 +43,13 @@ export async function getRunner(id: number): Promise<Runner> {
     return response.json();
 }
 
-export async function getRunnerActivities(filter?: string): Promise<RunnerActivity[]> {
+export async function getRunnerActivities(token: string | null, filter?: string): Promise<RunnerActivity[]> {
     const queryParams = filter ? `?filter=${filter}` : '';
     const response = await fetch(`${API_URL}/runners/activities${queryParams}`, {
         method: 'GET',
-        credentials: 'include',
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
     });
 
     const data = await response.json();
