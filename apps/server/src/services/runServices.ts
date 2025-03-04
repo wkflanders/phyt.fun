@@ -4,6 +4,39 @@ import { DatabaseError, NotFoundError } from '@phyt/types';
 import { withTransaction } from '@phyt/database';
 
 export const runService = {
+    applyAsRunner: async ({ privyId, workouts }: {
+        privyId: string;
+        workouts: any[];
+    }) => {
+        try {
+            return await withTransaction(async (tx) => {
+                const status = await runService.applyToBeRunner(privyId);
+
+                if (status === 'pending') {
+                    const results = await runService.createRunsBatchByPrivyId({
+                        privyId,
+                        workouts
+                    });
+
+                    if (results && results.length > 0) {
+                        return 'success';
+                    }
+                    return 'pending';
+                } else if (status === 'already_runner') {
+                    return 'already_runner';
+                } else if (status === 'already_submitted') {
+                    return 'already_submitted';
+                }
+
+                return 'failed';
+            });
+        } catch (error) {
+            console.error('Error applying as runner:', error);
+            if (error instanceof NotFoundError) throw error;
+            throw new DatabaseError('Failed to process runner application');
+        }
+    },
+
     getRunnerRuns: async (runnerId: number) => {
         try {
             return await db

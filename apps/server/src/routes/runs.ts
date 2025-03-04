@@ -16,30 +16,28 @@ router.post('/apply/:privyId', async (req, res) => {
     try {
         const { privyId } = req.params;
         const workouts = req.body;
-        // user signs on to app
-        // if not a runner on login, have them apply and THEN run batch send
-        // disable sending button if not a runner 
-        // hit apply button, which sends to this route - will send batch runs along with this route
-        const status = await runService.applyToBeRunner(privyId);
-        if (status === 'pending') {
-            const results = await runService.createRunsBatchByPrivyId({
-                privyId,
-                workouts
-            });
-            if (results) {
-                return res.status(200).json('Application submitted');
-            }
-        } else if (status === 'already_runner') {
-            return res.status(200).json('Already a runner');
-        } else if (status === 'already_submitted') {
-            return res.status(200).json('Already applied');
-        } else {
-            return res.status(400).json('Application failed');
+
+        const result = await runService.applyAsRunner({
+            privyId,
+            workouts
+        });
+
+        switch (result) {
+            case 'success':
+                return res.status(200).json({ message: 'Application submitted successfully' });
+            case 'already_runner':
+                return res.status(200).json({ message: 'Already a runner' });
+            case 'already_submitted':
+                return res.status(200).json({ message: 'Already applied' });
+            default:
+                return res.status(400).json({ error: 'Application failed' });
         }
     } catch (error) {
+        console.error('Error in runner application:', error);
         if (error instanceof NotFoundError) {
             return res.status(404).json({ error: error.message });
         }
+        return res.status(500).json({ error: 'Failed to process application' });
     }
 });
 
