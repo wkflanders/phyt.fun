@@ -45,8 +45,8 @@ export const enum_report_reason = pgEnum("enum_report_reason", [
 // Tables
 export const users = pgTable("users", {
     id: serial("id").primaryKey(),
-    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
-    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
     email: varchar("email").notNull(),
     username: varchar("username").notNull(),
     role: enum_users_role("role").default('user').notNull(),
@@ -72,8 +72,8 @@ export const runners = pgTable("runners", {
     best_mile_time: doublePrecision("best_mile_time"),
     status: enum_runner_status("status").default('pending'),
     is_pooled: boolean("is_pooled").default(false).notNull(),
-    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
-    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
     uniqueIndex("runners_user_idx").on(table.user_id),
     index("runners_created_at_idx").on(table.created_at),
@@ -98,8 +98,8 @@ export const runs = pgTable("runs", {
     is_posted: boolean("is_posted").default(false),
     verification_status: enum_runs_verification_status("verification_status").default('pending'),
     raw_data_json: jsonb("raw_data_json"),
-    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
-    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
     index("runs_runner_idx").on(table.runner_id),
     index("runs_created_at_idx").on(table.created_at),
@@ -110,8 +110,8 @@ export const pack_purchases = pgTable("pack_purchases", {
     id: serial("id").primaryKey(),
     buyer_id: integer("buyer_id").notNull().references(() => users.id, { onDelete: 'set null' }),
     purchase_price: doublePrecision("purchase_price").notNull(),
-    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
-    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
     index("pack_purchases_buyer_idx").on(table.buyer_id),
     index("pack_purchases_created_at_idx").on(table.created_at),
@@ -125,8 +125,8 @@ export const cards = pgTable("cards", {
     token_id: integer("token_id").notNull().unique(),
     acquisition_type: enum_acquisition_type("acquisition_type").notNull().default('mint'),
     is_burned: boolean("is_burned").notNull().default(false),
-    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
-    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
     index("idx_cards_owner_id").on(table.owner_id),
     index("idx_cards_pack_purchase_id").on(table.pack_purchase_id),
@@ -141,7 +141,7 @@ export const card_metadata = pgTable("card_metadata", {
     rarity: enum_cards_rarity("rarity").notNull(),
     multiplier: doublePrecision("multiplier").notNull(),
     image_url: varchar("image_url").notNull(),
-    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
     uniqueIndex("idx_cards_token_id").on(table.token_id),
     index("idx_card_metadata_runner_id").on(table.runner_id),
@@ -156,8 +156,8 @@ export const competitions = pgTable("competitions", {
     distance_m: doublePrecision("distance_m"),
     event_type: varchar("event_type"),
     jackpot: doublePrecision("jackpot").default(0),
-    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
-    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
     index("competitions_created_at_idx").on(table.created_at),
     index("competitions_updated_at_idx").on(table.updated_at),
@@ -167,8 +167,8 @@ export const lineups = pgTable("lineups", {
     id: serial("id").primaryKey(),
     competition_id: integer("competition_id").notNull().references(() => competitions.id, { onDelete: 'set null' }),
     gambler_id: integer("gambler_id").notNull().references(() => users.id, { onDelete: 'set null' }),
-    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
-    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
     index("lineups_competition_idx").on(table.competition_id),
     index("lineups_gambler_idx").on(table.gambler_id),
@@ -181,8 +181,8 @@ export const lineup_cards = pgTable("lineup_cards", {
     lineup_id: integer("lineup_id").notNull().references(() => lineups.id, { onDelete: 'set null' }),
     card_id: integer("card_id").notNull().references(() => cards.id, { onDelete: 'set null' }),
     position: integer("position").notNull(),
-    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
-    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
     index("lineup_cards_lineup_idx").on(table.lineup_id),
     index("lineup_cards_card_idx").on(table.card_id),
@@ -197,8 +197,8 @@ export const runner_results = pgTable("runner_results", {
     session_id: integer("session_id").notNull().references(() => runs.id, { onDelete: 'set null' }),
     best_time_sec: doublePrecision("best_time_sec").notNull(),
     ranking: integer("ranking"),
-    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
-    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
     index("runner_results_competition_idx").on(table.competition_id),
     index("runner_results_runner_idx").on(table.runner_id),
@@ -213,8 +213,8 @@ export const gambler_results = pgTable("gambler_results", {
     total_score: doublePrecision("total_score").notNull(),
     final_placement: integer("final_placement"),
     reward_amount_p_h_y_t: doublePrecision("reward_amount_p_h_y_t"),
-    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
-    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
     index("gambler_results_lineup_idx").on(table.lineup_id),
     index("gambler_results_created_at_idx").on(table.created_at),
@@ -235,8 +235,8 @@ export const listings = pgTable("listings", {
     transaction_hash: varchar("transaction_hash", { length: 66 }),
     highest_bid: varchar("highest_bid"),
     highest_bidder_id: integer("highest_bidder_id").references(() => users.id, { onDelete: 'set null' }),
-    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
-    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
     index("listings_card_idx").on(table.card_id),
     index("listings_seller_idx").on(table.seller_id),
@@ -259,8 +259,8 @@ export const bids = pgTable("bids", {
     status: varchar("status").notNull().default('active'),
     expiration_time: timestamp("expiration_time", { precision: 3 }).notNull(), // Added expiration for open bids
     accepted_at: timestamp("accepted_at", { precision: 3 }),
-    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
-    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
     index("bids_listing_idx").on(table.listing_id),
     index("bids_card_idx").on(table.card_id),
@@ -280,8 +280,8 @@ export const transactions = pgTable("transactions", {
     token_amount: doublePrecision("token_amount"),
     transaction_type: enum_transactions_transaction_type("transaction_type").notNull(),
     hash: varchar("hash", { length: 66 }), // 0x + 64 characters for hash
-    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
-    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
     index("transactions_from_user_idx").on(table.from_user_id),
     index("transactions_to_user_idx").on(table.to_user_id),
@@ -300,8 +300,8 @@ export const user_device_authorizations = pgTable("user_device_authorizations", 
     refresh_token: varchar("refresh_token"),
     scopes: varchar("scopes"),
     last_synced_at: timestamp("last_synced_at", { precision: 3 }),
-    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
-    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
     index("user_device_authorizations_user_idx").on(table.user_id),
     index("user_device_authorizations_created_at_idx").on(table.created_at),
@@ -313,8 +313,8 @@ export const posts = pgTable("posts", {
     user_id: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
     run_id: integer("run_id").notNull().references(() => runs.id, { onDelete: 'cascade' }),
     status: enum_posts_status("status").default('visible').notNull(),
-    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
-    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
     index("posts_user_idx").on(table.user_id),
     index("posts_run_idx").on(table.run_id),
@@ -332,8 +332,8 @@ export const comments = pgTable("comments", {
         .references(() => users.id, { onDelete: 'cascade' }),
     content: varchar("content").notNull(),
     parent_comment_id: integer("parent_comment_id"),
-    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow(),
-    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => {
     return {
         // Self-referencing FK:
@@ -354,7 +354,7 @@ export const reactions = pgTable("reactions", {
     post_id: integer("post_id").references(() => posts.id, { onDelete: 'cascade' }),
     comment_id: integer("comment_id").references(() => comments.id, { onDelete: 'cascade' }),
     type: enum_reaction_type("type").notNull(),
-    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
     index("reactions_post_idx").on(table.post_id),
     index("reactions_comment_idx").on(table.comment_id),
@@ -367,7 +367,7 @@ export const follows = pgTable("follows", {
     id: serial("id").primaryKey(),
     follower_id: integer("follower_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
     following_id: integer("following_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
-    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
     index("follows_follower_idx").on(table.follower_id),
     index("follows_following_idx").on(table.following_id),
@@ -379,7 +379,7 @@ export const profile_views = pgTable("profile_views", {
     profile_id: integer("profile_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
     viewer_id: integer("viewer_id").references(() => users.id, { onDelete: 'set null' }),
     ip_address: varchar("ip_address"),
-    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
     index("profile_views_profile_idx").on(table.profile_id),
     index("profile_views_created_at_idx").on(table.created_at),
@@ -396,7 +396,7 @@ export const reports = pgTable("reports", {
     status: enum_report_status("status").default('pending'),
     reviewed_by: integer("reviewed_by").references(() => users.id, { onDelete: 'set null' }),
     reviewed_at: timestamp("reviewed_at", { precision: 3 }),
-    created_at: timestamp("created_at", { precision: 3 }).defaultNow(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
     index("reports_reporter_idx").on(table.reporter_id),
     index("reports_post_idx").on(table.post_id),
