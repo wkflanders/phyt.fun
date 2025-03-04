@@ -1,18 +1,18 @@
-import { ApiError, PostsQueryParams, PostsResponse, Post } from '@phyt/types';
+import { ApiError, PostQueryParams, PostResponse, Post } from '@phyt/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
 export const POST_QUERY_KEYS = {
     all: ['posts'] as const,
     lists: () => [...POST_QUERY_KEYS.all, 'list'] as const,
-    list: (filters: PostsQueryParams) => [...POST_QUERY_KEYS.lists(), filters] as const,
+    list: (filters: PostQueryParams) => [...POST_QUERY_KEYS.lists(), filters] as const,
     details: () => [...POST_QUERY_KEYS.all, 'detail'] as const,
     detail: (id: number) => [...POST_QUERY_KEYS.details(), id] as const,
     userPosts: (userId: number, params?: { page?: number; limit?: number; }) =>
         ['userPosts', userId, params] as const,
 };
 
-export async function fetchPosts(params: PostsQueryParams = {}, token: string | null): Promise<PostsResponse> {
+export async function fetchPosts(params: PostQueryParams = {}, token: string | null): Promise<PostResponse> {
     const { page = 1, limit = 10, filter = 'all' } = params;
 
     const searchParams = new URLSearchParams();
@@ -61,7 +61,7 @@ export async function fetchPostById(postId: number, token: string | null): Promi
 }
 
 // Function to fetch posts by a specific user
-export async function fetchUserPosts(userId: number, params: { page?: number, limit?: number; } = {}, token: string | null): Promise<PostsResponse> {
+export async function fetchUserPosts(userId: number, params: { page?: number, limit?: number; } = {}, token: string | null): Promise<PostResponse> {
     const { page = 1, limit = 10 } = params;
 
     const searchParams = new URLSearchParams();
