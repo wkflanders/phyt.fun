@@ -27,8 +27,8 @@ export const RarityMultipliers: Record<CardRarity, number> = {
 
 export interface User {
     id: number;
-    updated_at: string;
-    created_at: string;
+    updated_at: Date;
+    created_at: Date;
     email: string;
     username: string;
     role: UserRole;
@@ -45,8 +45,8 @@ export interface CreateUserInput {
 
 export interface Run {
     id: number;
-    updated_at: string;
-    created_at: string;
+    updated_at: Date;
+    created_at: Date;
     runner_id: number;
     start_time: string;
     end_time: string;
@@ -83,8 +83,8 @@ export interface Card {
     token_id: number,
     is_burned: boolean,
     acquisition_type: AcquisitionType;
-    updated_at: Date | null;
-    created_at: Date | null;
+    updated_at: Date;
+    created_at: Date;
 }
 
 export interface CardMetadata extends Pick<Card, 'token_id'> {
@@ -94,7 +94,7 @@ export interface CardMetadata extends Pick<Card, 'token_id'> {
     rarity: CardRarity;
     image_url: string;
     multiplier: number;
-    created_at: Date | null;
+    created_at: Date;
 }
 
 export interface CardWithMetadata extends Card {
@@ -103,8 +103,8 @@ export interface CardWithMetadata extends Card {
 
 export interface Competition {
     id: number;
-    updated_at: string;
-    created_at: string;
+    updated_at: Date;
+    created_at: Date;
     event_name: string;
     start_time: string;
     end_time: string;
@@ -115,16 +115,16 @@ export interface Competition {
 
 export interface Lineup {
     id: number;
-    updated_at: string;
-    created_at: string;
+    updated_at: Date;
+    created_at: Date;
     competition_id: number;
     gambler_id: number;
 }
 
 export interface LineupCard {
     id: number;
-    updated_at: string;
-    created_at: string;
+    updated_at: Date;
+    created_at: Date;
     lineup_id: number;
     card_id: number;
     position: number;
@@ -139,15 +139,15 @@ export interface Runner {
     average_pace: number | null;
     total_runs: number;
     best_mile_time: number | null;
-    created_at: string;
-    updated_at: string;
+    created_at: Date;
+    updated_at: Date;
 }
 
 export interface PendingRunner {
     id: number;
     username: string;
     email: string;
-    created_at: string;
+    created_at: Date;
     role: string;
     privy_id: string;
     wallet_address?: string;
@@ -160,7 +160,7 @@ export interface PendingRun {
         runner_id: number;
         distance_m: number;
         duration_seconds: number;
-        created_at: string;
+        created_at: Date;
         verification_status: 'pending' | 'verified' | 'flagged';
     };
     runner_name: string;
@@ -168,8 +168,8 @@ export interface PendingRun {
 
 export interface RunnerResult {
     id: number;
-    updated_at: string;
-    created_at: string;
+    updated_at: Date;
+    created_at: Date;
     competition_id: number;
     runner_id: number;
     session_id: number;
@@ -179,8 +179,8 @@ export interface RunnerResult {
 
 export interface GamblerResult {
     id: number;
-    updated_at: string;
-    created_at: string;
+    updated_at: Date;
+    created_at: Date;
     lineup_id: number;
     total_score: number;
     final_placement: number | null;
@@ -189,8 +189,8 @@ export interface GamblerResult {
 
 export interface Transaction {
     id: number;
-    updated_at: string;
-    created_at: string;
+    updated_at: Date;
+    created_at: Date;
     from_user_id: number | null;
     to_user_id: number | null;
     card_id: number | null;
@@ -201,8 +201,8 @@ export interface Transaction {
 
 export interface PackPurchase {
     id: number;
-    updated_at: string;
-    created_at: string;
+    updated_at: Date;
+    created_at: Date;
     buyer_id: number;
     purchase_price: number;
 }
@@ -216,8 +216,8 @@ export interface PackPurchaseCardId {
 
 export interface UserDeviceAuthorization {
     id: number;
-    updated_at: string;
-    created_at: string;
+    updated_at: Date;
+    created_at: Date;
     user_id: number;
     device_type: string;
     access_token: string | null;
@@ -440,8 +440,8 @@ export interface Post {
     user_id: number;
     run_id: number;
     status: "visible" | "hidden" | "deleted";
-    updated_at: Date | null;
-    created_at: Date | null;
+    updated_at: Date;
+    created_at: Date;
 }
 
 export interface PostUpdateRequest {
@@ -468,6 +468,7 @@ export interface PostResponse {
             duration_seconds: number;
             average_pace_sec: null | number;
             elevation_gain_m: null | number;
+            gps_route_data: string | null;
             start_time: Date;
         },
         stats: {
@@ -491,8 +492,8 @@ export interface Comment {
     user_id: number;
     content: string;
     parent_comment_id: number | null;
-    updated_at: Date | null;
-    created_at: Date | null;
+    updated_at: Date;
+    created_at: Date;
 }
 
 export interface CommentCreateRequest {
