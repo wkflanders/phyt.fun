@@ -1,4 +1,4 @@
-import { ApiError, CommentsQueryParams, CommentsResponse } from '@phyt/types';
+import { ApiError, CommentQueryParams, CommentResponse } from '@phyt/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
@@ -6,13 +6,13 @@ export const COMMENT_QUERY_KEYS = {
     all: ['comments'] as const,
     lists: () => [...COMMENT_QUERY_KEYS.all, 'list'] as const,
     detail: (commentId: number) => [...COMMENT_QUERY_KEYS.all, commentId] as const,
-    postComments: (postId: number, params?: CommentsQueryParams) =>
+    postComments: (postId: number, params?: CommentQueryParams) =>
         ['postComments', postId, params] as const,
     replies: (commentId: number, params?: { page?: number, limit?: number; }) =>
         ['commentReplies', commentId, params] as const
 };
 
-export async function fetchPostComments(postId: number, params: CommentsQueryParams = {}, token: string | null): Promise<CommentsResponse> {
+export async function fetchPostComments(postId: number, params: CommentQueryParams = {}, token: string | null): Promise<CommentResponse> {
     const { page = 1, limit = 20, parentOnly = false } = params;
 
     const searchParams = new URLSearchParams();
@@ -39,7 +39,7 @@ export async function fetchPostComments(postId: number, params: CommentsQueryPar
 }
 
 // Function to fetch replies to a comment
-export async function fetchCommentReplies(commentId: number, params: CommentsQueryParams = {}, token: string | null): Promise<CommentsResponse> {
+export async function fetchCommentReplies(commentId: number, params: CommentQueryParams = {}, token: string | null): Promise<CommentResponse> {
     const { page = 1, limit = 20 } = params;
 
     const searchParams = new URLSearchParams();
