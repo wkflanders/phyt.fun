@@ -64,6 +64,7 @@ export const postService = {
                 .innerJoin(users, eq(posts.user_id, users.id))
                 .innerJoin(runs, eq(posts.run_id, runs.id))
                 .innerJoin(runners, eq(posts.user_id, runners.user_id))
+                .leftJoin(comments, eq(comments.post_id, posts.id))
                 .where(eq(posts.id, postId))
                 .groupBy(posts.id, users.id, runs.id, runners.id);
 
@@ -118,6 +119,7 @@ export const postService = {
                 .innerJoin(users, eq(posts.user_id, users.id))
                 .innerJoin(runs, eq(posts.run_id, runs.id))
                 .innerJoin(runners, eq(posts.user_id, runners.user_id))
+                .leftJoin(comments, eq(comments.post_id, posts.id))
                 .groupBy(posts.id, users.id, runs.id, runners.id)
                 .where(eq(posts.status, 'visible'));
 
@@ -199,6 +201,7 @@ export const postService = {
                 })
                 .from(posts)
                 .innerJoin(runs, eq(posts.run_id, runs.id))
+                .leftJoin(comments, eq(comments.post_id, posts.id))
                 .where(and(
                     eq(posts.user_id, userId),
                     eq(posts.status, 'visible')
