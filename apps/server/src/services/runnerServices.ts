@@ -160,6 +160,7 @@ export const runnerService = {
             throw new DatabaseError(`Failed to fetch activities for runner ${runnerId}`);
         }
     },
+
     getAllRunners: async ({ search }: GetAllRunnersOptions = {}) => {
         try {
             const conditions = [eq(runners.status, 'active')];
@@ -223,6 +224,39 @@ export const runnerService = {
         } catch (error) {
             if (error instanceof NotFoundError) throw error;
             throw new DatabaseError('Failed to get runner');
+        }
+    },
+
+    getRunnerStatusByPrivyId: async (privyId: string) => {
+        try {
+            const [user] = await db
+                .select()
+                .from(users)
+                .where(eq(users.privy_id, privyId))
+                .limit(1);
+
+            if (!user) {
+                throw new NotFoundError('User not found');
+            }
+
+            const [runner] = await db
+                .select()
+                .from(runners)
+                .where(eq(runners.user_id, user.id))
+                .limit(1);
+
+            if (!runner) {
+                throw new NotFoundError('Runner not found');
+            }
+
+            return {
+                status: runner.status,
+                is_pooled: runner.is_pooled
+            };
+        } catch (error) {
+            console.error('Error getting runner status:', error);
+            if (error instanceof NotFoundError) throw error;
+            throw new DatabaseError('Failed to get runner status');
         }
     },
 };
