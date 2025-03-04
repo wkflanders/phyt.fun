@@ -1,8 +1,11 @@
 import express, { Router } from 'express';
+import { validateAuth } from '../middleware/auth';
 import { metadataService } from '../services/metadataServices';
 import { NotFoundError } from '@phyt/types';
 
 const router: Router = express.Router();
+
+router.use(validateAuth);
 
 // Get metadata for a specific token
 router.get('/:tokenId', async (req, res) => {

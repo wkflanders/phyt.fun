@@ -6,7 +6,7 @@ import { purchasePackSchema } from '../lib/validation';
 
 const router: Router = express.Router();
 
-// router.use(validateAuth);
+router.use(validateAuth);
 
 router.get('/init/:walletAddress', async (req, res) => {
     try {

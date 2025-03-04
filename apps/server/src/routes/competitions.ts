@@ -4,6 +4,8 @@ import { competitionService } from '../services/competitionServices';
 
 const router: Router = express.Router();
 
+router.use(validateAuth);
+
 // Get all competitions
 router.get('/', async (req, res) => {
     try {
@@ -22,7 +24,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get a specific competition by ID
-router.get('/:id', validateAuth, async (req, res) => {
+router.get('/:id', async (req, res) => {
     try {
         const competitionId = parseInt(req.params.id);
         if (isNaN(competitionId)) {
