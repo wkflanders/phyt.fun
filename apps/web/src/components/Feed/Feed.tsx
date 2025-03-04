@@ -1,74 +1,48 @@
+// apps/web/src/components/Feed/Feed.tsx
 'use client';
 
 import React, { useState } from 'react';
 import { Heart, MessageCircle, Share2, MoreHorizontal, Timer, Navigation, Ruler, ArrowDown, TrendingUp } from 'lucide-react';
 import Image from 'next/image';
+import { useGetPosts, useDeletePost } from '@/hooks/use-posts';
+import { useToggleReaction } from '@/hooks/use-reactions';
+import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
+import { formatDistanceToNow } from 'date-fns';
 
-// Types remain the same
-interface User {
-    name: string;
-    avatar: string;
-}
+type PostFilter = 'all' | 'following' | 'trending';
 
-interface RunData {
-    coordinates: Array<[number, number]>;
-    distance: string;
-    pace: string;
-    time: string;
-}
+const DEFAULT_AVATAR = 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut';
 
-interface Post {
-    id: number;
-    user: User;
-    content: string;
-    runData: RunData;
-    likes: number;
-    comments: number;
-    shares: number;
-    time: string;
-}
+// Format time in mm:ss or hh:mm:ss
+const formatTime = (seconds: number): string => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60;
 
-// Mock data remains the same
-const mockPosts: Post[] = [
-    {
-        id: 1,
-        user: {
-            name: 'gphyt',
-            avatar: 'https://d1za1h12no9co6.cloudfront.net/00f5c89d-465c-4414-a22f-ccbfd1003e7a.png',
-        },
-        content: 'lightwork',
-        runData: {
-            coordinates: [[0, 0], [20, 15], [40, 25], [60, 40], [80, 30], [100, 45]],
-            distance: '5.2',
-            pace: '8:30',
-            time: '44:12',
-        },
-        likes: 124,
-        comments: 18,
-        shares: 5,
-        time: '2h ago',
-    },
-    {
-        id: 2,
-        user: {
-            name: 'jc9923',
-            avatar: 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut',
-        },
-        content: 'Quick morning jog',
-        runData: {
-            coordinates: [[10, 10], [30, 40], [50, 30], [70, 50], [90, 35]],
-            distance: '3.1',
-            pace: '7:45',
-            time: '24:05',
-        },
-        likes: 89,
-        comments: 12,
-        shares: 3,
-        time: '4h ago',
-    },
-];
+    if (hours > 0) {
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
 
-// Tab interface
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+};
+
+// Format pace in min:sec per mile or km
+const formatPace = (paceInSeconds: number | null): string => {
+    if (!paceInSeconds) return '--:--';
+
+    const minutes = Math.floor(paceInSeconds / 60);
+    const seconds = Math.floor(paceInSeconds % 60);
+
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+};
+
+// Convert distance from meters to miles or kilometers
+const formatDistance = (distanceInMeters: number): string => {
+    const distanceInMiles = distanceInMeters / 1609.34;
+    return `${distanceInMiles.toFixed(2)} mi`;
+};
+
 interface TabProps {
     label: string;
     isActive: boolean;
@@ -79,7 +53,7 @@ interface TabProps {
 const Tab = ({ label, isActive, onClick, icon }: TabProps) => (
     <button
         onClick={onClick}
-        className={`flex items-center gap-2 px-6 pb-2 text-2xl transition-colors text-text-dim duration-200 ${isActive
+        className={`flex items-center gap-2 px-6 pb-2 text-2xl transition-colors duration-200 ${isActive
             ? 'text-white'
             : 'text-text-dim hover:text-text'
             }`}
@@ -89,7 +63,27 @@ const Tab = ({ label, isActive, onClick, icon }: TabProps) => (
     </button>
 );
 
-const RunMap = ({ coordinates, distance }: { coordinates: Array<[number, number]>; distance: string; }) => {
+interface RunMapProps {
+    gpsRouteData?: string | null;
+    distanceInMeters: number;
+}
+
+const RunMap: React.FC<RunMapProps> = ({ gpsRouteData, distanceInMeters }) => {
+    // Default coordinates if no GPS data
+    const defaultCoordinates: Array<[number, number]> = [
+        [0, 0],
+        [20, 15],
+        [40, 25],
+        [60, 40],
+        [80, 30],
+        [100, 45]
+    ];
+
+    // Parse GPS route data if provided
+    const coordinates = gpsRouteData
+        ? JSON.parse(gpsRouteData) as Array<[number, number]>
+        : defaultCoordinates;
+
     const padding = 20;
     const scaleBarHeight = 30;
     const width = 400;
@@ -102,20 +96,20 @@ const RunMap = ({ coordinates, distance }: { coordinates: Array<[number, number]
     const minY = Math.min(...yValues);
     const maxY = Math.max(...yValues);
 
-    const xScale = (width - padding * 2) / (maxX - minX);
-    const yScale = (height - padding * 2) / (maxY - minY);
+    const xScale = (width - padding * 2) / (maxX - minX || 1);
+    const yScale = (height - padding * 2) / (maxY - minY || 1);
     const scale = Math.min(xScale, yScale);
 
     const transformedPath = coordinates.map(([x, y]) => [
-        padding + (x - minX) * scale,
-        padding + (y - minY) * scale,
+        padding + ((x - minX) * scale || 0),
+        padding + ((y - minY) * scale || 0),
     ]);
 
-    const pathLengthInMiles = parseFloat(distance);
+    const pathLengthInMiles = distanceInMeters / 1609.34;
     const pixelsPerMile = Math.sqrt(
         Math.pow(transformedPath[transformedPath.length - 1][0] - transformedPath[0][0], 2) +
         Math.pow(transformedPath[transformedPath.length - 1][1] - transformedPath[0][1], 2)
-    ) / pathLengthInMiles;
+    ) / (pathLengthInMiles || 1);
 
     return (
         <div className="w-full p-4 mb-4 backdrop-blur-md rounded-xl">
@@ -175,7 +169,13 @@ const RunMap = ({ coordinates, distance }: { coordinates: Array<[number, number]
     );
 };
 
-const MetricWidget = ({ icon: Icon, label, value }: { icon: any; label: string; value: string; }) => (
+interface MetricWidgetProps {
+    icon: React.ElementType;
+    label: string;
+    value: string;
+}
+
+const MetricWidget: React.FC<MetricWidgetProps> = ({ icon: Icon, label, value }) => (
     <div className="flex flex-col items-center p-3 backdrop-blur-md">
         <Icon size={20} className="mb-1 text-primary-shade" />
         <span className="text-sm text-text-dim">{label}</span>
@@ -183,8 +183,49 @@ const MetricWidget = ({ icon: Icon, label, value }: { icon: any; label: string; 
     </div>
 );
 
-export const Feed = () => {
-    const [activeTab, setActiveTab] = useState<'all' | 'following' | 'trending'>('all');
+interface PostSkeletonProps {
+    count?: number;
+}
+
+const PostSkeleton: React.FC<PostSkeletonProps> = ({ count = 1 }) => (
+    <>
+        {Array.from({ length: count }).map((_, index) => (
+            <div key={index} className="p-6 border-b border-white/10">
+                <div className="flex items-center gap-4 mb-4">
+                    <Skeleton className="w-10 h-10 rounded-full" />
+                    <div className="space-y-2">
+                        <Skeleton className="w-32 h-4" />
+                        <Skeleton className="w-24 h-3" />
+                    </div>
+                </div>
+                <Skeleton className="w-full h-48 mb-4" />
+                <div className="grid grid-cols-3 gap-4 mb-4">
+                    <Skeleton className="w-full h-16" />
+                    <Skeleton className="w-full h-16" />
+                    <Skeleton className="w-full h-16" />
+                </div>
+                <div className="flex justify-between">
+                    <Skeleton className="w-20 h-8" />
+                    <Skeleton className="w-20 h-8" />
+                    <Skeleton className="w-20 h-8" />
+                </div>
+            </div>
+        ))}
+    </>
+);
+
+export const Feed: React.FC = () => {
+    const [activeTab, setActiveTab] = useState<PostFilter>('all');
+    const { data, isLoading, isError } = useGetPosts({ filter: activeTab });
+    const toggleReaction = useToggleReaction();
+    const deletePost = useDeletePost();
+
+    const handleLike = (postId: number) => {
+        toggleReaction.mutate({
+            post_id: postId,
+            type: 'like'
+        });
+    };
 
     return (
         <div className="w-full">
@@ -212,59 +253,121 @@ export const Feed = () => {
             </div>
 
             {/* Posts */}
-            {mockPosts.map((post) => (
-                <div key={post.id} className="overflow-hidden transition-colors border-b cursor-pointer border-white/10 hover:bg-black/10 duration-400">
-                    <div className="p-6">
-                        {/* Post header */}
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-5">
-                                <Image
-                                    src={post.user.avatar}
-                                    alt={post.user.name}
-                                    width={40}
-                                    height={40}
-                                    className="rounded-full"
-                                />
-                                <div>
-                                    <div className="flex items-center">
-                                        <h3 className="text-text">
-                                            {post.user.name}
-                                        </h3>
-                                        <div className="w-px h-6 mx-4 bg-white/20"></div>
-                                        <p className="text-text-dim">RUNNER</p>
+            {isLoading ? (
+                <PostSkeleton count={3} />
+            ) : isError ? (
+                <div className="p-6 text-center text-text-dim">
+                    Failed to load posts. Please try again later.
+                </div>
+            ) : data?.posts.length === 0 ? (
+                <div className="p-6 text-center text-text-dim">
+                    No posts found. {activeTab === 'following' ? 'Try following some runners!' : ''}
+                </div>
+            ) : (
+                data?.posts.map((postData) => {
+                    const post = postData.post;
+                    const user = postData.user;
+                    const run = postData.run;
+                    const stats = postData.stats;
+
+                    const timeAgo = formatDistanceToNow(new Date(post.created_at), { addSuffix: true });
+
+                    return (
+                        <div key={post.id} className="overflow-hidden transition-colors border-b cursor-pointer border-white/10 hover:bg-black/10 duration-400">
+                            <div className="p-6">
+                                {/* Post header */}
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-5">
+                                        <Image
+                                            src={user.avatar_url || DEFAULT_AVATAR}
+                                            alt={user.username}
+                                            width={40}
+                                            height={40}
+                                            className="rounded-full"
+                                        />
+                                        <div>
+                                            <div className="flex items-center">
+                                                <h3 className="text-text">
+                                                    {user.username}
+                                                </h3>
+                                                <div className="w-px h-6 mx-4 bg-white/20"></div>
+                                                <p className="text-text-dim">RUNNER</p>
+                                            </div>
+                                            <p className="text-sm text-text-dim">{timeAgo}</p>
+                                        </div>
                                     </div>
-                                    <p className="text-sm text-text-dim">{post.time}</p>
+                                    <button className="p-2 transition-colors rounded-full text-text-dim hover:text-text hover:bg-white/5">
+                                        <MoreHorizontal size={20} />
+                                    </button>
+                                </div>
+
+                                {/* Run Map */}
+                                <RunMap
+                                    gpsRouteData={run.gps_route_data}
+                                    distanceInMeters={run.distance_m}
+                                />
+
+                                {/* Metrics */}
+                                <div className="grid grid-cols-3 gap-4 mb-4">
+                                    <MetricWidget
+                                        icon={Ruler}
+                                        label="Distance"
+                                        value={formatDistance(run.distance_m)}
+                                    />
+                                    <MetricWidget
+                                        icon={Timer}
+                                        label="Pace"
+                                        value={`${formatPace(run.average_pace_sec)} /mi`}
+                                    />
+                                    <MetricWidget
+                                        icon={Navigation}
+                                        label="Time"
+                                        value={formatTime(run.duration_seconds)}
+                                    />
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex items-center justify-between pt-1">
+                                    {/* <button
+                                        className="flex items-center gap-2 p-2 transition-colors rounded-full text-text-dim hover:text-rose-600 hover:bg-rose-600/5"
+                                        onClick={() => handleLike(post.id)}
+                                    >
+                                        <Heart size={20} />
+                                        <span>{stats.likes || 0}</span>
+                                    </button> */}
+                                    <button className="flex items-center gap-2 p-2 transition-colors rounded-full text-text-dim hover:text-primary-shade hover:bg-primary-faded">
+                                        <MessageCircle size={20} />
+                                        <span>{stats.comments || 0}</span>
+                                    </button>
+                                    <button className="flex items-center gap-2 p-2 transition-colors rounded-full text-text-dim hover:text-emerald-500 hover:bg-emerald-500/5">
+                                        <Share2 size={20} />
+                                        <span>0</span>
+                                    </button>
                                 </div>
                             </div>
-                            <button className="p-2 transition-colors rounded-full text-text-dim hover:text-text hover:bg-white/5">
-                                <MoreHorizontal size={20} />
-                            </button>
                         </div>
-                        <RunMap coordinates={post.runData.coordinates} distance={post.runData.distance} />
+                    );
+                })
+            )}
 
-                        <div className="grid grid-cols-3 gap-4 mb-4">
-                            <MetricWidget icon={Ruler} label="Distance" value={`${post.runData.distance} mi`} />
-                            <MetricWidget icon={Timer} label="Pace" value={`${post.runData.pace} /mi`} />
-                            <MetricWidget icon={Navigation} label="Time" value={post.runData.time} />
-                        </div>
-
-                        <div className="flex items-center justify-between pt-1">
-                            <button className="flex items-center gap-2 p-2 transition-colors rounded-full text-text-dim hover:text-rose-600 hover:bg-rose-600/5">
-                                <Heart size={20} />
-                                <span>{post.likes}</span>
-                            </button>
-                            <button className="flex items-center gap-2 p-2 transition-colors rounded-full text-text-dim hover:text-primary-shade hover:bg-primary-faded">
-                                <MessageCircle size={20} />
-                                <span>{post.comments}</span>
-                            </button>
-                            <button className="flex items-center gap-2 p-2 transition-colors rounded-full text-text-dim hover:text-emerald-500 hover:bg-emerald-500/5">
-                                <Share2 size={20} />
-                                <span>{post.shares}</span>
-                            </button>
-                        </div>
-                    </div>
+            {/* Pagination */}
+            {data?.pagination && data.pagination.totalPages > 1 && (
+                <div className="flex justify-center mt-6 gap-2">
+                    {Array.from({ length: data.pagination.totalPages }).map((_, i) => (
+                        <button
+                            key={i}
+                            className={cn(
+                                "w-8 h-8 rounded-full flex items-center justify-center",
+                                data?.pagination?.page === i + 1
+                                    ? "bg-primary text-black"
+                                    : "bg-gray-800 text-white hover:bg-gray-700"
+                            )}
+                        >
+                            {i + 1}
+                        </button>
+                    ))}
                 </div>
-            ))}
+            )}
         </div>
     );
 };
