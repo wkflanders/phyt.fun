@@ -1,6 +1,7 @@
 import express, { Router } from 'express';
 import { validateAuth } from '../middleware/auth';
 import { runnerService } from '../services/runnerServices';
+import { NotFoundError } from '@phyt/types';
 
 const router: Router = express.Router();
 
@@ -14,6 +15,21 @@ router.get('/', async (req, res) => {
     } catch (error) {
         console.error('Failed to fetch runners:', error);
         return res.status(500).json({ error: 'Failed to fetch runners' });
+    }
+});
+
+router.get('/:privyId/status', async (req, res) => {
+    try {
+        const { privyId } = req.params;
+
+        const status = await runnerService.getRunnerStatusByPrivyId(privyId);
+        return res.status(200).json(status);
+    } catch (error) {
+        console.error('Error getting runner status:', error);
+        if (error instanceof NotFoundError) {
+            return res.status(404).json({ error: error.message });
+        }
+        return res.status(500).json({ error: 'Failed to get runner status' });
     }
 });
 
