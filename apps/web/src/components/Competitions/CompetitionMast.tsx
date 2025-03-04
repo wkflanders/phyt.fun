@@ -14,7 +14,7 @@ export const CompetitionMast = () => {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center w-full h-64 bg-black/50 rounded-xl">
+            <div className="flex items-center justify-center w-full h-64 bg-zinc-900 shadow-lg rounded-xl">
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
         );
@@ -22,7 +22,7 @@ export const CompetitionMast = () => {
 
     if (error || !majorCompetitions || majorCompetitions.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center w-full h-64 bg-black/50 rounded-xl text-text-dim">
+            <div className="flex flex-col items-center justify-center w-full h-64 bg-zinc-900 shadow-lg rounded-xl text-text-dim">
                 <p>No major competitions available at the moment.</p>
             </div>
         );
@@ -65,7 +65,7 @@ export const CompetitionMast = () => {
     const imageUrl = `https://d5mhfgomyfg7p.cloudfront.net/competitions/${featuredCompetition.id}.png`;
 
     return (
-        <div className="relative w-full overflow-hidden h-96 rounded-xl">
+        <div className="relative w-full overflow-hidden h-96 shadow-lg rounded-xl">
             <div className="absolute inset-0 z-0">
                 <Image
                     src={imageUrl}
