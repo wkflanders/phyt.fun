@@ -3,6 +3,7 @@ import type { Address } from 'viem';
 export type CardRarity = 'bronze' | 'silver' | 'gold' | 'sapphire' | 'ruby' | 'opal';
 export type AcquisitionType = 'mint' | 'transfer' | 'marketplace';
 export type RunVerificationStatus = 'pending' | 'verified' | 'flagged';
+export type RunnerStatus = 'pending' | 'active' | 'inactive';
 export type TransactionType = 'packPurchase' | 'marketplaceSale' | 'rewardPayout';
 export type UserRole = 'admin' | 'user' | 'runner';
 
@@ -24,7 +25,6 @@ export const RarityMultipliers: Record<CardRarity, number> = {
     opal: 10,
 };
 
-
 export interface User {
     id: number;
     updated_at: Date;
@@ -41,7 +41,6 @@ export interface User {
 export interface CreateUserInput {
     formData: FormData;
 }
-
 
 export interface Run {
     id: number;
@@ -133,14 +132,19 @@ export interface LineupCard {
 export interface Runner {
     id: number;
     user_id: number;
-    username: string;
-    avatar_url: string;
-    total_distance_m: number;
     average_pace: number | null;
+    total_distance_m: number;
     total_runs: number;
     best_mile_time: number | null;
+    status: RunnerStatus;
+    is_pooled: boolean;
     created_at: Date;
     updated_at: Date;
+}
+
+export interface RunnerProfile extends Runner {
+    username: string;
+    avatar_url: string;
 }
 
 export interface PendingRunner {

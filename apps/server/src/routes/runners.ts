@@ -7,6 +7,7 @@ const router: Router = express.Router();
 
 router.use(validateAuth);
 
+// Get all runners
 router.get('/', async (req, res) => {
     try {
         const search = req.query.search as string | undefined;
@@ -18,6 +19,7 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Get runner status by privyId
 router.get('/:privyId/status', async (req, res) => {
     try {
         const { privyId } = req.params;

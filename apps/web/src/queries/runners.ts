@@ -1,4 +1,4 @@
-import { ApiError, Runner, RunnerActivity } from '@phyt/types';
+import { ApiError, Runner, RunnerProfile, RunnerActivity } from '@phyt/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
@@ -6,7 +6,7 @@ export const getRunnersQueryKey = () => ['runners'];
 export const RUNNER_ACTIVITIES_QUERY_KEY = "runnerActivities";
 export const getRunnerQueryKey = (id: number) => ['runners', id];
 
-export async function getRunners(token: string | null, search?: string): Promise<Runner[]> {
+export async function getRunners(token: string | null, search?: string): Promise<RunnerProfile[]> {
     const searchParams = new URLSearchParams();
     if (search) {
         searchParams.append('search', search);
@@ -27,7 +27,7 @@ export async function getRunners(token: string | null, search?: string): Promise
     return response.json();
 }
 
-export async function getRunner(id: number, token: string | null): Promise<Runner> {
+export async function getRunner(id: number, token: string | null): Promise<RunnerProfile> {
     const response = await fetch(`${API_URL}/runners/runner/${id}`, {
         method: 'GET',
         headers: {

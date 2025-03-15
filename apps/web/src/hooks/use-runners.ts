@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { getRunners, getRunnersQueryKey, getRunner, getRunnerQueryKey, getRunnerActivities, RUNNER_ACTIVITIES_QUERY_KEY } from '@/queries/runners';
-import type { Runner, ApiError } from '@phyt/types';
+import type { Runner, RunnerProfile, ApiError } from '@phyt/types';
 import { usePrivy } from '@privy-io/react-auth';
 
 export function useGetRunners(search?: string) {
     const { getAccessToken } = usePrivy();
 
-    return useQuery<Runner[], ApiError>({
+    return useQuery<RunnerProfile[], ApiError>({
         queryKey: [...getRunnersQueryKey(), { search }],
         queryFn: async () => {
             const token = await getAccessToken();
@@ -18,7 +18,7 @@ export function useGetRunners(search?: string) {
 export function useGetRunner(id: number) {
     const { getAccessToken } = usePrivy();
 
-    return useQuery<Runner, ApiError>({
+    return useQuery<RunnerProfile, ApiError>({
         queryKey: getRunnerQueryKey(id),
         queryFn: async () => {
             const token = await getAccessToken();
