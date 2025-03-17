@@ -1,0 +1,1 @@
+ALTER TABLE "runners" ALTER COLUMN "status" SET NOT NULL;

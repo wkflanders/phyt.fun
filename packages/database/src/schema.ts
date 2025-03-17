@@ -70,7 +70,7 @@ export const runners = pgTable("runners", {
     total_distance_m: doublePrecision("total_distance_m").default(0),
     total_runs: integer("total_runs").default(0),
     best_mile_time: doublePrecision("best_mile_time"),
-    status: enum_runner_status("status").default('pending'),
+    status: enum_runner_status("status").default('pending').notNull(),
     is_pooled: boolean("is_pooled").default(false).notNull(),
     updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
     created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),

@@ -85,6 +85,13 @@
       "when": 1741065622857,
       "tag": "0011_lame_patriot",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1742194905747,
+      "tag": "0012_quick_lord_hawal",
+      "breakpoints": true
     }
   ]
 }
