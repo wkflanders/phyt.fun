@@ -24,13 +24,13 @@ router.post('/apply/:privyId', async (req, res) => {
 
         switch (result) {
             case 'success':
-                return res.status(200).json({ message: 'Application submitted successfully' });
+                return res.status(200).json({ message: 'success' });
             case 'already_runner':
-                return res.status(200).json({ message: 'Already a runner' });
+                return res.status(200).json({ message: 'already_runner' });
             case 'already_submitted':
-                return res.status(200).json({ message: 'Already applied' });
+                return res.status(200).json({ message: 'already_submitted' });
             default:
-                return res.status(400).json({ error: 'Application failed' });
+                return res.status(400).json({ error: 'failed' });
         }
     } catch (error) {
         console.error('Error in runner application:', error);
