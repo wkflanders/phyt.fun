@@ -22,8 +22,7 @@ const upload = multer({
 
 router.use(validateAuth);
 
-// GET
-// All user transactions
+// Get all user transactions
 router.get('/transactions/:privyId', async (req, res) => {
     try {
         const transactions = await userService.getTransactionsByPrivyId(req.params.privyId);
@@ -36,8 +35,7 @@ router.get('/transactions/:privyId', async (req, res) => {
     }
 });
 
-// GET 
-// User by Privy ID
+// Get user by privy Id
 router.get('/:privyId', async (req, res) => {
     try {
         const user = await userService.getUserByPrivyId(req.params.privyId);
@@ -58,14 +56,32 @@ router.get('/:privyId', async (req, res) => {
     }
 });
 
-// GET
-// User by email
+// Get user by privy Id with runner status
+router.get('/status/:privyId', async (req, res) => {
+    try {
+        const user = await userService.getUserByPrivyId(req.params.privyId, true);
+        return res.status(200).json({
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            avatar_url: user.avatar_url,
+            role: user.role,
+            wallet_address: user.wallet_address,
+            phytness_points: user.phytness_points,
+            status: (user as any).status
+        });
+    } catch (error: any) {
+        console.error("Error in GET /:privyId/status:", error);
+        return res.status(error.statusCode || 500).json({
+            error: error.message || "Failed to fetch user data"
+        });
+    }
+});
 
+// Get user by email
 
-// GET
-// User by username 
+// Get user by username 
 
-// POST
 // Create new user
 router.post('/create', upload.single('avatar'), async (req, res) => {
     try {
@@ -103,6 +119,7 @@ router.post('/create', upload.single('avatar'), async (req, res) => {
     }
 });
 
+// Get all the cards owned by a privy Id
 router.get('/cards/:privyId', async (req, res) => {
     try {
         const cards = await userService.getCardsByPrivyId(req.params.privyId);
@@ -114,5 +131,7 @@ router.get('/cards/:privyId', async (req, res) => {
         });
     }
 });
+
+router.get('/');
 
 export { router as userRouter };

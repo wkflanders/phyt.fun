@@ -1,23 +1,41 @@
 // apps/server/src/services/userServices.ts
 import { db, eq, or, desc } from '@phyt/database';
-import { users, transactions, cards, card_metadata } from '@phyt/database';
+import { users, transactions, cards, card_metadata, runners } from '@phyt/database';
 import { DatabaseError, NotFoundError, DuplicateError, ValidationError, CardWithMetadata } from '@phyt/types';
 import { s3Service } from '../lib/awsClient';
 
 const DEFAULT_AVATAR = 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut';
 
 export const userService = {
-    getUserByPrivyId: async (privyId: string) => {
+    getUserByPrivyId: async (privyId: string, checkStatus: boolean = false) => {
         if (!privyId) throw new ValidationError('Privy ID is required');
 
         try {
-            const [user] = await db.select()
-                .from(users)
-                .where(eq(users.privy_id, privyId))
-                .limit(1);
+            if (checkStatus === true) {
+                const [user] = await db.select()
+                    .from(users)
+                    .where(eq(users.privy_id, privyId))
+                    .limit(1);
 
-            if (!user) throw new NotFoundError('User not found');
-            return user;
+                if (!user) throw new NotFoundError('User not found');
+
+                const [runner] = await db.select()
+                    .from(runners)
+                    .where(eq(runners.user_id, user.id));
+
+                return {
+                    ...user,
+                    status: runner ? runner.status : null
+                };
+            } else {
+                const [user] = await db.select()
+                    .from(users)
+                    .where(eq(users.privy_id, privyId))
+                    .limit(1);
+
+                if (!user) throw new NotFoundError('User not found');
+                return user;
+            }
         } catch (error) {
             if (error instanceof NotFoundError || error instanceof ValidationError) {
                 throw error;
