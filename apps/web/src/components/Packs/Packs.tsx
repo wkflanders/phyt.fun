@@ -11,7 +11,7 @@ import { useAccount, useBalance } from 'wagmi';
 import { parseEther } from 'viem';
 import { TokenURIMetadata } from '@phyt/types';
 
-const PackPurchase = () => {
+export const Pack = () => {
     const [isPurchaseComplete, setIsPurchaseComplete] = useState(false);
     const [isPackDisappearing, setIsPackDisappearing] = useState(false);
     const [showCard, setShowCard] = useState(false);
@@ -155,7 +155,7 @@ const PackPurchase = () => {
                                     Purchasing...
                                 </>
                             ) : (
-                                'Purchase Pack | 0.0001 ETH'
+                                'Open | 0.0001 ETH'
                             )}
                         </Button>
                     </div>
@@ -164,5 +164,3 @@ const PackPurchase = () => {
         </div>
     );
 };
-
-export default PackPurchase;

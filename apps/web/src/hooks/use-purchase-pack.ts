@@ -7,21 +7,24 @@ import { PackDetails, PackPurchaseInput, PackPurchaseResponse } from "@phyt/type
 import { notifyServerPackTxn, fetchPackDetails } from "@/queries/packs";
 import { config } from "@/lib/wagmi";
 import { usePrivy } from '@privy-io/react-auth';
+import { useState } from "react";
 
 const MINTER = '0x7Ee08f7d4707F94C2f2664327D16cF6b30cA87D1';
 
 export function usePurchasePack() {
     const { toast } = useToast();
     const { getAccessToken } = usePrivy();
+    const [packPrice, setPackPrice] = useState<string | null>(null);
 
-    return useMutation<PackPurchaseResponse, Error, {
-        buyerId: number;
-        buyerAddress: `0x${string}`;
-    }>({
+    const mutation = useMutation<PackPurchaseResponse, Error, { buyerId: number; buyerAddress: `0x${string}`; }>({
         mutationFn: async ({ buyerId, buyerAddress }) => {
             const token = await getAccessToken();
             // Get config and price
-            const { mintConfigId, packPrice, merkleProof } = await fetchPackDetails(buyerAddress as `0x${string}`, token) as PackDetails;
+            const packDetails = await fetchPackDetails(buyerAddress as `0x${string}`, token) as PackDetails;
+            const { mintConfigId, packPrice: fetchedPrice, merkleProof } = packDetails;
+
+            // Store the pack price for components to use
+            setPackPrice(fetchedPrice);
 
             console.log('Proof array:', merkleProof);
 
@@ -30,7 +33,7 @@ export function usePurchasePack() {
                 abi: MinterAbi,
                 functionName: 'mint',
                 args: [BigInt(mintConfigId), merkleProof],
-                value: BigInt(packPrice),
+                value: BigInt(fetchedPrice),
                 account: buyerAddress as Address,
             });
 
@@ -44,7 +47,7 @@ export function usePurchasePack() {
             const response = await notifyServerPackTxn({
                 buyerId,
                 hash,
-                packPrice
+                packPrice: fetchedPrice
             }, token);
 
             console.log(response);
@@ -70,4 +73,9 @@ export function usePurchasePack() {
             });
         }
     });
+
+    return {
+        ...mutation,
+        packPrice
+    };
 }
