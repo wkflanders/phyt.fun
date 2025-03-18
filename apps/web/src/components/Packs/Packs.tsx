@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Pack } from '@/components/Packs/Pack';
 import { useToast } from '@/hooks/use-toast';
 import { usePurchasePack } from '@/hooks/use-purchase-pack';
 import { useGetUser } from '@/hooks/use-users';
@@ -9,15 +10,15 @@ import { Loader2 } from 'lucide-react';
 import { usePrivy } from '@privy-io/react-auth';
 import { useAccount, useBalance } from 'wagmi';
 import { parseEther } from 'viem';
-import { TokenURIMetadata, PackRarities } from '@phyt/types';
+import { TokenURIMetadata, PackTypes, PackType } from '@phyt/types';
 
 export const Packs = () => {
     const [isPurchaseComplete, setIsPurchaseComplete] = useState(false);
     const [isPackDisappearing, setIsPackDisappearing] = useState(false);
     const [showCard, setShowCard] = useState(false);
-    const [revealedCard, setRevealedCard] = useState<TokenURIMetadata | null>(null);
-    const [selectedPack, setSelectedPack] = useState<string | null>(null);
+    const [revealedCards, setRevealedCards] = useState<TokenURIMetadata[]>([]);
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
+    const [selectedPack, setSelectedPack] = useState<string | null>(null);
     const [packPrice, setPackPrice] = useState<string | null>(null);
 
     const { toast } = useToast();
@@ -54,20 +55,23 @@ export const Packs = () => {
             return;
         }
 
-        const packConfig = PackRarities.find(p => p.id === selectedPack);
+        const packConfig = PackTypes.find(p => p.id === selectedPack);
         if (!packConfig) return;
 
         purchasePack(
             {
                 buyerId: user.id,
                 buyerAddress: address as `0x${string}`,
+                packType: selectedPack as PackType
             },
             {
                 onSuccess: (data) => {
                     setIsPurchaseComplete(true);
-                    if (data.cardsMetadata?.[0]) {
-                        setRevealedCard(data.cardsMetadata[0]);
+
+                    if (data.cardsMetadata?.length) {
+                        setRevealedCards(data.cardsMetadata);
                     }
+
                     setTimeout(() => {
                         setIsPackDisappearing(true);
                         setTimeout(() => {
@@ -93,86 +97,119 @@ export const Packs = () => {
         );
     };
 
+    const handleNextCard = () => {
+        if (currentCardIndex < revealedCards.length - 1) {
+            setCurrentCardIndex(prev => prev + 1);
+        } else {
+            setIsPurchaseComplete(false);
+            setIsPackDisappearing(false);
+            setShowCard(false);
+            setCurrentCardIndex(0);
+            setRevealedCards([]);
+        }
+    };
+
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen">
-            <div className="relative w-full flex flex-col items-center pt-8">
-                {/* Container for animations */}
-                <div className="relative w-96 h-96">
-                    {/* Pack */}
-                    {(!isPurchaseComplete || isPackDisappearing) && (
-                        <div
-                            style={{
-                                position: 'absolute',
-                                top: '0',
-                                left: '0',
-                                width: '100%',
-                                height: '100%',
-                                transition: 'all 750ms cubic-bezier(0.4, 0, 0.2, 1)',
-                                transform: isPackDisappearing ? 'scale(0.1)' : 'scale(1)',
-                                opacity: isPackDisappearing ? '0' : '1',
-                                zIndex: isPackDisappearing ? 0 : 2
-                            }}
-                        >
-                            <img
-                                src="https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkF010pjQxYM4A9LIyVQelGKUJ5iPZqbu3rRfgX"
-                                alt="Closed Mystery Pack"
-                                className="w-full h-full object-contain"
-                            />
+        <div className="flex flex-col items-center justify-center min-h-screen p-8">
+            {!isPurchaseComplete ? (
+                <>
+                    <Pack onSelectPack={handleSelectPack} isPending={isPending} />
+                    {selectedPack && (
+                        <div className="mt-8">
+                            <Button
+                                onClick={handlePurchase}
+                                disabled={isPending || !ready}
+                                className="w-96 h-12 bg-phyt_blue hover:bg-blue-100 text-black font-bold"
+                            >
+                                {isPending ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Purchasing...
+                                    </>
+                                ) : (
+                                    `Open ${selectedPack?.toUpperCase()} Pack | ${packPrice} ETH`
+                                )}
+                            </Button>
                         </div>
                     )}
-
-                    {/* Revealed Card with Glow Effects */}
-                    {revealedCard && (
-                        <div
-                            className={`absolute top-0 left-0 w-full h-full transition-all duration-500 ease-in-out
-                                ${showCard ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}
-                            style={{ zIndex: showCard ? 2 : 0 }}
-                        >
-                            {/* Glow Effects */}
-                            <div className="absolute inset-0 -z-10">
-                                {/* Circular gradient glow */}
-                                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full blur-3xl animate-pulse opacity-50" />
-
-                                {/* Firework-like particles */}
-                                <div className="absolute inset-0">
-                                    <div className="absolute top-1/2 left-1/2 w-4 h-4 bg-yellow-400 rounded-full blur animate-ping" />
-                                    <div className="absolute top-1/4 left-1/4 w-3 h-3 bg-blue-400 rounded-full blur animate-ping delay-150" />
-                                    <div className="absolute bottom-1/4 right-1/4 w-3 h-3 bg-purple-400 rounded-full blur animate-ping delay-300" />
-                                    <div className="absolute top-1/4 right-1/4 w-3 h-3 bg-pink-400 rounded-full blur animate-ping delay-500" />
-                                    <div className="absolute bottom-1/4 left-1/4 w-3 h-3 bg-green-400 rounded-full blur animate-ping delay-700" />
-                                </div>
+                </>
+            ) : (
+                <div className="relative w-full flex flex-col items-center pt-8">
+                    {/* Container for animations */}
+                    <div className="relative w-96 h-96">
+                        {/* Pack */}
+                        {(!isPurchaseComplete || isPackDisappearing) && (
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    top: '0',
+                                    left: '0',
+                                    width: '100%',
+                                    height: '100%',
+                                    transition: 'all 750ms cubic-bezier(0.4, 0, 0.2, 1)',
+                                    transform: isPackDisappearing ? 'scale(0.1)' : 'scale(1)',
+                                    opacity: isPackDisappearing ? '0' : '1',
+                                    zIndex: isPackDisappearing ? 0 : 2
+                                }}
+                            >
+                                <img
+                                    src={PackTypes.find(p => p.id === selectedPack)?.image || "https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkF010pjQxYM4A9LIyVQelGKUJ5iPZqbu3rRfgX"}
+                                    alt={`${selectedPack} Pack`}
+                                    className="w-full h-full object-contain"
+                                />
                             </div>
+                        )}
 
-                            {/* Card Image */}
-                            <img
-                                src={revealedCard.image}
-                                alt={revealedCard.name}
-                                className="w-full h-full object-contain rounded-lg"
-                            />
-                        </div>
+                        {/* Revealed Card with Glow Effects */}
+                        {revealedCards.length > 0 && (
+                            <div
+                                className={`absolute top-0 left-0 w-full h-full transition-all duration-500 ease-in-out
+                                    ${showCard ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}
+                                style={{ zIndex: showCard ? 2 : 0 }}
+                            >
+                                {/* Glow Effects */}
+                                <div className="absolute inset-0 -z-10">
+                                    {/* Circular gradient glow */}
+                                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full blur-3xl animate-pulse opacity-50" />
+
+                                    {/* Firework-like particles */}
+                                    <div className="absolute inset-0">
+                                        <div className="absolute top-1/2 left-1/2 w-4 h-4 bg-yellow-400 rounded-full blur animate-ping" />
+                                        <div className="absolute top-1/4 left-1/4 w-3 h-3 bg-blue-400 rounded-full blur animate-ping delay-150" />
+                                        <div className="absolute bottom-1/4 right-1/4 w-3 h-3 bg-purple-400 rounded-full blur animate-ping delay-300" />
+                                        <div className="absolute top-1/4 right-1/4 w-3 h-3 bg-pink-400 rounded-full blur animate-ping delay-500" />
+                                        <div className="absolute bottom-1/4 left-1/4 w-3 h-3 bg-green-400 rounded-full blur animate-ping delay-700" />
+                                    </div>
+                                </div>
+
+                                {/* Card Image */}
+                                <img
+                                    src={revealedCards[currentCardIndex]?.image}
+                                    alt={revealedCards[currentCardIndex]?.name}
+                                    className="w-full h-full object-contain rounded-lg"
+                                />
+
+                                {/* Card Counter */}
+                                {revealedCards.length > 1 && (
+                                    <div className="absolute top-4 right-4 bg-black/70 rounded-full px-3 py-1 text-white">
+                                        {currentCardIndex + 1} / {revealedCards.length}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Next Button */}
+                    {showCard && (
+                        <Button
+                            onClick={handleNextCard}
+                            className="mt-8 w-64 h-12 bg-phyt_blue hover:bg-blue-100 text-black font-bold"
+                        >
+                            {currentCardIndex < revealedCards.length - 1 ? 'Next Card' : 'Done'}
+                        </Button>
                     )}
                 </div>
-
-                {/* Purchase Button */}
-                {!isPurchaseComplete && (
-                    <div className="mt-8">
-                        <Button
-                            onClick={handlePurchase}
-                            disabled={isPending || !ready}
-                            className="w-96 h-12 bg-phyt_blue hover:bg-blue-100 text-black font-bold"
-                        >
-                            {isPending ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Purchasing...
-                                </>
-                            ) : (
-                                'Open | 0.0001 ETH'
-                            )}
-                        </Button>
-                    </div>
-                )}
-            </div>
+            )}
         </div>
     );
 };
