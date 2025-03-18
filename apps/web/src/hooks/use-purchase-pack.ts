@@ -16,17 +16,18 @@ export function usePurchasePack() {
     const { getAccessToken } = usePrivy();
     const [packPrice, setPackPrice] = useState<string | null>(null);
 
-    const mutation = useMutation<PackPurchaseResponse, Error, { buyerId: number; buyerAddress: `0x${string}`; }>({
-        mutationFn: async ({ buyerId, buyerAddress }) => {
+    const mutation = useMutation<PackPurchaseResponse, Error, PackPurchaseInput>({
+        mutationFn: async ({ buyerId, buyerAddress, packType }) => {
             const token = await getAccessToken();
             // Get config and price
-            const packDetails = await fetchPackDetails(buyerAddress as `0x${string}`, token) as PackDetails;
+            const packDetails = await fetchPackDetails(buyerAddress as `0x${string}`, packType, token) as PackDetails;
             const { mintConfigId, packPrice: fetchedPrice, merkleProof } = packDetails;
 
             // Store the pack price for components to use
             setPackPrice(fetchedPrice);
 
             console.log('Proof array:', merkleProof);
+            console.log('Pack type:', packType);
 
             const { request } = await simulateContract(config, {
                 address: MINTER,
@@ -47,7 +48,8 @@ export function usePurchasePack() {
             const response = await notifyServerPackTxn({
                 buyerId,
                 hash,
-                packPrice: fetchedPrice
+                packPrice: fetchedPrice,
+                packType
             }, token);
 
             console.log(response);
@@ -56,6 +58,7 @@ export function usePurchasePack() {
         onSuccess: (cardsMetadata) => {
             toast({
                 title: "Success",
+                description: "Pack opened successfully!",
             });
         },
         onError: (error: Error) => {
