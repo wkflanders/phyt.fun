@@ -6,8 +6,9 @@ export type RunVerificationStatus = 'pending' | 'verified' | 'flagged';
 export type RunnerStatus = 'pending' | 'active' | 'inactive';
 export type TransactionType = 'packPurchase' | 'marketplaceSale' | 'rewardPayout';
 export type UserRole = 'admin' | 'user' | 'runner';
+export type PackType = 'scrawny' | 'toned' | 'swole' | 'phyt';
 
-export const PackRarities = [
+export const PackTypes = [
     {
         id: 'scrawny',
         name: 'Scrawny',
@@ -342,12 +343,14 @@ export interface PackDetails {
 export interface PackPurchaseInput {
     buyerId: number;
     buyerAddress: `0x${string}`;
+    packType: PackType;
 }
 
 export interface PackPurchaseNotif {
     buyerId: number;
     hash: `0x${string}`;
     packPrice: string;
+    packType: PackType;
 }
 
 export interface PackPurchaseResponse {
