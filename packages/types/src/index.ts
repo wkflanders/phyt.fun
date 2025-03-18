@@ -7,6 +7,49 @@ export type RunnerStatus = 'pending' | 'active' | 'inactive';
 export type TransactionType = 'packPurchase' | 'marketplaceSale' | 'rewardPayout';
 export type UserRole = 'admin' | 'user' | 'runner';
 
+export const PackRarities = [
+    {
+        id: 'scrawny',
+        name: 'Scrawny',
+        price: '0.00005',
+        image: 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkF7VEC9Qld7SzgEHyp0FWsev2oX4frOCijM6n9',
+        description: 'Will give 1 card. It will almost always be a Bronze, but will occasionally give a Silver.',
+        cardCount: 1,
+        color: '#C4C4C4', // Gray
+        bgGradient: 'from-gray-400/30 to-gray-500/30'
+    },
+    {
+        id: 'toned',
+        name: 'Toned',
+        price: '0.0001',
+        image: 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFjeYDIXKi2WN9i60TEnCxu4AG71LvblfVDYBO',
+        description: 'Will give 1 card. It will most commonly be a Bronze, but will often give a Silver, and if you\'re lucky, a Gold.',
+        cardCount: 1,
+        color: '#5F7FCF', // Blue
+        bgGradient: 'from-blue-500/30 to-blue-600/30'
+    },
+    {
+        id: 'swole',
+        name: 'Swole',
+        price: '0.0002',
+        image: 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkF2QPN0ASe0PMhWadOtKgnmuo8sYieIArRQ23x',
+        description: '5 cards. 3 guaranteed Bronze, with the other 2 split between Bronze, Silver, Gold, and rarely a Ruby.',
+        cardCount: 5,
+        color: '#FE205D', // Pink/Red
+        bgGradient: 'from-pink-500/30 to-pink-600/30'
+    },
+    {
+        id: 'phyt',
+        name: 'Phyt',
+        price: '0.0003',
+        image: 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFYllb0dRPCduK0erjAyG7QSRxcnhM5Iv3YskT',
+        description: '5 cards. 2 guaranteed Bronze, 1 Silver, and 2 mixed cards that could include Gold or Ruby.',
+        cardCount: 5,
+        color: '#0EF9FE', // Cyan
+        bgGradient: 'from-cyan-400/30 to-cyan-500/30'
+    }
+];
+
 export const RarityWeights = {
     bronze: 70,
     silver: 20,

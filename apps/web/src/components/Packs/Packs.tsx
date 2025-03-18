@@ -9,13 +9,16 @@ import { Loader2 } from 'lucide-react';
 import { usePrivy } from '@privy-io/react-auth';
 import { useAccount, useBalance } from 'wagmi';
 import { parseEther } from 'viem';
-import { TokenURIMetadata } from '@phyt/types';
+import { TokenURIMetadata, PackRarities } from '@phyt/types';
 
-export const Pack = () => {
+export const Packs = () => {
     const [isPurchaseComplete, setIsPurchaseComplete] = useState(false);
     const [isPackDisappearing, setIsPackDisappearing] = useState(false);
     const [showCard, setShowCard] = useState(false);
     const [revealedCard, setRevealedCard] = useState<TokenURIMetadata | null>(null);
+    const [selectedPack, setSelectedPack] = useState<string | null>(null);
+    const [currentCardIndex, setCurrentCardIndex] = useState(0);
+    const [packPrice, setPackPrice] = useState<string | null>(null);
 
     const { toast } = useToast();
     const { address } = useAccount();
@@ -26,24 +29,33 @@ export const Pack = () => {
         address: address as `0x${string}`,
     });
 
-    const handlePurchase = () => {
-        if (!ready || !address || !user?.id) {
+    const handleSelectPack = (packType: string, price: string) => {
+        setSelectedPack(packType);
+        setPackPrice(price);
+    };
+
+    const handlePurchase = async () => {
+        if (!ready || !address || !user?.id || !selectedPack || !packPrice) {
             toast({
                 title: 'Error',
-                description: 'Please connect your wallet first',
+                description: 'Please connect your wallet and select a pack',
                 variant: 'destructive',
             });
             return;
         }
 
-        if (!balance || balance.value < parseEther('0.0001')) {
+        const parsedPrice = parseEther(packPrice);
+        if (!balance || balance.value < parsedPrice) {
             toast({
                 title: 'Error',
-                description: 'Insufficient balance – you need at least 0.0001 ETH',
+                description: `Insufficient balance – you need at least ${packPrice} ETH`,
                 variant: 'destructive',
             });
             return;
         }
+
+        const packConfig = PackRarities.find(p => p.id === selectedPack);
+        if (!packConfig) return;
 
         purchasePack(
             {
