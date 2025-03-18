@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { HelpCircle } from 'lucide-react';
-import { PackRarities } from '@phyt/types';
+import { PackTypes } from '@phyt/types';
 
 interface PackProps {
     onSelectPack: (packType: string, price: string) => void;
@@ -18,7 +18,7 @@ export const Pack: React.FC<PackProps> = ({ onSelectPack, isPending }) => {
             <h1 className="text-4xl font-bold text-center mb-8 text-white">Choose Your Pack</h1>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {PackRarities.map((pack) => (
+                {PackTypes.map((pack) => (
                     <div
                         key={pack.id}
                         className={`bg-gradient-to-br ${pack.bgGradient} backdrop-blur-sm rounded-xl p-6 flex flex-col items-center transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 border-2 ${selectedPack === pack.id
