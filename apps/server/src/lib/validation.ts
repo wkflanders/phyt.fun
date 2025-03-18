@@ -20,6 +20,7 @@ export const purchasePackSchema = z.object({
     hash: z.string({ required_error: "Transaction hash is required" })
         .regex(/^0x[a-fA-F0-9]{64}$/, "Invalid transaction hash"),
     packPrice: z.string({ required_error: "Pack price is required" }),
+    packType: z.enum(['scrawny', 'toned', 'swole', 'phyt']).optional()
 });
 
 export const listingSchema = z.object({
