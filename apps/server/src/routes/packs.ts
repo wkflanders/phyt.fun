@@ -11,8 +11,10 @@ router.use(validateAuth);
 router.get('/init/:walletAddress', async (req, res) => {
     try {
         const wallet_address = req.params.walletAddress;
-        const mintConfigId = await packService.createMintConfig();
-        const packPrice = await packService.getPackPrice(mintConfigId);
+        const packType = req.query.packType as string || 'scrawny';
+
+        const mintConfigId = await packService.createMintConfig(packType);
+        const packPrice = await packService.getPackPrice(mintConfigId, packType);
         const merkleProof = await packService.getWhitelistProof(wallet_address);
 
         if (!Array.isArray(merkleProof)) {
@@ -22,7 +24,8 @@ router.get('/init/:walletAddress', async (req, res) => {
         return res.status(200).json({
             mintConfigId: mintConfigId.toString(),
             packPrice: packPrice.toString(),
-            merkleProof: merkleProof
+            merkleProof: merkleProof,
+            packType: packType
         });
     } catch (error) {
         console.error('Failed to create mint config:', error);
@@ -34,12 +37,13 @@ router.get('/init/:walletAddress', async (req, res) => {
 
 router.post('/purchase', validateSchema(purchasePackSchema), async (req, res) => {
     try {
-        const { buyerId, hash, packPrice } = req.body;
+        const { buyerId, hash, packPrice, packType = 'scrawny' } = req.body;
 
         const result = await packService.purchasePack({
             buyerId,
             hash,
-            packPrice
+            packPrice,
+            packType
         });
 
         return res.status(200).json(result);
