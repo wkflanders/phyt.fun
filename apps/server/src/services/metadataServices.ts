@@ -60,6 +60,28 @@ export const metadataService = {
         return metadata;
     },
 
+    generateMetadataWithRarity: async (tokenId: number, rarity: CardRarity): Promise<TokenURIMetadata> => {
+        const runner = await metadataService.selectRandomRunner();
+        const multiplier = metadataService.getMultiplier(rarity);
+        const imageUrl = s3Service.getImageUrl(runner.id, rarity);
+
+        const metadata = {
+            name: `Phyt Card #${tokenId}`,
+            description: `A ${rarity} rarity card featuring runner ${runner.id}`,
+            image: imageUrl,
+            attributes: [{
+                runner_id: runner.id,
+                runner_name: runner.user_id.toString(),
+                rarity: rarity,
+                multiplier: multiplier,
+            }]
+        };
+
+        await s3Service.uploadMetadata(tokenId, metadata);
+
+        return metadata;
+    },
+
     getMetadata: async (tokenId: number) => {
         try {
             return await s3Service.getMetadata(tokenId);
