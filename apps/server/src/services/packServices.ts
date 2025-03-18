@@ -2,7 +2,7 @@ import { walletClient, publicClient, account } from '../lib/viemClient';
 import { decodeEventLog, parseEther, formatEther } from 'viem';
 import { MinterAbi } from '@phyt/contracts';
 import { withTransaction } from '@phyt/database';
-import { MintEvent, PackPurchaseNotif, PackPurchaseResponse, TokenURIMetadata, } from '@phyt/types';
+import { MintEvent, PackPurchaseNotif, PackPurchaseResponse, TokenURIMetadata, PackTypes, CardRarity } from '@phyt/types';
 import { metadataService } from './metadataServices';
 import { getMerkleRoot, getMerkleProofForWallet } from '../lib/merkleWhitelist';
 
@@ -15,7 +15,7 @@ const PHYT_CARDS = process.env.PHYT_CARDS_ADDRESS as `0x${string}`;
 
 
 export const packService = {
-    createMintConfig: async () => {
+    createMintConfig: async (packType = 'scrawny') => {
         try {
             console.log('Creating mint config with account:', account.address);
             console.log('PHYT_CARDS address:', PHYT_CARDS);
@@ -34,20 +34,24 @@ export const packService = {
             const computedMerkleRoot = await getMerkleRoot();
             console.log('Computed merkle root:', computedMerkleRoot);
 
+            const packConfig = PackTypes.find(p => p.id === packType) || PackTypes[0];
+            const cardCount = packConfig.cardCount || 1;
+            const price = parseEther(packConfig.price);
+
             const { request } = await publicClient.simulateContract({
                 address: MINTER,
                 abi: MinterAbi,
                 functionName: 'newMintConfig',
                 args: [
                     PHYT_CARDS,
-                    1n,                    // 3 cards per pack
-                    1n,                 // max total packs
-                    parseEther("0.0001"),  // price per pack
-                    1n,                   // max packs per address
-                    true,                  // whitelist enabled
-                    computedMerkleRoot,    // merkle root
-                    startTime,             // start time (now - 1 min)
-                    endTime,               // end time (7 days)
+                    BigInt(cardCount),                    // cards per pack
+                    1n,                                   // max total packs
+                    parseEther("0.0001"),                 // price per pack
+                    1n,                                   // max packs per address
+                    true,                                 // whitelist enabled
+                    computedMerkleRoot,                   // merkle root
+                    startTime,                            // start time (now - 1 min)
+                    endTime,                              // end time (7 days)
                 ],
                 account,
             });
@@ -97,18 +101,63 @@ export const packService = {
         return getMerkleProofForWallet(wallet);
     },
 
-    getPackPrice: async (mintConfigId: bigint) => {
-        const packPrice = await publicClient.readContract({
-            address: MINTER,
-            abi: MinterAbi,
-            functionName: 'getPackPrice',
-            args: [mintConfigId]
-        });
-        return packPrice;
+    getPackPrice: async (mintConfigId: bigint, packType = 'scrawny') => {
+        const packConfig = PackTypes.find(p => p.id === packType) || PackTypes[0];
+        return parseEther(packConfig.price);
     },
 
-    purchasePack: async (data: PackPurchaseNotif): Promise<PackPurchaseResponse> => {
-        const { buyerId, hash, packPrice } = data;
+    generateCardRarity: (packType: string = 'scrawny'): CardRarity => {
+        // The existing generateRarity function in metadataService uses the RarityWeights defined in types
+        // We can use that directly as it already has the rarity distribution we want
+        return metadataService.generateRarity();
+    },
+
+    generateCardRarities: (packType: string = 'scrawny'): CardRarity[] => {
+        const packConfig = PackTypes.find(p => p.id === packType) || PackTypes[0];
+        const cardCount = packConfig.cardCount || 1;
+        const rarities: CardRarity[] = [];
+
+        // Define guaranteed rarities for each pack type
+        let guaranteedRarities: CardRarity[] = [];
+
+        switch (packType) {
+            case 'swole':
+                // 3 guaranteed bronze
+                guaranteedRarities = ['bronze', 'bronze', 'bronze'];
+                break;
+            case 'phyt':
+                // 2 guaranteed bronze, 1 guaranteed silver
+                guaranteedRarities = ['bronze', 'bronze', 'silver'];
+                break;
+            default:
+                // No guaranteed rarities for other pack types
+                guaranteedRarities = [];
+        }
+
+        // Add guaranteed rarities first
+        rarities.push(...guaranteedRarities);
+
+        // Fill remaining slots with random rarities
+        const remainingSlots = cardCount - rarities.length;
+        for (let i = 0; i < remainingSlots; i++) {
+            rarities.push(packService.generateCardRarity(packType));
+        }
+
+        // Shuffle the array to randomize the order
+        return packService.shuffleArray(rarities);
+    },
+
+    shuffleArray: <T>(array: T[]): T[] => {
+        const newArray = [...array];
+        for (let i = newArray.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+        }
+        return newArray;
+    },
+
+    purchasePack: async (data: PackPurchaseNotif & { packType?: string; }): Promise<PackPurchaseResponse> => {
+        const { buyerId, hash, packPrice, packType = 'scrawny' } = data;
 
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
@@ -140,17 +189,20 @@ export const packService = {
             return await withTransaction(async (client) => {
                 // Create pack purchase record
                 const { rows: [packPurchase] } = await client.query(
-                    'INSERT INTO pack_purchases (buyer_id, purchase_price) VALUES ($1, $2) RETURNING *',
-                    [buyerId, Number(formatEther(BigInt(packPrice)))]
+                    'INSERT INTO pack_purchases (buyer_id, purchase_price, pack_type) VALUES ($1, $2, $3) RETURNING *',
+                    [buyerId, Number(formatEther(BigInt(packPrice))), packType]
                 );
+
+                // Get the card rarities for this pack type
+                const cardRarities = packService.generateCardRarities(packType);
 
                 // Create card records and metadata
                 const cardsMetadata: TokenURIMetadata[] = [];
                 const cardsIds: number[] = [];
 
-                for (let tokenId = Number(mintEvent.args.firstTokenId);
-                    tokenId <= Number(mintEvent.args.lastTokenId);
-                    tokenId++) {
+                for (let i = 0; i < cardRarities.length; i++) {
+                    const tokenId = Number(mintEvent.args.firstTokenId) + i;
+                    const rarity = cardRarities[i];
 
                     // 1. Insert the card into the cards table first
                     const { rows: [card] } = await client.query(
@@ -162,13 +214,13 @@ export const packService = {
                         throw new Error(`Failed to insert card with token_id: ${tokenId}`);
                     }
 
-                    cardsIds.push(card.d);
+                    cardsIds.push(card.id);
 
-                    // 2. Now generate metadata and insert it into card_metadata.
-                    const metadata = await metadataService.generateMetadata(tokenId);
+                    // 2. Generate metadata with the specific rarity
+                    const metadata = await metadataService.generateMetadataWithRarity(tokenId, rarity);
                     cardsMetadata.push(metadata);
 
-                    // Insert metadata using your own query (if needed)
+                    // Insert metadata
                     await client.query(
                         'INSERT INTO card_metadata (token_id, runner_id, runner_name, rarity, multiplier, image_url) VALUES ($1, $2, $3, $4, $5, $6)',
                         [
