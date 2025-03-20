@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { usePrivy } from "@privy-io/react-auth";
 import { useGetUser } from "@/hooks/use-users";
 import { Navbar } from "@/components/Navbar";
@@ -9,6 +10,7 @@ import { Sidebar } from "@/components/Sidebar";
 
 export default function Layout({ children }: { children: React.ReactNode; }) {
     const router = useRouter();
+    const pathname = usePathname();
     const { user: privyUser, ready } = usePrivy();
     const { data: dbUser, error, isLoading, isFetching } = useGetUser();
 
@@ -69,7 +71,7 @@ export default function Layout({ children }: { children: React.ReactNode; }) {
             <div className="w-full h-full overflow-y-hidden">
                 <Sidebar />
 
-                <Navbar scrolled={scrolled} />
+                {pathname !== "/profile" && <Navbar scrolled={false} />}
 
                 <div className="h-full">
                     {!authCheckDone ? (
@@ -83,6 +85,6 @@ export default function Layout({ children }: { children: React.ReactNode; }) {
                     )}
                 </div>
             </div>
-        </main>
+        </main >
     );
 }
