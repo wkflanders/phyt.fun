@@ -5,6 +5,7 @@ import { withTransaction } from '@phyt/database';
 import { MintEvent, PackPurchaseNotif, PackPurchaseResponse, TokenURIMetadata, PackTypes, CardRarity } from '@phyt/types';
 import { metadataService } from './metadataServices';
 import { getMerkleRoot, getMerkleProofForWallet } from '../lib/merkleWhitelist';
+import { db, pack_purchases, cards, card_metadata, transactions } from '@phyt/database';
 
 if (!process.env.MINTER_ADDRESS || !process.env.PHYT_CARDS_ADDRESS) {
     throw new Error('Missing contract addresses in environment variables');
@@ -46,7 +47,7 @@ export const packService = {
                     PHYT_CARDS,
                     BigInt(cardCount),                    // cards per pack
                     1n,                                   // max total packs
-                    parseEther("0.0001"),                 // price per pack
+                    price,                 // price per pack
                     1n,                                   // max packs per address
                     true,                                 // whitelist enabled
                     computedMerkleRoot,                   // merkle root
@@ -134,16 +135,13 @@ export const packService = {
                 guaranteedRarities = [];
         }
 
-        // Add guaranteed rarities first
         rarities.push(...guaranteedRarities);
 
-        // Fill remaining slots with random rarities
         const remainingSlots = cardCount - rarities.length;
         for (let i = 0; i < remainingSlots; i++) {
             rarities.push(packService.generateCardRarity(packType));
         }
 
-        // Shuffle the array to randomize the order
         return packService.shuffleArray(rarities);
     },
 
@@ -156,8 +154,10 @@ export const packService = {
         return newArray;
     },
 
-    purchasePack: async (data: PackPurchaseNotif & { packType?: string; }): Promise<PackPurchaseResponse> => {
+    purchasePack: async (data: PackPurchaseNotif & { packType?: string; }) => {
         const { buyerId, hash, packPrice, packType = 'scrawny' } = data;
+
+        console.log(packType);
 
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
@@ -186,69 +186,54 @@ export const packService = {
 
             const mintEvent = mintEvents[0];
 
-            return await withTransaction(async (client) => {
-                // Create pack purchase record
-                const { rows: [packPurchase] } = await client.query(
-                    'INSERT INTO pack_purchases (buyer_id, purchase_price, pack_type) VALUES ($1, $2, $3) RETURNING *',
-                    [buyerId, Number(formatEther(BigInt(packPrice))), packType]
-                );
+            const cardRarities = packService.generateCardRarities(packType);
 
-                // Get the card rarities for this pack type
-                const cardRarities = packService.generateCardRarities(packType);
+            return await db.transaction(async (tx) => {
+                const [packPurchase] = await tx.insert(pack_purchases).values({
+                    buyer_id: buyerId,
+                    purchase_price: Number(formatEther(BigInt(packPrice))),
+                    pack_type: packType,
+                }).returning();
 
-                // Create card records and metadata
-                const cardsMetadata: TokenURIMetadata[] = [];
-                const cardsIds: number[] = [];
+                const cardsMetadata = [];
+                const cardsIds = [];
 
                 for (let i = 0; i < cardRarities.length; i++) {
                     const tokenId = Number(mintEvent.args.firstTokenId) + i;
                     const rarity = cardRarities[i];
 
-                    // 1. Insert the card into the cards table first
-                    const { rows: [card] } = await client.query(
-                        'INSERT INTO cards (owner_id, pack_purchase_id, token_id, acquisition_type) VALUES ($1, $2, $3, $4) RETURNING *',
-                        [buyerId, packPurchase.id, tokenId, 'mint']
-                    );
-
-                    if (!card) {
-                        throw new Error(`Failed to insert card with token_id: ${tokenId}`);
-                    }
+                    const [card] = await tx.insert(cards).values({
+                        owner_id: buyerId,
+                        pack_purchase_id: packPurchase.id,
+                        token_id: tokenId,
+                        acquisition_type: 'mint'
+                    }).returning();
 
                     cardsIds.push(card.id);
 
-                    // 2. Generate metadata with the specific rarity
                     const metadata = await metadataService.generateMetadataWithRarity(tokenId, rarity);
                     cardsMetadata.push(metadata);
 
-                    // Insert metadata
-                    await client.query(
-                        'INSERT INTO card_metadata (token_id, runner_id, runner_name, rarity, multiplier, image_url) VALUES ($1, $2, $3, $4, $5, $6)',
-                        [
-                            tokenId,
-                            metadata.attributes[0].runner_id,
-                            metadata.attributes[0].runner_name,
-                            metadata.attributes[0].rarity,
-                            metadata.attributes[0].multiplier,
-                            metadata.image,
-                        ]
-                    );
+                    await tx.insert(card_metadata).values({
+                        token_id: tokenId,
+                        runner_id: metadata.attributes[0].runner_id,
+                        runner_name: metadata.attributes[0].runner_name,
+                        rarity: metadata.attributes[0].rarity,
+                        multiplier: metadata.attributes[0].multiplier,
+                        image_url: metadata.image
+                    });
 
-                    await client.query(
-                        'INSERT INTO transactions (from_user_id, to_user_id, card_id, transaction_type, token_amount, hash) VALUES ($1, $2, $3, $4, $5, $6)',
-                        [
-                            null,
-                            buyerId,
-                            card.id,
-                            'packPurchase',
-                            Number(formatEther(BigInt(packPrice))) / cardsIds.length, // Divide the total price by number of cards
-                            hash
-                        ]
-                    );
+                    await tx.insert(transactions).values({
+                        from_user_id: null,
+                        to_user_id: buyerId,
+                        card_id: card.id,
+                        transaction_type: 'packPurchase',
+                        token_amount: Number(formatEther(BigInt(packPrice))) / cardsIds.length,
+                        hash
+                    });
                 }
-
-                return {
-                    cardsMetadata,
-                };
+                console.log(cardsMetadata);
+                return { cardsMetadata };
             });
         } catch (error) {
             console.error('Pack purchase error:', error);
