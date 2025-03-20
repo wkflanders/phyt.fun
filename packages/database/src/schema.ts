@@ -42,6 +42,10 @@ export const enum_report_reason = pgEnum("enum_report_reason", [
     'spam', 'harassment', 'inappropriate', 'other'
 ]);
 
+export const enum_pack_type = pgEnum("enum_pack_type", [
+    'scrawny', 'toned', 'swole', 'phyt'
+]);
+
 // Tables
 export const users = pgTable("users", {
     id: serial("id").primaryKey(),
@@ -110,6 +114,7 @@ export const pack_purchases = pgTable("pack_purchases", {
     id: serial("id").primaryKey(),
     buyer_id: integer("buyer_id").notNull().references(() => users.id, { onDelete: 'set null' }),
     purchase_price: doublePrecision("purchase_price").notNull(),
+    pack_type: enum_pack_type("pack_type").notNull(),
     updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
     created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
