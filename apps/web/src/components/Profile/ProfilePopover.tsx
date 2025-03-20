@@ -15,6 +15,7 @@ type ProfilePopoverProps = {
     username?: string;
 };
 
+const DEFAULT_AVATAR = 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut';
 
 export const ProfilePopover = ({ avatarUrl, username }: ProfilePopoverProps) => {
     return (
@@ -25,7 +26,7 @@ export const ProfilePopover = ({ avatarUrl, username }: ProfilePopoverProps) => 
                     className="flex items-center gap-4 px-4 py-2 transition-colors duration-200 group rounded-xl hover:bg-black/20 hover:cursor-pointer"
                 >
                     <Image
-                        src={avatarUrl || "/fallback-avatar.png"}
+                        src={avatarUrl || DEFAULT_AVATAR}
                         alt={`${username || "Profile"} avatar`}
                         width={32}
                         height={32}
