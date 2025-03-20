@@ -167,7 +167,7 @@ export const WalletPopover: React.FC = () => {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-sm text-text">{tx.token_amount} Tokens</p>
+                                            <p className="text-sm text-text">{tx.price} Tokens</p>
                                             <p className="text-xs text-text-dim">{tx.transaction_type}</p>
                                         </div>
                                     </div>

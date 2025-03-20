@@ -52,11 +52,11 @@ export const PackTypes = [
 ];
 
 export const RarityWeights = {
-    bronze: 70,
-    silver: 20,
-    gold: 9,
+    bronze: 50,
+    silver: 10,
+    gold: 20,
     sapphire: 0,
-    ruby: 1,
+    ruby: 0,
     opal: 0,
 } as const;
 
@@ -243,7 +243,7 @@ export interface Transaction {
     to_user_id: number | null;
     card_id: number | null;
     competition_id: number | null;
-    token_amount: number | null;
+    price: number | null;
     transaction_type: TransactionType;
 }
 
