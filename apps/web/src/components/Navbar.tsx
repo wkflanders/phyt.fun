@@ -6,7 +6,7 @@ import { CommandSearch } from "@/components/CommandSearch";
 import { useGetUser } from "@/hooks/use-users";
 import { WalletPopover } from "@/components/WalletPopover";
 import { NotificationsPopover } from "./NotificationsPopover";
-import { Bell } from "lucide-react";
+import { ProfilePopover } from "./Profile/ProfilePopover";
 
 type NavbarProps = {
     scrolled: boolean;
@@ -72,27 +72,31 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
                     {userLoading ? (
                         <ProfileSkeleton />
                     ) : (
-                        <div className="flex items-center gap-4 px-4 py-2 transition-colors duration-200 group rounded-xl hover:bg-black/20 hover:cursor-pointer">
-                            {user?.avatar_url ? (
-                                <div className="relative w-8 h-8 overflow-hidden rounded-full">
-                                    <Image
-                                        src={user.avatar_url}
-                                        alt="avatar"
-                                        width={32}
-                                        height={32}
-                                        className="object-cover"
-                                        style={{ width: '100%', height: '100%' }}
-                                    />
-                                </div>
-                            ) : (
-                                <div className="w-8 h-8 rounded-full bg-gray-700/50 animate-pulse" />
-                            )}
-                            {user?.username ? (
-                                <span className="hidden text-sm font-medium sm:block">{user.username}</span>
-                            ) : (
-                                <div className="hidden w-20 h-4 rounded sm:block animate-pulse bg-gray-700/50" />
-                            )}
-                        </div>
+                        <ProfilePopover
+                            avatarUrl={user?.avatar_url}
+                            username={user?.username}
+                        />
+                        // <div className="flex items-center gap-4 px-4 py-2 transition-colors duration-200 group rounded-xl hover:bg-black/20 hover:cursor-pointer">
+                        //     {user?.avatar_url ? (
+                        //         <div className="relative w-8 h-8 overflow-hidden rounded-full">
+                        //             <Image
+                        //                 src={user.avatar_url}
+                        //                 alt="avatar"
+                        //                 width={32}
+                        //                 height={32}
+                        //                 className="object-cover"
+                        //                 style={{ width: '100%', height: '100%' }}
+                        //             />
+                        //         </div>
+                        //     ) : (
+                        //         <div className="w-8 h-8 rounded-full bg-gray-700/50 animate-pulse" />
+                        //     )}
+                        //     {user?.username ? (
+                        //         <span className="hidden text-sm font-medium sm:block">{user.username}</span>
+                        //     ) : (
+                        //         <div className="hidden w-20 h-4 rounded sm:block animate-pulse bg-gray-700/50" />
+                        //     )}
+                        // </div>
                     )}
                 </div>
             </div>
