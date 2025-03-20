@@ -1,4 +1,4 @@
-import { db, eq, runners, card_metadata } from '@phyt/database';
+import { db, eq, runners, card_metadata, users } from '@phyt/database';
 import { CardRarity, RarityWeights, RarityMultipliers, TokenURIMetadata } from '@phyt/types';
 import { s3Service } from '../lib/awsClient';
 import { randomInt } from 'crypto';
@@ -33,8 +33,20 @@ export const metadataService = {
         const randomIndex = randomInt(allRunners.length);
         return allRunners[randomIndex];
     },
+
     getMultiplier: (rarity: CardRarity): number => {
         return RarityMultipliers[rarity];
+    },
+
+    getRunnerName: async (runnerUserId: number): Promise<string> => {
+        const user = await db.select({
+            username: users.username
+        })
+            .from(users)
+            .where(eq(users.id, runnerUserId))
+            .execute();
+
+        return user[0].username;
     },
 
     generateMetadata: async (tokenId: number): Promise<TokenURIMetadata> => {
@@ -42,14 +54,15 @@ export const metadataService = {
         const runner = await metadataService.selectRandomRunner();
         const multiplier = metadataService.getMultiplier(rarity);
         const imageUrl = s3Service.getImageUrl(runner.id, rarity);
+        const runnerName = await metadataService.getRunnerName(runner.id);
 
         const metadata = {
-            name: `Phyt Card #${tokenId}`,
+            name: `Phyt #${tokenId}`,
             description: `A ${rarity} rarity card featuring runner ${runner.id}`,
             image: imageUrl,
             attributes: [{
                 runner_id: runner.id,
-                runner_name: runner.user_id.toString(),
+                runner_name: runnerName,
                 rarity: rarity,
                 multiplier: multiplier,
             }]
@@ -64,14 +77,15 @@ export const metadataService = {
         const runner = await metadataService.selectRandomRunner();
         const multiplier = metadataService.getMultiplier(rarity);
         const imageUrl = s3Service.getImageUrl(runner.id, rarity);
+        const runnerName = await metadataService.getRunnerName(runner.id);
 
         const metadata = {
-            name: `Phyt Card #${tokenId}`,
-            description: `A ${rarity} rarity card featuring runner ${runner.id}`,
+            name: `Phyt #${tokenId}`,
+            description: `A ${rarity} rarity card featuring runner ${runnerName}`,
             image: imageUrl,
             attributes: [{
                 runner_id: runner.id,
-                runner_name: runner.user_id.toString(),
+                runner_name: runnerName,
                 rarity: rarity,
                 multiplier: multiplier,
             }]
