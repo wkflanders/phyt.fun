@@ -62,13 +62,25 @@ export function usePurchasePack() {
             });
         },
         onError: (error: Error) => {
+            console.log(error);
             if (error.message.includes("User rejected the request")) {
                 toast({
                     title: "Transaction cancelled",
                 });
                 return;
             }
-            console.log(error);
+            if (error.message.includes("ContractFunctionExecutionError")) {
+                toast({
+                    title: "Failed to mint pack. Please try again",
+                });
+                return;
+            }
+            if (error.message.includes("Pack purchase error")) {
+                toast({
+                    title: "Error executing pack mint. Please contact admins if you were charged but have not recieved your pack rewards"
+                });
+                return;
+            }
             toast({
                 title: "Error",
                 description: error.message || "Failed to mint pack",
