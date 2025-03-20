@@ -224,11 +224,12 @@ export const packService = {
                     });
 
                     await tx.insert(transactions).values({
-                        from_user_id: null,
-                        to_user_id: buyerId,
+                        from_user_id: buyerId,
+                        to_user_id: null,
                         card_id: card.id,
                         transaction_type: 'packPurchase',
-                        token_amount: Number(formatEther(BigInt(packPrice))) / cardsIds.length,
+                        price: Number(formatEther(BigInt(packPrice))),
+                        pack_purchases_id: packPurchase.id,
                         hash
                     });
                 }
