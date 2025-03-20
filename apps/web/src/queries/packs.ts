@@ -28,7 +28,7 @@ export async function notifyServerPackTxn({
     packPrice,
     packType = 'scrawny',
 }: PackPurchaseNotif, token: string | null): Promise<PackPurchaseResponse> {
-    const resp = await fetch(`${API_URL}/packs/purchase`, {
+    const response = await fetch(`${API_URL}/packs/purchase`, {
         method: 'POST',
         headers: {
             "Authorization": `Bearer ${token}`,
@@ -37,13 +37,15 @@ export async function notifyServerPackTxn({
         body: JSON.stringify({ buyerId, hash, packPrice, packType }),
     });
 
-    if (!resp.ok) {
-        const data = await resp.json().catch(() => ({}));
+    if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
         throw {
             error: data.error || 'Error notifying server',
-            status: resp.status,
+            status: response.status,
         } as ApiError;
     }
 
-    return resp.json();
+    let data = response.json();
+
+    return data;
 }
