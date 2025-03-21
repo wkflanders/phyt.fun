@@ -1,7 +1,6 @@
 import { CompetitionMast } from "@/components/Competitions/CompetitionMast";
 import { Feed } from "@/components/Feed/Feed";
 import { ActivityBox } from "@/components/ActivityBox";
-import { Trophy, Dumbbell, Flame } from "lucide-react";
 
 export default function Home() {
   return (
