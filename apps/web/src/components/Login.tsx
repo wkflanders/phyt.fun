@@ -7,18 +7,15 @@ import { getUser } from "@/queries/user";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from '@/components/ui/button';
 import { ApiError } from '@phyt/types';
-import { getUserQueryKey } from '@/queries/user';
 import { useGetUser } from '@/hooks/use-users';
 
 export const Login = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { ready } = usePrivy();
+    const { ready, getAccessToken } = usePrivy();
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
-    const queryClient = useQueryClient();
 
     const { login } = useLogin({
         onComplete: async ({ isNewUser, wasAlreadyAuthenticated, user }) => {
@@ -35,7 +32,8 @@ export const Login = () => {
                     router.push('/onboard');
                 } else {
                     try {
-                        const { data } = useGetUser();
+                        const token = await getAccessToken();
+                        const data = await getUser(user.id, token); // Cacheing user data
 
                         const redirectTo = searchParams.get('redirect') || '/';
                         router.push(redirectTo);
