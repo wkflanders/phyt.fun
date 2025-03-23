@@ -109,6 +109,8 @@ export interface Run {
     raw_data_json: any | null;
 }
 
+export type SeasonCollection = 'season_0';
+
 export interface TokenURIMetadata {
     name: string;
     description: string;
@@ -118,6 +120,7 @@ export interface TokenURIMetadata {
         runner_name: string;
         rarity: CardRarity;
         multiplier: number;
+        season: SeasonCollection;
     }[];
 }
 
@@ -139,6 +142,7 @@ export interface CardMetadata extends Pick<Card, 'token_id'> {
     rarity: CardRarity;
     image_url: string;
     multiplier: number;
+    season: SeasonCollection;
     created_at: Date;
 }
 

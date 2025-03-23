@@ -220,7 +220,8 @@ export const packService = {
                         runner_name: metadata.attributes[0].runner_name,
                         rarity: metadata.attributes[0].rarity,
                         multiplier: metadata.attributes[0].multiplier,
-                        image_url: metadata.image
+                        image_url: metadata.image,
+                        season: metadata.attributes[0].season,
                     });
 
                     await tx.insert(transactions).values({

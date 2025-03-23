@@ -1,5 +1,5 @@
 import { db, eq, runners, card_metadata, users } from '@phyt/database';
-import { CardRarity, RarityWeights, RarityMultipliers, TokenURIMetadata } from '@phyt/types';
+import { CardRarity, RarityWeights, RarityMultipliers, TokenURIMetadata, SeasonCollection } from '@phyt/types';
 import { s3Service } from '../lib/awsClient';
 import { randomInt } from 'crypto';
 
@@ -58,13 +58,14 @@ export const metadataService = {
 
         const metadata = {
             name: `Phyt #${tokenId}`,
-            description: `A ${rarity} rarity card featuring runner ${runner.id}`,
+            description: `Phyt Season 0 ${rarity} card featuring runner ${runner.id}`,
             image: imageUrl,
             attributes: [{
                 runner_id: runner.id,
                 runner_name: runnerName,
                 rarity: rarity,
                 multiplier: multiplier,
+                season: 'season_0' as 'season_0',
             }]
         };
 
@@ -81,13 +82,14 @@ export const metadataService = {
 
         const metadata = {
             name: `Phyt #${tokenId}`,
-            description: `A ${rarity} rarity card featuring runner ${runnerName}`,
+            description: `Season 0 ${rarity} card featuring runner ${runner.id}`,
             image: imageUrl,
             attributes: [{
                 runner_id: runner.id,
                 runner_name: runnerName,
                 rarity: rarity,
                 multiplier: multiplier,
+                season: 'season_0' as 'season_0',
             }]
         };
 
