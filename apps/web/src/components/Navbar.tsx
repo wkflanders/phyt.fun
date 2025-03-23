@@ -37,7 +37,7 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
             className={`fixed top-0 z-40 flex h-16 w-full items-center border-b ${scrolled ? "border-white/10 bg-zinc-900/20 backdrop-blur-lg" : "border-transparent bg-transparent"
                 }`}
         >
-            <div className="flex items-center justify-between flex-1 px-24">
+            <div className="flex items-center justify-between flex-1 pl-24 pr-12">
                 <CommandSearch />
                 <div className="flex items-center gap-1">
                     {userLoading ? (
