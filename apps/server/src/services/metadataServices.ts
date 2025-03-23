@@ -58,7 +58,7 @@ export const metadataService = {
 
         const metadata = {
             name: `Phyt #${tokenId}`,
-            description: `Phyt Season 0 ${rarity} card featuring runner ${runner.id}`,
+            description: `Phyt Season 0 ${rarity} card featuring runner ${runnerName}`,
             image: imageUrl,
             attributes: [{
                 runner_id: runner.id,
@@ -82,7 +82,7 @@ export const metadataService = {
 
         const metadata = {
             name: `Phyt #${tokenId}`,
-            description: `Season 0 ${rarity} card featuring runner ${runner.id}`,
+            description: `Season 0 ${rarity} card featuring runner ${runnerName}`,
             image: imageUrl,
             attributes: [{
                 runner_id: runner.id,
