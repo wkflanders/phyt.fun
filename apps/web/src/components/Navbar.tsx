@@ -32,13 +32,6 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
         </div>
     );
 
-    const ProfileSkeleton = () => (
-        <div className="flex items-center gap-4 p-4 py-2 group rounded-xl">
-            <div className="w-8 h-8 rounded-full animate-pulse bg-gray-700/50" />
-            <div className="hidden w-20 h-4 rounded animate-pulse bg-gray-700/50 sm:block" />
-        </div>
-    );
-
     return (
         <div
             className={`fixed top-0 z-40 flex h-16 w-full items-center border-b ${scrolled ? "border-white/10 bg-zinc-900/20 backdrop-blur-lg" : "border-transparent bg-transparent"
@@ -69,35 +62,10 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
                     <div className="w-px h-8 mx-2 bg-white/20"></div>
                     <NotificationsPopover />
                     <div className="w-px h-8 mx-2 bg-white/20"></div>
-                    {userLoading ? (
-                        <ProfileSkeleton />
-                    ) : (
-                        <ProfilePopover
-                            avatarUrl={user?.avatar_url}
-                            username={user?.username}
-                        />
-                        // <div className="flex items-center gap-4 px-4 py-2 transition-colors duration-200 group rounded-xl hover:bg-black/20 hover:cursor-pointer">
-                        //     {user?.avatar_url ? (
-                        //         <div className="relative w-8 h-8 overflow-hidden rounded-full">
-                        //             <Image
-                        //                 src={user.avatar_url}
-                        //                 alt="avatar"
-                        //                 width={32}
-                        //                 height={32}
-                        //                 className="object-cover"
-                        //                 style={{ width: '100%', height: '100%' }}
-                        //             />
-                        //         </div>
-                        //     ) : (
-                        //         <div className="w-8 h-8 rounded-full bg-gray-700/50 animate-pulse" />
-                        //     )}
-                        //     {user?.username ? (
-                        //         <span className="hidden text-sm font-medium sm:block">{user.username}</span>
-                        //     ) : (
-                        //         <div className="hidden w-20 h-4 rounded sm:block animate-pulse bg-gray-700/50" />
-                        //     )}
-                        // </div>
-                    )}
+                    <ProfilePopover
+                        avatarUrl={user?.avatar_url}
+                        username={user?.username}
+                    />
                 </div>
             </div>
         </div>
