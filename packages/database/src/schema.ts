@@ -46,6 +46,10 @@ export const enum_pack_type = pgEnum("enum_pack_type", [
     'scrawny', 'toned', 'swole', 'phyt'
 ]);
 
+export const enum_seasons = pgEnum("enum_seasons", [
+    'season_0'
+]);
+
 // Tables
 export const users = pgTable("users", {
     id: serial("id").primaryKey(),
@@ -145,6 +149,7 @@ export const card_metadata = pgTable("card_metadata", {
     runner_name: varchar("runner_name").notNull(),
     rarity: enum_cards_rarity("rarity").notNull(),
     multiplier: doublePrecision("multiplier").notNull(),
+    season: enum_seasons("seasons").notNull(),
     image_url: varchar("image_url").notNull(),
     created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
