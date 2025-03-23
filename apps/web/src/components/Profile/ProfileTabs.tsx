@@ -8,11 +8,15 @@ export const ProfileTabs: React.FC = () => {
 
     const tabs = [
         { href: '/profile', label: 'Items' },
-        { href: '/profile/listings', label: 'Listings' },
+        { href: '/profile/activity', label: 'Activity' },
         { href: '/profile/offers', label: 'Offers' },
-        { href: '/profile/portfolio', label: 'Portfolio' },
-        { href: '/profile/created', label: 'Created' },
-        { href: '/profile/activity', label: 'Activity' }
+        { href: '/profile/listings', label: 'Listings' },
+        { href: '/profile/competitions', label: 'Competitions' },
+        { href: '/profile/runs', label: 'Runs' },
+        { href: '/profile/progress', label: 'Progress' },
+        { href: '/profile/performance', label: 'Performance' },
+        { href: '/profile/integrations', label: 'Integrations' },
+        { href: '/profile/settings', label: 'Settings' },
     ];
 
     return (
