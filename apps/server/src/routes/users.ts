@@ -46,7 +46,9 @@ router.get('/:privyId', async (req, res) => {
             avatar_url: user.avatar_url,
             role: user.role,
             wallet_address: user.wallet_address,
-            phytness_points: user.phytness_points
+            phytness_points: user.phytness_points,
+            created_at: user.created_at,
+            updated_at: user.updated_at
         });
     } catch (error: any) {
         console.error("Error in GET /:privyId:", error);
@@ -68,7 +70,9 @@ router.get('/status/:privyId', async (req, res) => {
             role: user.role,
             wallet_address: user.wallet_address,
             phytness_points: user.phytness_points,
-            status: (user as any).status
+            status: (user as any).status,
+            created_at: user.created_at,
+            updated_at: user.updated_at
         });
     } catch (error: any) {
         console.error("Error in GET /:privyId/status:", error);
