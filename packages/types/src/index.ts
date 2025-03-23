@@ -80,6 +80,8 @@ export interface User {
     avatar_url: string;
     wallet_address: string | null;
     phytness_points: number;
+    twitter_handle: string | null;
+    strava_handle: string | null;
 }
 
 export interface CreateUserInput {
