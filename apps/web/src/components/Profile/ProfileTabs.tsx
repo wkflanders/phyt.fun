@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { Settings } from 'lucide-react';
 
 export const ProfileTabs: React.FC = () => {
     const pathname = usePathname();
@@ -16,7 +17,9 @@ export const ProfileTabs: React.FC = () => {
         { href: '/profile/progress', label: 'Progress' },
         { href: '/profile/performance', label: 'Performance' },
         { href: '/profile/integrations', label: 'Integrations' },
-        { href: '/profile/settings', label: 'Settings' },
+        {
+            href: '/profile/settings', label: <Settings className="h-5 w-5" />
+        },
     ];
 
     return (
@@ -24,7 +27,7 @@ export const ProfileTabs: React.FC = () => {
             <div className="flex px-6">
                 {tabs.map((tab) => (
                     <Link
-                        key={tab.label}
+                        key={typeof tab.label === 'string' ? tab.label : tab.href}
                         href={tab.href}
                         className={cn(
                             "px-4 py-3 font-medium text-sm",
