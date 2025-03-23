@@ -1,10 +1,15 @@
 import React from 'react';
 import { Packs } from '@/components/Packs/Packs';
+import { SynthwaveBackground } from '@/components/Packs/SynthwaveBackground';
 
 export default function PackPage() {
     return (
-        <div className="flex-1 overflow-y-auto">
-            <div className=" max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative w-full h-screen overflow-hidden bg-transparent">
+            {/* Our 3D synthwave background */}
+            <SynthwaveBackground />
+
+            {/* Existing Packs component or page content */}
+            <div className="relative z-10 px-4 sm:px-6 lg:px-6 py-8">
                 <Packs />
             </div>
         </div>
