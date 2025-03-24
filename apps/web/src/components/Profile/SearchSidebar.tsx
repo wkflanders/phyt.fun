@@ -1,17 +1,12 @@
 import React, { useState } from 'react';
 import { CardWithMetadata } from '@phyt/types';
 import { Search } from 'lucide-react';
+import { formatSeasonName } from '@/lib/utils';
 
 interface SearchSidebarProps {
     cards: CardWithMetadata[];
     onSearchResultsChange?: (searchQuery: string) => void;
 }
-
-const formatSeasonName = (seasonId: string): string => {
-    return seasonId
-        .replace('season_', 'Season ')
-        .replace(/(^|\s)\S/g, letter => letter.toUpperCase());
-};
 
 export const SearchSidebar: React.FC<SearchSidebarProps> = ({
     cards,

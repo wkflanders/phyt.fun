@@ -16,3 +16,9 @@ export const handleApiError = async (response: Response): Promise<ApiError> => {
     status: response.status
   };
 };
+
+export const formatSeasonName = (seasonId: string): string => {
+  return seasonId
+    .replace('season_', 'Season ')
+    .replace(/(^|\s)\S/g, letter => letter.toUpperCase());
+};
