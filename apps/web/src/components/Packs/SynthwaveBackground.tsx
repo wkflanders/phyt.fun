@@ -1,13 +1,24 @@
+// src/components/Packs/SynthwaveBackground.tsx
 "use client";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
 export function SynthwaveBackground() {
     const mountRef = useRef<HTMLDivElement | null>(null);
+    const [hasInitialized, setHasInitialized] = useState(false);
 
     useEffect(() => {
+        // Clear any previous state
+        if (mountRef.current) {
+            while (mountRef.current.firstChild) {
+                mountRef.current.removeChild(mountRef.current.firstChild);
+            }
+        }
+
+        // Ensure DOM is ready
         if (!mountRef.current) return;
 
+        // Setup scene
         const scene = new THREE.Scene();
         scene.fog = new THREE.Fog(0x180b28, 5, 20);
 
@@ -26,6 +37,10 @@ export function SynthwaveBackground() {
         );
         mountRef.current.appendChild(renderer.domElement);
 
+        // Force component to recognize initialization is complete
+        setHasInitialized(true);
+
+        // Setup lights
         const directionalLight1 = new THREE.DirectionalLight(0x00aaff, 0.8);
         directionalLight1.position.set(0, 5, 5);
         scene.add(directionalLight1);
@@ -37,6 +52,7 @@ export function SynthwaveBackground() {
         const ambientLight = new THREE.AmbientLight(0xffaaff, 0.3);
         scene.add(ambientLight);
 
+        // Grid plane
         const planeGeometry = new THREE.PlaneGeometry(50, 50, 50, 50);
         const planeMaterial = new THREE.MeshBasicMaterial({
             color: 0xff66cc,
@@ -49,16 +65,25 @@ export function SynthwaveBackground() {
         plane.position.y = -1;
         scene.add(plane);
 
+        // Store original positions for animation
         const positions = planeGeometry.attributes.position.array;
         const originalPositions = new Float32Array(positions.length);
         for (let i = 0; i < positions.length; i++) {
             originalPositions[i] = positions[i];
         }
 
+        // Force initial render before animation starts
+        renderer.render(scene, camera);
+
+        // Animation loop
         let req: number;
+        let lastTime = performance.now();
+
         const animate = () => {
             req = requestAnimationFrame(animate);
             const time = performance.now() * 0.001;
+            const deltaTime = time - lastTime;
+            lastTime = time;
 
             const cycleDuration = 300;
             const t = (time % cycleDuration) / cycleDuration;
@@ -81,16 +106,30 @@ export function SynthwaveBackground() {
 
             renderer.render(scene, camera);
         };
+
+        // Start animation immediately
         animate();
 
+        // Ensure resize is handled
+        const handleResize = () => {
+            if (!mountRef.current) return;
+            camera.aspect = mountRef.current.clientWidth / mountRef.current.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        // Clean up
         return () => {
+            window.removeEventListener('resize', handleResize);
             cancelAnimationFrame(req);
             renderer.dispose();
             if (mountRef.current) {
                 mountRef.current.removeChild(renderer.domElement);
             }
         };
-    }, []);
+    }, []);  // Empty dependency array to run once on mount
 
     return (
         <div
