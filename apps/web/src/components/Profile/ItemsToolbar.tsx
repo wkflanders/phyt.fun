@@ -1,106 +1,118 @@
 import React from 'react';
-import { Search, ArrowDown, Settings, Grid, List, Columns, Menu } from 'lucide-react';
+import { ArrowDown, Grid, List, Columns, Menu, Flame, ArrowUpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { CardWithMetadata } from '@phyt/types';
 
 interface ItemsToolbarProps {
     totalItems: number;
     viewMode: string;
     onViewModeChange: (mode: string) => void;
+    onLevelUp?: (card: CardWithMetadata) => void;
+    onBurn?: (card: CardWithMetadata) => void;
 }
 
 export const ItemsToolbar: React.FC<ItemsToolbarProps> = ({
     totalItems,
     viewMode,
-    onViewModeChange
+    onViewModeChange,
+    onLevelUp,
+    onBurn
 }) => {
     return (
         <div className="flex justify-between items-center mb-4">
             <div className="flex items-center">
-                <button className="p-2 text-text-dim hover:text-text">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M19 12H5M5 12L12 19M5 12L12 5" />
-                    </svg>
-                </button>
-                <div className="relative ml-2">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-dim h-4 w-4" />
-                    <input
-                        type="text"
-                        placeholder="Search for items"
-                        className="bg-form border border-border rounded-lg py-2 pl-10 pr-4 text-sm w-64 focus:outline-none focus:ring-1 focus:ring-primary"
-                    />
+                <div className="flex gap-2 ml-2">
+                    <Button
+                        variant="outline"
+                        className="justify-start gap-2 text-text hover:text-text hover:bg-black/20"
+                        onClick={() => onLevelUp?.(null as any)}
+                    >
+                        <ArrowUpCircle className="h-4 w-4" />
+                        Level Up
+                    </Button>
+                    <Button
+                        variant="outline"
+                        className="justify-start gap-2 text-red-400 hover:text-red-400 hover:bg-red-400/10"
+                        onClick={() => onBurn?.(null as any)}
+                    >
+                        <Flame className="h-4 w-4" />
+                        Burn
+                    </Button>
                 </div>
-                <div className="ml-2 text-sm text-text-dim">{totalItems} ITEMS</div>
             </div>
 
             <div className="flex items-center">
-                <FilterButton label="Recently received" />
-                <FilterButton label="Chain" />
-                <FilterButton label="Status" />
-
-                <button className="p-2 bg-form border border-border rounded-lg text-text mr-2">
-                    <Settings className="h-5 w-5" />
-                </button>
+                <Button
+                    variant="outline"
+                    className="justify-start gap-2 text-text hover:text-text hover:bg-black/20 mr-2"
+                >
+                    Recently received
+                    <ArrowDown className="h-4 w-4" />
+                </Button>
+                <Button
+                    variant="outline"
+                    className="justify-start gap-2 text-text hover:text-text hover:bg-black/20 mr-2"
+                >
+                    Season
+                    <ArrowDown className="h-4 w-4" />
+                </Button>
+                <Button
+                    variant="outline"
+                    className="justify-start gap-2 text-text hover:text-text hover:bg-black/20 mr-2"
+                >
+                    Status
+                    <ArrowDown className="h-4 w-4" />
+                </Button>
 
                 <div className="flex border border-border rounded-lg overflow-hidden">
-                    <ViewModeButton
-                        active={viewMode === 'grid'}
+                    <Button
+                        variant="outline"
+                        className={cn(
+                            "p-2 rounded-none",
+                            viewMode === 'grid' ? "bg-secondary/30" : "bg-form"
+                        )}
                         onClick={() => onViewModeChange('grid')}
-                        icon={<Grid className="h-5 w-5" />}
-                    />
-                    <ViewModeButton
-                        active={viewMode === 'large-grid'}
+                    >
+                        <Grid className="h-5 w-5" />
+                    </Button>
+                    <Button
+                        variant="outline"
+                        className={cn(
+                            "p-2 rounded-none",
+                            viewMode === 'large-grid' ? "bg-secondary/30" : "bg-form"
+                        )}
                         onClick={() => onViewModeChange('large-grid')}
-                        icon={
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <rect x="3" y="3" width="7" height="7" />
-                                <rect x="14" y="3" width="7" height="7" />
-                                <rect x="3" y="14" width="7" height="7" />
-                                <rect x="14" y="14" width="7" height="7" />
-                            </svg>
-                        }
-                    />
-                    <ViewModeButton
-                        active={viewMode === 'list'}
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="3" y="3" width="7" height="7" />
+                            <rect x="14" y="3" width="7" height="7" />
+                            <rect x="3" y="14" width="7" height="7" />
+                            <rect x="14" y="14" width="7" height="7" />
+                        </svg>
+                    </Button>
+                    <Button
+                        variant="outline"
+                        className={cn(
+                            "p-2 rounded-none",
+                            viewMode === 'list' ? "bg-secondary/30" : "bg-form"
+                        )}
                         onClick={() => onViewModeChange('list')}
-                        icon={<Menu className="h-5 w-5" />}
-                    />
-                    <ViewModeButton
-                        active={viewMode === 'columns'}
+                    >
+                        <Menu className="h-5 w-5" />
+                    </Button>
+                    <Button
+                        variant="outline"
+                        className={cn(
+                            "p-2 rounded-none",
+                            viewMode === 'columns' ? "bg-secondary/30" : "bg-form"
+                        )}
                         onClick={() => onViewModeChange('columns')}
-                        icon={<Columns className="h-5 w-5" />}
-                    />
+                    >
+                        <Columns className="h-5 w-5" />
+                    </Button>
                 </div>
             </div>
         </div>
     );
 };
-
-// Helper components for ItemsToolbar
-const FilterButton = ({ label }: { label: string; }) => (
-    <div className="relative mr-2">
-        <button className="flex items-center gap-2 bg-form border border-border rounded-lg px-3 py-2 text-sm">
-            <span>{label}</span>
-            <ArrowDown className="h-4 w-4" />
-        </button>
-    </div>
-);
-
-const ViewModeButton = ({
-    active,
-    onClick,
-    icon
-}: {
-    active: boolean;
-    onClick: () => void;
-    icon: React.ReactNode;
-}) => (
-    <button
-        className={cn(
-            "p-2",
-            active ? "bg-secondary/30" : "bg-form"
-        )}
-        onClick={onClick}
-    >
-        {icon}
-    </button>
-);
