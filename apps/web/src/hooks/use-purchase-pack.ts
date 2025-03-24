@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "./use-toast";
 import { MinterAbi } from "@phyt/contracts";
 import type { Address } from 'viem';
@@ -15,6 +15,8 @@ export function usePurchasePack() {
     const { toast } = useToast();
     const { getAccessToken } = usePrivy();
     const [packPrice, setPackPrice] = useState<string | null>(null);
+    const queryClient = useQueryClient();
+    const { user: privyUser } = usePrivy();
 
     const mutation = useMutation<PackPurchaseResponse, Error, PackPurchaseInput>({
         mutationFn: async ({ buyerId, buyerAddress, packType }) => {
@@ -59,6 +61,11 @@ export function usePurchasePack() {
             toast({
                 title: "Success",
                 description: "Pack opened successfully!",
+            });
+
+            // Invalidate and refetch userCards query
+            queryClient.invalidateQueries({
+                queryKey: ["userCards", privyUser?.id]
             });
         },
         onError: (error: Error) => {
