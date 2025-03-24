@@ -414,3 +414,24 @@ export const reports = pgTable("reports", {
     index("reports_comment_idx").on(table.comment_id),
     index("reports_status_idx").on(table.status),
 ]);
+
+export const leaderboard = pgTable("leaderboard", {
+    id: serial("id").primaryKey(),
+    runner_id: integer("runner_id")
+        .notNull()
+        .references(() => runners.id, { onDelete: 'cascade' }),
+    ranking: integer("ranking").notNull(),
+    season_points: integer("season_points").notNull(),
+    weekly_points: integer("weekly_points").notNull(),
+    competition_points: integer("competition_points").notNull(),
+    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
+}, (table) => [
+    index("leaderboard_runner_idx").on(table.runner_id),
+    index("leaderboard_ranking_idx").on(table.ranking),
+    index("leaderboard_season_points_idx").on(table.season_points),
+    index("leaderboard_weekly_points_idx").on(table.weekly_points),
+    index("leaderboard_competition_points_idx").on(table.competition_points),
+    index("leaderboard_created_at_idx").on(table.created_at),
+    index("leaderboard_updated_at_idx").on(table.updated_at),
+]);
