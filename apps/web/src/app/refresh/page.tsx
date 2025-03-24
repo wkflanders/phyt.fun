@@ -30,5 +30,5 @@ function RefreshPage() {
         refresh();
     }, [router, searchParams]);
 
-    return <div>Refreshing session...</div>;
+    return <div className="flex justify-center items-center h-screen">Refreshing session...</div>;
 }
