@@ -176,12 +176,12 @@ export const competitions = pgTable("competitions", {
 export const lineups = pgTable("lineups", {
     id: serial("id").primaryKey(),
     competition_id: integer("competition_id").notNull().references(() => competitions.id, { onDelete: 'set null' }),
-    gambler_id: integer("gambler_id").notNull().references(() => users.id, { onDelete: 'set null' }),
+    manager_id: integer("manager_id").notNull().references(() => users.id, { onDelete: 'set null' }),
     updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
     created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
     index("lineups_competition_idx").on(table.competition_id),
-    index("lineups_gambler_idx").on(table.gambler_id),
+    index("lineups_manager_idx").on(table.manager_id),
     index("lineups_created_at_idx").on(table.created_at),
     index("lineups_updated_at_idx").on(table.updated_at),
 ]);
@@ -217,18 +217,18 @@ export const runner_results = pgTable("runner_results", {
     index("runner_results_updated_at_idx").on(table.updated_at),
 ]);
 
-export const gambler_results = pgTable("gambler_results", {
+export const manager_results = pgTable("manager_results", {
     id: serial("id").primaryKey(),
     lineup_id: integer("lineup_id").notNull().references(() => lineups.id, { onDelete: 'set null' }),
     total_score: doublePrecision("total_score").notNull(),
     final_placement: integer("final_placement"),
-    reward_amount_p_h_y_t: doublePrecision("reward_amount_p_h_y_t"),
+    reward_amount_phyt: doublePrecision("reward_amount_phyt"),
     updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
     created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
-    index("gambler_results_lineup_idx").on(table.lineup_id),
-    index("gambler_results_created_at_idx").on(table.created_at),
-    index("gambler_results_updated_at_idx").on(table.updated_at),
+    index("manager_results_lineup_idx").on(table.lineup_id),
+    index("manager_results_created_at_idx").on(table.created_at),
+    index("manager_results_updated_at_idx").on(table.updated_at),
 ]);
 
 export const listings = pgTable("listings", {
@@ -415,23 +415,28 @@ export const reports = pgTable("reports", {
     index("reports_status_idx").on(table.status),
 ]);
 
-export const leaderboard = pgTable("leaderboard", {
+export const runner_leaderboard = pgTable("runner_leaderboard", {
     id: serial("id").primaryKey(),
     runner_id: integer("runner_id")
         .notNull()
         .references(() => runners.id, { onDelete: 'cascade' }),
     ranking: integer("ranking").notNull(),
-    season_points: integer("season_points").notNull(),
-    weekly_points: integer("weekly_points").notNull(),
-    competition_points: integer("competition_points").notNull(),
     updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
     created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
-    index("leaderboard_runner_idx").on(table.runner_id),
-    index("leaderboard_ranking_idx").on(table.ranking),
-    index("leaderboard_season_points_idx").on(table.season_points),
-    index("leaderboard_weekly_points_idx").on(table.weekly_points),
-    index("leaderboard_competition_points_idx").on(table.competition_points),
-    index("leaderboard_created_at_idx").on(table.created_at),
-    index("leaderboard_updated_at_idx").on(table.updated_at),
+    index("runner_leaderboard_runner_idx").on(table.runner_id),
+    index("runner_leaderboard_ranking_idx").on(table.ranking),
+]);
+
+export const manager_leaderboard = pgTable("manager_leaderboard", {
+    id: serial("id").primaryKey(),
+    user_id: integer("user_id")
+        .notNull()
+        .references(() => users.id, { onDelete: 'cascade' }),
+    ranking: integer("ranking").notNull(),
+    updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
+    created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
+}, (table) => [
+    index("manager_leaderboard_user_idx").on(table.user_id),
+    index("manager_leaderboard_ranking_idx").on(table.ranking),
 ]);
