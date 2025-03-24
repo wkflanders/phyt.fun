@@ -12,13 +12,12 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "../ui/button";
 import { LogOut } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type ProfilePopoverProps = {
     avatarUrl?: string;
     username?: string;
 };
-
-const DEFAULT_AVATAR = 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut';
 
 export const ProfilePopover = ({ avatarUrl, username }: ProfilePopoverProps) => {
     const router = useRouter();
@@ -43,14 +42,22 @@ export const ProfilePopover = ({ avatarUrl, username }: ProfilePopoverProps) => 
                     variant="ghost"
                     className="flex items-center gap-4 px-4 py-2 transition-colors duration-200 group rounded-xl data-[state=open]:bg-black/20 hover:bg-black/20 hover:cursor-pointer"
                 >
-                    <Image
-                        src={avatarUrl || DEFAULT_AVATAR}
-                        alt={`${username || "Profile"} avatar`}
-                        width={32}
-                        height={32}
-                        className="rounded-full"
-                    />
-                    <span className="text-sm font-medium">{username}</span>
+                    {avatarUrl ? (
+                        <Image
+                            src={avatarUrl}
+                            alt={`${username || "Profile"} avatar`}
+                            width={32}
+                            height={32}
+                            className="rounded-full"
+                        />
+                    ) : (
+                        <Skeleton className="w-8 h-8 rounded-full" />
+                    )}
+                    {username ? (
+                        <span className="text-sm font-medium">{username}</span>
+                    ) : (
+                        <Skeleton className="h-5 w-24" />
+                    )}
                 </Button>
             </PopoverTrigger>
 
@@ -86,7 +93,7 @@ export const ProfilePopover = ({ avatarUrl, username }: ProfilePopoverProps) => 
                     </Link>
                     <hr className="my-1" />
                     <Link href="/profile" className="p-3 hover:bg-black/20 rounded">
-                        Help
+                        Settings
                     </Link>
                     <hr className="my-1" />
                     <button onClick={handleLogout} className="p-3 text-red-500 flex items-center gap-2 hover:bg-black/20 rounded">

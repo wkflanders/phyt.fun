@@ -34,25 +34,23 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             <div className="h-96 w-full bg-gradient-to-r from-blue-900/30 via-purple-900/30 to-pink-900/30"></div>
             <div className="absolute inset-0 px-6 py-4 flex justify-between">
                 <div className="flex items-end">
-                    <div className="bg-gradient-to-br from-primary-gradientStart to-secondary p-1 rounded-full">
-                        <div className="h-32 w-32 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
-                            <Image
-                                src={user?.avatar_url || DEFAULT_AVATAR}
-                                alt={user?.username || 'User'}
-                                width={128}
-                                height={128}
-                                className="object-cover w-full h-full"
-                            />
-                        </div>
+                    <div className="h-32 w-32 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                        <Image
+                            src={user?.avatar_url || DEFAULT_AVATAR}
+                            alt={user?.username || 'User'}
+                            width={128}
+                            height={128}
+                            className="object-cover w-full h-full"
+                        />
                     </div>
-                    <div className="ml-6 mb-2">
+                    <div className="ml-6 mb-4">
                         <div className="flex items-center space-x-2">
                             <h1 className="text-3xl font-bold">{user?.username}</h1>
                             <button onClick={handleCopy} className="pl-2 text-text-dim hover:text-text">
                                 {copied ? <Check className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
                             </button>
                         </div>
-                        <div className="flex items-center gap-3 mt-6 text-sm">
+                        <div className="flex items-center gap-3 mt-4 text-sm">
                             <span className="px-3 py-1 bg-zinc-800/40 text-white-dim border border-white/10">
                                 Joined {user?.created_at ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Unknown'}
                             </span>
