@@ -88,7 +88,6 @@ export function useGetUserCards() {
 
             return getUserCards(privyUser.id, token);
         },
-        initialData: [],
         enabled: Boolean(ready && privyUser?.id),
     });
 }
