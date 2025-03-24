@@ -1,4 +1,4 @@
-import { ApiError, RunnerLeaderboard, UserLeaderboard, LeaderboardQueryParams } from "@phyt/types";
+import { ApiError, RunnerLeaderboard, LeaderboardQueryParams, ManagerLeaderboard } from "@phyt/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
@@ -32,7 +32,7 @@ export async function getRunnerLeaderboard(params: LeaderboardQueryParams = {}, 
     return data;
 }
 
-export async function getUserLeaderboard(params: LeaderboardQueryParams = {}, token: string | null): Promise<UserLeaderboard> {
+export async function getManagerLeaderboard(params: LeaderboardQueryParams = {}, token: string | null): Promise<ManagerLeaderboard> {
     const { page = 1, limit = 20, timeFrame = 'weekly' } = params;
 
     const searchParams = new URLSearchParams();
