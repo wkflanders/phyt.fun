@@ -42,7 +42,7 @@ export const ItemsGrid: React.FC<ItemsGridProps> = ({
                     key={item.id}
                     id={item.id.toString()}
                     name={`${item.metadata.runner_name}`}
-                    collection={formatSeasonName(item.metadata.season)}
+                    season={formatSeasonName(item.metadata.season)}
                     image={item.metadata.image_url}
                     price="0 ETH" // TODO: Get actual price from market data
                 />
