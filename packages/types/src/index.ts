@@ -601,3 +601,33 @@ export interface ReactionToggleResponse {
     action: 'added' | 'removed';
     reaction: Reaction;
 }
+
+export interface RunnerStanding {
+    id: number;
+    runner: Runner;
+    ranking: number;
+    updated_at: Date;
+    created_at: Date;
+}
+
+export interface ManagerStanding {
+    id: number;
+    user: User;
+    ranking: number;
+    updated_at: Date;
+    created_at: Date;
+}
+
+export interface RunnerLeaderboard {
+    standings: RunnerStanding[];
+}
+
+export interface ManagerLeaderboard {
+    standings: ManagerStanding[];
+}
+
+export interface LeaderboardQueryParams {
+    page?: number;
+    limit?: number;
+    timeFrame?: 'weekly' | 'monthly' | 'allTime';
+};
