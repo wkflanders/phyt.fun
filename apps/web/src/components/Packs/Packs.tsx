@@ -157,15 +157,14 @@ export const Packs = () => {
                     style={{ zIndex: 50, opacity: isOverlayVisible ? 1 : 0 }}
                 />
             )}
-            <div className="flex flex-col items-center justify-center min-h-screen p-8">
+            <div className="flex flex-col items-center justify-center min-h-screen p-12">
                 {!isPurchaseComplete ? (
-                    <div className="w-full mx-auto">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="w-5/6 mx-auto">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
                             {PackTypes.map((pack) => (
                                 <div
                                     key={pack.id}
-                                    className={`bg-gradient-to-br ${pack.bgGradient} backdrop-blur-sm rounded-xl p-6 flex flex-col items-center`}
-                                >
+                                    className={`bg-gradient-to-br ${pack.bgGradient} rounded-xl p-6 flex flex-col items-center`}>
                                     <div className="relative w-96 h-96 mb-4">
                                         <img
                                             src={pack.image}
@@ -191,7 +190,7 @@ export const Packs = () => {
                                         variant="outline"
                                         onClick={() => handlePurchase(pack.id, pack.price)}
                                         disabled={isPending || loadingPackId !== null}
-                                        className="px-24 py-6 bg-zinc-900 bg-opacity-20 backdrop-blur-xl border-white/10 hover:bg-white/10 rounded-xl"
+                                        className="px-24 py-6 bg-transparent backdrop-blur-xl border-white/10 hover:bg-white/10 rounded-xl"
                                     >
                                         {loadingPackId === pack.id ? (
                                             <>
