@@ -85,7 +85,7 @@ export const competitionService = {
                     .where(
                         and(
                             eq(lineups.competition_id, competitionId),
-                            eq(lineups.gambler_id, userId)
+                            eq(lineups.manager_id, userId)
                         )
                     )
                     .limit(1);
@@ -105,7 +105,7 @@ export const competitionService = {
                         .insert(lineups)
                         .values({
                             competition_id: competitionId,
-                            gambler_id: userId
+                            manager_id: userId
                         })
                         .returning();
 
