@@ -5,11 +5,12 @@ import React, { useState } from 'react';
 import { ItemsToolbar } from '@/components/Profile/ItemsToolbar';
 import { ItemsGrid } from '@/components/Profile/ItemsGrid';
 import { SearchSidebar } from '@/components/Profile/SearchSidebar';
-import { useGetUserCards } from '@/hooks/use-users';
+import { useGetUserCards, useGetUser } from '@/hooks/use-users';
 import { useToast } from '@/hooks/use-toast';
 import { CardWithMetadata } from '@phyt/types';
 
 export default function ProfilePage() {
+    const { data: user } = useGetUser();
     const { data: cards, isFetching: fetchingCards, status: cardsFetchStatus } = useGetUserCards();
     const [viewMode, setViewMode] = useState('grid');
     const [searchTerm, setSearchTerm] = useState('');
@@ -39,6 +40,10 @@ export default function ProfilePage() {
         });
     };
 
+    if (!user) {
+        return null;
+    }
+
     return (
         <div className="flex">
             <SearchSidebar
@@ -58,6 +63,7 @@ export default function ProfilePage() {
                     cardsFetchStatus={cardsFetchStatus}
                     items={filteredCards}
                     columns={3}
+                    user={user}
                 />
             </div>
         </div>
