@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { users, runs, runners, cards, card_metadata, competitions, lineups, lineup_cards, runner_results, gambler_results, transactions, pack_purchases, listings, user_device_authorizations } from "./schema";
+import { users, runs, runners, cards, card_metadata, competitions, lineups, lineup_cards, runner_results, manager_results, transactions, pack_purchases, listings, user_device_authorizations } from "./schema";
 
 export const usersRelations = relations(users, ({ many }) => ({
 	runners: many(runners),
@@ -55,12 +55,12 @@ export const lineupsRelations = relations(lineups, ({ one, many }) => ({
 		fields: [lineups.competition_id],
 		references: [competitions.id],
 	}),
-	gambler: one(users, {
-		fields: [lineups.gambler_id],
+	manager: one(users, {
+		fields: [lineups.manager_id],
 		references: [users.id],
 	}),
 	lineupCards: many(lineup_cards),
-	gamblerResults: many(gambler_results)
+	managerResults: many(manager_results)
 }));
 
 export const lineupCardsRelations = relations(lineup_cards, ({ one }) => ({
@@ -89,9 +89,9 @@ export const runnerResultsRelations = relations(runner_results, ({ one }) => ({
 	})
 }));
 
-export const gamblerResultsRelations = relations(gambler_results, ({ one }) => ({
+export const managerResultsRelations = relations(manager_results, ({ one }) => ({
 	lineup: one(lineups, {
-		fields: [gambler_results.lineup_id],
+		fields: [manager_results.lineup_id],
 		references: [lineups.id],
 	})
 }));
