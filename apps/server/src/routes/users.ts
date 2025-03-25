@@ -26,7 +26,7 @@ router.use(validateAuth);
 router.get('/transactions/:privyId', async (req, res) => {
     try {
         const transactions = await userService.getTransactionsByPrivyId(req.params.privyId);
-        return res.status(200).json(transactions); // Return transactions directly
+        return res.status(200).json(transactions);
     } catch (error: any) {
         console.error("Error in GET /users/:privyId/transactions:", error);
         return res.status(error.statusCode || 500).json({
@@ -39,6 +39,28 @@ router.get('/transactions/:privyId', async (req, res) => {
 router.get('/:privyId', async (req, res) => {
     try {
         const user = await userService.getUserByPrivyId(req.params.privyId);
+        return res.status(200).json({
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            avatar_url: user.avatar_url,
+            role: user.role,
+            wallet_address: user.wallet_address,
+            phytness_points: user.phytness_points,
+            created_at: user.created_at,
+            updated_at: user.updated_at
+        });
+    } catch (error: any) {
+        console.error("Error in GET /:privyId:", error);
+        return res.status(error.statusCode || 500).json({
+            error: error.message || "Failed to fetch user data"
+        });
+    }
+});
+
+router.get('/:walletAddress', async (req, res) => {
+    try {
+        const user = await userService.getUserByWalletAddress(req.params.walletAddress);
         return res.status(200).json({
             id: user.id,
             email: user.email,
