@@ -37,10 +37,39 @@ export const userService = {
                 return user;
             }
         } catch (error) {
-            if (error instanceof NotFoundError || error instanceof ValidationError) {
-                throw error;
-            }
-            throw new DatabaseError('Failed to fetch user by Privy ID');
+            throw new DatabaseError('Failed to fetch user by Privy ID', error);
+        }
+    },
+
+    getUserByWalletAddress: async (walletAddress: string) => {
+        if (!walletAddress) throw new ValidationError('Wallet address is required');
+
+        try {
+            const [user] = await db.select()
+                .from(users)
+                .where(eq(users.wallet_address, walletAddress))
+                .limit(1);
+
+            if (!user) throw new NotFoundError('User not found');
+            return user;
+        } catch (error) {
+            throw new DatabaseError('Failed to fetch user by wallet address', error);
+        }
+    },
+
+    getUserById: async (id: number) => {
+        if (!id) throw new ValidationError('User id is required');
+
+        try {
+            const [user] = await db.select()
+                .from(users)
+                .where(eq(users.id, id))
+                .limit(1);
+
+            if (!user) throw new NotFoundError('User not found');
+            return user;
+        } catch (error) {
+            throw new DatabaseError('Failed to fetch user by ID', error);
         }
     },
 
@@ -57,7 +86,7 @@ export const userService = {
             return user;
         } catch (error) {
             if (error instanceof NotFoundError || error instanceof ValidationError) throw error;
-            throw new DatabaseError('Failed to fetch user by email');
+            throw new DatabaseError('Failed to fetch user by email', error);
         }
     },
 
@@ -74,7 +103,7 @@ export const userService = {
             return user;
         } catch (error) {
             if (error instanceof NotFoundError || error instanceof ValidationError) throw error;
-            throw new DatabaseError('Failed to fetch user by username');
+            throw new DatabaseError('Failed to fetch user by username', error);
         }
     },
 
@@ -102,8 +131,7 @@ export const userService = {
 
             return userTransactions;
         } catch (error) {
-            if (error instanceof NotFoundError || error instanceof ValidationError) throw error;
-            throw new DatabaseError('Failed to fetch user transactions');
+            throw new DatabaseError('Failed to fetch user transactions', error);
         }
     },
 
@@ -128,8 +156,7 @@ export const userService = {
                 }
             }));
         } catch (error) {
-            if (error instanceof NotFoundError) throw error;
-            throw new DatabaseError('Failed to fetch user cards');
+            throw new DatabaseError('Failed to fetch user cards', error);
         }
     },
 
@@ -189,8 +216,7 @@ export const userService = {
 
             return newUser;
         } catch (error) {
-            if (error instanceof DuplicateError || error instanceof ValidationError) throw error;
-            throw new DatabaseError('Failed to create user');
+            throw new DatabaseError('Failed to create user', error);
         }
     }
 };
