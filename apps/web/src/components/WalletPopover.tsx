@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { usePrivy, useFundWallet } from '@privy-io/react-auth';
 import { useAccount, useBalance } from 'wagmi';
 import { formatEther } from 'viem';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
     Wallet,
@@ -15,6 +15,7 @@ import {
     History,
     ArrowDown,
     ArrowUp,
+    Download,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useGetUserTransactions } from '@/hooks/use-users';
@@ -22,11 +23,11 @@ import { useGetUser } from '@/hooks/use-users';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 
 export const WalletPopover: React.FC = () => {
-    const { ready } = usePrivy();
+    const { ready, exportWallet } = usePrivy();
     const { address, isConnecting } = useAccount();
     const { toast } = useToast();
     const [copied, setCopied] = useState(false);
-    const [view, setView] = useState<'main' | 'deposit' | 'history'>('main');
+    const [view, setView] = useState<'main' | 'deposit' | 'history' | 'export'>('main');
     const [isProcessing, setIsProcessing] = useState(false);
     const { data: user, isLoading: isGetUserLoading } = useGetUser();
     const { data: transactions, isLoading: isTransactionLoading } = useGetUserTransactions();
@@ -121,7 +122,7 @@ export const WalletPopover: React.FC = () => {
                                 </Button>
                             </div>
                             <p className="text-xs text-text-dim">
-                                Send only ETH or Base compatible tokens to this address.
+                                ONLY SEND ETH ON BASE TO THIS ADDRESS.
                             </p>
                         </div>
                     </div>
@@ -206,17 +207,17 @@ export const WalletPopover: React.FC = () => {
                         <div className="p-4 rounded-lg">
                             <p className="mb-1 text-lg text-text">Balance</p>
                             {isBalanceLoading ? (
-                                <Loader2 className="w-4 h-4 animate-spin text-phyt_blue" />
+                                <Loader2 className="w-4 h-4 animate-spin text-text" />
                             ) : (
-                                <p className="text-lg text-text">
+                                <p className="text-lg font-mono text-text">
                                     ≈ {balanceData ? Number(formatEther(balanceData.value)).toFixed(3) : '0.000'} ETH
                                 </p>
                             )}
                         </div>
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="grid grid-cols-4 gap-2">
                             <Button
                                 variant="default"
-                                className="flex flex-col items-center h-auto gap-2 py-4 bg-transparent border rounded-xl hover:bg-card text-text hover:text-text border-white/10"
+                                className="flex flex-col items-center h-auto gap-2 py-4 bg-transparent border rounded-xl hover:bg-zinc-900 text-text hover:text-text border-white/10"
                                 onClick={(e) => { e.stopPropagation(); setView('deposit'); }}
                             >
                                 <ArrowDownLeft size={20} className="text-text" />
@@ -224,7 +225,7 @@ export const WalletPopover: React.FC = () => {
                             </Button>
                             <Button
                                 variant="default"
-                                className="flex flex-col items-center h-auto gap-2 py-4 bg-transparent border rounded-xl hover:bg-card border-white/10"
+                                className="flex flex-col items-center h-auto gap-2 py-4 bg-transparent border rounded-xl hover:bg-zinc-900 border-white/10"
                                 onClick={(e) => { e.stopPropagation(); handleFundWallet(address); }}
                             >
                                 <CreditCard size={20} className="text-text" />
@@ -232,11 +233,19 @@ export const WalletPopover: React.FC = () => {
                             </Button>
                             <Button
                                 variant="default"
-                                className="flex flex-col items-center h-auto gap-2 py-4 bg-transparent border rounded-xl hover:bg-card border-white/10"
+                                className="flex flex-col items-center h-auto gap-2 py-4 bg-transparent border rounded-xl hover:bg-zinc-900 border-white/10"
                                 onClick={(e) => { e.stopPropagation(); setView('history'); }}
                             >
                                 <History size={20} className="text-text" />
                                 <span className="text-xs">History</span>
+                            </Button>
+                            <Button
+                                variant="default"
+                                className="flex flex-col items-center h-auto gap-2 py-4 bg-transparent border rounded-xl hover:bg-zinc-900 border-white/10"
+                                onClick={(e) => { e.stopPropagation(); exportWallet({ address: address as `0x${string}` }); }}
+                            >
+                                <Download size={20} className="text-text" />
+                                <span className="text-xs">Export</span>
                             </Button>
                         </div>
                     </div>
@@ -260,7 +269,7 @@ export const WalletPopover: React.FC = () => {
                     </div>
                 </Button>
             </PopoverTrigger>
-            <PopoverContent align="center" className="w-96 bg-zinc-900/20 backdrop-blur-xl border border-white/10 shadow-lg mt-2.5">
+            <PopoverContent align="center" className="w-[25vw] bg-zinc-900/60 backdrop-blur-xl border border-white/10 shadow-lg mt-2.5">
                 {content}
             </PopoverContent>
         </Popover>
