@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 import { OnboardForm } from '@/components/OnboardForm';
 import { onboardFormSchema } from '@/lib/validation';
 import { useToast } from '@/hooks/use-toast';
-import { useCreateUser } from '@/hooks/use-users';
+import { useCreateUser, useGetUser } from '@/hooks/use-users';
 import { ApiError } from '@phyt/types';
 
 export default function OnboardPage() {
@@ -14,7 +14,15 @@ export default function OnboardPage() {
     const { toast } = useToast();
     const { user, ready } = usePrivy();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { data: userData } = useGetUser();
     const createUser = useCreateUser();
+
+    useEffect(() => {
+        if (userData) {
+            router.push('/');
+            return;
+        }
+    }, [userData]);
 
     const handleSubmit = async (formData: FormData) => {
         if (!user?.google) {
