@@ -602,9 +602,16 @@ export interface ReactionToggleResponse {
     reaction: Reaction;
 }
 
+export interface LeaderboardPagination {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+}
+
 export interface RunnerStanding {
     id: number;
-    runner: Runner;
+    runner: RunnerProfile;
     ranking: number;
     updated_at: Date;
     created_at: Date;
@@ -620,10 +627,12 @@ export interface ManagerStanding {
 
 export interface RunnerLeaderboard {
     standings: RunnerStanding[];
+    pagination?: LeaderboardPagination;
 }
 
 export interface ManagerLeaderboard {
     standings: ManagerStanding[];
+    pagination?: LeaderboardPagination;
 }
 
 export interface LeaderboardQueryParams {
@@ -631,3 +640,20 @@ export interface LeaderboardQueryParams {
     limit?: number;
     timeFrame?: 'weekly' | 'monthly' | 'allTime';
 };
+
+export interface ListingModalProps {
+    user: User;
+    isOpen: boolean;
+    onClose: () => void;
+    card: CardWithMetadata;
+}
+
+export interface ExpirationOption {
+    value: string;
+    label: string;
+}
+
+export interface OrderBookEntry {
+    price: number;
+    quantity: number;
+}
