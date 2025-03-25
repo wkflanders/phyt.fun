@@ -1,1 +1,0 @@
-ALTER TABLE "cards" ALTER COLUMN "is_burned" SET NOT NULL;

@@ -1,1 +1,0 @@
-ALTER TABLE "runners" ADD COLUMN "is_pooled" boolean DEFAULT false;

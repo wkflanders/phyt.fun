@@ -1,1 +1,0 @@
-ALTER TABLE "competitions" ADD COLUMN "jackpot" double precision DEFAULT 0;
