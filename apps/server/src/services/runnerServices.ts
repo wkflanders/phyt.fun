@@ -193,6 +193,43 @@ export const runnerService = {
         }
     },
 
+    getRunnerByPrivyId: async (privyId: string) => {
+        try {
+            const [user] = await db
+                .select()
+                .from(users)
+                .where(eq(users.privy_id, privyId))
+                .limit(1);
+
+            if (!user) {
+                throw new NotFoundError('User not found');
+            }
+
+            const [runner] = await db
+                .select({
+                    id: runners.id,
+                    user_id: runners.user_id,
+                    total_distance_m: runners.total_distance_m,
+                    average_pace: runners.average_pace,
+                    total_runs: runners.total_runs,
+                    best_mile_time: runners.best_mile_time,
+                    status: runners.status,
+                    is_pooled: runners.is_pooled,
+                    username: users.username,
+                    avatar_url: users.avatar_url,
+                    created_at: runners.created_at,
+                    updated_at: runners.updated_at,
+                })
+                .from(runners)
+                .innerJoin(users, eq(runners.user_id, users.id))
+                .limit(1);
+
+            return runner;
+        } catch (error) {
+            throw new DatabaseError('Failed to get runner');
+        }
+    },
+
     getRunnerById: async (runnerId: number) => {
         try {
             const [runner] = await db
@@ -212,12 +249,6 @@ export const runnerService = {
                 })
                 .from(runners)
                 .innerJoin(users, eq(runners.user_id, users.id))
-                .where(
-                    and(
-                        eq(runners.id, runnerId),
-                        // eq(runners.status, 'active')
-                    )
-                )
                 .limit(1);
 
             if (!runner) {
