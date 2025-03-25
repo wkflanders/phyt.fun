@@ -424,7 +424,7 @@ export const runner_leaderboard = pgTable("runner_leaderboard", {
     updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
     created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
-    index("runner_leaderboard_runner_idx").on(table.runner_id),
+    uniqueIndex("runner_leaderboard_runner_idx").on(table.runner_id),
     index("runner_leaderboard_ranking_idx").on(table.ranking),
 ]);
 
@@ -437,6 +437,6 @@ export const manager_leaderboard = pgTable("manager_leaderboard", {
     updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
     created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [
-    index("manager_leaderboard_user_idx").on(table.user_id),
+    uniqueIndex("manager_leaderboard_user_idx").on(table.user_id),
     index("manager_leaderboard_ranking_idx").on(table.ranking),
 ]);
