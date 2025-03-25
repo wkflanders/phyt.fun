@@ -8,6 +8,7 @@ import { competitionsRouter } from './competitions';
 import { postsRouter } from './posts';
 import { commentsRouter } from './comments';
 import { reactionsRouter } from './reactions';
+import { leaderboardRouter } from './leaderboard';
 
 const router: Router = Router();
 
@@ -28,5 +29,7 @@ router.use('/posts', postsRouter);
 router.use('/comments', commentsRouter);
 
 router.use('/reactions', reactionsRouter);
+
+router.use('/leaderboard', leaderboardRouter);
 
 export default router;
