@@ -188,6 +188,7 @@ export interface Runner {
     best_mile_time: number | null;
     status: RunnerStatus;
     is_pooled: boolean;
+    runner_wallet: string;
     created_at: Date;
     updated_at: Date;
 }
