@@ -59,7 +59,7 @@ export const users = pgTable("users", {
     username: varchar("username").notNull(),
     role: enum_users_role("role").default('user').notNull(),
     privy_id: varchar("privy_id"),
-    wallet_address: varchar("wallet_address"),
+    wallet_address: varchar("wallet_address").unique(),
     twitter_handle: varchar("twitter_handle"),
     strava_handle: varchar("strava_handle"),
     avatar_url: varchar("avatar_url").default('https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut'),
@@ -67,6 +67,7 @@ export const users = pgTable("users", {
 }, (table) => [
     uniqueIndex("users_email_idx").on(table.email),
     uniqueIndex("users_username_idx").on(table.username),
+    uniqueIndex("users_wallet_address_idx").on(table.wallet_address),
     index("users_created_at_idx").on(table.created_at),
     index("users_updated_at_idx").on(table.updated_at),
 ]);
@@ -80,6 +81,7 @@ export const runners = pgTable("runners", {
     best_mile_time: doublePrecision("best_mile_time"),
     status: enum_runner_status("status").default('pending').notNull(),
     is_pooled: boolean("is_pooled").default(false).notNull(),
+    runner_wallet: varchar("runner_wallet").references(() => users.wallet_address).unique(),
     updated_at: timestamp("updated_at", { precision: 3 }).defaultNow().notNull(),
     created_at: timestamp("created_at", { precision: 3 }).defaultNow().notNull(),
 }, (table) => [

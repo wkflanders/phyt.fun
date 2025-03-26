@@ -1,6 +1,6 @@
 {
-  "id": "ff317338-6bac-4088-825c-2d7b1cbac5c0",
-  "prevId": "5b61d39e-1c1f-46c4-acda-45de3abe9e5c",
+  "id": "1791acf3-8307-446d-bbe8-a0f08a94027b",
+  "prevId": "9ee389c2-5f1e-41f3-8071-07270188bf6f",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -2755,6 +2755,12 @@
           "notNull": true,
           "default": false
         },
+        "runner_wallet": {
+          "name": "runner_wallet",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp (3)",
@@ -2830,10 +2836,31 @@
           ],
           "onDelete": "restrict",
           "onUpdate": "no action"
+        },
+        "runners_runner_wallet_users_wallet_address_fk": {
+          "name": "runners_runner_wallet_users_wallet_address_fk",
+          "tableFrom": "runners",
+          "tableTo": "users",
+          "columnsFrom": [
+            "runner_wallet"
+          ],
+          "columnsTo": [
+            "wallet_address"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "runners_runner_wallet_unique": {
+          "name": "runners_runner_wallet_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "runner_wallet"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -3527,6 +3554,21 @@
           "method": "btree",
           "with": {}
         },
+        "users_wallet_address_idx": {
+          "name": "users_wallet_address_idx",
+          "columns": [
+            {
+              "expression": "wallet_address",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
         "users_created_at_idx": {
           "name": "users_created_at_idx",
           "columns": [
@@ -3560,7 +3602,15 @@
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "users_wallet_address_unique": {
+          "name": "users_wallet_address_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "wallet_address"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
