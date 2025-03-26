@@ -61,7 +61,7 @@ export const ProfilePopover = ({ avatarUrl, username }: ProfilePopoverProps) => 
                 </Button>
             </PopoverTrigger>
 
-            <PopoverContent align="center" className="w-60 bg-zinc-900/30 backdrop-blur-xl border border-white/10 shadow-lg">
+            <PopoverContent align="center" className="w-[12vw] bg-zinc-900/60 backdrop-blur-xl border border-white/10 shadow-lg">
                 <div className="flex flex-col gap-2">
                     <Link href="/profile" className="p-3 hover:bg-black/20 rounded">
                         View Profile

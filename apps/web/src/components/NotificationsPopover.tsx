@@ -19,7 +19,7 @@ export const NotificationsPopover = () => {
                     <Bell size={20} className="text-text" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent align="center" className="w-80 mt-2.5 bg-zinc-900/30 backdrop-blur-xl border border-white/10 shadow-lg">
+            <PopoverContent align="center" className="w-80 mt-2.5 bg-zinc-900/60 backdrop-blur-xl border border-white/10 shadow-lg">
                 <CardHeader>
                     <CardTitle className="text-lg text-text">Notifications</CardTitle>
                 </CardHeader>
