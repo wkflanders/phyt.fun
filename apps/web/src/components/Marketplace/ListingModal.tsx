@@ -11,6 +11,7 @@ import { parseEther } from 'viem';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { formatSeasonName } from '@/lib/utils';
+import { useGetRunner } from '@/hooks/use-runners';
 
 export const expirationOptions: ExpirationOption[] = [
     { value: '1', label: '1 Hour' },
@@ -22,6 +23,8 @@ export const expirationOptions: ExpirationOption[] = [
     { value: '168', label: '7 Days' },
 ];
 
+const DEFAULT_AVATAR = 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut';
+
 export const ListingModal = ({ user, isOpen, onClose, card }: ListingModalProps) => {
     const [listingPrice, setListingPrice] = useState('');
     const [expirationHours, setExpirationHours] = useState('24');
@@ -29,6 +32,7 @@ export const ListingModal = ({ user, isOpen, onClose, card }: ListingModalProps)
     const { toast } = useToast();
     const { data: marketListings = [], isLoading: isLoadingListings } = useListings({ sort: 'price_asc' });
     const { data: runnerStanding, isLoading: isLoadingRunnerStanding } = useGetRunnerStanding(card.metadata.runner_id, { timeFrame: 'allTime' });
+    const { data: runner } = useGetRunner(card.metadata.runner_id);
 
     const cardListings = marketListings.filter((marketListing) =>
         marketListing.metadata.runner_id === card.metadata.runner_id &&
@@ -114,6 +118,47 @@ export const ListingModal = ({ user, isOpen, onClose, card }: ListingModalProps)
                                 <span className="text-sm text-text-dim">Opened on</span>
                                 <span className="text-sm font-medium">{new Date(card.created_at).toLocaleDateString()}</span>
                             </div>
+
+                            {/* Runner Info Section */}
+                            <div className="flex items-center justify-between py-4 border-b border-white/10">
+                                <div className="flex items-center gap-2">
+                                    <a href={`/page/${runner?.runner_wallet}`} className="flex items-center gap-2 ">
+                                        <div className="relative w-6 h-6 rounded-full overflow-hidden hover:text-text-dim hover:cursor-pointer">
+                                            <Image
+                                                src={runner?.avatar_url || DEFAULT_AVATAR}
+                                                alt={user.username}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <div className="font-medium">{user.username}</div>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <a
+                                        href={`https://twitter.com/${user.twitter_handle || ''}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-text-dim hover:text-text transition-colors"
+                                    >
+                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                                        </svg>
+                                    </a>
+                                    <a
+                                        href={`https://strava.com/athletes/${user.strava_handle || ''}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-text-dim hover:text-text transition-colors"
+                                    >
+                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Market Stats Grid */}
@@ -134,7 +179,7 @@ export const ListingModal = ({ user, isOpen, onClose, card }: ListingModalProps)
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-4 py-4">
+                        <div className="grid grid-cols-3 gap-4 py-4 pb-8 border-b border-white/10">
                             <div className="space-y-1">
                                 <div className="text-sm text-text-dim">RARITY</div>
                                 <div className="font-medium">
@@ -152,41 +197,12 @@ export const ListingModal = ({ user, isOpen, onClose, card }: ListingModalProps)
                             </div>
                         </div>
 
-                        {/* Price Input Section */}
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Price</label>
-                                <Input
-                                    type="number"
-                                    value={listingPrice}
-                                    onChange={(e) => setListingPrice(e.target.value)}
-                                    placeholder="Amount in ETH"
-                                    className="w-full"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Duration</label>
-                                <Select value={expirationHours} onValueChange={setExpirationHours}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-zinc-900/60 backdrop-blur-xl">
-                                        {expirationOptions.map((option) => (
-                                            <SelectItem key={option.value} value={option.value}>
-                                                {option.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-
                         {/* Action Buttons */}
-                        <div className="flex gap-4">
+                        <div className="flex gap-4 border-b border-white/10 pb-8">
                             <Button
                                 onClick={handleCreateListing}
                                 disabled={createListing.isPending}
-                                className="flex-1 bg-secondary py-6"
+                                className="flex-1 bg-secondary py-6 hover:bg-secondary-shade"
                             >
                                 {createListing.isPending ? (
                                     <>
