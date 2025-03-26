@@ -17,7 +17,8 @@
     "db:generate": "pnpm --filter @phyt/database run db:generate",
     "db:migrate": "pnpm --filter @phyt/database run db:migrate",
     "db:studio": "pnpm --filter @phyt/database run db:studio",
-    "db:seed": "pnpm --filter @phyt/database run db:seed"
+    "db:seed": "pnpm --filter @phyt/database run db:seed",
+    "db:reset": "pnpm --filter @phyt/database run db:reset"
   },
   "devDependencies": {
     "@types/node": "^22.10.9",
