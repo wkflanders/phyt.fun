@@ -21,8 +21,8 @@ export const ItemsGrid: React.FC<ItemsGridProps> = ({
     if (items.length === 0) {
         if (!fetchingCards && cardsFetchStatus !== 'pending') {
             return (
-                <div className="flex items-center justify-center min-h-screen">
-                    <p className="text-text">No cards</p>
+                <div className="flex items-center mr-24 justify-center min-h-[300px]">
+                    <p className="text-text-dim">You have no cards. Start by opening packs or buying cards from the marketplace!</p>
                 </div>
             );
         } else {
