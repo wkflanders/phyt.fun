@@ -1,5 +1,5 @@
 {
-    "extends": "../typescript-config/base.json",
+    "extends": "@phyt/typescript-config/base.json",
     "compilerOptions": {
       "resolveJsonModule": true
     },

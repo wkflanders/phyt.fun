@@ -1,16 +1,10 @@
 {
-  "extends": "../../packages/typescript-config/nextjs.json",
+  "extends": "@phyt/typescript-config/nextjs.json",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"
-      ],
-      "@phyt/database": [
-        "../../packages/database/src"
-      ],
-      "@phyt/types": [
-        "../../packages/types/src"
       ]
     },
     "allowJs": true,

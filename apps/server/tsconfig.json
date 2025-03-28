@@ -1,13 +1,8 @@
 {
-  "extends": "../../packages/typescript-config/base.json",
+  "extends": "@phyt/typescript-config/base.json",
   "compilerOptions": {
     "outDir": "dist",
     "baseUrl": ".",
-    "paths": {
-      "@phyt/database": ["../../packages/database/src"],
-      "@phyt/types": ["../../packages/types/src"],
-      "@phyt/contracts": ["../../packages/contracts"],
-    },
     "typeRoots": ["./src/types", "./node_modules/@types"]
   },
   "include": ["src/**/*.ts", "src/types/**/*.d.ts"],
