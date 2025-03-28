@@ -13,10 +13,10 @@
   "devDependencies": {
     "@phyt/typescript-config": "workspace:*",
     "@phyt/eslint-config": "workspace:*",
-    "eslint": "^9.0.0"
+    "eslint": "^9.23.0"
   },
   "dependencies": {
-    "@wagmi/core": "^2.16.3",
-    "viem": "^2.22.13"
+    "@wagmi/core": "^2.16.7",
+    "viem": "^2.24.1"
   }
 }

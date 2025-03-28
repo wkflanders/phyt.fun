@@ -22,8 +22,8 @@
     "db:reset": "pnpm --filter @phyt/database run db:reset"
   },
   "devDependencies": {
-    "@types/node": "^22.10.9",
-    "prettier": "^3.4.2",
+    "@types/node": "^22.13.14",
+    "prettier": "^3.5.3",
     "turbo": "^2.4.4",
     "typescript": "5.7.3"
   },
@@ -32,6 +32,6 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "dotenv": "^16.0.0"
+    "dotenv": "^16.4.7"
   }
 }

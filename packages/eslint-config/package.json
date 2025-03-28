@@ -7,57 +7,35 @@
     "dist"
   ],
   "exports": {
-    "./base": "./dist/base.js",
-    "./next-js": "./dist/next.js",
-    "./drizzle": "./dist/drizzle.js",
-    "./node": "./dist/node.js"
+    "./base": "./src/base.js",
+    "./next-js": "./src/next.js",
+    "./drizzle": "./src/drizzle.js",
+    "./node": "./src/node.js"
   },
   "scripts": {
     "build": "tsup src/ --format esm --clean",
     "clean": "rm -rf dist .turbo tsconfig.tsbuildinfo",
     "lint": "eslint src/**/*.{ts,js}"
   },
-  "devDependencies": {
-    "@eslint/js": "^9.4.0",
-    "@phyt/typescript-config": "workspace:*",
-    "eslint": "^9.4.0",
-    "tsup": "^8.0.2",
-    "typescript": "^5.4.5"
-  },
-  "peerDependencies": {
-    "@phyt/typescript-config": "workspace:*",
-    "@eslint/js": "^9.0.0",
-    "@next/eslint-plugin-next": "^14.0.0",
-    "@typescript-eslint/eslint-plugin": "^7.0.0 || ^8.0.0",
-    "@typescript-eslint/parser": "^7.0.0 || ^8.0.0",
-    "eslint": "^8.57.0 || ^9.0.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-import-resolver-typescript": "^3.0.0",
-    "eslint-plugin-drizzle": "^0.2.0",
-    "eslint-plugin-import": "^2.28.0",
+  "devDependencies": { 
+    "@eslint/js": "^9.23.0",
+    "@next/eslint-plugin-next": "^15.2.4",
+    "eslint": "^9.23.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^4.2.4",
+    "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-react": "^7.33.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-turbo": "^2.0.0",
-    "globals": "^15.0.0",
-    "typescript": "^5.0.0",
-    "typescript-eslint": "^7.0.0 || ^8.0.0"
+    "eslint-plugin-only-warn": "^1.1.0",
+    "eslint-plugin-react": "^7.37.4",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-turbo": "^2.4.4",
+    "globals": "^15.15.0",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.28.0"
   },
-  "peerDependenciesMeta": {
-    "eslint-plugin-drizzle": {
-      "optional": true
-    },
-    "@next/eslint-plugin-next": {
-      "optional": true
-    },
-    "eslint-plugin-react": {
-      "optional": true
-    },
-    "eslint-plugin-react-hooks": {
-      "optional": true
-    },
-    "eslint-plugin-node": {
-      "optional": true
-    }
+  "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.28.0",
+    "@typescript-eslint/parser": "^8.28.0",
+    "eslint-plugin-drizzle": "^0.2.3"
   }
 }

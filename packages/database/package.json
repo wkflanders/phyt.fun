@@ -16,18 +16,18 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "drizzle-orm": "^0.39.1",
+    "drizzle-orm": "^0.39.3",
     "drizzle-seed": "^0.3.1",
-    "pg": "^8.13.1",
-    "ws": "^8.18.0"
+    "pg": "^8.14.1",
+    "ws": "^8.18.1"
   },
   "devDependencies": {
-    "@phyt/typescript-config": "workspace:*",
     "@phyt/eslint-config": "workspace:*",
+    "@phyt/typescript-config": "workspace:*",
     "@types/pg": "^8.11.11",
-    "@types/ws": "^8.5.14",
-    "drizzle-kit": "^0.30.4",
-    "ts-node": "^10.9.0",
-    "eslint": "^9.0.0"
+    "@types/ws": "^8.18.0",
+    "drizzle-kit": "^0.30.6",
+    "eslint": "^9.23.0",
+    "ts-node": "^10.9.2"
   }
 }
