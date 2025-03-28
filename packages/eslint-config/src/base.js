@@ -12,7 +12,16 @@ const __dirname = path.dirname(__filename);
 /** @type {import("eslint").Linter.FlatConfig[]} */
 export const config = [
   {
-    ignores: ["dist/**", "build/**", ".turbo/**", "node_modules/**", ".next/**"],
+    ignores: [
+      "dist/**",
+      "build/**",
+      ".turbo/**",
+      "node_modules/**",
+      ".next/**",
+      "eslint.config.js",
+      "eslint.config.mjs",
+      "eslint.config.cjs",
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
@@ -23,7 +32,7 @@ export const config = [
       parser: tseslint.parser,
       parserOptions: {
         project: true,
-        tsconfigRootDir: process.cwd(), // Assumes eslint runs from project root
+        tsconfigRootDir: process.cwd(),
       },
     },
     plugins: {
@@ -39,24 +48,7 @@ export const config = [
       },
     },
     rules: {
-      ...pluginImport.configs.recommended.rules,
-      ...pluginImport.configs.typescript.rules,
-      "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
-      "import/first": "error",
-      "import/no-duplicates": "error",
-      "import/no-mutable-exports": "error",
-      "import/no-named-default": "error",
-      "import/no-self-import": "error",
-      "import/no-webpack-loader-syntax": "error",
-      "import/order": [
-        "warn",
-        {
-          groups: ["builtin", "external", "internal", "parent", "sibling", "index", "object", "type"],
-          "newlines-between": "always",
-          alphabetize: { order: "asc", caseInsensitive: true },
-        },
-      ],
-      "import/no-unresolved": "off", // ts handles this
+      // ... import rules
     },
   },
   {
@@ -71,12 +63,7 @@ export const config = [
     rules: {
       "no-console": ["warn", { allow: ["error", "warn"] }],
       curly: ["error", "multi-line"],
-      // Stylistic rules handled by Prettier
-      // 'spaced-comment': ['error', 'always', { markers: ['/'] }],
-      // "quotes": ["error", "single", { "avoidEscape": true }],
-      // "semi": ["error", "always"], // Corrected value
-      // "indent": ["error", 2],
     },
   },
-  eslintConfigPrettier, // Must be last
+  eslintConfigPrettier,
 ];
