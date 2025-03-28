@@ -6,7 +6,7 @@
     "dev": "nodemon",
     "build": "tsc",
     "start": "node dist/index.js",
-    "lint": "eslint . --ext .ts",
+    "lint": "eslint . --ext .ts --report-unused-disable-directives --max-warnings 0",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist .turbo node_modules",
     "update-role": "ts-node ./src/scripts/updateRole.ts"
@@ -32,13 +32,13 @@
     "zod": "^3.22.0"
   },
   "devDependencies": {
+    "@phyt/eslint-config": "workspace:*",
     "@types/cookie-parser": "^1.4.6",
     "@types/cors": "^2.8.0",
     "@types/express": "^4.17.0",
     "@types/morgan": "^1.9.0",
     "@types/multer": "^1.4.12",
     "@types/node": "^20.0.0",
-    "eslint": "^8.56.0",
     "nodemon": "^3.0.0",
     "ts-node": "^10.9.0",
     "typescript": "^5.3.3"
