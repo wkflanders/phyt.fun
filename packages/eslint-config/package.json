@@ -7,17 +7,17 @@
     "dist"
   ],
   "exports": {
-    "./base": "./src/base.js",
-    "./next-js": "./src/next.js",
-    "./drizzle": "./src/drizzle.js",
-    "./node": "./src/node.js"
+    "./base": "./base.js",
+    "./next-js": "./next.js",
+    "./drizzle": "./drizzle.js",
+    "./node": "./node.js"
   },
   "scripts": {
-    "build": "tsup src/ --format esm --clean",
-    "clean": "rm -rf dist .turbo tsconfig.tsbuildinfo",
+    "clean": "rm -rf .turbo node_modules",
     "lint": "eslint src/**/*.{ts,js}"
   },
   "devDependencies": {
+    "@phyt/typescript-config": "workspace:*",
     "@eslint/js": "^9.23.0",
     "@next/eslint-plugin-next": "^15.2.4",
     "eslint": "^9.23.0",
@@ -32,9 +32,7 @@
     "globals": "^15.15.0",
     "tsup": "^8.4.0",
     "typescript": "^5.8.2",
-    "typescript-eslint": "^8.28.0"
-  },
-  "dependencies": {
+    "typescript-eslint": "^8.28.0",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.28.0",
     "eslint-plugin-drizzle": "^0.2.3"
