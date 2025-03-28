@@ -2,14 +2,14 @@ import globals from "globals";
 import pluginNode from "eslint-plugin-node";
 import { config as baseConfig } from "./base.js";
 
-/** @type {import("eslint").Linter.FlatConfig[]} */
+/** @type {import("eslint").Linter.Config[]} */
 export const nodeConfig = [
   ...baseConfig,
   {
     files: ["**/*.{js,cjs,mjs,ts,cts,mts}"],
     plugins: {
         node: pluginNode
-    },
+    },  
     languageOptions: {
       globals: {
         ...globals.node,
