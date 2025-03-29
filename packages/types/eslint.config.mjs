@@ -1,4 +1,5 @@
 import { config as baseConfig } from '@phyt/eslint-config/base';
+import eslintConfigPrettier from 'eslint-config-prettier';
 import { URL } from 'node:url';
 
 /** @type {import("eslint").Linter.Config} */
@@ -13,5 +14,6 @@ export default [
                 tsconfigRootDir: new URL('.', import.meta.url).pathname
             }
         }
-    }
+    },
+    eslintConfigPrettier
 ];

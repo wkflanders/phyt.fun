@@ -11,9 +11,10 @@
         "type-check": "tsc --noEmit"
     },
     "devDependencies": {
-        "@phyt/typescript-config": "workspace:*",
         "@phyt/eslint-config": "workspace:*",
-        "eslint": "^9.23.0"
+        "@phyt/typescript-config": "workspace:*",
+        "eslint": "^9.23.0",
+        "eslint-config-prettier": "^9.1.0"
     },
     "dependencies": {
         "@wagmi/core": "^2.16.7",
