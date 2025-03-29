@@ -17,25 +17,29 @@
     "lint": "eslint src/**/*.{ts,js}"
   },
   "devDependencies": {
-    "@phyt/typescript-config": "workspace:*",
+    "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.23.0",
     "@next/eslint-plugin-next": "^15.2.4",
+    "@phyt/typescript-config": "workspace:*",
+    "@tanstack/eslint-plugin-query": "^5.68.0",
+    "@typescript-eslint/eslint-plugin": "^8.28.0",
+    "@typescript-eslint/parser": "^8.28.0",
     "eslint": "^9.23.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^4.2.4",
+    "eslint-plugin-drizzle": "^0.2.3",
     "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-only-warn": "^1.1.0",
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-tailwindcss": "^3.18.0",
     "eslint-plugin-turbo": "^2.4.4",
+    "eslint-plugin-unicorn": "^58.0.0",
     "globals": "^15.15.0",
     "tsup": "^8.4.0",
     "typescript": "^5.8.2",
-    "typescript-eslint": "^8.28.0",
-    "@typescript-eslint/eslint-plugin": "^8.28.0",
-    "@typescript-eslint/parser": "^8.28.0",
-    "eslint-plugin-drizzle": "^0.2.3",
-    "@eslint/eslintrc": "^3.1.0"
+    "typescript-eslint": "^8.28.0"
   }
 }
