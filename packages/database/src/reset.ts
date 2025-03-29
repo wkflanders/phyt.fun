@@ -1,13 +1,16 @@
-import { sql } from "drizzle-orm";
-import { db } from "./drizzle";
+import { sql } from 'drizzle-orm';
 
-if (!("POSTGRES_URL" in process.env)) throw new Error("POSTGRES_URL not found on .env.development");
+import { db } from './drizzle';
+
+if (!('POSTGRES_URL' in process.env)) {
+    throw new Error('POSTGRES_URL not found in environment');
+}
 
 async function reset() {
-	console.log("⏳ Resetting database...");
-	const start = Date.now();
+    console.warn('⏳ Resetting database...');
+    const start = Date.now();
 
-	const query = sql`
+    const query = sql`
 		-- Delete all tables
 		DO $$ DECLARE
 		    r RECORD;
@@ -32,16 +35,16 @@ async function reset() {
 		
 		`;
 
-	await db.execute(query);
+    await db.execute(query);
 
-	const end = Date.now();
-	console.log(`✅ Reset end & took ${end - start}ms`);
-	console.log("");
-	process.exit(0);
+    const end = Date.now();
+    console.warn(`✅ Reset end & took ${(end - start).toString()}ms`);
+    console.warn('');
+    process.exit(0);
 }
 
-reset().catch((err) => {
-	console.error("❌ Reset failed");
-	console.error(err);
-	process.exit(1);
+reset().catch((err: unknown) => {
+    console.error('❌ Reset failed');
+    console.error(err);
+    process.exit(1);
 });
