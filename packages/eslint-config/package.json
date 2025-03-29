@@ -10,11 +10,10 @@
     "./base": "./base.js",
     "./next-js": "./next.js",
     "./drizzle": "./drizzle.js",
-    "./node": "./node.js"
+    "./server": "./server.js"
   },
   "scripts": {
-    "clean": "rm -rf .turbo node_modules",
-    "lint": "eslint src/**/*.{ts,js}"
+    "clean": "rm -rf .turbo node_modules"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",

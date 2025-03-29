@@ -1,7 +1,4 @@
-import { nodeConfig } from '@phyt/eslint-config/node';
+import { serverConfig } from '@phyt/eslint-config/server';
  
 /** @type {import("eslint").Linter.Config} */
-export default [
-  ...nodeConfig,
-  // Other configurations
-];
+export default serverConfig;

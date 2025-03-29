@@ -21,6 +21,7 @@ export const config = [
       "eslint.config.js",
       // "eslint.config.mjs",
       "eslint.config.cjs",
+      "packages/eslint-config"
     ],
   },
   js.configs.recommended,
@@ -89,6 +90,10 @@ export const config = [
       "import/first": "error",
       "import/newline-after-import": "warn",
     },
+  },
+  {
+    files: ['**/*.mjs'],
+    ...tseslint.configs.disableTypeChecked
   },
   {
     plugins: {

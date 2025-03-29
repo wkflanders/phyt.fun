@@ -7,7 +7,6 @@
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist .turbo node_modules",
-    "lint": "eslint . --ext .ts --report-unused-disable-directives --max-warnings 0",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {

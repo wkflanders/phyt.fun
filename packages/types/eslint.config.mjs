@@ -1,7 +1,4 @@
-import { baseConfig } from '@phyt/eslint-config/base';
+import { config as baseConfig } from '@phyt/eslint-config/base';
  
 /** @type {import("eslint").Linter.Config} */
-export default [
-  ...baseConfig,
-  // Other configurations
-];
+export default [{}];
