@@ -1,9 +1,9 @@
 {
-  "extends": "@phyt/typescript-config/library.json",
-  "compilerOptions": {
-    "outDir": "dist",
-    "baseUrl": "."
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+    "extends": "@phyt/typescript-config/library.json",
+    "compilerOptions": {
+        "outDir": "dist",
+        "baseUrl": "."
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist"]
 }

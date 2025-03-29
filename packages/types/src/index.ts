@@ -1,10 +1,19 @@
 import type { Address } from 'viem';
 
-export type CardRarity = 'bronze' | 'silver' | 'gold' | 'sapphire' | 'ruby' | 'opal';
+export type CardRarity =
+    | 'bronze'
+    | 'silver'
+    | 'gold'
+    | 'sapphire'
+    | 'ruby'
+    | 'opal';
 export type AcquisitionType = 'mint' | 'transfer' | 'marketplace';
 export type RunVerificationStatus = 'pending' | 'verified' | 'flagged';
 export type RunnerStatus = 'pending' | 'active' | 'inactive';
-export type TransactionType = 'packPurchase' | 'marketplaceSale' | 'rewardPayout';
+export type TransactionType =
+    | 'packPurchase'
+    | 'marketplaceSale'
+    | 'rewardPayout';
 export type UserRole = 'admin' | 'user' | 'runner';
 export type PackType = 'scrawny' | 'toned' | 'swole' | 'phyt';
 
@@ -14,7 +23,8 @@ export const PackTypes = [
         name: 'Scrawny',
         price: '0.00005',
         image: 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkF7VEC9Qld7SzgEHyp0FWsev2oX4frOCijM6n9',
-        description: 'Will give 1 card. It will almost always be a Bronze, but will occasionally give a Silver.',
+        description:
+            'Will give 1 card. It will almost always be a Bronze, but will occasionally give a Silver.',
         cardCount: 1,
         color: '#C4C4C4', // Gray
         bgGradient: 'from-gray-400/30 to-gray-500/30'
@@ -24,7 +34,8 @@ export const PackTypes = [
         name: 'Toned',
         price: '0.0001',
         image: 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFjeYDIXKi2WN9i60TEnCxu4AG71LvblfVDYBO',
-        description: 'Will give 1 card. It will most commonly be a Bronze, but will often give a Silver, and if you\'re lucky, a Gold.',
+        description:
+            "Will give 1 card. It will most commonly be a Bronze, but will often give a Silver, and if you're lucky, a Gold.",
         cardCount: 1,
         color: '#5F7FCF', // Blue
         bgGradient: 'from-blue-500/30 to-blue-600/30'
@@ -34,7 +45,8 @@ export const PackTypes = [
         name: 'Swole',
         price: '0.0002',
         image: 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkF2QPN0ASe0PMhWadOtKgnmuo8sYieIArRQ23x',
-        description: '5 cards. 3 guaranteed Bronze, with the other 2 split between Bronze, Silver, Gold, and rarely a Ruby.',
+        description:
+            '5 cards. 3 guaranteed Bronze, with the other 2 split between Bronze, Silver, Gold, and rarely a Ruby.',
         cardCount: 5,
         color: '#FE205D', // Pink/Red
         bgGradient: 'from-pink-500/30 to-pink-600/30'
@@ -44,7 +56,8 @@ export const PackTypes = [
         name: 'Phyt',
         price: '0.0003',
         image: 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFYllb0dRPCduK0erjAyG7QSRxcnhM5Iv3YskT',
-        description: '5 cards. 2 guaranteed Bronze, 1 Silver, and 2 mixed cards that could include Gold or Ruby.',
+        description:
+            '5 cards. 2 guaranteed Bronze, 1 Silver, and 2 mixed cards that could include Gold or Ruby.',
         cardCount: 5,
         color: '#0EF9FE', // Cyan
         bgGradient: 'from-cyan-400/30 to-cyan-500/30'
@@ -57,7 +70,7 @@ export const RarityWeights = {
     gold: 20,
     sapphire: 0,
     ruby: 0,
-    opal: 0,
+    opal: 0
 } as const;
 
 export const RarityMultipliers: Record<CardRarity, number> = {
@@ -66,7 +79,7 @@ export const RarityMultipliers: Record<CardRarity, number> = {
     gold: 2,
     sapphire: 3,
     ruby: 5,
-    opal: 10,
+    opal: 10
 };
 
 export interface User {
@@ -106,7 +119,7 @@ export interface Run {
     device_id: string | null;
     gps_route_data: string | null;
     verification_status: RunVerificationStatus;
-    raw_data_json: any | null;
+    raw_data_json: Record<string, unknown> | null;
 }
 
 export type SeasonCollection = 'season_0';
@@ -128,8 +141,8 @@ export interface Card {
     id: number;
     owner_id: number;
     pack_purchase_id: number | null;
-    token_id: number,
-    is_burned: boolean,
+    token_id: number;
+    is_burned: boolean;
     acquisition_type: AcquisitionType;
     updated_at: Date;
     created_at: Date;
@@ -284,7 +297,7 @@ export interface UserDeviceAuthorization {
 export interface SessionCookie {
     value: string;
     userId: string;
-};
+}
 
 export interface PaginationParams {
     page?: number;
@@ -300,7 +313,10 @@ export interface ApiError extends Error {
 
 export class DatabaseError extends Error {
     statusCode: number;
-    constructor(message: string, public originalError?: any) {
+    constructor(
+        message: string,
+        public originalError?: unknown
+    ) {
         super(message);
         this.name = 'DatabaseError';
         this.statusCode = 500;
@@ -335,7 +351,11 @@ export class ValidationError extends Error {
 }
 
 export class PackPurchaseError extends Error {
-    constructor(message: string, public code: string, public details?: any) {
+    constructor(
+        message: string,
+        public code: string,
+        public details?: string
+    ) {
         super(message);
         this.name = 'PackPurchaseError';
     }
@@ -370,7 +390,10 @@ export interface ContractConfig {
 }
 
 export class ContractError extends Error {
-    constructor(message: string, public readonly code?: number) {
+    constructor(
+        message: string,
+        public readonly code?: number
+    ) {
         super(message);
         this.name = 'ContractError';
     }
@@ -461,7 +484,7 @@ export interface Offer {
     salt: string;
     created_at: Date;
     updated_at: Date;
-    buyer: any;
+    buyer: `0x${string}`;
     card: Card;
 }
 
@@ -496,7 +519,7 @@ export interface Post {
     id: number;
     user_id: number;
     run_id: number;
-    status: "visible" | "hidden" | "deleted";
+    status: 'visible' | 'hidden' | 'deleted';
     updated_at: Date;
     created_at: Date;
 }
@@ -513,13 +536,13 @@ export interface PostCreateRequest {
 
 export interface PostResponse {
     posts: {
-        post: Post,
+        post: Post;
         user: {
             username: string;
             avatar_url: string | null;
-            role: "admin" | "user" | "runner";
+            role: 'admin' | 'user' | 'runner';
             is_pooled: boolean;
-        },
+        };
         run: {
             distance_m: number;
             duration_seconds: number;
@@ -527,11 +550,11 @@ export interface PostResponse {
             elevation_gain_m: null | number;
             gps_route_data: string | null;
             start_time: Date;
-        },
+        };
         stats: {
             comments: number;
         };
-    }[],
+    }[];
     pagination?: PostPagination;
 }
 
@@ -554,8 +577,8 @@ export interface Comment {
 }
 
 export interface CommentCreateRequest {
-    post_id: number,
-    content: string,
+    post_id: number;
+    content: string;
     parent_comment_id?: number;
 }
 
@@ -583,8 +606,8 @@ export interface CommentResponse {
         user: {
             username: string;
             avatar_url: string | null;
-        },
-    }[],
+        };
+    }[];
     pagination?: CommentPagination;
 }
 
@@ -640,7 +663,7 @@ export interface LeaderboardQueryParams {
     page?: number;
     limit?: number;
     timeFrame?: 'weekly' | 'monthly' | 'allTime';
-};
+}
 
 export interface ListingModalProps {
     user: User;
