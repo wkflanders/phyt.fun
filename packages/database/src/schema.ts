@@ -103,13 +103,15 @@ export const users = pgTable(
         email: varchar('email').notNull(),
         username: varchar('username').notNull(),
         role: enum_users_role('role').default('user').notNull(),
-        privy_id: varchar('privy_id'),
-        wallet_address: varchar('wallet_address').unique(),
+        privy_id: varchar('privy_id').notNull(),
+        wallet_address: varchar('wallet_address').unique().notNull(),
         twitter_handle: varchar('twitter_handle'),
         strava_handle: varchar('strava_handle'),
-        avatar_url: varchar('avatar_url').default(
-            'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut'
-        ),
+        avatar_url: varchar('avatar_url')
+            .default(
+                'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut'
+            )
+            .notNull(),
         phytness_points: integer('phytness_points').default(0)
     },
     (table) => [

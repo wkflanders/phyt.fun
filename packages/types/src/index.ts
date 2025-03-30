@@ -67,7 +67,7 @@ export const PackTypes = [
 
 export interface AuthenticatedBody {
     user: {
-        id: string;
+        privy_id: string;
     };
 }
 
@@ -108,8 +108,8 @@ export interface User {
     role: UserRole;
     privy_id: string;
     avatar_url: string;
-    wallet_address: string | null;
-    phytness_points: number;
+    wallet_address: string;
+    phytness_points: number | null;
     twitter_handle: string | null;
     strava_handle: string | null;
 }
@@ -475,12 +475,13 @@ export interface Listing {
     updated_at: Date;
 }
 
-export interface CreateListingRequestBody extends AuthenticatedBody {
-    cardId: number;
+export interface CreateListingRequestBody {
+    user: User;
+    card_id: number;
     price: string;
     signature: string;
-    orderHash: string;
-    orderData: Order;
+    order_hash: string;
+    order_data: Order;
 }
 
 export interface Bid {
@@ -617,6 +618,7 @@ export interface Comment {
 }
 
 export interface CreateCommentRequest {
+    user_id: number;
     post_id: number;
     content: string;
     parent_comment_id?: number;
