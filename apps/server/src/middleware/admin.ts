@@ -1,21 +1,15 @@
 import { db, eq, users } from '@phyt/database';
-import { HttpError, User } from '@phyt/types';
-import { Request, Response, NextFunction } from 'express';
+import { HttpError, User, AdminRequest } from '@phyt/types';
+import { Response, NextFunction } from 'express';
 
 import { validateAuth } from './auth';
-
-interface AdminRequest extends Request {
-    body: {
-        user: User;
-    };
-}
 
 export const validateAdmin = [
     validateAuth,
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     async (req: AdminRequest, res: Response, next: NextFunction) => {
         try {
-            const privyId = req.userId;
+            const privyId = req.body.user.id;
 
             if (!privyId) {
                 throw new HttpError('User ID not provided', 401);

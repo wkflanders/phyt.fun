@@ -52,11 +52,10 @@ app.get('/health', (req, res) => {
 
 app.use(errorHandler);
 
-const server = app.listen(port, '0.0.0.0', () => {
+const server = app.listen(port, '0.0.0.0', (error) => {
+    if (error) {
+        throw error; // e.g. EADDRINUSE
+    }
     // eslint-disable-next-line no-console
     console.log(`Listening on ${JSON.stringify(server.address())}`);
-});
-
-server.on('error', (error) => {
-    throw error; // e.g. EADDRINUSE
 });

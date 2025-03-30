@@ -1,17 +1,7 @@
-import { HttpError } from '@phyt/types';
-import { Request, Response, NextFunction } from 'express';
+import { HttpError, AuthenticatedRequest } from '@phyt/types';
+import { Response, NextFunction } from 'express';
 
 import { privy } from '@/lib/privyClient';
-
-export interface AuthenticatedBody {
-    user: {
-        id: string;
-    };
-}
-
-export interface AuthenticatedRequest extends Request {
-    body: AuthenticatedBody;
-}
 
 export const validateAuth = async (
     req: AuthenticatedRequest,

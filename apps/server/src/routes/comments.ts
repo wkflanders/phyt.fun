@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import {
     CreateCommentRequest,
+    CreateCommentWithAuth
     CommentUpdateRequest,
     HttpError
 } from '@phyt/types';
@@ -10,10 +11,6 @@ import { createCommentSchema, updateCommentSchema } from '@/lib/validation';
 import { validateAuth, AuthenticatedBody } from '@/middleware/auth';
 import { validateSchema } from '@/middleware/validator';
 import { commentService } from '@/services/commentServices';
-
-interface CreateCommentWithAuth
-    extends CreateCommentRequest,
-        AuthenticatedBody {}
 
 const router: Router = express.Router();
 

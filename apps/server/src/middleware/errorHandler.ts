@@ -1,10 +1,11 @@
 import { HttpError } from '@phyt/types';
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 
 export const errorHandler = (
     err: Error,
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 ) => {
     console.error(`[ERROR] ${req.method} ${req.url}:`, err);
