@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
+import { HttpError } from '@phyt/types';
 import express, { Router } from 'express';
 
 import { validateAdmin } from '@/middleware/admin';
@@ -14,83 +16,43 @@ router.use(validateAuth);
 router.use(validateAdmin);
 
 // Get pending runners
-router.get('/pending-runners', (req, res) => {
-    adminService
-        .getPendingRunners()
-        .then((runners) => {
-            res.status(200).json(runners);
-        })
-        .catch((error: unknown) => {
-            console.error('Failed to fetch pending runners:', error);
-            res.status(500).json({ error: 'Failed to fetch pending runners' });
-        });
+router.get('/pending-runners', async (req, res) => {
+    const runners = await adminService.getPendingRunners();
+    res.status(200).json(runners);
 });
 
 // Get pending runs
-router.get('/pending-runs', (req, res) => {
-    adminService
-        .getPendingRuns()
-        .then((runs) => {
-            res.status(200).json(runs);
-        })
-        .catch((error: unknown) => {
-            console.error('Failed to fetch pending runs:', error);
-            res.status(500).json({ error: 'Failed to fetch pending runs' });
-        });
+router.get('/pending-runs', async (req, res) => {
+    const runs = await adminService.getPendingRuns();
+    res.status(200).json(runs);
 });
 
 // Approve runner
-router.post('/runners/:id/approve', (req, res) => {
+router.post('/runners/:id/approve', async (req, res) => {
     const userId = parseInt(req.params.id);
     if (isNaN(userId)) {
-        return res.status(400).json({ error: 'Invalid user ID' });
+        throw new HttpError('Invalid user ID', 400);
     }
 
-    adminService
-        .approveRunner(userId)
-        .then((updatedUser) => {
-            res.status(200).json(updatedUser);
-        })
-        .catch((error: unknown) => {
-            console.error('Failed to approve runner:', error);
-            res.status(500).json({ error: 'Failed to approve runner' });
-        });
+    const updatedUser = await adminService.approveRunner(userId);
+    res.status(200).json(updatedUser);
 });
 
 // Update run verification status
-router.patch('/runs/:id/verify', (req, res) => {
+router.patch('/runs/:id/verify', async (req, res) => {
     const runId = parseInt(req.params.id);
     const { status } = req.body as VerifyRunStatus;
 
     if (isNaN(runId)) {
-        return res.status(400).json({ error: 'Invalid run ID' });
+        throw new HttpError('Invalid run ID', 400);
     }
 
     if (!['verified', 'flagged'].includes(status)) {
-        return res.status(400).json({ error: 'Invalid status' });
+        throw new HttpError('Invalid status', 400);
     }
 
-    adminService
-        .updateRunVerification(runId, status)
-        .then((updatedRun) => {
-            res.status(200).json(updatedRun);
-        })
-        .catch((error: unknown) => {
-            console.error('Failed to update run verification:', error);
-            if (error && typeof error === 'object' && 'name' in error) {
-                if (error.name === 'NotFoundError') {
-                    res.status(404).json({ error: (error as Error).message });
-                } else {
-                    res.status(500).json({
-                        error: 'Failed to update run verification'
-                    });
-                }
-            } else {
-                res.status(500).json({
-                    error: 'Failed to update run verification'
-                });
-            }
-        });
+    const updatedRun = await adminService.updateRunVerification(runId, status);
+    res.status(200).json(updatedRun);
 });
 
 export { router as adminRouter };
