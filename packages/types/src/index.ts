@@ -14,6 +14,8 @@ export type RunnerStatus = 'pending' | 'active' | 'inactive';
 export type TransactionType =
     | 'packPurchase'
     | 'marketplaceSale'
+    | 'marketplaceOffer'
+    | 'marketplaceListing'
     | 'rewardPayout';
 export type UserRole = 'admin' | 'user' | 'runner';
 export type PackType = 'scrawny' | 'toned' | 'swole' | 'phyt';
@@ -187,7 +189,7 @@ export interface Competition {
     event_name: string;
     start_time: string;
     end_time: string;
-    jackpot: number;
+    jackpot: bigint;
     distance_m: number | null;
     event_type: string | null;
 }
@@ -285,7 +287,7 @@ export interface Transaction {
     to_user_id: number | null;
     card_id: number | null;
     competition_id: number | null;
-    price: number | null;
+    price: bigint | null;
     transaction_type: TransactionType;
 }
 
@@ -294,7 +296,7 @@ export interface PackPurchase {
     updated_at: Date;
     created_at: Date;
     buyer_id: number;
-    purchase_price: number;
+    purchase_price: bigint;
 }
 
 export interface PackPurchaseCardId {
@@ -459,17 +461,17 @@ export interface Order {
 
 export interface Listing {
     id: number;
-    buyer_id: number;
+    buyer_id: number | null;
     seller_id: number;
     card_id: number;
-    price: string; // Take price
-    highest_bid: bigint; // Current highest bid
-    highest_bidder: `0x${string}` | null;
-    expiration_time: bigint;
+    price: bigint; // Take price
+    highest_bid: bigint | null; // Current highest bid
+    highest_bidder_id: number | null;
+    expiration_time: Date;
     signature: string;
     order_hash: string;
     order_data: Order;
-    transaction_hash: string | null;
+    transaction_hash: string;
     status: string;
     created_at: Date;
     updated_at: Date;
@@ -482,6 +484,16 @@ export interface CreateListingRequestBody {
     signature: string;
     order_hash: string;
     order_data: Order;
+}
+
+export interface CreateListing {
+    card_id: number;
+    seller_id: number;
+    price: string;
+    signature: string;
+    order_hash: string;
+    order_data: Order;
+    expiration_time: string;
 }
 
 export interface Bid {
