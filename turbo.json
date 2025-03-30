@@ -1,45 +1,49 @@
 {
-  "$schema": "https://turbo.build/schema.v2.json",
-  "globalEnv": [".env"],
-  "tasks": {
-    "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "build/**"],
-      "env": [
-        "NEXT_PUBLIC_PRIVY_APP_ID",
-        "PRIVY_SECRET_KEY",
-        "DATABASE_URL",
-        "NEXT_PUBLIC_*",
-        "BASE_RPC_URL",
-        "EXCHANGE_ADDRESS",
-        "PHYT_CARD_ADDRESS",
-        "MINT_ADDRESS",
-        "EXECUTOR_ADDRESS"
-      ]
-    },
-    "lint": {
-      "dependsOn": ["^lint"]
-    },
-    "type-check": {
-      "dependsOn": ["^type-check"]
-    },
-    "dev": {
-      "persistent": true,
-      "cache": false,
-      "env": [
-        "NEXT_PUBLIC_PRIVY_APP_ID",
-        "PRIVY_SECRET_KEY",
-        "DATABASE_URL",
-        "NEXT_PUBLIC_*",
-        "BASE_RPC_URL",
-        "EXCHANGE_ADDRESS",
-        "PHYT_CARD_ADDRESS",
-        "MINT_ADDRESS",
-        "EXECUTOR_ADDRESS"
-      ]
-    },
-    "clean": {
-      "cache": false
+    "$schema": "https://turbo.build/schema.v2.json",
+    "globalEnv": [".env"],
+    "tasks": {
+        "build": {
+            "dependsOn": ["^build"],
+            "outputs": ["dist/**", ".next/**", "build/**"],
+            "env": [
+                "NEXT_PUBLIC_PRIVY_APP_ID",
+                "PRIVY_SECRET_KEY",
+                "DATABASE_URL",
+                "NEXT_PUBLIC_*",
+                "BASE_RPC_URL",
+                "EXCHANGE_ADDRESS",
+                "PHYT_CARD_ADDRESS",
+                "MINT_ADDRESS",
+                "EXECUTOR_ADDRESS",
+                "SERVER_PORT",
+                "POSTGRES_HOST",
+                "POSTGRES_PORT",
+                "POSTGRES_USER",
+                "POSTGRES_PASSWORD",
+                "POSTGRES_DB",
+                "FRONTEND_URL",
+                "AWS_ACCESS_KEY",
+                "AWS_SECRET_ACCESS_KEY",
+                "AWS_REGION",
+                "AWS_METADATA_BUCKET",
+                "AWS_AVATAR_URL_BUCKET",
+                "AWS_CLOUDFRONT_AVATAR_URL",
+                "SERVER_PRIVATE_KEY",
+                "NODE_ENV"
+            ]
+        },
+        "lint": {
+            "dependsOn": ["^lint"]
+        },
+        "type-check": {
+            "dependsOn": ["^type-check"]
+        },
+        "dev": {
+            "persistent": true,
+            "cache": false
+        },
+        "clean": {
+            "cache": false
+        }
     }
-  }
 }
