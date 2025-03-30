@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
 import { HttpError } from '@phyt/types';
 import express, { Router } from 'express';
 
