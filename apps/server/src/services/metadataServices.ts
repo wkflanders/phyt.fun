@@ -1,12 +1,23 @@
+import { randomInt } from 'node:crypto';
+
 import { db, eq, runners, card_metadata, users } from '@phyt/database';
-import { CardRarity, RarityWeights, RarityMultipliers, TokenURIMetadata, SeasonCollection } from '@phyt/types';
+import {
+    CardRarity,
+    RarityWeights,
+    RarityMultipliers,
+    TokenURIMetadata,
+    SeasonCollection
+} from '@phyt/types';
+
 import { s3Service } from '../lib/awsClient';
-import { randomInt } from 'crypto';
 
 export const metadataService = {
     generateRarity: (): CardRarity => {
         const weights = Object.entries(RarityWeights);
-        const totalWeight = weights.reduce((sum, [_, weight]) => sum + weight, 0);
+        const totalWeight = weights.reduce(
+            (sum, [_, weight]) => sum + weight,
+            0
+        );
 
         // Generate a random number between 0 (inclusive) and totalWeight (exclusive)
         const random = randomInt(totalWeight);
@@ -22,9 +33,7 @@ export const metadataService = {
         return 'silver'; // Fallback, should never reach here due to cumulative weights
     },
     selectRandomRunner: async () => {
-        const allRunners = await db.select()
-            .from(runners)
-            .execute();
+        const allRunners = await db.select().from(runners).execute();
 
         if (allRunners.length === 0) {
             throw new Error('No runners available');
@@ -39,9 +48,10 @@ export const metadataService = {
     },
 
     getRunnerName: async (runnerUserId: number): Promise<string> => {
-        const user = await db.select({
-            username: users.username
-        })
+        const user = await db
+            .select({
+                username: users.username
+            })
             .from(users)
             .where(eq(users.id, runnerUserId))
             .execute();
@@ -60,13 +70,15 @@ export const metadataService = {
             name: `Phyt #${tokenId}`,
             description: `Phyt Season 0 ${rarity} card featuring runner ${runnerName}`,
             image: imageUrl,
-            attributes: [{
-                runner_id: runner.id,
-                runner_name: runnerName,
-                rarity: rarity,
-                multiplier: multiplier,
-                season: 'season_0' as 'season_0',
-            }]
+            attributes: [
+                {
+                    runner_id: runner.id,
+                    runner_name: runnerName,
+                    rarity: rarity,
+                    multiplier: multiplier,
+                    season: 'season_0' as const
+                }
+            ]
         };
 
         await s3Service.uploadMetadata(tokenId, metadata);
@@ -74,7 +86,10 @@ export const metadataService = {
         return metadata;
     },
 
-    generateMetadataWithRarity: async (tokenId: number, rarity: CardRarity): Promise<TokenURIMetadata> => {
+    generateMetadataWithRarity: async (
+        tokenId: number,
+        rarity: CardRarity
+    ): Promise<TokenURIMetadata> => {
         const runner = await metadataService.selectRandomRunner();
         const multiplier = metadataService.getMultiplier(rarity);
         const imageUrl = s3Service.getImageUrl(runner.id, rarity);
@@ -84,13 +99,15 @@ export const metadataService = {
             name: `Phyt #${tokenId}`,
             description: `Season 0 ${rarity} card featuring runner ${runnerName}`,
             image: imageUrl,
-            attributes: [{
-                runner_id: runner.id,
-                runner_name: runnerName,
-                rarity: rarity,
-                multiplier: multiplier,
-                season: 'season_0' as 'season_0',
-            }]
+            attributes: [
+                {
+                    runner_id: runner.id,
+                    runner_name: runnerName,
+                    rarity: rarity,
+                    multiplier: multiplier,
+                    season: 'season_0' as const
+                }
+            ]
         };
 
         await s3Service.uploadMetadata(tokenId, metadata);
@@ -102,7 +119,10 @@ export const metadataService = {
         try {
             return await s3Service.getMetadata(tokenId);
         } catch (error) {
-            console.error(`Failed to get metadata for token ${tokenId}:`, error);
+            console.error(
+                `Failed to get metadata for token ${tokenId}:`,
+                error
+            );
             throw error;
         }
     },
@@ -110,7 +130,9 @@ export const metadataService = {
     generatePackMetadata: async (startTokenId: number, count: number) => {
         const metadataPromises = [];
         for (let i = 0; i < count; i++) {
-            metadataPromises.push(metadataService.generateMetadata(startTokenId + i));
+            metadataPromises.push(
+                metadataService.generateMetadata(startTokenId + i)
+            );
         }
         return Promise.all(metadataPromises);
     }

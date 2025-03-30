@@ -1,10 +1,13 @@
 {
-  "extends": "@phyt/typescript-config/base.json",
-  "compilerOptions": {
-    "outDir": "dist",
-    "baseUrl": ".",
-    "typeRoots": ["./src/types", "./node_modules/@types"]
-  },
-  "include": ["src/**/*.ts", "src/types/**/*.d.ts"],
-  "exclude": ["node_modules", "dist"]
+    "extends": "@phyt/typescript-config/base.json",
+    "compilerOptions": {
+        "outDir": "dist",
+        "baseUrl": ".",
+        "typeRoots": ["./src/types", "./node_modules/@types"],
+        "paths": {
+            "@/*": ["./src/*"]
+        }
+    },
+    "include": ["src/**/*.ts", "src/types/**/*.d.ts"],
+    "exclude": ["node_modules", "dist"]
 }

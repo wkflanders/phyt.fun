@@ -1,9 +1,10 @@
-import express, { Router } from 'express';
-import { validateAuth } from '../middleware/auth';
-import { validateSchema } from '../middleware/validator';
-import { createCommentSchema, updateCommentSchema } from '../lib/validation';
-import { commentService } from '../services/commentServices';
 import { NotFoundError, DatabaseError } from '@phyt/types';
+import express, { Router } from 'express';
+
+import { createCommentSchema, updateCommentSchema } from '@/lib/validation';
+import { validateAuth } from '@/middleware/auth';
+import { validateSchema } from '@/middleware/validator';
+import { commentService } from '@/services/commentServices';
 
 const router: Router = express.Router();
 
@@ -50,7 +51,9 @@ router.get('/replies/:commentId', async (req, res) => {
         return res.status(200).json(result);
     } catch (error) {
         console.error('Error fetching comment replies:', error);
-        return res.status(500).json({ error: 'Failed to fetch comment replies' });
+        return res
+            .status(500)
+            .json({ error: 'Failed to fetch comment replies' });
     }
 });
 
@@ -106,7 +109,9 @@ router.patch('/:id', validateSchema(updateCommentSchema), async (req, res) => {
         const { content } = req.body;
 
         // TODO: Add authorization check - user can only update their own comments
-        const comment = await commentService.updateComment(commentId, { content });
+        const comment = await commentService.updateComment(commentId, {
+            content
+        });
 
         return res.status(200).json(comment);
     } catch (error) {

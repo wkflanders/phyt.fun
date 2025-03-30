@@ -1,7 +1,8 @@
+import { NotFoundError } from '@phyt/types';
 import express, { Router } from 'express';
+
 import { validateAuth } from '../middleware/auth';
 import { metadataService } from '../services/metadataServices';
-import { NotFoundError } from '@phyt/types';
 
 const router: Router = express.Router();
 

@@ -1,11 +1,25 @@
-import { walletClient, publicClient, account } from '../lib/viemClient';
-import { decodeEventLog, parseEther, formatEther } from 'viem';
 import { MinterAbi } from '@phyt/contracts';
-import { withTransaction } from '@phyt/database';
-import { MintEvent, PackPurchaseNotif, PackPurchaseResponse, TokenURIMetadata, PackTypes, CardRarity } from '@phyt/types';
+import {
+    withTransaction,
+    db,
+    pack_purchases,
+    cards,
+    card_metadata,
+    transactions
+} from '@phyt/database';
+import {
+    MintEvent,
+    PackPurchaseNotif,
+    PackPurchaseResponse,
+    TokenURIMetadata,
+    PackTypes,
+    CardRarity
+} from '@phyt/types';
+import { decodeEventLog, parseEther, formatEther } from 'viem';
+
 import { metadataService } from './metadataServices';
 import { getMerkleRoot, getMerkleProofForWallet } from '../lib/merkleWhitelist';
-import { db, pack_purchases, cards, card_metadata, transactions } from '@phyt/database';
+import { walletClient, publicClient, account } from '../lib/viemClient';
 
 if (!process.env.MINTER_ADDRESS || !process.env.PHYT_CARDS_ADDRESS) {
     throw new Error('Missing contract addresses in environment variables');
@@ -13,7 +27,6 @@ if (!process.env.MINTER_ADDRESS || !process.env.PHYT_CARDS_ADDRESS) {
 
 const MINTER = process.env.MINTER_ADDRESS as `0x${string}`;
 const PHYT_CARDS = process.env.PHYT_CARDS_ADDRESS as `0x${string}`;
-
 
 export const packService = {
     createMintConfig: async (packType = 'scrawny') => {
@@ -24,7 +37,7 @@ export const packService = {
 
             const now = Math.floor(Date.now() / 1000);
             const startTime = BigInt(now);
-            const endTime = BigInt(now + (7 * 24 * 60 * 60)); // End in 7 days
+            const endTime = BigInt(now + 7 * 24 * 60 * 60); // End in 7 days
 
             console.log('Timestamps:', {
                 now,
@@ -35,7 +48,8 @@ export const packService = {
             const computedMerkleRoot = await getMerkleRoot();
             console.log('Computed merkle root:', computedMerkleRoot);
 
-            const packConfig = PackTypes.find(p => p.id === packType) || PackTypes[0];
+            const packConfig =
+                PackTypes.find((p) => p.id === packType) || PackTypes[0];
             const cardCount = packConfig.cardCount || 1;
             const price = parseEther(packConfig.price);
 
@@ -45,16 +59,16 @@ export const packService = {
                 functionName: 'newMintConfig',
                 args: [
                     PHYT_CARDS,
-                    BigInt(cardCount),                    // cards per pack
-                    1n,                                   // max total packs
-                    price,                 // price per pack
-                    1n,                                   // max packs per address
-                    true,                                 // whitelist enabled
-                    computedMerkleRoot,                   // merkle root
-                    startTime,                            // start time (now - 1 min)
-                    endTime,                              // end time (7 days)
+                    BigInt(cardCount), // cards per pack
+                    1n, // max total packs
+                    price, // price per pack
+                    1n, // max packs per address
+                    true, // whitelist enabled
+                    computedMerkleRoot, // merkle root
+                    startTime, // start time (now - 1 min)
+                    endTime // end time (7 days)
                 ],
-                account,
+                account
             });
 
             console.log('Contract simulation successful');
@@ -62,18 +76,20 @@ export const packService = {
             const hash = await walletClient.writeContract(request);
             console.log('Transaction hash:', hash);
 
-            const receipt = await publicClient.waitForTransactionReceipt({ hash });
+            const receipt = await publicClient.waitForTransactionReceipt({
+                hash
+            });
             console.log('Transaction receipt:', receipt);
 
             if (receipt.status === 'reverted') {
                 // Try to decode error if possible
                 if (receipt.logs && receipt.logs.length > 0) {
                     try {
-                        const decodedLogs = receipt.logs.map(log =>
+                        const decodedLogs = receipt.logs.map((log) =>
                             decodeEventLog({
                                 abi: MinterAbi,
                                 data: log.data,
-                                topics: log.topics,
+                                topics: log.topics
                             })
                         );
                         console.log('Decoded logs:', decodedLogs);
@@ -81,7 +97,9 @@ export const packService = {
                         console.error('Error decoding logs:', error);
                     }
                 }
-                throw new Error('Transaction reverted - check roles and parameters');
+                throw new Error(
+                    'Transaction reverted - check roles and parameters'
+                );
             }
 
             const totalConfigs = await publicClient.readContract({
@@ -103,18 +121,20 @@ export const packService = {
     },
 
     getPackPrice: async (mintConfigId: bigint, packType = 'scrawny') => {
-        const packConfig = PackTypes.find(p => p.id === packType) || PackTypes[0];
+        const packConfig =
+            PackTypes.find((p) => p.id === packType) || PackTypes[0];
         return parseEther(packConfig.price);
     },
 
-    generateCardRarity: (packType: string = 'scrawny'): CardRarity => {
+    generateCardRarity: (packType = 'scrawny'): CardRarity => {
         // The existing generateRarity function in metadataService uses the RarityWeights defined in types
         // We can use that directly as it already has the rarity distribution we want
         return metadataService.generateRarity();
     },
 
-    generateCardRarities: (packType: string = 'scrawny'): CardRarity[] => {
-        const packConfig = PackTypes.find(p => p.id === packType) || PackTypes[0];
+    generateCardRarities: (packType = 'scrawny'): CardRarity[] => {
+        const packConfig =
+            PackTypes.find((p) => p.id === packType) || PackTypes[0];
         const cardCount = packConfig.cardCount || 1;
         const rarities: CardRarity[] = [];
 
@@ -154,7 +174,7 @@ export const packService = {
         return newArray;
     },
 
-    purchasePack: async (data: PackPurchaseNotif & { packType?: string; }) => {
+    purchasePack: async (data: PackPurchaseNotif & { packType?: string }) => {
         const { buyerId, hash, packPrice, packType = 'scrawny' } = data;
 
         console.log(packType);
@@ -162,23 +182,25 @@ export const packService = {
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
         if (receipt.status === 'reverted') {
-            throw new Error("Transaction failed");
+            throw new Error('Transaction failed');
         }
 
         try {
             const mintEvents = receipt.logs
-                .map(log => {
+                .map((log) => {
                     try {
                         return decodeEventLog({
                             abi: MinterAbi,
                             data: log.data,
-                            topics: log.topics,
+                            topics: log.topics
                         });
                     } catch {
                         return null;
                     }
                 })
-                .filter((event): event is MintEvent => event?.eventName === 'Mint');
+                .filter(
+                    (event): event is MintEvent => event?.eventName === 'Mint'
+                );
 
             if (mintEvents.length === 0) {
                 throw new Error('No mint event found in transaction');
@@ -189,11 +211,14 @@ export const packService = {
             const cardRarities = packService.generateCardRarities(packType);
 
             return await db.transaction(async (tx) => {
-                const [packPurchase] = await tx.insert(pack_purchases).values({
-                    buyer_id: buyerId,
-                    purchase_price: Number(formatEther(BigInt(packPrice))),
-                    pack_type: packType,
-                }).returning();
+                const [packPurchase] = await tx
+                    .insert(pack_purchases)
+                    .values({
+                        buyer_id: buyerId,
+                        purchase_price: Number(formatEther(BigInt(packPrice))),
+                        pack_type: packType
+                    })
+                    .returning();
 
                 const cardsMetadata = [];
                 const cardsIds = [];
@@ -202,16 +227,23 @@ export const packService = {
                     const tokenId = Number(mintEvent.args.firstTokenId) + i;
                     const rarity = cardRarities[i];
 
-                    const [card] = await tx.insert(cards).values({
-                        owner_id: buyerId,
-                        pack_purchase_id: packPurchase.id,
-                        token_id: tokenId,
-                        acquisition_type: 'mint'
-                    }).returning();
+                    const [card] = await tx
+                        .insert(cards)
+                        .values({
+                            owner_id: buyerId,
+                            pack_purchase_id: packPurchase.id,
+                            token_id: tokenId,
+                            acquisition_type: 'mint'
+                        })
+                        .returning();
 
                     cardsIds.push(card.id);
 
-                    const metadata = await metadataService.generateMetadataWithRarity(tokenId, rarity);
+                    const metadata =
+                        await metadataService.generateMetadataWithRarity(
+                            tokenId,
+                            rarity
+                        );
                     cardsMetadata.push(metadata);
 
                     await tx.insert(card_metadata).values({
@@ -221,7 +253,7 @@ export const packService = {
                         rarity: metadata.attributes[0].rarity,
                         multiplier: metadata.attributes[0].multiplier,
                         image_url: metadata.image,
-                        season: metadata.attributes[0].season,
+                        season: metadata.attributes[0].season
                     });
 
                     await tx.insert(transactions).values({
@@ -239,7 +271,11 @@ export const packService = {
             });
         } catch (error) {
             console.error('Pack purchase error:', error);
-            throw new Error(error instanceof Error ? error.message : 'Failed to purchase pack');
+            throw new Error(
+                error instanceof Error
+                    ? error.message
+                    : 'Failed to purchase pack'
+            );
         }
     }
 };

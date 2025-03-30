@@ -1,5 +1,14 @@
-import { db, eq, and, desc, isNull, count } from '@phyt/database';
-import { comments, posts, users } from '@phyt/database';
+import {
+    db,
+    eq,
+    and,
+    desc,
+    isNull,
+    count,
+    comments,
+    posts,
+    users
+} from '@phyt/database';
 import { NotFoundError, DatabaseError } from '@phyt/types';
 
 export const commentService = {
@@ -19,14 +28,13 @@ export const commentService = {
             const post = await db
                 .select()
                 .from(posts)
-                .where(and(
-                    eq(posts.id, postId),
-                    eq(posts.status, 'visible')
-                ))
+                .where(and(eq(posts.id, postId), eq(posts.status, 'visible')))
                 .limit(1);
 
             if (!post.length) {
-                throw new NotFoundError(`Post with ID ${postId} not found or is not visible`);
+                throw new NotFoundError(
+                    `Post with ID ${postId} not found or is not visible`
+                );
             }
 
             // If there's a parent comment, verify it exists
@@ -38,7 +46,9 @@ export const commentService = {
                     .limit(1);
 
                 if (!parentComment.length) {
-                    throw new NotFoundError(`Parent comment with ID ${parentCommentId} not found`);
+                    throw new NotFoundError(
+                        `Parent comment with ID ${parentCommentId} not found`
+                    );
                 }
             }
 
@@ -61,15 +71,18 @@ export const commentService = {
         }
     },
 
-    getPostComments: async (postId: number, {
-        page = 1,
-        limit = 20,
-        parentOnly = false
-    }: {
-        page?: number;
-        limit?: number;
-        parentOnly?: boolean;
-    } = {}) => {
+    getPostComments: async (
+        postId: number,
+        {
+            page = 1,
+            limit = 20,
+            parentOnly = false
+        }: {
+            page?: number;
+            limit?: number;
+            parentOnly?: boolean;
+        } = {}
+    ) => {
         try {
             const offset = (page - 1) * limit;
 
@@ -120,13 +133,16 @@ export const commentService = {
         }
     },
 
-    getCommentReplies: async (commentId: number, {
-        page = 1,
-        limit = 20
-    }: {
-        page?: number;
-        limit?: number;
-    } = {}) => {
+    getCommentReplies: async (
+        commentId: number,
+        {
+            page = 1,
+            limit = 20
+        }: {
+            page?: number;
+            limit?: number;
+        } = {}
+    ) => {
         try {
             const offset = (page - 1) * limit;
 
@@ -168,7 +184,10 @@ export const commentService = {
         }
     },
 
-    updateComment: async (commentId: number, { content }: { content: string; }) => {
+    updateComment: async (
+        commentId: number,
+        { content }: { content: string }
+    ) => {
         try {
             const [comment] = await db
                 .update(comments)
@@ -177,7 +196,9 @@ export const commentService = {
                 .returning();
 
             if (!comment) {
-                throw new NotFoundError(`Comment with ID ${commentId} not found`);
+                throw new NotFoundError(
+                    `Comment with ID ${commentId} not found`
+                );
             }
 
             return comment;
@@ -196,7 +217,9 @@ export const commentService = {
                 .returning();
 
             if (!deletedComment) {
-                throw new NotFoundError(`Comment with ID ${commentId} not found`);
+                throw new NotFoundError(
+                    `Comment with ID ${commentId} not found`
+                );
             }
 
             return deletedComment;
@@ -217,7 +240,7 @@ export const commentService = {
                     content: comments.content,
                     parent_comment_id: comments.parent_comment_id,
                     updated_at: comments.updated_at,
-                    created_at: comments.created_at,
+                    created_at: comments.created_at
                 })
                 .from(comments)
                 .innerJoin(users, eq(comments.user_id, users.id))
@@ -225,7 +248,9 @@ export const commentService = {
                 .limit(1);
 
             if (!comment) {
-                throw new NotFoundError(`Comment with ID ${commentId} not found`);
+                throw new NotFoundError(
+                    `Comment with ID ${commentId} not found`
+                );
             }
 
             return comment;

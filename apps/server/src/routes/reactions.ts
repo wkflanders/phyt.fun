@@ -1,9 +1,10 @@
+import { NotFoundError, DatabaseError } from '@phyt/types';
 import express, { Router } from 'express';
+
+import { createReactionSchema } from '../lib/validation';
 import { validateAuth } from '../middleware/auth';
 import { validateSchema } from '../middleware/validator';
-import { createReactionSchema } from '../lib/validation';
 import { reactionService } from '../services/reactionServices';
-import { NotFoundError, DatabaseError } from '@phyt/types';
 
 const router: Router = express.Router();
 
@@ -43,7 +44,9 @@ router.get('/post/:postId', async (req, res) => {
         return res.status(200).json(reactions);
     } catch (error) {
         console.error('Error fetching post reactions:', error);
-        return res.status(500).json({ error: 'Failed to fetch post reactions' });
+        return res
+            .status(500)
+            .json({ error: 'Failed to fetch post reactions' });
     }
 });
 
@@ -59,7 +62,9 @@ router.get('/comment/:commentId', async (req, res) => {
         return res.status(200).json(reactions);
     } catch (error) {
         console.error('Error fetching comment reactions:', error);
-        return res.status(500).json({ error: 'Failed to fetch comment reactions' });
+        return res
+            .status(500)
+            .json({ error: 'Failed to fetch comment reactions' });
     }
 });
 
@@ -71,11 +76,16 @@ router.get('/user/post/:postId', async (req, res) => {
             return res.status(400).json({ error: 'Invalid post ID' });
         }
 
-        const reactions = await reactionService.getUserPostReactions(req.body.user.id, postId);
+        const reactions = await reactionService.getUserPostReactions(
+            req.body.user.id,
+            postId
+        );
         return res.status(200).json(reactions);
     } catch (error) {
         console.error('Error fetching user post reactions:', error);
-        return res.status(500).json({ error: 'Failed to fetch user post reactions' });
+        return res
+            .status(500)
+            .json({ error: 'Failed to fetch user post reactions' });
     }
 });
 
@@ -87,11 +97,16 @@ router.get('/user/comment/:commentId', async (req, res) => {
             return res.status(400).json({ error: 'Invalid comment ID' });
         }
 
-        const reactions = await reactionService.getUserCommentReactions(req.body.user.id, commentId);
+        const reactions = await reactionService.getUserCommentReactions(
+            req.body.user.id,
+            commentId
+        );
         return res.status(200).json(reactions);
     } catch (error) {
         console.error('Error fetching user comment reactions:', error);
-        return res.status(500).json({ error: 'Failed to fetch user comment reactions' });
+        return res
+            .status(500)
+            .json({ error: 'Failed to fetch user comment reactions' });
     }
 });
 

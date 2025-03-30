@@ -1,14 +1,15 @@
 import { Router } from 'express';
-import { userRouter } from './users';
-import { packRouter } from './packs';
-import { marketplaceRouter } from './marketplace';
-import { runRouter } from './runs';
-import { runnerRouter } from './runners';
-import { competitionsRouter } from './competitions';
-import { postsRouter } from './posts';
+
 import { commentsRouter } from './comments';
-import { reactionsRouter } from './reactions';
+import { competitionsRouter } from './competitions';
 import { leaderboardRouter } from './leaderboard';
+import { marketplaceRouter } from './marketplace';
+import { packRouter } from './packs';
+import { postsRouter } from './posts';
+import { reactionsRouter } from './reactions';
+import { runnerRouter } from './runners';
+import { runRouter } from './runs';
+import { userRouter } from './users';
 
 const router: Router = Router();
 

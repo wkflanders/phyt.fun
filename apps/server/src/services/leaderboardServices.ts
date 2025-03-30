@@ -1,6 +1,16 @@
-import { db, eq, desc, and, gt, runner_leaderboard, manager_leaderboard, runners, users, count, gte } from '@phyt/database';
-import { subDays } from 'date-fns';
-import { runnerService } from './runnerServices';
+import {
+    db,
+    eq,
+    desc,
+    and,
+    gt,
+    runner_leaderboard,
+    manager_leaderboard,
+    runners,
+    users,
+    count,
+    gte
+} from '@phyt/database';
 import {
     DatabaseError,
     RunnerStanding,
@@ -12,6 +22,9 @@ import {
     User,
     RunnerStatus
 } from '@phyt/types';
+import { subDays } from 'date-fns';
+
+import { runnerService } from './runnerServices';
 import { userService } from './userServices';
 
 interface LeaderboardParams {
@@ -21,7 +34,11 @@ interface LeaderboardParams {
 }
 
 export const leaderboardService = {
-    getRunnerStanding: async (id: string | number, privy: boolean, { timeFrame = 'weekly' }: Pick<LeaderboardParams, 'timeFrame'> = {}): Promise<RunnerStanding> => {
+    getRunnerStanding: async (
+        id: string | number,
+        privy: boolean,
+        { timeFrame = 'weekly' }: Pick<LeaderboardParams, 'timeFrame'> = {}
+    ): Promise<RunnerStanding> => {
         try {
             const now = new Date();
             let startDate;
@@ -63,7 +80,9 @@ export const leaderboardService = {
                 .limit(1);
 
             if (!leaderboardEntry) {
-                throw new Error('Leaderboard entry not found for the given timeframe');
+                throw new Error(
+                    'Leaderboard entry not found for the given timeframe'
+                );
             }
 
             return {
@@ -71,7 +90,7 @@ export const leaderboardService = {
                 runner: runner as RunnerProfile,
                 ranking: leaderboardEntry.ranking,
                 updated_at: runner.updated_at,
-                created_at: runner.created_at,
+                created_at: runner.created_at
             };
         } catch (error) {
             console.error('Error getting runner standing by id:', error);
@@ -79,7 +98,11 @@ export const leaderboardService = {
         }
     },
 
-    getManagerStanding: async (id: string | number, privy: boolean, { timeFrame = 'weekly' }: Pick<LeaderboardParams, 'timeFrame'> = {}): Promise<ManagerStanding> => {
+    getManagerStanding: async (
+        id: string | number,
+        privy: boolean,
+        { timeFrame = 'weekly' }: Pick<LeaderboardParams, 'timeFrame'> = {}
+    ): Promise<ManagerStanding> => {
         try {
             const now = new Date();
             let startDate;
@@ -121,7 +144,9 @@ export const leaderboardService = {
                 .limit(1);
 
             if (!leaderboardEntry) {
-                throw new Error('Leaderboard entry not found for the given timeframe');
+                throw new Error(
+                    'Leaderboard entry not found for the given timeframe'
+                );
             }
 
             return {
@@ -137,7 +162,11 @@ export const leaderboardService = {
         }
     },
 
-    getRunnerLeaderboard: async ({ page = 1, limit = 20, timeFrame = 'weekly' }: LeaderboardParams = {}): Promise<RunnerLeaderboard> => {
+    getRunnerLeaderboard: async ({
+        page = 1,
+        limit = 20,
+        timeFrame = 'weekly'
+    }: LeaderboardParams = {}): Promise<RunnerLeaderboard> => {
         try {
             const offset = (page - 1) * limit;
 
@@ -161,24 +190,27 @@ export const leaderboardService = {
             const leaderboardEntries = await db
                 .select()
                 .from(runner_leaderboard)
-                .where(
-                    gte(runner_leaderboard.updated_at, startDate))
+                .where(gte(runner_leaderboard.updated_at, startDate))
                 .orderBy(runner_leaderboard.ranking)
                 .limit(limit)
                 .offset(offset);
 
             const results = await Promise.all(
                 leaderboardEntries.map(async (entry) => {
-                    const runner = await runnerService.getRunnerById(entry.runner_id);
+                    const runner = await runnerService.getRunnerById(
+                        entry.runner_id
+                    );
                     if (!runner) {
-                        throw new Error(`Runner with id ${entry.runner_id} not found`);
+                        throw new Error(
+                            `Runner with id ${entry.runner_id} not found`
+                        );
                     }
                     return {
                         id: runner.id,
                         runner: runner as RunnerProfile,
                         ranking: entry.ranking,
                         updated_at: runner.updated_at,
-                        created_at: runner.created_at,
+                        created_at: runner.created_at
                     };
                 })
             );
@@ -188,9 +220,7 @@ export const leaderboardService = {
                     value: count()
                 })
                 .from(runner_leaderboard)
-                .where(
-                    gte(runner_leaderboard.updated_at, startDate)
-                );
+                .where(gte(runner_leaderboard.updated_at, startDate));
 
             return {
                 standings: results,
@@ -207,7 +237,11 @@ export const leaderboardService = {
         }
     },
 
-    getManagerLeaderboard: async ({ page = 1, limit = 20, timeFrame = 'weekly' }: LeaderboardParams = {}): Promise<ManagerLeaderboard> => {
+    getManagerLeaderboard: async ({
+        page = 1,
+        limit = 20,
+        timeFrame = 'weekly'
+    }: LeaderboardParams = {}): Promise<ManagerLeaderboard> => {
         try {
             const offset = (page - 1) * limit;
 
@@ -231,8 +265,7 @@ export const leaderboardService = {
             const leaderboardEntries = await db
                 .select()
                 .from(manager_leaderboard)
-                .where(
-                    gte(manager_leaderboard.updated_at, startDate))
+                .where(gte(manager_leaderboard.updated_at, startDate))
                 .orderBy(manager_leaderboard.ranking)
                 .limit(limit)
                 .offset(offset);
@@ -241,7 +274,9 @@ export const leaderboardService = {
                 leaderboardEntries.map(async (entry) => {
                     const user = await userService.getUserById(entry.user_id);
                     if (!user) {
-                        throw new Error(`User with id ${entry.user_id} not found`);
+                        throw new Error(
+                            `User with id ${entry.user_id} not found`
+                        );
                     }
                     return {
                         id: user.id,
@@ -258,9 +293,7 @@ export const leaderboardService = {
                     value: count()
                 })
                 .from(manager_leaderboard)
-                .where(
-                    gte(manager_leaderboard.updated_at, startDate)
-                );
+                .where(gte(manager_leaderboard.updated_at, startDate));
 
             return {
                 standings: results,
@@ -281,7 +314,6 @@ export const leaderboardService = {
         try {
             // await db.transaction(async (tx) => {
             //     await tx.delete(runner_leaderboard);
-
             //     const runnerRankings = await tx
             //         .select({
             //             id: runners.id,
@@ -289,7 +321,6 @@ export const leaderboardService = {
             //         .from(runners)
             //         .where(eq(runners.status, 'active'))
             //         .orderBy(desc(runners.total_distance_m));
-
             //     // Insert new rankings
             //     await Promise.all(runnerRankings.map((runner, index) =>
             //         tx.insert(runner_leaderboard).values({
@@ -298,10 +329,8 @@ export const leaderboardService = {
             //         })
             //     ));
             // });
-
             // await db.transaction(async (tx) => {
             //     await tx.delete(manager_leaderboard);
-
             //     const managerRankings = await tx
             //         .select({
             //             id: users.id,
@@ -309,7 +338,6 @@ export const leaderboardService = {
             //         .from(users)
             //         .where(eq(users.role, 'user'))
             //         .orderBy(desc(users.phytness_points));
-
             //     await Promise.all(managerRankings.map((user, index) =>
             //         tx.insert(manager_leaderboard).values({
             //             user_id: user.id,
@@ -317,7 +345,6 @@ export const leaderboardService = {
             //         })
             //     ));
             // });
-
             // return { success: true };
         } catch (error) {
             console.error('Error updating leaderboards:', error);

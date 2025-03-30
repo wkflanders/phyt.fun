@@ -1,5 +1,14 @@
-import { db, eq, and, or, count } from '@phyt/database';
-import { reactions, posts, comments, users } from '@phyt/database';
+import {
+    db,
+    eq,
+    and,
+    or,
+    count,
+    reactions,
+    posts,
+    comments,
+    users
+} from '@phyt/database';
 import { NotFoundError, DatabaseError } from '@phyt/types';
 
 export const reactionService = {
@@ -24,24 +33,27 @@ export const reactionService = {
                 const post = await db
                     .select()
                     .from(posts)
-                    .where(and(
-                        eq(posts.id, postId),
-                        eq(posts.status, 'visible')
-                    ))
+                    .where(
+                        and(eq(posts.id, postId), eq(posts.status, 'visible'))
+                    )
                     .limit(1);
 
                 if (!post.length) {
-                    throw new NotFoundError(`Post with ID ${postId} not found or is not visible`);
+                    throw new NotFoundError(
+                        `Post with ID ${postId} not found or is not visible`
+                    );
                 }
             } else if (commentId) {
                 const comment = await db
                     .select()
                     .from(comments)
-                    .where(eq(comments.id, commentId!))
+                    .where(eq(comments.id, commentId))
                     .limit(1);
 
                 if (!comment.length) {
-                    throw new NotFoundError(`Comment with ID ${commentId} not found`);
+                    throw new NotFoundError(
+                        `Comment with ID ${commentId} not found`
+                    );
                 }
             }
 
@@ -49,11 +61,15 @@ export const reactionService = {
             const existingReaction = await db
                 .select()
                 .from(reactions)
-                .where(and(
-                    eq(reactions.user_id, userId),
-                    postId ? eq(reactions.post_id, postId) : eq(reactions.comment_id, commentId!),
-                    eq(reactions.type, type)
-                ))
+                .where(
+                    and(
+                        eq(reactions.user_id, userId),
+                        postId
+                            ? eq(reactions.post_id, postId)
+                            : eq(reactions.comment_id, commentId!),
+                        eq(reactions.type, type)
+                    )
+                )
                 .limit(1);
 
             if (existingReaction.length) {
@@ -100,10 +116,13 @@ export const reactionService = {
                 .where(eq(reactions.post_id, postId))
                 .groupBy(reactions.type);
 
-            return reactionCounts.reduce((acc, { type, value }) => {
-                acc[type] = Number(value);
-                return acc;
-            }, {} as Record<string, number>);
+            return reactionCounts.reduce<Record<string, number>>(
+                (acc, { type, value }) => {
+                    acc[type] = Number(value);
+                    return acc;
+                },
+                {}
+            );
         } catch (error) {
             console.error('Error getting post reactions:', error);
             throw new DatabaseError('Failed to get post reactions');
@@ -121,10 +140,13 @@ export const reactionService = {
                 .where(eq(reactions.comment_id, commentId))
                 .groupBy(reactions.type);
 
-            return reactionCounts.reduce((acc, { type, value }) => {
-                acc[type] = Number(value);
-                return acc;
-            }, {} as Record<string, number>);
+            return reactionCounts.reduce<Record<string, number>>(
+                (acc, { type, value }) => {
+                    acc[type] = Number(value);
+                    return acc;
+                },
+                {}
+            );
         } catch (error) {
             console.error('Error getting comment reactions:', error);
             throw new DatabaseError('Failed to get comment reactions');
@@ -136,10 +158,12 @@ export const reactionService = {
             const userReactions = await db
                 .select()
                 .from(reactions)
-                .where(and(
-                    eq(reactions.user_id, userId),
-                    eq(reactions.post_id, postId)
-                ));
+                .where(
+                    and(
+                        eq(reactions.user_id, userId),
+                        eq(reactions.post_id, postId)
+                    )
+                );
 
             return userReactions.map((reaction) => reaction.type);
         } catch (error) {
@@ -153,10 +177,12 @@ export const reactionService = {
             const userReactions = await db
                 .select()
                 .from(reactions)
-                .where(and(
-                    eq(reactions.user_id, userId),
-                    eq(reactions.comment_id, commentId)
-                ));
+                .where(
+                    and(
+                        eq(reactions.user_id, userId),
+                        eq(reactions.comment_id, commentId)
+                    )
+                );
 
             return userReactions.map((reaction) => reaction.type);
         } catch (error) {

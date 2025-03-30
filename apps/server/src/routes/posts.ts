@@ -1,9 +1,10 @@
+import { NotFoundError, DatabaseError } from '@phyt/types';
 import express, { Router } from 'express';
+
+import { createPostSchema, updatePostSchema } from '../lib/validation';
 import { validateAuth } from '../middleware/auth';
 import { validateSchema } from '../middleware/validator';
-import { createPostSchema, updatePostSchema } from '../lib/validation';
 import { postService } from '../services/postServices';
-import { NotFoundError, DatabaseError } from '@phyt/types';
 
 const router: Router = express.Router();
 
@@ -16,7 +17,7 @@ router.get('/', async (req, res) => {
         const userId = req.body.user?.id;
 
         const result = await postService.getPosts({
-            pageParam: parseInt(page as string),  // Changed to match pageParam in service
+            pageParam: parseInt(page as string), // Changed to match pageParam in service
             limit: parseInt(limit as string),
             userId,
             filter: filter as ('following' | 'trending' | 'all') | undefined

@@ -1,4 +1,16 @@
-import { db, eq, and, gt, lt, competitions, runners, users, lineups, lineup_cards, cards } from '@phyt/database';
+import {
+    db,
+    eq,
+    and,
+    gt,
+    lt,
+    competitions,
+    runners,
+    users,
+    lineups,
+    lineup_cards,
+    cards
+} from '@phyt/database';
 import { NotFoundError, DatabaseError } from '@phyt/types';
 
 interface GetCompetitionsOptions {
@@ -18,12 +30,12 @@ export const competitionService = {
                         lt(competitions.start_time, now),
                         gt(competitions.end_time, now)
                     )
-                ) as typeof query;
+                );
             }
 
             // Filter by event type (e.g., "major")
             if (options.type) {
-                query = query.where(eq(competitions.event_type, options.type)) as typeof query;
+                query = query.where(eq(competitions.event_type, options.type));
             }
 
             return await query.orderBy(competitions.start_time);
@@ -53,7 +65,11 @@ export const competitionService = {
         }
     },
 
-    submitLineup: async (competitionId: number, userId: number, cardIds: number[]) => {
+    submitLineup: async (
+        competitionId: number,
+        userId: number,
+        cardIds: number[]
+    ) => {
         try {
             return await db.transaction(async (tx) => {
                 // Ensure competition exists
@@ -129,17 +145,17 @@ export const competitionService = {
                         .limit(1);
 
                     if (!card) {
-                        throw new Error(`Card ${cardId} not owned by user or does not exist`);
+                        throw new Error(
+                            `Card ${cardId} not owned by user or does not exist`
+                        );
                     }
 
                     // Insert lineup card
-                    await tx
-                        .insert(lineup_cards)
-                        .values({
-                            lineup_id: lineup.id,
-                            card_id: cardId,
-                            position: i + 1
-                        });
+                    await tx.insert(lineup_cards).values({
+                        lineup_id: lineup.id,
+                        card_id: cardId,
+                        position: i + 1
+                    });
                 }
 
                 return {

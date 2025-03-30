@@ -1,5 +1,4 @@
-import { db, eq, and } from '@phyt/database';
-import { users, runs, runners } from '@phyt/database';
+import { db, eq, and, users, runs, runners } from '@phyt/database';
 import { DatabaseError, NotFoundError } from '@phyt/types';
 
 export const adminService = {
@@ -21,7 +20,7 @@ export const adminService = {
             return await db
                 .select({
                     run: runs,
-                    runner_name: users.username,
+                    runner_name: users.username
                 })
                 .from(runs)
                 .innerJoin(runners, eq(runs.runner_id, runners.id))
@@ -48,15 +47,13 @@ export const adminService = {
                 }
 
                 // Create runner record
-                await tx
-                    .insert(runners)
-                    .values({
-                        user_id: userId,
-                        average_pace: null,
-                        total_distance_m: 0,
-                        total_runs: 0,
-                        best_mile_time: null
-                    });
+                await tx.insert(runners).values({
+                    user_id: userId,
+                    average_pace: null,
+                    total_distance_m: 0,
+                    total_runs: 0,
+                    best_mile_time: null
+                });
 
                 return [user];
             });
@@ -68,7 +65,10 @@ export const adminService = {
         }
     },
 
-    updateRunVerification: async (runId: number, status: 'verified' | 'flagged') => {
+    updateRunVerification: async (
+        runId: number,
+        status: 'verified' | 'flagged'
+    ) => {
         try {
             const [updatedRun] = await db
                 .update(runs)

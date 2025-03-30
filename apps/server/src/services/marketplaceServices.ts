@@ -8,10 +8,15 @@ import {
     lte,
     desc,
     asc,
-    gt
+    gt,
+    listings,
+    bids,
+    cards,
+    card_metadata,
+    users
 } from '@phyt/database';
-import { listings, bids, cards, card_metadata, users } from '@phyt/database';
 import { DatabaseError, NotFoundError } from '@phyt/types';
+
 import type { Order } from '@phyt/types';
 
 interface ListingFilters {
@@ -33,10 +38,16 @@ export const marketplaceService = {
 
             // Add price conditions if provided.
             if (filters?.minPrice) {
-                conditions = and(conditions, gte(listings.price, filters.minPrice));
+                conditions = and(
+                    conditions,
+                    gte(listings.price, filters.minPrice)
+                );
             }
             if (filters?.maxPrice) {
-                conditions = and(conditions, lte(listings.price, filters.maxPrice));
+                conditions = and(
+                    conditions,
+                    lte(listings.price, filters.maxPrice)
+                );
             }
 
             // Add rarity conditions if provided.
@@ -44,8 +55,17 @@ export const marketplaceService = {
                 conditions = and(
                     conditions,
                     or(
-                        ...filters.rarity.map(r =>
-                            eq(card_metadata.rarity, r as 'bronze' | 'silver' | 'gold' | 'sapphire' | 'ruby' | 'opal')
+                        ...filters.rarity.map((r) =>
+                            eq(
+                                card_metadata.rarity,
+                                r as
+                                    | 'bronze'
+                                    | 'silver'
+                                    | 'gold'
+                                    | 'sapphire'
+                                    | 'ruby'
+                                    | 'opal'
+                            )
                         )
                     )
                 );
@@ -61,16 +81,20 @@ export const marketplaceService = {
                 })
                 .from(listings)
                 .innerJoin(cards, eq(listings.card_id, cards.id))
-                .innerJoin(card_metadata, eq(cards.token_id, card_metadata.token_id))
+                .innerJoin(
+                    card_metadata,
+                    eq(cards.token_id, card_metadata.token_id)
+                )
                 .innerJoin(users, eq(listings.seller_id, users.id))
                 .where(conditions);
 
             // Apply sorting
-            const sortedQuery = filters?.sort === 'price_asc'
-                ? query.orderBy(asc(listings.price))
-                : filters?.sort === 'price_desc'
-                    ? query.orderBy(desc(listings.price))
-                    : query.orderBy(desc(listings.created_at));
+            const sortedQuery =
+                filters?.sort === 'price_asc'
+                    ? query.orderBy(asc(listings.price))
+                    : filters?.sort === 'price_desc'
+                      ? query.orderBy(desc(listings.price))
+                      : query.orderBy(desc(listings.created_at));
 
             return await sortedQuery;
         } catch (error) {
@@ -101,10 +125,7 @@ export const marketplaceService = {
             const cardQuery = db
                 .select()
                 .from(cards)
-                .where(and(
-                    eq(cards.id, cardId),
-                    eq(cards.owner_id, sellerId)
-                ));
+                .where(and(eq(cards.id, cardId), eq(cards.owner_id, sellerId)));
 
             const cardResult = await cardQuery;
 
@@ -153,18 +174,25 @@ export const marketplaceService = {
                 const listing = await tx
                     .select()
                     .from(listings)
-                    .where(and(
-                        eq(listings.id, listingId),
-                        eq(listings.status, 'active')
-                    ))
+                    .where(
+                        and(
+                            eq(listings.id, listingId),
+                            eq(listings.status, 'active')
+                        )
+                    )
                     .limit(1);
 
                 if (!listing.length) {
                     throw new Error('Listing not found or not active');
                 }
 
-                if (listing[0].highest_bid && BigInt(price) <= BigInt(listing[0].highest_bid)) {
-                    throw new Error('Bid must be higher than current highest bid');
+                if (
+                    listing[0].highest_bid &&
+                    BigInt(price) <= BigInt(listing[0].highest_bid)
+                ) {
+                    throw new Error(
+                        'Bid must be higher than current highest bid'
+                    );
                 }
 
                 const [bid] = await tx
@@ -213,10 +241,12 @@ export const marketplaceService = {
                 const [listing] = await tx
                     .select()
                     .from(listings)
-                    .where(and(
-                        eq(listings.id, listingId),
-                        eq(listings.status, 'active')
-                    ));
+                    .where(
+                        and(
+                            eq(listings.id, listingId),
+                            eq(listings.status, 'active')
+                        )
+                    );
 
                 if (!listing) {
                     throw new Error('Listing not found or not active');
@@ -324,12 +354,14 @@ export const marketplaceService = {
                 })
                 .from(bids)
                 .innerJoin(users, eq(bids.bidder_id, users.id))
-                .where(and(
-                    eq(bids.card_id, cardId),
-                    eq(bids.bid_type, 'open'),
-                    eq(bids.status, 'active'),
-                    gt(bids.expiration_time, new Date())
-                ))
+                .where(
+                    and(
+                        eq(bids.card_id, cardId),
+                        eq(bids.bid_type, 'open'),
+                        eq(bids.status, 'active'),
+                        gt(bids.expiration_time, new Date())
+                    )
+                )
                 .orderBy(desc(bids.price));
         } catch (error) {
             console.error('Database error in getOpenBidsForCard:', error);
@@ -358,13 +390,18 @@ export const marketplaceService = {
                 .from(bids)
                 .innerJoin(cards, eq(bids.card_id, cards.id))
                 .leftJoin(listings, eq(bids.listing_id, listings.id))
-                .innerJoin(card_metadata, eq(cards.token_id, card_metadata.token_id))
+                .innerJoin(
+                    card_metadata,
+                    eq(cards.token_id, card_metadata.token_id)
+                )
                 .innerJoin(users, eq(cards.owner_id, users.id))
-                .where(and(
-                    eq(bids.bidder_id, userId),
-                    eq(bids.status, 'active'),
-                    gt(bids.expiration_time, new Date())
-                ))
+                .where(
+                    and(
+                        eq(bids.bidder_id, userId),
+                        eq(bids.status, 'active'),
+                        gt(bids.expiration_time, new Date())
+                    )
+                )
                 .orderBy(desc(bids.created_at));
         } catch (error) {
             console.error('Database error in getAllUserBids:', error);
@@ -384,11 +421,13 @@ export const marketplaceService = {
                 const [bid] = await tx
                     .select()
                     .from(bids)
-                    .where(and(
-                        eq(bids.id, bidId),
-                        eq(bids.status, 'active'),
-                        eq(bids.bid_type, 'open')
-                    ));
+                    .where(
+                        and(
+                            eq(bids.id, bidId),
+                            eq(bids.status, 'active'),
+                            eq(bids.bid_type, 'open')
+                        )
+                    );
 
                 if (!bid) {
                     throw new Error('Open bid not found or not active');
@@ -415,12 +454,14 @@ export const marketplaceService = {
                 await tx
                     .update(bids)
                     .set({ status: 'cancelled' })
-                    .where(and(
-                        eq(bids.card_id, bid.card_id),
-                        eq(bids.status, 'active'),
-                        eq(bids.bid_type, 'open'),
-                        ne(bids.id, bidId)
-                    ));
+                    .where(
+                        and(
+                            eq(bids.card_id, bid.card_id),
+                            eq(bids.status, 'active'),
+                            eq(bids.bid_type, 'open'),
+                            ne(bids.id, bidId)
+                        )
+                    );
 
                 return updatedBid[0];
             });

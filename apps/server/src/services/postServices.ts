@@ -1,11 +1,32 @@
-import { db, eq, and, desc, asc, or, not, like, sql, count as countFn } from '@phyt/database';
-import { posts, users, runners, runs, comments, reactions, follows } from '@phyt/database';
+import {
+    db,
+    eq,
+    and,
+    desc,
+    asc,
+    or,
+    not,
+    like,
+    sql,
+    count as countFn,
+    posts,
+    users,
+    runners,
+    runs,
+    comments,
+    reactions,
+    follows
+} from '@phyt/database';
 import { NotFoundError, DatabaseError } from '@phyt/types';
 
 export const postService = {
     createPost: async (runId: number) => {
         try {
-            const run = await db.select().from(runs).where(eq(runs.id, runId)).limit(1);
+            const run = await db
+                .select()
+                .from(runs)
+                .where(eq(runs.id, runId))
+                .limit(1);
             if (!run.length) {
                 throw new NotFoundError(`Run with ID ${runId} not found`);
             }
@@ -46,7 +67,7 @@ export const postService = {
                         username: users.username,
                         avatar_url: users.avatar_url,
                         role: users.role,
-                        is_pooled: runners.is_pooled,
+                        is_pooled: runners.is_pooled
                     },
                     run: {
                         distance_m: runs.distance_m,
@@ -54,11 +75,11 @@ export const postService = {
                         average_pace_sec: runs.average_pace_sec,
                         elevation_gain_m: runs.elevation_gain_m,
                         start_time: runs.start_time,
-                        end_time: runs.end_time,
+                        end_time: runs.end_time
                     },
                     stats: {
-                        comments: countFn(comments.id).as("comments"),
-                    },
+                        comments: countFn(comments.id).as('comments')
+                    }
                 })
                 .from(posts)
                 .innerJoin(users, eq(posts.user_id, users.id))
@@ -74,9 +95,9 @@ export const postService = {
             }
             return post;
         } catch (error) {
-            console.error("Error getting post by ID:", error);
+            console.error('Error getting post by ID:', error);
             if (error instanceof NotFoundError) throw error;
-            throw new DatabaseError("Failed to get post");
+            throw new DatabaseError('Failed to get post');
         }
     },
 
@@ -101,7 +122,7 @@ export const postService = {
                         username: users.username,
                         avatar_url: users.avatar_url,
                         role: users.role,
-                        is_pooled: runners.is_pooled,
+                        is_pooled: runners.is_pooled
                     },
                     run: {
                         distance_m: runs.distance_m,
@@ -112,7 +133,7 @@ export const postService = {
                         end_time: runs.end_time
                     },
                     stats: {
-                        comments: countFn(comments.id).as("comments"),
+                        comments: countFn(comments.id).as('comments')
                     }
                 })
                 .from(posts)
@@ -180,7 +201,10 @@ export const postService = {
         }
     },
 
-    getUserPosts: async (userId: number, { page = 1, limit = 10 }: { page?: number; limit?: number; } = {}) => {
+    getUserPosts: async (
+        userId: number,
+        { page = 1, limit = 10 }: { page?: number; limit?: number } = {}
+    ) => {
         try {
             const offset = (page - 1) * limit;
 
@@ -196,16 +220,15 @@ export const postService = {
                         end_time: runs.end_time
                     },
                     stats: {
-                        comments: countFn(comments.id).as("comments"),
+                        comments: countFn(comments.id).as('comments')
                     }
                 })
                 .from(posts)
                 .innerJoin(runs, eq(posts.run_id, runs.id))
                 .leftJoin(comments, eq(comments.post_id, posts.id))
-                .where(and(
-                    eq(posts.user_id, userId),
-                    eq(posts.status, 'visible')
-                ))
+                .where(
+                    and(eq(posts.user_id, userId), eq(posts.status, 'visible'))
+                )
                 .orderBy(desc(posts.created_at))
                 .limit(limit)
                 .offset(offset);
@@ -214,10 +237,9 @@ export const postService = {
             const [{ count }] = await db
                 .select({ count: countFn(posts.id) })
                 .from(posts)
-                .where(and(
-                    eq(posts.user_id, userId),
-                    eq(posts.status, 'visible')
-                ));
+                .where(
+                    and(eq(posts.user_id, userId), eq(posts.status, 'visible'))
+                );
 
             return {
                 posts: results,
@@ -234,7 +256,10 @@ export const postService = {
         }
     },
 
-    updatePostStatus: async (postId: number, status: 'visible' | 'hidden' | 'deleted') => {
+    updatePostStatus: async (
+        postId: number,
+        status: 'visible' | 'hidden' | 'deleted'
+    ) => {
         try {
             const [post] = await db
                 .update(posts)
@@ -273,5 +298,4 @@ export const postService = {
             throw new DatabaseError('Failed to delete post');
         }
     }
-
 };

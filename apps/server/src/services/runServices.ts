@@ -1,10 +1,19 @@
-import { db, eq, and } from '@phyt/database';
-import { runs, runners, users } from '@phyt/database';
+import {
+    db,
+    eq,
+    and,
+    runs,
+    runners,
+    users,
+    withTransaction
+} from '@phyt/database';
 import { DatabaseError, NotFoundError } from '@phyt/types';
-import { withTransaction } from '@phyt/database';
 
 export const runService = {
-    applyAsRunner: async ({ privyId, workouts }: {
+    applyAsRunner: async ({
+        privyId,
+        workouts
+    }: {
         privyId: string;
         workouts: any[];
     }) => {
@@ -96,16 +105,14 @@ export const runService = {
                 }
 
                 // 3. Create runner record
-                await db
-                    .insert(runners)
-                    .values({
-                        user_id: user.id,
-                        average_pace: null,
-                        total_distance_m: 0,
-                        total_runs: 0,
-                        best_mile_time: null,
-                        status: 'pending' as const
-                    });
+                await db.insert(runners).values({
+                    user_id: user.id,
+                    average_pace: null,
+                    total_distance_m: 0,
+                    total_runs: 0,
+                    best_mile_time: null,
+                    status: 'pending' as const
+                });
 
                 return 'pending';
             });
@@ -116,8 +123,11 @@ export const runService = {
         }
     },
 
-    createRunByPrivyId: async ({ privyId, workout }: {
-        privyId: string,
+    createRunByPrivyId: async ({
+        privyId,
+        workout
+    }: {
+        privyId: string;
         workout: any;
     }) => {
         try {
@@ -174,8 +184,11 @@ export const runService = {
         }
     },
     // Need a verification algorithm function
-    createRunsBatchByPrivyId: async ({ privyId, workouts }: {
-        privyId: string,
+    createRunsBatchByPrivyId: async ({
+        privyId,
+        workouts
+    }: {
+        privyId: string;
         workouts: any[];
     }) => {
         try {
@@ -200,7 +213,7 @@ export const runService = {
                 }
 
                 // 2. Insert all runs
-                const runsToInsert = workouts.map(workout => ({
+                const runsToInsert = workouts.map((workout) => ({
                     runner_id: runner.id,
                     start_time: new Date(workout.start_time),
                     end_time: new Date(workout.end_time),
@@ -238,7 +251,7 @@ export const runService = {
         runId,
         status
     }: {
-        runId: number,
+        runId: number;
         status: 'pending' | 'verified' | 'flagged';
     }) => {
         try {
@@ -329,8 +342,14 @@ async function updateRunnerStats(runnerId: number) {
         if (runnerRuns.length === 0) return;
 
         // Calculate statistics
-        const totalDistance = runnerRuns.reduce((sum, run) => sum + run.distance_m, 0);
-        const totalPace = runnerRuns.reduce((sum, run) => sum + (run.average_pace_sec || 0), 0);
+        const totalDistance = runnerRuns.reduce(
+            (sum, run) => sum + run.distance_m,
+            0
+        );
+        const totalPace = runnerRuns.reduce(
+            (sum, run) => sum + (run.average_pace_sec || 0),
+            0
+        );
         const averagePace = totalPace / runnerRuns.length;
 
         // Update runner record
@@ -343,7 +362,6 @@ async function updateRunnerStats(runnerId: number) {
                 updated_at: new Date()
             })
             .where(eq(runners.id, runnerId));
-
     } catch (error) {
         console.error('Error updating runner stats:', error);
         throw new DatabaseError('Failed to update runner statistics');

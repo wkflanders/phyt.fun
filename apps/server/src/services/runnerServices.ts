@@ -1,4 +1,14 @@
-import { db, eq, and, like, desc, runners, runs, follows, users } from '@phyt/database';
+import {
+    db,
+    eq,
+    and,
+    like,
+    desc,
+    runners,
+    runs,
+    follows,
+    users
+} from '@phyt/database';
 import { DatabaseError, NotFoundError } from '@phyt/types';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -10,12 +20,13 @@ export const runnerService = {
     getRecentActivities: async (filter?: string, privyId?: string) => {
         try {
             // Fetch basic runs
-            const runsData = await db.select({
-                id: runs.id,
-                runner_id: runs.runner_id,
-                distance_m: runs.distance_m,
-                completed_at: runs.end_time,
-            })
+            const runsData = await db
+                .select({
+                    id: runs.id,
+                    runner_id: runs.runner_id,
+                    distance_m: runs.distance_m,
+                    completed_at: runs.end_time
+                })
                 .from(runs)
                 .orderBy(desc(runs.end_time))
                 .limit(20);
@@ -30,11 +41,12 @@ export const runnerService = {
                 runsData.map(async (run) => {
                     try {
                         // Get runner data
-                        const runnerData = await db.select({
-                            id: runners.id,
-                            user_id: runners.user_id,
-                            is_pooled: runners.is_pooled
-                        })
+                        const runnerData = await db
+                            .select({
+                                id: runners.id,
+                                user_id: runners.user_id,
+                                is_pooled: runners.is_pooled
+                            })
                             .from(runners)
                             .where(eq(runners.id, run.runner_id))
                             .limit(1);
@@ -52,9 +64,10 @@ export const runnerService = {
 
                         // For following filter, check if user follows this runner
                         if (filter === 'following' && privyId) {
-                            const userQuery = db.select({
-                                id: users.id
-                            })
+                            const userQuery = db
+                                .select({
+                                    id: users.id
+                                })
                                 .from(users)
                                 .where(eq(users.privy_id, privyId))
                                 .limit(1);
@@ -67,7 +80,8 @@ export const runnerService = {
 
                             const userId = userData[0].id;
 
-                            const followData = await db.select()
+                            const followData = await db
+                                .select()
                                 .from(follows)
                                 .where(
                                     and(
@@ -83,10 +97,11 @@ export const runnerService = {
                         }
 
                         // Get user data
-                        const userData = await db.select({
-                            username: users.username,
-                            avatar_url: users.avatar_url
-                        })
+                        const userData = await db
+                            .select({
+                                username: users.username,
+                                avatar_url: users.avatar_url
+                            })
                             .from(users)
                             .where(eq(users.id, runner.user_id))
                             .limit(1);
@@ -106,10 +121,13 @@ export const runnerService = {
                             distance_m: run.distance_m,
                             completed_at: run.completed_at,
                             is_pooled: runner.is_pooled,
-                            time_ago: formatDistanceToNow(new Date(run.completed_at), { addSuffix: true })
+                            time_ago: formatDistanceToNow(
+                                new Date(run.completed_at),
+                                { addSuffix: true }
+                            )
                         };
                     } catch (err) {
-                        console.error("Error processing run:", err);
+                        console.error('Error processing run:', err);
                         return null; // Skip this run if there's an error
                     }
                 })
@@ -118,14 +136,15 @@ export const runnerService = {
             // Filter out null values and return
             return activitiesWithDetails.filter(Boolean);
         } catch (error) {
-            console.error("Error fetching runner activities:", error);
-            throw new DatabaseError("Failed to fetch recent activities");
+            console.error('Error fetching runner activities:', error);
+            throw new DatabaseError('Failed to fetch recent activities');
         }
     },
 
     getRunnerActivities: async (runnerId: number) => {
         try {
-            const runner = await db.select()
+            const runner = await db
+                .select()
                 .from(runners)
                 .where(eq(runners.id, runnerId))
                 .limit(1);
@@ -134,15 +153,16 @@ export const runnerService = {
                 throw new NotFoundError(`Runner with ID ${runnerId} not found`);
             }
 
-            const activities = await db.select({
-                id: runs.id,
-                runner_id: runners.id,
-                username: users.username,
-                avatar_url: users.avatar_url,
-                distance_m: runs.distance_m,
-                completed_at: runs.end_time,
-                is_pooled: runners.is_pooled
-            })
+            const activities = await db
+                .select({
+                    id: runs.id,
+                    runner_id: runners.id,
+                    username: users.username,
+                    avatar_url: users.avatar_url,
+                    distance_m: runs.distance_m,
+                    completed_at: runs.end_time,
+                    is_pooled: runners.is_pooled
+                })
                 .from(runs)
                 .innerJoin(runners, eq(runs.runner_id, runners.id))
                 .innerJoin(users, eq(runners.user_id, users.id))
@@ -150,14 +170,21 @@ export const runnerService = {
                 .orderBy(desc(runs.end_time))
                 .limit(10);
 
-            return activities.map(activity => ({
+            return activities.map((activity) => ({
                 ...activity,
-                time_ago: formatDistanceToNow(new Date(activity.completed_at), { addSuffix: true })
+                time_ago: formatDistanceToNow(new Date(activity.completed_at), {
+                    addSuffix: true
+                })
             }));
         } catch (error) {
             if (error instanceof NotFoundError) throw error;
-            console.error(`Error fetching activities for runner ${runnerId}:`, error);
-            throw new DatabaseError(`Failed to fetch activities for runner ${runnerId}`);
+            console.error(
+                `Error fetching activities for runner ${runnerId}:`,
+                error
+            );
+            throw new DatabaseError(
+                `Failed to fetch activities for runner ${runnerId}`
+            );
         }
     },
 
@@ -167,7 +194,7 @@ export const runnerService = {
             if (search) {
                 conditions.push(like(users.username, `%${search}%`));
             }
-            let query = db
+            const query = db
                 .select({
                     id: runners.id,
                     user_id: runners.user_id,
@@ -181,7 +208,7 @@ export const runnerService = {
                     username: users.username,
                     avatar_url: users.avatar_url,
                     created_at: runners.created_at,
-                    updated_at: runners.updated_at,
+                    updated_at: runners.updated_at
                 })
                 .from(runners)
                 .innerJoin(users, eq(runners.user_id, users.id));
@@ -220,7 +247,7 @@ export const runnerService = {
                     username: users.username,
                     avatar_url: users.avatar_url,
                     created_at: runners.created_at,
-                    updated_at: runners.updated_at,
+                    updated_at: runners.updated_at
                 })
                 .from(runners)
                 .innerJoin(users, eq(runners.user_id, users.id))
@@ -248,7 +275,7 @@ export const runnerService = {
                     username: users.username,
                     avatar_url: users.avatar_url,
                     created_at: runners.created_at,
-                    updated_at: runners.updated_at,
+                    updated_at: runners.updated_at
                 })
                 .from(runners)
                 .innerJoin(users, eq(runners.user_id, users.id))
@@ -296,5 +323,5 @@ export const runnerService = {
             if (error instanceof NotFoundError) throw error;
             throw new DatabaseError('Failed to get runner status');
         }
-    },
+    }
 };
