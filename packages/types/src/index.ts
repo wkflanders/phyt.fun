@@ -66,7 +66,7 @@ export const PackTypes = [
 ];
 
 export interface AuthenticatedBody {
-    user: {
+    auth: {
         privy_id: string;
     };
 }
@@ -625,7 +625,6 @@ export interface CreateCommentRequest {
 }
 
 export interface CommentUpdateRequest {
-    commentId: number;
     content: string;
 }
 
