@@ -26,7 +26,7 @@ export const validateAuth = async (
             throw new HttpError('Invalid token claims', 401);
         }
 
-        req.body.user.id = claims.userId;
+        req.body.auth.privy_id = claims.userId;
         next();
     } catch (error) {
         console.error('Authentication error:', error);
