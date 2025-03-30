@@ -32,11 +32,11 @@ export const purchasePackSchema = z.object({
 });
 
 export const listingSchema = z.object({
-    cardId: z.number({ required_error: 'Card ID is required' }),
+    card_id: z.number({ required_error: 'Card ID is required' }),
     price: z.string({ required_error: 'Price is required' }),
     signature: z.string({ required_error: 'Signature is required' }),
-    orderHash: z.string({ required_error: 'Order hash is required' }),
-    orderData: z.object(
+    order_hash: z.string({ required_error: 'Order hash is required' }),
+    order_data: z.object(
         {
             trader: z.string({ required_error: 'Trader is required' }),
             side: z.number({ required_error: 'Side is required' }),
