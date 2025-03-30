@@ -18,7 +18,7 @@ export const validateAdmin = [
             const user = await db
                 .select()
                 .from(users)
-                .where(eq(users.privy_id, privyId))
+                .where(eq(users.privy_id, privyId.toString()))
                 .limit(1)
                 .then((results) =>
                     results.length > 0 ? (results[0] as User) : null

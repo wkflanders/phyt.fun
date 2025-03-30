@@ -6,32 +6,39 @@ export const errorHandler = (
     req: Request,
     res: Response,
     next: NextFunction
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-) => {
+): void => {
     console.error(`[ERROR] ${req.method} ${req.url}:`, err);
+
+    if (res.headersSent) {
+        next(err);
+        return;
+    }
 
     // Handle different error types
     if (err instanceof HttpError) {
-        return res.status(err.statusCode).json({
+        res.status(err.statusCode).json({
             error: err.message,
             requestId: req.headers['x-request-id']
         });
+        return;
     }
 
     // Handle NotFoundError from your types
     if (err.name === 'NotFoundError') {
-        return res.status(404).json({
+        res.status(404).json({
             error: err.message,
             requestId: req.headers['x-request-id']
         });
+        return;
     }
 
     // Handle ValidationError from your types
     if (err.name === 'ValidationError') {
-        return res.status(400).json({
+        res.status(400).json({
             error: err.message,
             requestId: req.headers['x-request-id']
         });
+        return;
     }
 
     // Default error handler
