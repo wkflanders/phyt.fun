@@ -1,7 +1,6 @@
 import express, { Router } from 'express';
 
 import { validateAdmin } from '@/middleware/admin';
-import { asyncHandler } from '@/middleware/asyncHandler';
 import { validateAuth } from '@/middleware/auth';
 import { adminService } from '@/services/adminServices';
 
@@ -11,8 +10,8 @@ interface VerifyRunStatus {
 
 const router: Router = express.Router();
 
-router.use(asyncHandler(validateAuth));
-router.use(asyncHandler(validateAdmin));
+router.use(validateAuth);
+router.use(validateAdmin);
 
 // Get pending runners
 router.get('/pending-runners', (req, res) => {
