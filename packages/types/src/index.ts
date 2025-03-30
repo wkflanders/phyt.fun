@@ -1,3 +1,4 @@
+import type { Request } from 'express';
 import type { Address } from 'viem';
 
 export type CardRarity =
@@ -63,6 +64,22 @@ export const PackTypes = [
         bgGradient: 'from-cyan-400/30 to-cyan-500/30'
     }
 ];
+
+export interface AuthenticatedBody {
+    user: {
+        id: string;
+    };
+}
+
+export interface AuthenticatedRequest extends Request {
+    body: AuthenticatedBody;
+}
+
+export interface AdminRequest extends Request {
+    body: {
+        user: User;
+    };
+}
 
 export const RarityWeights = {
     bronze: 50,
@@ -458,6 +475,14 @@ export interface Listing {
     updated_at: Date;
 }
 
+export interface CreateListingRequestBody extends AuthenticatedBody {
+    cardId: number;
+    price: string;
+    signature: string;
+    orderHash: string;
+    orderData: Order;
+}
+
 export interface Bid {
     id: number;
     listing_id: number;
@@ -601,6 +626,10 @@ export interface CommentUpdateRequest {
     commentId: number;
     content: string;
 }
+
+export interface CreateCommentWithAuth
+    extends CreateCommentRequest,
+        AuthenticatedBody {}
 
 export interface CommentQueryParams {
     page?: number;

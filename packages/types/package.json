@@ -13,11 +13,9 @@
     "devDependencies": {
         "@phyt/eslint-config": "workspace:*",
         "@phyt/typescript-config": "workspace:*",
+        "@types/express": "^5.0.1",
         "eslint": "^9.23.0",
-        "eslint-config-prettier": "^9.1.0"
-    },
-    "dependencies": {
-        "@wagmi/core": "^2.16.7",
+        "eslint-config-prettier": "^9.1.0",
         "viem": "^2.24.1"
     }
 }
