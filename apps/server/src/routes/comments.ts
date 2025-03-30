@@ -1,19 +1,40 @@
 import {
     CreateCommentWithAuth,
     CommentUpdateRequest,
-    HttpError
+    HttpError,
+    NotFoundError,
+    AuthenticatedRequest
 } from '@phyt/types';
 import express, { Router, Request, Response } from 'express';
 
 import { createCommentSchema, updateCommentSchema } from '@/lib/validation';
 import { validateAuth } from '@/middleware/auth';
 import { validateSchema } from '@/middleware/validator';
-import { verifyUser } from '@/middleware/verifyUser';
+import { makeVerifyResourceOwner } from '@/middleware/verifyResourceOwner';
 import { commentService } from '@/services/commentServices';
 
 const router: Router = express.Router();
 
 router.use(validateAuth);
+
+function extractCommentId(req: AuthenticatedRequest): number | undefined {
+    const id = parseInt(req.params.commentId, 10);
+    return isNaN(id) ? undefined : id;
+}
+async function findCommentOwner(commentId: number): Promise<number> {
+    const comment = await commentService.getCommentById(commentId).catch(() => {
+        throw new NotFoundError(
+            `Comment with ID ${String(commentId)} not found`
+        );
+    });
+
+    return comment.user_id;
+}
+
+const verifyCommentOwner = makeVerifyResourceOwner(
+    extractCommentId,
+    findCommentOwner
+);
 
 // Get comments for a post
 router.get('/post/:postId', async (req: Request, res: Response) => {
@@ -65,7 +86,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.post(
     '/',
     validateSchema(createCommentSchema),
-    verifyUser,
+    verifyCommentOwner,
     async (
         req: Request<Record<string, never>, unknown, CreateCommentWithAuth>,
         res: Response
@@ -87,40 +108,38 @@ router.post(
 router.patch(
     '/:id',
     validateSchema(updateCommentSchema),
-    verifyUser,
-    async (
-        req: Request<
-            { id: string },
-            unknown,
-            Partial<CommentUpdateRequest> & { user_id?: number }
-        >,
-        res: Response
-    ) => {
-        const commentId = parseInt(req.params.id);
+    verifyCommentOwner,
+    async (req, res) => {
+        const typedBody = req.body as Partial<CommentUpdateRequest> & {
+            user_id?: number;
+        };
+        const commentId = parseInt(req.params.id, 10);
         if (isNaN(commentId)) {
             throw new HttpError('Invalid comment ID', 400);
         }
 
-        const { content } = req.body;
-
+        const { content } = typedBody;
         const comment = await commentService.updateComment(commentId, {
             content: content ?? ''
         });
-
         res.status(200).json(comment);
     }
 );
 
 // Delete a comment
-router.delete('/:id', verifyUser, async (req: Request, res: Response) => {
-    const commentId = parseInt(req.params.id);
-    if (isNaN(commentId)) {
-        throw new HttpError('Invalid comment ID', 400);
+router.delete(
+    '/:id',
+    verifyCommentOwner,
+    async (req: Request, res: Response) => {
+        const commentId = parseInt(req.params.id);
+        if (isNaN(commentId)) {
+            throw new HttpError('Invalid comment ID', 400);
+        }
+
+        const deletedComment = await commentService.deleteComment(commentId);
+
+        res.status(200).json(deletedComment);
     }
-
-    const deletedComment = await commentService.deleteComment(commentId);
-
-    res.status(200).json(deletedComment);
-});
+);
 
 export { router as commentsRouter };

@@ -9,7 +9,7 @@ import {
     posts,
     users
 } from '@phyt/database';
-import { NotFoundError, DatabaseError } from '@phyt/types';
+import { NotFoundError, DatabaseError, Comment } from '@phyt/types';
 
 export const commentService = {
     createComment: async ({
@@ -197,7 +197,7 @@ export const commentService = {
 
             if (!comment) {
                 throw new NotFoundError(
-                    `Comment with ID ${commentId} not found`
+                    `Comment with ID ${String(commentId)} not found`
                 );
             }
 
@@ -230,9 +230,9 @@ export const commentService = {
         }
     },
 
-    getCommentById: async (commentId: number) => {
+    getCommentById: async (commentId: number): Promise<Comment> => {
         try {
-            const [comment] = await db
+            const commentsResults = await db
                 .select({
                     id: comments.id,
                     post_id: comments.post_id,
@@ -247,13 +247,13 @@ export const commentService = {
                 .where(eq(comments.id, commentId))
                 .limit(1);
 
-            if (!comment) {
+            if (commentsResults.length === 0) {
                 throw new NotFoundError(
-                    `Comment with ID ${commentId} not found`
+                    `Comment with ID ${String(commentId)} not found`
                 );
             }
 
-            return comment;
+            return commentsResults[0];
         } catch (error) {
             console.error('Error getting comment by ID:', error);
             if (error instanceof NotFoundError) throw error;
