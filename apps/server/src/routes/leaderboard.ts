@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
-import express, { Router } from 'express';
+import express, { Router, Request, Response } from 'express';
 
 import { validateAuth } from '@/middleware/auth';
 import { leaderboardService } from '@/services/leaderboardServices';
@@ -9,7 +8,7 @@ const router: Router = express.Router();
 router.use(validateAuth);
 
 // Get runner leaderboard
-router.get('/runners', async (req, res) => {
+router.get('/runners', async (req: Request, res: Response) => {
     const { page = '1', limit = '20', timeFrame = 'weekly' } = req.query;
 
     const runnerLeaderboard = await leaderboardService.getRunnerLeaderboard({
@@ -18,11 +17,11 @@ router.get('/runners', async (req, res) => {
         timeFrame: timeFrame as 'weekly' | 'monthly' | 'allTime'
     });
 
-    return res.status(200).json(runnerLeaderboard);
+    res.status(200).json(runnerLeaderboard);
 });
 
 // Get manager leaderboard
-router.get('/managers', async (req, res) => {
+router.get('/managers', async (req: Request, res: Response) => {
     const { page = '1', limit = '20', timeFrame = 'weekly' } = req.query;
 
     const managerLeaderboard = await leaderboardService.getManagerLeaderboard({
@@ -31,11 +30,11 @@ router.get('/managers', async (req, res) => {
         timeFrame: timeFrame as 'weekly' | 'monthly' | 'allTime'
     });
 
-    return res.status(200).json(managerLeaderboard);
+    res.status(200).json(managerLeaderboard);
 });
 
 // Get runner standing by privyId
-router.get('/runner/:id', async (req, res) => {
+router.get('/runner/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const { timeFrame = 'weekly' } = req.query;
 
@@ -45,19 +44,19 @@ router.get('/runner/:id', async (req, res) => {
             true,
             { timeFrame: timeFrame as 'weekly' | 'monthly' | 'allTime' }
         );
-        return res.status(200).json(runnerStanding);
+        res.status(200).json(runnerStanding);
     } else {
         const runnerStanding = await leaderboardService.getRunnerStanding(
             Number(id),
             false,
             { timeFrame: timeFrame as 'weekly' | 'monthly' | 'allTime' }
         );
-        return res.status(200).json(runnerStanding);
+        res.status(200).json(runnerStanding);
     }
 });
 
 // Get manager standing by privyId
-router.get('/manager/:id', async (req, res) => {
+router.get('/manager/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const { timeFrame = 'weekly' } = req.query;
 
@@ -67,14 +66,14 @@ router.get('/manager/:id', async (req, res) => {
             true,
             { timeFrame: timeFrame as 'weekly' | 'monthly' | 'allTime' }
         );
-        return res.status(200).json(managerStanding);
+        res.status(200).json(managerStanding);
     } else {
         const managerStanding = await leaderboardService.getManagerStanding(
             Number(id),
             false,
             { timeFrame: timeFrame as 'weekly' | 'monthly' | 'allTime' }
         );
-        return res.status(200).json(managerStanding);
+        res.status(200).json(managerStanding);
     }
 });
 

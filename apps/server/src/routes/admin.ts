@@ -1,5 +1,5 @@
 import { HttpError } from '@phyt/types';
-import express, { Router } from 'express';
+import express, { Router, Request, Response } from 'express';
 
 import { validateAdmin } from '@/middleware/admin';
 import { validateAuth } from '@/middleware/auth';
@@ -15,19 +15,19 @@ router.use(validateAuth);
 router.use(validateAdmin);
 
 // Get pending runners
-router.get('/pending-runners', async (req, res) => {
+router.get('/pending-runners', async (req: Request, res: Response) => {
     const runners = await adminService.getPendingRunners();
     res.status(200).json(runners);
 });
 
 // Get pending runs
-router.get('/pending-runs', async (req, res) => {
+router.get('/pending-runs', async (req: Request, res: Response) => {
     const runs = await adminService.getPendingRuns();
     res.status(200).json(runs);
 });
 
 // Approve runner
-router.post('/runners/:id/approve', async (req, res) => {
+router.post('/runners/:id/approve', async (req: Request, res: Response) => {
     const userId = parseInt(req.params.id);
     if (isNaN(userId)) {
         throw new HttpError('Invalid user ID', 400);
@@ -38,7 +38,7 @@ router.post('/runners/:id/approve', async (req, res) => {
 });
 
 // Update run verification status
-router.patch('/runs/:id/verify', async (req, res) => {
+router.patch('/runs/:id/verify', async (req: Request, res: Response) => {
     const runId = parseInt(req.params.id);
     const { status } = req.body as VerifyRunStatus;
 

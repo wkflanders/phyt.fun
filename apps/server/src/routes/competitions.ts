@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
 import { HttpError, CompetitionLineupRequestBody } from '@phyt/types';
 import express, { Router, Request, Response } from 'express';
 
@@ -10,7 +9,7 @@ const router: Router = express.Router();
 router.use(validateAuth);
 
 // Get all competitions
-router.get('/', async (req, res) => {
+router.get('/', async (req: Request, res: Response) => {
     const { active, type } = req.query;
 
     const competitions = await competitionService.getCompetitions({
@@ -18,11 +17,11 @@ router.get('/', async (req, res) => {
         type: type as string
     });
 
-    return res.status(200).json(competitions);
+    res.status(200).json(competitions);
 });
 
 // Get a specific competition by ID
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req: Request, res: Response) => {
     const competitionId = parseInt(req.params.id);
     if (isNaN(competitionId)) {
         throw new HttpError('Invalid competition ID', 400);
@@ -30,7 +29,7 @@ router.get('/:id', async (req, res) => {
 
     const competition =
         await competitionService.getCompetitionById(competitionId);
-    return res.status(200).json(competition);
+    res.status(200).json(competition);
 });
 
 // Submit a lineup for a competition (for gamblers)
@@ -60,7 +59,7 @@ router.post(
             userId,
             cardIds
         );
-        return res.status(200).json(result);
+        res.status(200).json(result);
     }
 );
 

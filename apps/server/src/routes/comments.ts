@@ -1,15 +1,14 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
 import {
-    CreateCommentRequest,
-    CreateCommentWithAuth
+    CreateCommentWithAuth,
     CommentUpdateRequest,
     HttpError
 } from '@phyt/types';
 import express, { Router, Request, Response } from 'express';
 
 import { createCommentSchema, updateCommentSchema } from '@/lib/validation';
-import { validateAuth, AuthenticatedBody } from '@/middleware/auth';
+import { validateAuth } from '@/middleware/auth';
 import { validateSchema } from '@/middleware/validator';
+import { verifyUser } from '@/middleware/verifyUser';
 import { commentService } from '@/services/commentServices';
 
 const router: Router = express.Router();
@@ -17,7 +16,7 @@ const router: Router = express.Router();
 router.use(validateAuth);
 
 // Get comments for a post
-router.get('/post/:postId', async (req, res) => {
+router.get('/post/:postId', async (req: Request, res: Response) => {
     const postId = parseInt(req.params.postId);
     if (isNaN(postId)) {
         throw new HttpError('Invalid post ID', 400);
@@ -31,11 +30,11 @@ router.get('/post/:postId', async (req, res) => {
         parentOnly: parentOnly === 'true'
     });
 
-    return res.status(200).json(result);
+    res.status(200).json(result);
 });
 
 // Get replies to a comment
-router.get('/replies/:commentId', async (req, res) => {
+router.get('/replies/:commentId', async (req: Request, res: Response) => {
     const commentId = parseInt(req.params.commentId);
     if (isNaN(commentId)) {
         throw new HttpError('Invalid comment ID', 400);
@@ -48,38 +47,39 @@ router.get('/replies/:commentId', async (req, res) => {
         limit: parseInt(limit as string)
     });
 
-    return res.status(200).json(result);
+    res.status(200).json(result);
 });
 
 // Get a specific comment by ID
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req: Request, res: Response) => {
     const commentId = parseInt(req.params.id);
     if (isNaN(commentId)) {
         throw new HttpError('Invalid comment ID', 400);
     }
 
     const comment = await commentService.getCommentById(commentId);
-    return res.status(200).json(comment);
+    res.status(200).json(comment);
 });
 
 // Create a new comment
 router.post(
     '/',
     validateSchema(createCommentSchema),
+    verifyUser,
     async (
         req: Request<Record<string, never>, unknown, CreateCommentWithAuth>,
         res: Response
     ) => {
-        const { post_id, content, parent_comment_id } = req.body;
+        const { post_id, content, parent_comment_id, user_id } = req.body;
 
         const comment = await commentService.createComment({
             postId: post_id,
-            userId: parseInt(req.body.user.id), // Convert string ID to number
+            userId: user_id,
             content,
             parentCommentId: parent_comment_id
         });
 
-        return res.status(201).json(comment);
+        res.status(201).json(comment);
     }
 );
 
@@ -87,8 +87,13 @@ router.post(
 router.patch(
     '/:id',
     validateSchema(updateCommentSchema),
+    verifyUser,
     async (
-        req: Request<{ id: string }, unknown, CommentUpdateRequest>,
+        req: Request<
+            { id: string },
+            unknown,
+            Partial<CommentUpdateRequest> & { user_id?: number }
+        >,
         res: Response
     ) => {
         const commentId = parseInt(req.params.id);
@@ -98,26 +103,24 @@ router.patch(
 
         const { content } = req.body;
 
-        // TODO: Add authorization check - user can only update their own comments
         const comment = await commentService.updateComment(commentId, {
-            content
+            content: content ?? ''
         });
 
-        return res.status(200).json(comment);
+        res.status(200).json(comment);
     }
 );
 
 // Delete a comment
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', verifyUser, async (req: Request, res: Response) => {
     const commentId = parseInt(req.params.id);
     if (isNaN(commentId)) {
         throw new HttpError('Invalid comment ID', 400);
     }
 
-    // TODO: Add authorization check - user can only delete their own comments
     const deletedComment = await commentService.deleteComment(commentId);
 
-    return res.status(200).json(deletedComment);
+    res.status(200).json(deletedComment);
 });
 
 export { router as commentsRouter };

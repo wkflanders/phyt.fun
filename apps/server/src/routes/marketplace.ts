@@ -1,57 +1,86 @@
-import express, { Router } from 'express';
+import {
+    HttpError,
+    CreateListingRequestBody,
+    AuthenticatedBody
+} from '@phyt/types';
+import express, { Router, Request, Response } from 'express';
 
-import { openBidSchema, bidSchema, listingSchema } from '../lib/validation';
-import { validateAuth } from '../middleware/auth';
-import { validateSchema } from '../middleware/validator';
-import { marketplaceService } from '../services/marketplaceServices';
+import { openBidSchema, bidSchema, listingSchema } from '@/lib/validation';
+import { validateAuth } from '@/middleware/auth';
+import { validateSchema } from '@/middleware/validator';
+import { marketplaceService } from '@/services/marketplaceServices';
 
 const router: Router = express.Router();
 
-router.get('/listings', async (req, res) => {
-    try {
-        const { minPrice, maxPrice, rarity, sort } = req.query;
+router.get('/listings', async (req: Request, res: Response) => {
+    const { minPrice, maxPrice, rarity, sort } = req.query;
 
-        const listings = await marketplaceService.getListings({
-            minPrice: minPrice?.toString(),
-            maxPrice: maxPrice?.toString(),
-            rarity: rarity
-                ? Array.isArray(rarity)
-                    ? rarity.map((item) => item.toString())
-                    : [rarity.toString()]
-                : undefined,
-            sort: sort?.toString() as 'price_asc' | 'price_desc' | 'created_at'
-        });
+    const toStringValue = (value: unknown): string | undefined => {
+        if (value == null) return undefined;
+        if (typeof value === 'string') return value;
+        if (typeof value === 'number' || typeof value === 'boolean')
+            return value.toString();
+        // For non-primitive objects, use JSON.stringify.
+        return JSON.stringify(value);
+    };
 
-        return res.status(200).json(listings);
-    } catch (error) {
-        console.error('Failed to fetch listings:', error);
-        return res.status(500).json({ error: 'Failed to fetch listings' });
+    const minPriceStr = toStringValue(minPrice);
+    const maxPriceStr = toStringValue(maxPrice);
+
+    let rarityArray: string[] | undefined;
+    if (rarity != null) {
+        if (Array.isArray(rarity)) {
+            rarityArray = rarity.map((item) => {
+                const str = toStringValue(item);
+                return str ?? '';
+            });
+        } else {
+            const rarityVal = toStringValue(rarity);
+            rarityArray = rarityVal !== undefined ? [rarityVal] : undefined;
+        }
     }
+
+    const sortStr = toStringValue(sort) as
+        | 'price_asc'
+        | 'price_desc'
+        | 'created_at'
+        | undefined;
+
+    const listings = await marketplaceService.getListings({
+        minPrice: minPriceStr,
+        maxPrice: maxPriceStr,
+        rarity: rarityArray,
+        sort: sortStr
+    });
+
+    res.status(200).json(listings);
 });
 
 // Create a new listing
 router.post(
-    '/listings',
+    '/listing',
     validateAuth,
     validateSchema(listingSchema),
-    async (req, res) => {
-        try {
-            const { cardId, price, signature, orderHash, orderData, user } =
-                req.body;
-            const listing = await marketplaceService.createListing({
-                cardId,
-                sellerId: user.id,
-                price,
-                signature,
-                orderHash,
-                orderData,
-                expirationTime: orderData.expiration_time
-            });
-            return res.status(201).json(listing);
-        } catch (error) {
-            console.error('Failed to create listing:', error);
-            return res.status(500).json({ error: 'Failed to create listing' });
-        }
+    async (
+        req: Request<
+            Record<string, never>,
+            unknown,
+            CreateListingRequestBody & AuthenticatedBody
+        >,
+        res: Response
+    ) => {
+        const { card_id, price, signature, order_hash, order_data, user } =
+            req.body;
+        const listing = await marketplaceService.createListing({
+            card_id,
+            sellerId: user.id,
+            price,
+            signature,
+            order_hash,
+            order_data,
+            expirationTime: order_data.expiration_time
+        });
+        res.status(201).json(listing);
     }
 );
 
@@ -119,16 +148,13 @@ router.post(
 
 // Get open bids for a card
 router.get('/cards/:cardId/open-bids', async (req, res) => {
-    try {
-        const { cardId } = req.params;
-        const bids = await marketplaceService.getOpenBidsForCard(
-            parseInt(cardId)
-        );
-        return res.status(200).json(bids);
-    } catch (error) {
-        console.error('Failed to fetch open bids:', error);
-        return res.status(500).json({ error: 'Failed to fetch open bids' });
+    const { cardId } = req.params;
+    if (isNaN(parseInt(cardId))) {
+        throw new HttpError('Invalid card ID', 400);
     }
+
+    const bids = await marketplaceService.getOpenBidsForCard(parseInt(cardId));
+    return res.status(200).json(bids);
 });
 
 // Get user's bids (both regular and open)
