@@ -192,6 +192,11 @@ export interface LineupCard {
     position: number;
 }
 
+export interface CompetitionLineupRequestBody {
+    userId: number;
+    cardIds: number[];
+}
+
 export interface Runner {
     id: number;
     user_id: number;
@@ -358,6 +363,16 @@ export class PackPurchaseError extends Error {
     ) {
         super(message);
         this.name = 'PackPurchaseError';
+    }
+}
+
+export class HttpError extends Error {
+    statusCode: number;
+
+    constructor(message: string, statusCode = 500) {
+        super(message);
+        this.statusCode = statusCode;
+        this.name = 'HttpError';
     }
 }
 
@@ -576,7 +591,7 @@ export interface Comment {
     created_at: Date;
 }
 
-export interface CommentCreateRequest {
+export interface CreateCommentRequest {
     post_id: number;
     content: string;
     parent_comment_id?: number;
