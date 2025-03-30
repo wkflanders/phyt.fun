@@ -189,7 +189,7 @@ export interface Competition {
     event_name: string;
     start_time: string;
     end_time: string;
-    jackpot: bigint;
+    jackpot: number;
     distance_m: number | null;
     event_type: string | null;
 }
@@ -287,7 +287,7 @@ export interface Transaction {
     to_user_id: number | null;
     card_id: number | null;
     competition_id: number | null;
-    price: bigint | null;
+    price: number | null;
     transaction_type: TransactionType;
 }
 
@@ -296,7 +296,7 @@ export interface PackPurchase {
     updated_at: Date;
     created_at: Date;
     buyer_id: number;
-    purchase_price: bigint;
+    purchase_price: number;
 }
 
 export interface PackPurchaseCardId {
@@ -464,7 +464,7 @@ export interface Listing {
     buyer_id: number | null;
     seller_id: number;
     card_id: number;
-    price: bigint; // Take price
+    price: string; // Take price
     highest_bid: bigint | null; // Current highest bid
     highest_bidder_id: number | null;
     expiration_time: Date;
