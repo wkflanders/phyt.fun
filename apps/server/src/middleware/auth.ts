@@ -1,11 +1,20 @@
+import { HttpError } from '@phyt/types';
 import { Request, Response, NextFunction } from 'express';
 
 import { privy } from '@/lib/privyClient';
 
-import { HttpError } from './errorHandler';
+export interface AuthenticatedBody {
+    user: {
+        id: string;
+    };
+}
+
+export interface AuthenticatedRequest extends Request {
+    body: AuthenticatedBody;
+}
 
 export const validateAuth = async (
-    req: Request,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -26,7 +35,7 @@ export const validateAuth = async (
             throw new HttpError('Invalid token claims', 401);
         }
 
-        req.userId = claims.userId;
+        req.body.user.id = claims.userId;
         next();
     } catch (error) {
         console.error('Authentication error:', error);

@@ -1,14 +1,5 @@
+import { HttpError } from '@phyt/types';
 import { Request, Response } from 'express';
-
-export class HttpError extends Error {
-    statusCode: number;
-
-    constructor(message: string, statusCode = 500) {
-        super(message);
-        this.statusCode = statusCode;
-        this.name = 'HttpError';
-    }
-}
 
 export const errorHandler = (
     err: Error,
