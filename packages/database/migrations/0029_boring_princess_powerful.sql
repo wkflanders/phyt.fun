@@ -1,0 +1,1 @@
+ALTER TABLE "listings" ALTER COLUMN "transaction_hash" SET NOT NULL;

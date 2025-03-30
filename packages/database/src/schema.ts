@@ -7,11 +7,15 @@ import {
     varchar,
     foreignKey,
     integer,
-    doublePrecision,
     jsonb,
     boolean,
-    pgEnum
+    pgEnum,
+    // bigint
+    doublePrecision,
+    decimal
 } from 'drizzle-orm/pg-core';
+
+export const ethValuePrecision = 78;
 
 export const enum_cards_rarity = pgEnum('enum_cards_rarity', [
     'bronze',
@@ -198,7 +202,10 @@ export const pack_purchases = pgTable(
         buyer_id: integer('buyer_id')
             .notNull()
             .references(() => users.id, { onDelete: 'set null' }),
-        purchase_price: doublePrecision('purchase_price').notNull(),
+        purchase_price: decimal('purchase_price', {
+            precision: ethValuePrecision,
+            scale: 0
+        }).notNull(),
         pack_type: enum_pack_type('pack_type').notNull(),
         updated_at: timestamp('updated_at', { precision: 3 })
             .defaultNow()
@@ -279,7 +286,10 @@ export const competitions = pgTable(
         end_time: timestamp('end_time', { precision: 3 }).notNull(),
         distance_m: doublePrecision('distance_m'),
         event_type: varchar('event_type'),
-        jackpot: doublePrecision('jackpot').default(0),
+        jackpot: decimal('jackpot', {
+            precision: ethValuePrecision,
+            scale: 0
+        }).default('0'), // Default as string '0'
         updated_at: timestamp('updated_at', { precision: 3 })
             .defaultNow()
             .notNull(),
@@ -403,35 +413,41 @@ export const listings = pgTable(
     'listings',
     {
         id: serial('id').primaryKey(),
-        card_id: integer('card_id')
-            .notNull()
-            .references(() => cards.id, { onDelete: 'set null' }),
-        seller_id: integer('seller_id')
-            .notNull()
-            .references(() => users.id, { onDelete: 'set null' }),
         buyer_id: integer('buyer_id').references(() => users.id, {
             onDelete: 'set null'
         }),
-        price: varchar('price').notNull(),
-        signature: varchar('signature').notNull(),
-        order_hash: varchar('order_hash').notNull().unique(),
-        order_data: jsonb('order_data').notNull(),
-        expiration_time: timestamp('expiration_time', {
-            precision: 3
+        seller_id: integer('seller_id')
+            .notNull()
+            .references(() => users.id, { onDelete: 'set null' }),
+        card_id: integer('card_id')
+            .notNull()
+            .references(() => cards.id, { onDelete: 'set null' }),
+        price: decimal('price', {
+            precision: ethValuePrecision,
+            scale: 0
         }).notNull(),
-        status: varchar('status').notNull().default('active'),
-        transaction_hash: varchar('transaction_hash', { length: 66 }),
-        highest_bid: varchar('highest_bid'),
+        highest_bid: decimal('highest_bid', {
+            precision: ethValuePrecision,
+            scale: 0
+        }),
         highest_bidder_id: integer('highest_bidder_id').references(
             () => users.id,
             {
                 onDelete: 'set null'
             }
         ),
-        updated_at: timestamp('updated_at', { precision: 3 })
+        expiration_time: timestamp('expiration_time', {
+            precision: 3
+        }).notNull(),
+        signature: varchar('signature').notNull(),
+        order_hash: varchar('order_hash').notNull().unique(),
+        order_data: jsonb('order_data').notNull(),
+        transaction_hash: varchar('transaction_hash', { length: 66 }).notNull(),
+        status: varchar('status').notNull().default('active'),
+        created_at: timestamp('created_at', { precision: 3 })
             .defaultNow()
             .notNull(),
-        created_at: timestamp('created_at', { precision: 3 })
+        updated_at: timestamp('updated_at', { precision: 3 })
             .defaultNow()
             .notNull()
     },
@@ -458,7 +474,10 @@ export const bids = pgTable(
         bidder_id: integer('bidder_id')
             .notNull()
             .references(() => users.id, { onDelete: 'set null' }),
-        price: varchar('price').notNull(),
+        price: decimal('price', {
+            precision: ethValuePrecision,
+            scale: 0
+        }).notNull(),
         signature: varchar('signature').notNull(),
         order_hash: varchar('order_hash').notNull().unique(),
         order_data: jsonb('order_data').notNull(),
@@ -503,7 +522,7 @@ export const transactions = pgTable(
             () => competitions.id,
             { onDelete: 'set null' }
         ),
-        price: doublePrecision('price'),
+        price: decimal('price', { precision: ethValuePrecision, scale: 0 }),
         transaction_type:
             enum_transactions_transaction_type('transaction_type').notNull(),
         pack_purchases_id: integer('pack_purchases_id').references(

@@ -1,0 +1,1 @@
+ALTER TABLE "listings" ALTER COLUMN "highest_bid" SET DATA TYPE bigint USING "highest_bid"::bigint;
