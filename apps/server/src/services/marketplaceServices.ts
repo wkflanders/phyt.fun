@@ -15,19 +15,19 @@ import {
     card_metadata,
     users
 } from '@phyt/database';
-import { DatabaseError, NotFoundError } from '@phyt/types';
-
-import type { Order } from '@phyt/types';
-
-interface ListingFilters {
-    minPrice?: string;
-    maxPrice?: string;
-    rarity?: string[];
-    sort?: 'price_asc' | 'price_desc' | 'created_at';
-}
+import {
+    DatabaseError,
+    ListingFilters,
+    CreateListing,
+    Listing,
+    MarketListing,
+    PlaceBid,
+    Bid,
+    Order
+} from '@phyt/types';
 
 export const marketplaceService = {
-    getListings: async (filters?: ListingFilters) => {
+    getListings: async (filters?: ListingFilters): Promise<MarketListing[]> => {
         try {
             // Base conditions: active listings whose expiration_time is strictly after now.
             // We simulate ">" by using gte with a 1ms offset.
@@ -90,13 +90,25 @@ export const marketplaceService = {
 
             // Apply sorting
             const sortedQuery =
+                // eslint-disable-next-line no-nested-ternary
                 filters?.sort === 'price_asc'
                     ? query.orderBy(asc(listings.price))
                     : filters?.sort === 'price_desc'
                       ? query.orderBy(desc(listings.price))
                       : query.orderBy(desc(listings.created_at));
 
-            return await sortedQuery;
+            const result = await sortedQuery;
+            return result.map((item) => ({
+                ...item,
+                listing: {
+                    ...item.listing,
+                    highest_bid:
+                        item.listing.highest_bid !== null
+                            ? BigInt(item.listing.highest_bid)
+                            : null,
+                    order_data: item.listing.order_data as Order
+                }
+            }));
         } catch (error) {
             console.error('Database error in getListings:', error);
             throw new DatabaseError('Failed to fetch listings');
@@ -104,50 +116,54 @@ export const marketplaceService = {
     },
 
     createListing: async ({
-        cardId,
-        sellerId,
+        card_id,
+        seller_id,
         price,
         signature,
-        orderHash,
-        orderData,
-        expirationTime
-    }: {
-        cardId: number;
-        sellerId: number;
-        price: string;
-        signature: string;
-        orderHash: string;
-        orderData: Order;
-        expirationTime: string;
-    }) => {
+        order_data,
+        order_hash,
+        expiration_time
+    }: CreateListing): Promise<Listing> => {
         try {
             // Verify card ownership
             const cardQuery = db
                 .select()
                 .from(cards)
-                .where(and(eq(cards.id, cardId), eq(cards.owner_id, sellerId)));
+                .where(
+                    and(eq(cards.id, card_id), eq(cards.owner_id, seller_id))
+                );
 
             const cardResult = await cardQuery;
 
             if (!cardResult.length) {
                 throw new Error('Card not owned by seller');
             }
-            console.log(expirationTime);
             const insertResult = await db
                 .insert(listings)
                 .values({
-                    card_id: cardId,
-                    seller_id: sellerId,
+                    card_id: card_id,
+                    seller_id: seller_id,
                     price,
                     signature,
-                    order_hash: orderHash,
-                    order_data: orderData,
-                    expiration_time: new Date(expirationTime),
-                    status: 'active'
+                    order_hash,
+                    order_data,
+                    expiration_time: new Date(expiration_time),
+                    status: 'active',
+                    transaction_hash: '' // default value since listing isn't completed
                 })
                 .returning();
 
-            return insertResult[0];
+            // Convert highest_bid from string to bigint if it exists
+            // Also convert expiration_time from Date to bigint timestamp
+            const result = insertResult[0];
+            return {
+                ...result,
+                highest_bid:
+                    result.highest_bid !== null
+                        ? BigInt(result.highest_bid)
+                        : null,
+                order_data: result.order_data as Order
+            };
         } catch (error) {
             console.error('Database error in createListing:', error);
             throw new DatabaseError('Failed to create listing');
@@ -155,20 +171,13 @@ export const marketplaceService = {
     },
 
     createBid: async ({
-        listingId,
-        bidderId,
+        listing_id,
+        bidder_id,
         price,
         signature,
-        orderHash,
-        orderData
-    }: {
-        listingId: number;
-        bidderId: number;
-        price: string;
-        signature: string;
-        orderHash: string;
-        orderData: Order;
-    }) => {
+        order_hash,
+        order_data
+    }: PlaceBid): Promise<Bid> => {
         try {
             return await db.transaction(async (tx) => {
                 const listing = await tx
@@ -176,7 +185,7 @@ export const marketplaceService = {
                     .from(listings)
                     .where(
                         and(
-                            eq(listings.id, listingId),
+                            eq(listings.id, listing_id),
                             eq(listings.status, 'active')
                         )
                     )
@@ -198,13 +207,13 @@ export const marketplaceService = {
                 const [bid] = await tx
                     .insert(bids)
                     .values({
-                        listing_id: listingId,
+                        listing_id: listing_id,
                         card_id: listing[0].card_id,
-                        bidder_id: bidderId,
+                        bidder_id: bidder_id,
                         price,
                         signature,
-                        order_hash: orderHash,
-                        order_data: orderData,
+                        order_hash: order_hash,
+                        order_data: order_data,
                         bid_type: 'listing',
                         status: 'active',
                         expiration_time: listing[0].expiration_time
@@ -215,9 +224,9 @@ export const marketplaceService = {
                     .update(listings)
                     .set({
                         highest_bid: price,
-                        highest_bidder_id: bidderId
+                        highest_bidder_id: bidder_id
                     })
-                    .where(eq(listings.id, listingId));
+                    .where(eq(listings.id, listing_id));
 
                 return bid;
             });

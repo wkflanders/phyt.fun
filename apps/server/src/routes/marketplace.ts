@@ -1,7 +1,8 @@
 import {
     HttpError,
     CreateListingRequestBody,
-    AuthenticatedBody
+    AuthenticatedBody,
+    PlaceBidRequestBody
 } from '@phyt/types';
 import express, { Router, Request, Response } from 'express';
 
@@ -73,12 +74,12 @@ router.post(
             req.body;
         const listing = await marketplaceService.createListing({
             card_id,
-            sellerId: user.id,
+            seller_id: user.id,
             price,
             signature,
-            order_hash,
             order_data,
-            expirationTime: order_data.expiration_time
+            order_hash,
+            expiration_time: String(order_data.expiration_time)
         });
         res.status(201).json(listing);
     }
@@ -86,28 +87,30 @@ router.post(
 
 // Place a bid on a listing
 router.post(
-    '/bids',
+    '/bid',
     validateAuth,
     validateSchema(bidSchema),
-    async (req, res) => {
-        try {
-            const { listingId, price, signature, orderHash, orderData, user } =
-                req.body;
+    async (
+        req: Request<
+            Record<string, never>,
+            unknown,
+            PlaceBidRequestBody & AuthenticatedBody
+        >,
+        res: Response
+    ) => {
+        const { listing_id, price, signature, order_hash, order_data, user } =
+            req.body;
 
-            const bid = await marketplaceService.createBid({
-                listingId,
-                bidderId: user.id,
-                price,
-                signature,
-                orderHash,
-                orderData
-            });
+        const bid = await marketplaceService.createBid({
+            listing_id,
+            bidder_id: user.id,
+            price,
+            signature,
+            order_hash,
+            order_data
+        });
 
-            return res.status(201).json(bid);
-        } catch (error) {
-            console.error('Failed to place bid:', error);
-            return res.status(500).json({ error: 'Failed to place bid' });
-        }
+        res.status(201).json(bid);
     }
 );
 
@@ -117,32 +120,27 @@ router.post(
     validateAuth,
     validateSchema(openBidSchema),
     async (req, res) => {
-        try {
-            const {
-                cardId,
-                price,
-                signature,
-                orderHash,
-                orderData,
-                expirationTime,
-                user
-            } = req.body;
+        const {
+            cardId,
+            price,
+            signature,
+            orderHash,
+            orderData,
+            expirationTime,
+            user
+        } = req.body;
 
-            const bid = await marketplaceService.createOpenBid({
-                cardId,
-                bidderId: user.id,
-                price,
-                signature,
-                orderHash,
-                orderData,
-                expirationTime: new Date(expirationTime)
-            });
+        const bid = await marketplaceService.createOpenBid({
+            cardId,
+            bidderId: user.id,
+            price,
+            signature,
+            orderHash,
+            orderData,
+            expirationTime: new Date(expirationTime)
+        });
 
-            return res.status(201).json(bid);
-        } catch (error) {
-            console.error('Failed to place open bid:', error);
-            return res.status(500).json({ error: 'Failed to place open bid' });
-        }
+        res.status(201).json(bid);
     }
 );
 
@@ -154,37 +152,27 @@ router.get('/cards/:cardId/open-bids', async (req, res) => {
     }
 
     const bids = await marketplaceService.getOpenBidsForCard(parseInt(cardId));
-    return res.status(200).json(bids);
+    res.status(200).json(bids);
 });
 
 // Get user's bids (both regular and open)
 router.get('/users/:userId/bids', validateAuth, async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const bids = await marketplaceService.getAllUserBids(parseInt(userId));
-        return res.status(200).json(bids);
-    } catch (error) {
-        console.error('Failed to fetch user bids:', error);
-        return res.status(500).json({ error: 'Failed to fetch user bids' });
-    }
+    const { userId } = req.params;
+    const bids = await marketplaceService.getAllUserBids(parseInt(userId));
+    res.status(200).json(bids);
 });
 
 // Accept an open bid
 router.post('/open-bids/:bidId/accept', validateAuth, async (req, res) => {
-    try {
-        const { bidId } = req.params;
-        const { transactionHash } = req.body;
+    const { bidId } = req.params;
+    const { transactionHash } = req.body;
 
-        const result = await marketplaceService.acceptOpenBid({
-            bidId: parseInt(bidId),
-            transactionHash
-        });
+    const result = await marketplaceService.acceptOpenBid({
+        bidId: parseInt(bidId),
+        transactionHash
+    });
 
-        return res.status(200).json(result);
-    } catch (error) {
-        console.error('Failed to accept open bid:', error);
-        return res.status(500).json({ error: 'Failed to accept open bid' });
-    }
+    res.status(200).json(result);
 });
 
 export { router as marketplaceRouter };
