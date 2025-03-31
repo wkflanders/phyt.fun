@@ -5,27 +5,33 @@ import {
     gt,
     lt,
     competitions,
-    runners,
     users,
     lineups,
     lineup_cards,
     cards
 } from '@phyt/database';
-import { NotFoundError, DatabaseError } from '@phyt/types';
+import {
+    NotFoundError,
+    Competition,
+    HttpError,
+    LineupSubmissionResponse
+} from '@phyt/types';
 
 interface GetCompetitionsOptions {
     active?: boolean;
     type?: string;
 }
-export const competitionService = {
-    getCompetitions: async (options: GetCompetitionsOptions = {}) => {
-        try {
-            let query = db.select().from(competitions);
 
-            // Filter for active competitions
+export const competitionService = {
+    getCompetitions: async (
+        options: GetCompetitionsOptions = {}
+    ): Promise<Competition[]> => {
+        try {
+            const now = new Date();
+            const conditions = [];
+
             if (options.active) {
-                const now = new Date();
-                query = query.where(
+                conditions.push(
                     and(
                         lt(competitions.start_time, now),
                         gt(competitions.end_time, now)
@@ -33,35 +39,66 @@ export const competitionService = {
                 );
             }
 
-            // Filter by event type (e.g., "major")
             if (options.type) {
-                query = query.where(eq(competitions.event_type, options.type));
+                conditions.push(eq(competitions.event_type, options.type));
             }
 
-            return await query.orderBy(competitions.start_time);
+            let results;
+            if (conditions.length > 0) {
+                results = await db
+                    .select()
+                    .from(competitions)
+                    .where(and(...conditions))
+                    .orderBy(competitions.start_time);
+            } else {
+                results = await db
+                    .select()
+                    .from(competitions)
+                    .orderBy(competitions.start_time);
+            }
+
+            return results.map((result) => ({
+                ...result,
+                start_time: new Date(result.start_time).toISOString(),
+                end_time: new Date(result.end_time).toISOString(),
+                updated_at: new Date(result.updated_at),
+                created_at: new Date(result.created_at),
+                jackpot: result.jackpot !== null ? Number(result.jackpot) : 0
+            }));
         } catch (error) {
-            console.error('Error getting competitions:', error);
-            throw new DatabaseError('Failed to get competitions');
+            console.error('Error with getCompetitions ', error);
+            throw new HttpError('Failed to get competitions');
         }
     },
 
-    getCompetitionById: async (competitionId: number) => {
+    getCompetitionById: async (competitionId: number): Promise<Competition> => {
         try {
-            const [competition] = await db
+            const competitionResults = await db
                 .select()
                 .from(competitions)
                 .where(eq(competitions.id, competitionId))
                 .limit(1);
 
-            if (!competition) {
+            if (competitionResults.length === 0) {
                 throw new NotFoundError('Competition not found');
             }
 
-            return competition;
+            const competition = competitionResults[0];
+
+            return {
+                ...competition,
+                start_time: new Date(competition.start_time).toISOString(),
+                end_time: new Date(competition.end_time).toISOString(),
+                updated_at: new Date(competition.updated_at),
+                created_at: new Date(competition.created_at),
+                jackpot:
+                    competition.jackpot !== null
+                        ? Number(competition.jackpot)
+                        : 0
+            };
         } catch (error) {
-            console.error('Error getting competition by ID:', error);
-            if (error instanceof NotFoundError) throw error;
-            throw new DatabaseError('Failed to get competition');
+            console.error('Error with getCompetitionById ', error);
+            throw new HttpError('Failed to get competition');
         }
     },
 
@@ -69,28 +106,28 @@ export const competitionService = {
         competitionId: number,
         userId: number,
         cardIds: number[]
-    ) => {
+    ): Promise<LineupSubmissionResponse> => {
         try {
             return await db.transaction(async (tx) => {
                 // Ensure competition exists
-                const [competition] = await tx
+                const compeitionResults = await tx
                     .select()
                     .from(competitions)
                     .where(eq(competitions.id, competitionId))
                     .limit(1);
 
-                if (!competition) {
+                if (compeitionResults.length === 0) {
                     throw new NotFoundError('Competition not found');
                 }
 
                 // Ensure user exists
-                const [user] = await tx
+                const userResults = await tx
                     .select()
                     .from(users)
                     .where(eq(users.id, userId))
                     .limit(1);
 
-                if (!user) {
+                if (userResults.length === 0) {
                     throw new NotFoundError('User not found');
                 }
 
@@ -133,7 +170,7 @@ export const competitionService = {
                     const cardId = cardIds[i];
 
                     // Check card ownership
-                    const [card] = await tx
+                    const cardResults = await tx
                         .select()
                         .from(cards)
                         .where(
@@ -144,9 +181,9 @@ export const competitionService = {
                         )
                         .limit(1);
 
-                    if (!card) {
-                        throw new Error(
-                            `Card ${cardId} not owned by user or does not exist`
+                    if (cardResults.length === 0) {
+                        throw new NotFoundError(
+                            `Card ${String(cardId)} not owned by user or does not exist`
                         );
                     }
 
@@ -165,9 +202,8 @@ export const competitionService = {
                 };
             });
         } catch (error) {
-            console.error('Error submitting lineup:', error);
-            if (error instanceof NotFoundError) throw error;
-            throw new DatabaseError('Failed to submit lineup');
+            console.error('Error with submitLineup ', error);
+            throw new HttpError('Failed to submit lineup');
         }
     }
 };
