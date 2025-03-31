@@ -4,6 +4,7 @@
         "outDir": "dist",
         "baseUrl": ".",
         "typeRoots": ["./src/types", "./node_modules/@types"],
+        "noErrorTruncation": true,
         "paths": {
             "@/*": ["./src/*"]
         }
