@@ -1,4 +1,9 @@
-import { HttpError, CompetitionLineupRequestBody } from '@phyt/types';
+import {
+    HttpError,
+    CompetitionLineupRequestBody,
+    LineupSubmissionResponse,
+    Competition
+} from '@phyt/types';
 import express, { Router, Request, Response } from 'express';
 
 import { validateAuth } from '@/middleware/auth';
@@ -9,28 +14,45 @@ const router: Router = express.Router();
 router.use(validateAuth);
 
 // Get all competitions
-router.get('/', async (req: Request, res: Response) => {
-    const { active, type } = req.query;
+router.get(
+    '/',
+    async (
+        req: Request<
+            Record<string, never>,
+            Competition[],
+            Record<string, never>,
+            { active: boolean; type: string }
+        >,
+        res: Response<Competition[]>
+    ) => {
+        const { active, type } = req.query;
 
-    const competitions = await competitionService.getCompetitions({
-        active: active === 'true',
-        type: type as string
-    });
+        const competitions = await competitionService.getCompetitions({
+            active,
+            type
+        });
 
-    res.status(200).json(competitions);
-});
+        res.status(200).json(competitions);
+    }
+);
 
 // Get a specific competition by ID
-router.get('/:id', async (req: Request, res: Response) => {
-    const competitionId = parseInt(req.params.id);
-    if (isNaN(competitionId)) {
-        throw new HttpError('Invalid competition ID', 400);
-    }
+router.get(
+    '/:id',
+    async (
+        req: Request<Record<string, never>, Competition, { id: string }>,
+        res: Response<Competition>
+    ) => {
+        const competitionId = parseInt(req.params.id);
+        if (isNaN(competitionId)) {
+            throw new HttpError('Invalid competition ID', 400);
+        }
 
-    const competition =
-        await competitionService.getCompetitionById(competitionId);
-    res.status(200).json(competition);
-});
+        const competition =
+            await competitionService.getCompetitionById(competitionId);
+        res.status(200).json(competition);
+    }
+);
 
 // Submit a lineup for a competition (for gamblers)
 router.post(
@@ -38,10 +60,10 @@ router.post(
     async (
         req: Request<
             { id: string },
-            Record<string, unknown>,
+            LineupSubmissionResponse,
             CompetitionLineupRequestBody
         >,
-        res: Response
+        res: Response<LineupSubmissionResponse>
     ) => {
         const competitionId = parseInt(req.params.id);
         const { userId, cardIds } = req.body;
