@@ -156,13 +156,14 @@ export const runners = pgTable(
             .references(() => users.id, { onDelete: 'restrict' }),
         average_pace: doublePrecision('average_pace'),
         total_distance_m: doublePrecision('total_distance_m').default(0),
-        total_runs: integer('total_runs').default(0),
+        total_runs: integer('total_runs').default(0).notNull(),
         best_mile_time: doublePrecision('best_mile_time'),
         status: enum_runner_status('status').default('pending').notNull(),
         is_pooled: boolean('is_pooled').default(false).notNull(),
         runner_wallet: varchar('runner_wallet')
             .references(() => users.wallet_address)
-            .unique(),
+            .unique()
+            .notNull(),
         updated_at: timestamp('updated_at', { precision: 3 })
             .defaultNow()
             .notNull(),
@@ -199,7 +200,9 @@ export const runs = pgTable(
         is_posted: boolean('is_posted').default(false),
         verification_status: enum_runs_verification_status(
             'verification_status'
-        ).default('pending'),
+        )
+            .default('pending')
+            .notNull(),
         raw_data_json: jsonb('raw_data_json'),
         updated_at: timestamp('updated_at', { precision: 3 })
             .defaultNow()

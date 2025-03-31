@@ -145,6 +145,11 @@ export interface Run {
     raw_data_json: Record<string, unknown> | null;
 }
 
+export interface PendingRun {
+    run: Run;
+    runner: string;
+}
+
 export type SeasonCollection = 'season_0';
 
 export interface TokenURIMetadata {
@@ -224,14 +229,14 @@ export interface Runner {
     id: number;
     user_id: number;
     average_pace: number | null;
-    total_distance_m: number;
+    total_distance_m: number | null;
     total_runs: number;
     best_mile_time: number | null;
     status: RunnerStatus;
     is_pooled: boolean;
     runner_wallet: string;
-    created_at: Date;
-    updated_at: Date;
+    created_at?: Date;
+    updated_at?: Date;
 }
 
 export interface RunnerProfile extends Runner {
@@ -248,18 +253,6 @@ export interface PendingRunner {
     privy_id: string;
     wallet_address?: string;
     avatar_url?: string;
-}
-
-export interface PendingRun {
-    run: {
-        id: number;
-        runner_id: number;
-        distance_m: number;
-        duration_seconds: number;
-        created_at: Date;
-        verification_status: 'pending' | 'verified' | 'flagged';
-    };
-    runner_name: string;
 }
 
 export interface RunnerResult {
