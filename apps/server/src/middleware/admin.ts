@@ -1,5 +1,5 @@
-import { HttpError, AuthenticatedRequest } from '@phyt/types';
-import { Response, NextFunction } from 'express';
+import { HttpError } from '@phyt/types';
+import { Request, Response, NextFunction } from 'express';
 
 import { userService } from '@/services/userServices';
 
@@ -8,23 +8,26 @@ import { validateAuth } from './auth';
 export const validateAdmin = [
     validateAuth,
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const privyId = req.body.auth.privy_id;
+            if (!req.auth) {
+                throw new HttpError('Authentication data missing', 401);
+            }
 
-            if (!privyId) {
+            if (!req.auth.privy_id) {
                 throw new HttpError('User ID not provided', 401);
             }
 
-            const user = await userService.getUserByPrivyId(privyId);
+            const user = await userService.getUserByPrivyId(req.auth.privy_id);
 
             if (user.role !== 'admin') {
-                throw new HttpError('Unauthorized', 404);
+                throw new HttpError('Unauthorized', 403);
             }
 
             next();
         } catch (error) {
-            next(error);
+            console.error('Unauthorized access restricted ', error);
+            throw new HttpError('Unauthorized', 403);
         }
     }
 ];
