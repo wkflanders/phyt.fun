@@ -1,21 +1,24 @@
 import { randomInt } from 'node:crypto';
 
-import { db, eq, runners, card_metadata, users } from '@phyt/database';
+import { db, eq, runners, users } from '@phyt/database';
 import {
     CardRarity,
     RarityWeights,
     RarityMultipliers,
     TokenURIMetadata,
-    SeasonCollection
+    Runner,
+    HttpError,
+    NotFoundError,
+    DatabaseError
 } from '@phyt/types';
 
-import { s3Service } from '../lib/awsClient';
+import { s3Service } from '@/lib/awsClient';
 
 export const metadataService = {
     generateRarity: (): CardRarity => {
         const weights = Object.entries(RarityWeights);
         const totalWeight = weights.reduce(
-            (sum, [_, weight]) => sum + weight,
+            (sum, [, weight]) => sum + weight,
             0
         );
 
@@ -32,15 +35,20 @@ export const metadataService = {
 
         return 'silver'; // Fallback, should never reach here due to cumulative weights
     },
-    selectRandomRunner: async () => {
-        const allRunners = await db.select().from(runners).execute();
+    selectRandomRunner: async (): Promise<Runner> => {
+        try {
+            const allRunners = await db.select().from(runners).execute();
 
-        if (allRunners.length === 0) {
-            throw new Error('No runners available');
+            if (allRunners.length === 0) {
+                throw new NotFoundError('No runners found');
+            }
+
+            const randomIndex = randomInt(allRunners.length);
+            return allRunners[randomIndex];
+        } catch (err: unknown) {
+            console.error('Error with selectRandomRunner', err);
+            throw new HttpError('Error with selecting a random runner');
         }
-
-        const randomIndex = randomInt(allRunners.length);
-        return allRunners[randomIndex];
     },
 
     getMultiplier: (rarity: CardRarity): number => {
@@ -48,15 +56,20 @@ export const metadataService = {
     },
 
     getRunnerName: async (runnerUserId: number): Promise<string> => {
-        const user = await db
-            .select({
-                username: users.username
-            })
-            .from(users)
-            .where(eq(users.id, runnerUserId))
-            .execute();
+        try {
+            const user = await db
+                .select({
+                    username: users.username
+                })
+                .from(users)
+                .where(eq(users.id, runnerUserId))
+                .execute();
 
-        return user[0].username;
+            return user[0].username;
+        } catch (err: unknown) {
+            console.error('Error with getRunnerName ', err);
+            throw new DatabaseError('Failed to fetch runner name');
+        }
     },
 
     generateMetadata: async (tokenId: number): Promise<TokenURIMetadata> => {
@@ -67,7 +80,7 @@ export const metadataService = {
         const runnerName = await metadataService.getRunnerName(runner.id);
 
         const metadata = {
-            name: `Phyt #${tokenId}`,
+            name: `Phyt #${String(tokenId)}`,
             description: `Phyt Season 0 ${rarity} card featuring runner ${runnerName}`,
             image: imageUrl,
             attributes: [
@@ -81,9 +94,14 @@ export const metadataService = {
             ]
         };
 
-        await s3Service.uploadMetadata(tokenId, metadata);
+        try {
+            await s3Service.uploadMetadata(tokenId, metadata);
 
-        return metadata;
+            return metadata;
+        } catch (err: unknown) {
+            console.error('Error with generateMetadata ', err);
+            throw new HttpError('Failed to generate metadata');
+        }
     },
 
     generateMetadataWithRarity: async (
@@ -96,7 +114,7 @@ export const metadataService = {
         const runnerName = await metadataService.getRunnerName(runner.id);
 
         const metadata = {
-            name: `Phyt #${tokenId}`,
+            name: `Phyt #${String(tokenId)}`,
             description: `Season 0 ${rarity} card featuring runner ${runnerName}`,
             image: imageUrl,
             attributes: [
@@ -109,31 +127,40 @@ export const metadataService = {
                 }
             ]
         };
+        try {
+            await s3Service.uploadMetadata(tokenId, metadata);
 
-        await s3Service.uploadMetadata(tokenId, metadata);
-
-        return metadata;
+            return metadata;
+        } catch (err: unknown) {
+            console.error('Error with generateMetadataWithRarity ', err);
+            throw new HttpError('Failed to generate metadata with rarity');
+        }
     },
 
-    getMetadata: async (tokenId: number) => {
+    getMetadata: async (tokenId: number): Promise<TokenURIMetadata> => {
         try {
             return await s3Service.getMetadata(tokenId);
-        } catch (error) {
-            console.error(
-                `Failed to get metadata for token ${tokenId}:`,
-                error
-            );
-            throw error;
+        } catch (err: unknown) {
+            console.error('Error with getMetadata', err);
+            throw new HttpError('Failed to get metadata for token');
         }
     },
 
-    generatePackMetadata: async (startTokenId: number, count: number) => {
-        const metadataPromises = [];
-        for (let i = 0; i < count; i++) {
-            metadataPromises.push(
-                metadataService.generateMetadata(startTokenId + i)
-            );
+    generatePackMetadata: async (
+        startTokenId: number,
+        count: number
+    ): Promise<TokenURIMetadata[]> => {
+        try {
+            const metadataPromises = [];
+            for (let i = 0; i < count; i++) {
+                metadataPromises.push(
+                    metadataService.generateMetadata(startTokenId + i)
+                );
+            }
+            return await Promise.all(metadataPromises);
+        } catch (err: unknown) {
+            console.error('Error with generatePackMetadata', err);
+            throw new HttpError('Error with generating pack metadata');
         }
-        return Promise.all(metadataPromises);
     }
 };
