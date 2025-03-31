@@ -5,12 +5,7 @@ import { keccak256 } from 'viem';
 
 export async function getWhitelistedWallets(): Promise<string[]> {
     const userRecords = await (db.select().from(users) as Promise<User[]>);
-    return userRecords
-        .filter(
-            (u): u is User & { wallet_address: string } =>
-                u.wallet_address != null
-        )
-        .map((u) => u.wallet_address.toLowerCase());
+    return userRecords.map((u) => u.wallet_address.toLowerCase());
 }
 
 export async function generateMerkleTree(): Promise<MerkleTree> {
