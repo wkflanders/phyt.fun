@@ -507,7 +507,7 @@ export const bids = pgTable(
         expiration_time: timestamp('expiration_time', {
             precision: 3
         }).notNull(),
-        accepted_at: timestamp('accepted_at', { precision: 3 }).notNull(),
+        accepted_at: timestamp('accepted_at', { precision: 3 }),
         updated_at: timestamp('updated_at', { precision: 3 })
             .defaultNow()
             .notNull(),
