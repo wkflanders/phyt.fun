@@ -48,7 +48,7 @@ router.get('/post/:postId', async (req: Request, res: Response) => {
     const result = await commentService.getPostComments(postId, {
         page: parseInt(page as string),
         limit: parseInt(limit as string),
-        parentOnly: parentOnly === 'true'
+        parent_only: parentOnly === 'true'
     });
 
     res.status(200).json(result);
@@ -93,10 +93,10 @@ router.post(
         const { post_id, content, parent_comment_id, user_id } = req.body;
 
         const comment = await commentService.createComment({
-            postId: post_id,
-            userId: user_id,
+            post_id: post_id,
+            user_id: user_id,
             content,
-            parentCommentId: parent_comment_id
+            parent_comment_id: parent_comment_id
         });
 
         res.status(201).json(comment);
