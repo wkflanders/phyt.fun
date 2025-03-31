@@ -1,6 +1,5 @@
 import { MinterAbi } from '@phyt/contracts';
 import {
-    withTransaction,
     db,
     pack_purchases,
     cards,
@@ -10,16 +9,16 @@ import {
 import {
     MintEvent,
     PackPurchaseNotif,
-    PackPurchaseResponse,
-    TokenURIMetadata,
     PackTypes,
-    CardRarity
+    CardRarity,
+    TokenURIMetadata
 } from '@phyt/types';
-import { decodeEventLog, parseEther, formatEther } from 'viem';
+import { decodeEventLog, parseEther, formatEther, Abi } from 'viem';
+
+import { getMerkleRoot, getMerkleProofForWallet } from '@/lib/merkleWhitelist';
+import { walletClient, publicClient, account } from '@/lib/viemClient';
 
 import { metadataService } from './metadataServices';
-import { getMerkleRoot, getMerkleProofForWallet } from '../lib/merkleWhitelist';
-import { walletClient, publicClient, account } from '../lib/viemClient';
 
 if (!process.env.MINTER_ADDRESS || !process.env.PHYT_CARDS_ADDRESS) {
     throw new Error('Missing contract addresses in environment variables');
@@ -28,8 +27,18 @@ if (!process.env.MINTER_ADDRESS || !process.env.PHYT_CARDS_ADDRESS) {
 const MINTER = process.env.MINTER_ADDRESS as `0x${string}`;
 const PHYT_CARDS = process.env.PHYT_CARDS_ADDRESS as `0x${string}`;
 
+// Define a custom type guard that checks if a decoded log is a MintEvent.
+function isMintEvent(event: unknown): event is MintEvent {
+    return (
+        event !== null &&
+        typeof event === 'object' &&
+        'eventName' in event &&
+        (event as { eventName: string }).eventName === 'Mint'
+    );
+}
+
 export const packService = {
-    createMintConfig: async (packType = 'scrawny') => {
+    createMintConfig: async (packType = 'scrawny'): Promise<bigint> => {
         try {
             console.log('Creating mint config with account:', account.address);
             console.log('PHYT_CARDS address:', PHYT_CARDS);
@@ -49,13 +58,13 @@ export const packService = {
             console.log('Computed merkle root:', computedMerkleRoot);
 
             const packConfig =
-                PackTypes.find((p) => p.id === packType) || PackTypes[0];
+                PackTypes.find((p) => p.id === packType) ?? PackTypes[0];
             const cardCount = packConfig.cardCount || 1;
             const price = parseEther(packConfig.price);
 
-            const { request } = await publicClient.simulateContract({
+            const simulation = await publicClient.simulateContract({
                 address: MINTER,
-                abi: MinterAbi,
+                abi: MinterAbi as Abi,
                 functionName: 'newMintConfig',
                 args: [
                     PHYT_CARDS,
@@ -73,7 +82,7 @@ export const packService = {
 
             console.log('Contract simulation successful');
 
-            const hash = await walletClient.writeContract(request);
+            const hash = await walletClient.writeContract(simulation.request);
             console.log('Transaction hash:', hash);
 
             const receipt = await publicClient.waitForTransactionReceipt({
@@ -83,11 +92,11 @@ export const packService = {
 
             if (receipt.status === 'reverted') {
                 // Try to decode error if possible
-                if (receipt.logs && receipt.logs.length > 0) {
+                if (receipt.logs.length > 0) {
                     try {
                         const decodedLogs = receipt.logs.map((log) =>
                             decodeEventLog({
-                                abi: MinterAbi,
+                                abi: MinterAbi as Abi,
                                 data: log.data,
                                 topics: log.topics
                             })
@@ -102,11 +111,11 @@ export const packService = {
                 );
             }
 
-            const totalConfigs = await publicClient.readContract({
+            const totalConfigs = (await publicClient.readContract({
                 address: MINTER,
-                abi: MinterAbi,
+                abi: MinterAbi as Abi,
                 functionName: 'mintConfigIdCounter'
-            });
+            })) as bigint;
 
             const configId = totalConfigs - 1n;
             console.log('New mint config ID:', configId);
@@ -120,21 +129,15 @@ export const packService = {
         return getMerkleProofForWallet(wallet);
     },
 
-    getPackPrice: async (mintConfigId: bigint, packType = 'scrawny') => {
+    getPackPrice: (packType = 'scrawny'): bigint => {
         const packConfig =
-            PackTypes.find((p) => p.id === packType) || PackTypes[0];
+            PackTypes.find((p) => p.id === packType) ?? PackTypes[0];
         return parseEther(packConfig.price);
-    },
-
-    generateCardRarity: (packType = 'scrawny'): CardRarity => {
-        // The existing generateRarity function in metadataService uses the RarityWeights defined in types
-        // We can use that directly as it already has the rarity distribution we want
-        return metadataService.generateRarity();
     },
 
     generateCardRarities: (packType = 'scrawny'): CardRarity[] => {
         const packConfig =
-            PackTypes.find((p) => p.id === packType) || PackTypes[0];
+            PackTypes.find((p) => p.id === packType) ?? PackTypes[0];
         const cardCount = packConfig.cardCount || 1;
         const rarities: CardRarity[] = [];
 
@@ -159,7 +162,7 @@ export const packService = {
 
         const remainingSlots = cardCount - rarities.length;
         for (let i = 0; i < remainingSlots; i++) {
-            rarities.push(packService.generateCardRarity(packType));
+            rarities.push(metadataService.generateRarity());
         }
 
         return packService.shuffleArray(rarities);
@@ -174,7 +177,9 @@ export const packService = {
         return newArray;
     },
 
-    purchasePack: async (data: PackPurchaseNotif & { packType?: string }) => {
+    purchasePack: async (
+        data: PackPurchaseNotif & { packType?: string }
+    ): Promise<TokenURIMetadata[]> => {
         const { buyerId, hash, packPrice, packType = 'scrawny' } = data;
 
         console.log(packType);
@@ -189,18 +194,19 @@ export const packService = {
             const mintEvents = receipt.logs
                 .map((log) => {
                     try {
-                        return decodeEventLog({
-                            abi: MinterAbi,
+                        const decoded = decodeEventLog({
+                            abi: MinterAbi as Abi,
                             data: log.data,
                             topics: log.topics
                         });
+                        // First cast to unknown, then to MintEvent
+                        return decoded as unknown as MintEvent;
                     } catch {
                         return null;
                     }
                 })
-                .filter(
-                    (event): event is MintEvent => event?.eventName === 'Mint'
-                );
+                // Use the custom type guard instead of an inline type predicate.
+                .filter(isMintEvent);
 
             if (mintEvents.length === 0) {
                 throw new Error('No mint event found in transaction');
@@ -215,7 +221,7 @@ export const packService = {
                     .insert(pack_purchases)
                     .values({
                         buyer_id: buyerId,
-                        purchase_price: Number(formatEther(BigInt(packPrice))),
+                        purchase_price: formatEther(BigInt(packPrice)),
                         pack_type: packType
                     })
                     .returning();
@@ -261,13 +267,13 @@ export const packService = {
                         to_user_id: null,
                         card_id: card.id,
                         transaction_type: 'packPurchase',
-                        price: Number(formatEther(BigInt(packPrice))),
+                        price: formatEther(BigInt(packPrice)),
                         pack_purchases_id: packPurchase.id,
                         hash
                     });
                 }
                 console.log(cardsMetadata);
-                return { cardsMetadata };
+                return cardsMetadata;
             });
         } catch (error) {
             console.error('Pack purchase error:', error);
