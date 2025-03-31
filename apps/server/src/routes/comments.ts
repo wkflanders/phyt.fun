@@ -86,7 +86,6 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.post(
     '/',
     validateSchema(createCommentSchema),
-    verifyCommentOwner,
     async (
         req: Request<Record<string, never>, unknown, CreateCommentWithAuth>,
         res: Response
