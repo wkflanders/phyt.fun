@@ -1,1 +1,0 @@
-ALTER TABLE "runners" ADD CONSTRAINT "runners_runner_wallet_users_wallet_address_fk" FOREIGN KEY ("runner_wallet") REFERENCES "public"."users"("wallet_address") ON DELETE no action ON UPDATE no action;

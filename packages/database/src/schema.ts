@@ -47,6 +47,23 @@ export const enum_transactions_transaction_type = pgEnum(
         'rewardPayout'
     ]
 );
+
+export const enum_bid_type = pgEnum('enum_bid_type', ['listing', 'open']);
+
+export const enum_bid_status = pgEnum('enum_bid_status', [
+    'active',
+    'outbid',
+    'no_bid'
+]);
+
+export const enum_listing_status = pgEnum('enum_listing_status', [
+    'active',
+    'expiring',
+    'starting',
+    'expired',
+    'innactive'
+]);
+
 export const enum_users_role = pgEnum('enum_users_role', [
     'admin',
     'user',
@@ -465,12 +482,12 @@ export const bids = pgTable(
     'bids',
     {
         id: serial('id').primaryKey(),
-        listing_id: integer('listing_id').references(() => listings.id, {
-            onDelete: 'set null'
-        }), // Made optional
+        listing_id: integer('listing_id')
+            .notNull()
+            .references(() => listings.id, { onDelete: 'set null' }),
         card_id: integer('card_id')
             .notNull()
-            .references(() => cards.id, { onDelete: 'set null' }), // Added direct card reference
+            .references(() => cards.id, { onDelete: 'set null' }),
         bidder_id: integer('bidder_id')
             .notNull()
             .references(() => users.id, { onDelete: 'set null' }),
@@ -478,15 +495,19 @@ export const bids = pgTable(
             precision: ethValuePrecision,
             scale: 0
         }).notNull(),
+        bid_amount: decimal('bid_amount', {
+            precision: ethValuePrecision,
+            scale: 0
+        }).notNull(),
         signature: varchar('signature').notNull(),
         order_hash: varchar('order_hash').notNull().unique(),
         order_data: jsonb('order_data').notNull(),
-        bid_type: varchar('bid_type').notNull().default('listing'), // 'listing' or 'open'
-        status: varchar('status').notNull().default('active'),
+        bid_type: enum_bid_type('bid_type').default('listing'),
+        status: enum_bid_status('status').default('no_bid'),
         expiration_time: timestamp('expiration_time', {
             precision: 3
-        }).notNull(), // Added expiration for open bids
-        accepted_at: timestamp('accepted_at', { precision: 3 }),
+        }).notNull(),
+        accepted_at: timestamp('accepted_at', { precision: 3 }).notNull(),
         updated_at: timestamp('updated_at', { precision: 3 })
             .defaultNow()
             .notNull(),

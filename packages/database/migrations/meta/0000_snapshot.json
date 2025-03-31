@@ -1,6 +1,6 @@
 {
-  "id": "1791acf3-8307-446d-bbe8-a0f08a94027b",
-  "prevId": "9ee389c2-5f1e-41f3-8071-07270188bf6f",
+  "id": "ae98f213-af31-4f1d-8a7a-11f600646487",
+  "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -18,7 +18,7 @@
           "name": "listing_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "card_id": {
           "name": "card_id",
@@ -34,7 +34,13 @@
         },
         "price": {
           "name": "price",
-          "type": "varchar",
+          "type": "numeric(78, 0)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bid_amount": {
+          "name": "bid_amount",
+          "type": "numeric(78, 0)",
           "primaryKey": false,
           "notNull": true
         },
@@ -58,17 +64,19 @@
         },
         "bid_type": {
           "name": "bid_type",
-          "type": "varchar",
+          "type": "enum_bid_type",
+          "typeSchema": "public",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "'listing'"
         },
         "status": {
           "name": "status",
-          "type": "varchar",
+          "type": "enum_bid_status",
+          "typeSchema": "public",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'active'"
+          "notNull": false,
+          "default": "'no_bid'"
         },
         "expiration_time": {
           "name": "expiration_time",
@@ -80,7 +88,7 @@
           "name": "accepted_at",
           "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "updated_at": {
           "name": "updated_at",
@@ -758,10 +766,10 @@
         },
         "jackpot": {
           "name": "jackpot",
-          "type": "double precision",
+          "type": "numeric(78, 0)",
           "primaryKey": false,
           "notNull": false,
-          "default": 0
+          "default": "'0'"
         },
         "updated_at": {
           "name": "updated_at",
@@ -1216,11 +1224,11 @@
           "primaryKey": true,
           "notNull": true
         },
-        "card_id": {
-          "name": "card_id",
+        "buyer_id": {
+          "name": "buyer_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "seller_id": {
           "name": "seller_id",
@@ -1228,15 +1236,33 @@
           "primaryKey": false,
           "notNull": true
         },
-        "buyer_id": {
-          "name": "buyer_id",
+        "card_id": {
+          "name": "card_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "price": {
+          "name": "price",
+          "type": "numeric(78, 0)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "highest_bid": {
+          "name": "highest_bid",
+          "type": "numeric(78, 0)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "highest_bidder_id": {
+          "name": "highest_bidder_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
-        "price": {
-          "name": "price",
-          "type": "varchar",
+        "expiration_time": {
+          "name": "expiration_time",
+          "type": "timestamp (3)",
           "primaryKey": false,
           "notNull": true
         },
@@ -1258,9 +1284,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "expiration_time": {
-          "name": "expiration_time",
-          "type": "timestamp (3)",
+        "transaction_hash": {
+          "name": "transaction_hash",
+          "type": "varchar(66)",
           "primaryKey": false,
           "notNull": true
         },
@@ -1271,33 +1297,15 @@
           "notNull": true,
           "default": "'active'"
         },
-        "transaction_hash": {
-          "name": "transaction_hash",
-          "type": "varchar(66)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "highest_bid": {
-          "name": "highest_bid",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "highest_bidder_id": {
-          "name": "highest_bidder_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "updated_at": {
-          "name": "updated_at",
+        "created_at": {
+          "name": "created_at",
           "type": "timestamp (3)",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
-        "created_at": {
-          "name": "created_at",
+        "updated_at": {
+          "name": "updated_at",
           "type": "timestamp (3)",
           "primaryKey": false,
           "notNull": true,
@@ -1397,12 +1405,12 @@
         }
       },
       "foreignKeys": {
-        "listings_card_id_cards_id_fk": {
-          "name": "listings_card_id_cards_id_fk",
+        "listings_buyer_id_users_id_fk": {
+          "name": "listings_buyer_id_users_id_fk",
           "tableFrom": "listings",
-          "tableTo": "cards",
+          "tableTo": "users",
           "columnsFrom": [
-            "card_id"
+            "buyer_id"
           ],
           "columnsTo": [
             "id"
@@ -1423,12 +1431,12 @@
           "onDelete": "set null",
           "onUpdate": "no action"
         },
-        "listings_buyer_id_users_id_fk": {
-          "name": "listings_buyer_id_users_id_fk",
+        "listings_card_id_cards_id_fk": {
+          "name": "listings_card_id_cards_id_fk",
           "tableFrom": "listings",
-          "tableTo": "users",
+          "tableTo": "cards",
           "columnsFrom": [
-            "buyer_id"
+            "card_id"
           ],
           "columnsTo": [
             "id"
@@ -1689,7 +1697,7 @@
         },
         "purchase_price": {
           "name": "purchase_price",
-          "type": "double precision",
+          "type": "numeric(78, 0)",
           "primaryKey": false,
           "notNull": true
         },
@@ -3093,7 +3101,7 @@
         },
         "price": {
           "name": "price",
-          "type": "double precision",
+          "type": "numeric(78, 0)",
           "primaryKey": false,
           "notNull": false
         },
@@ -3488,13 +3496,13 @@
           "name": "privy_id",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "wallet_address": {
           "name": "wallet_address",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "twitter_handle": {
           "name": "twitter_handle",
@@ -3512,7 +3520,7 @@
           "name": "avatar_url",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut'"
         },
         "phytness_points": {
@@ -3624,6 +3632,23 @@
         "mint",
         "transfer",
         "marketplace"
+      ]
+    },
+    "public.enum_bid_status": {
+      "name": "enum_bid_status",
+      "schema": "public",
+      "values": [
+        "active",
+        "outbid",
+        "no_bid"
+      ]
+    },
+    "public.enum_bid_type": {
+      "name": "enum_bid_type",
+      "schema": "public",
+      "values": [
+        "listing",
+        "open"
       ]
     },
     "public.enum_cards_rarity": {

@@ -3,38 +3,10 @@
   "dialect": "postgresql",
   "entries": [
     {
-      "idx": 27,
+      "idx": 0,
       "version": "7",
-      "when": 1742981837858,
-      "tag": "0027_deep_mother_askani",
-      "breakpoints": true
-    },
-    {
-      "idx": 28,
-      "version": "7",
-      "when": 1743347054111,
-      "tag": "0028_aberrant_lizard",
-      "breakpoints": true
-    },
-    {
-      "idx": 29,
-      "version": "7",
-      "when": 1743359916822,
-      "tag": "0029_boring_princess_powerful",
-      "breakpoints": true
-    },
-    {
-      "idx": 30,
-      "version": "7",
-      "when": 1743361592898,
-      "tag": "0030_closed_longshot",
-      "breakpoints": true
-    },
-    {
-      "idx": 31,
-      "version": "7",
-      "when": 1743363324906,
-      "tag": "0031_closed_leech",
+      "when": 1743372693223,
+      "tag": "0000_worried_switch",
       "breakpoints": true
     }
   ]
