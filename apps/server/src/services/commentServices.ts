@@ -9,45 +9,47 @@ import {
     posts,
     users
 } from '@phyt/database';
-import { NotFoundError, DatabaseError, Comment } from '@phyt/types';
+import {
+    NotFoundError,
+    Comment,
+    CreateCommentRequest,
+    CommentQueryParams,
+    CommentResponse,
+    HttpError
+} from '@phyt/types';
 
 export const commentService = {
     createComment: async ({
-        postId,
-        userId,
+        user_id,
+        post_id,
         content,
-        parentCommentId
-    }: {
-        postId: number;
-        userId: number;
-        content: string;
-        parentCommentId?: number;
-    }) => {
+        parent_comment_id
+    }: CreateCommentRequest): Promise<Comment> => {
         try {
             // First, verify the post exists
             const post = await db
                 .select()
                 .from(posts)
-                .where(and(eq(posts.id, postId), eq(posts.status, 'visible')))
+                .where(and(eq(posts.id, post_id), eq(posts.status, 'visible')))
                 .limit(1);
 
             if (!post.length) {
                 throw new NotFoundError(
-                    `Post with ID ${postId} not found or is not visible`
+                    `Post with ID ${String(post_id)} not found or is not visible`
                 );
             }
 
             // If there's a parent comment, verify it exists
-            if (parentCommentId) {
+            if (parent_comment_id) {
                 const parentComment = await db
                     .select()
                     .from(comments)
-                    .where(eq(comments.id, parentCommentId))
+                    .where(eq(comments.id, parent_comment_id))
                     .limit(1);
 
                 if (!parentComment.length) {
                     throw new NotFoundError(
-                        `Parent comment with ID ${parentCommentId} not found`
+                        `Parent comment with ID ${String(parent_comment_id)} not found`
                     );
                 }
             }
@@ -56,45 +58,32 @@ export const commentService = {
             const [comment] = await db
                 .insert(comments)
                 .values({
-                    post_id: postId,
-                    user_id: userId,
+                    post_id: post_id,
+                    user_id: user_id,
                     content,
-                    parent_comment_id: parentCommentId ?? null
+                    parent_comment_id: parent_comment_id ?? null
                 })
                 .returning();
 
             return comment;
         } catch (error) {
-            console.error('Error creating comment:', error);
-            if (error instanceof NotFoundError) throw error;
-            throw new DatabaseError('Failed to create comment');
+            console.error('Error with createComment ', error);
+            throw new HttpError('Error with creating a new comment');
         }
     },
 
     getPostComments: async (
-        postId: number,
-        {
-            page = 1,
-            limit = 20,
-            parentOnly = false
-        }: {
-            page?: number;
-            limit?: number;
-            parentOnly?: boolean;
-        } = {}
-    ) => {
+        post_id: number,
+        { page = 1, limit = 20, parent_only = false }: CommentQueryParams
+    ): Promise<CommentResponse> => {
+        // updated return type
         try {
             const offset = (page - 1) * limit;
-
-            // Construct the base conditions for the where clause
-            const baseCondition = eq(comments.post_id, postId);
-
-            // Add parent-only filter if needed
-            const whereConditions = parentOnly
+            const baseCondition = eq(comments.post_id, post_id);
+            const whereConditions = parent_only
                 ? and(baseCondition, isNull(comments.parent_comment_id))
                 : baseCondition;
 
-            // Execute the query with pagination
             const results = await db
                 .select({
                     comment: comments,
@@ -110,7 +99,6 @@ export const commentService = {
                 .limit(limit)
                 .offset(offset);
 
-            // Get total count for pagination
             const countResults = await db
                 .select({ value: count() })
                 .from(comments)
@@ -128,21 +116,15 @@ export const commentService = {
                 }
             };
         } catch (error) {
-            console.error('Error getting post comments:', error);
-            throw new DatabaseError('Failed to get post comments');
+            console.error('Error with getPostComments ', error);
+            throw new HttpError('Failed to get post comments');
         }
     },
 
     getCommentReplies: async (
-        commentId: number,
-        {
-            page = 1,
-            limit = 20
-        }: {
-            page?: number;
-            limit?: number;
-        } = {}
-    ) => {
+        comment_id: number,
+        { page = 1, limit = 20 }: CommentQueryParams
+    ): Promise<CommentResponse> => {
         try {
             const offset = (page - 1) * limit;
 
@@ -156,7 +138,7 @@ export const commentService = {
                 })
                 .from(comments)
                 .innerJoin(users, eq(comments.user_id, users.id))
-                .where(eq(comments.parent_comment_id, commentId))
+                .where(eq(comments.parent_comment_id, comment_id))
                 .orderBy(desc(comments.created_at))
                 .limit(limit)
                 .offset(offset);
@@ -165,7 +147,7 @@ export const commentService = {
             const countResults = await db
                 .select({ value: count() })
                 .from(comments)
-                .where(eq(comments.parent_comment_id, commentId));
+                .where(eq(comments.parent_comment_id, comment_id));
 
             const total = Number(countResults[0]?.value || 0);
 
@@ -179,54 +161,50 @@ export const commentService = {
                 }
             };
         } catch (error) {
-            console.error('Error getting comment replies:', error);
-            throw new DatabaseError('Failed to get comment replies');
+            console.error('Error with getCommentReplies ', error);
+            throw new HttpError('Failed to get comment replies');
         }
     },
 
     updateComment: async (
-        commentId: number,
+        comment_id: number,
         { content }: { content: string }
-    ) => {
+    ): Promise<Comment> => {
         try {
-            const [comment] = await db
+            const commentResults = await db
                 .update(comments)
                 .set({ content, updated_at: new Date() })
-                .where(eq(comments.id, commentId))
+                .where(eq(comments.id, comment_id))
                 .returning();
 
-            if (!comment) {
+            if (commentResults.length === 0) {
                 throw new NotFoundError(
-                    `Comment with ID ${String(commentId)} not found`
+                    `Comment with ID ${String(comment_id)} not found`
                 );
             }
-
-            return comment;
+            return commentResults[0];
         } catch (error) {
-            console.error('Error updating comment:', error);
-            if (error instanceof NotFoundError) throw error;
-            throw new DatabaseError('Failed to update comment');
+            console.error('Error with updateComment ', error);
+            throw new HttpError('Failed to update comment');
         }
     },
 
-    deleteComment: async (commentId: number) => {
+    deleteComment: async (comment_id: number): Promise<Comment> => {
         try {
-            const [deletedComment] = await db
+            const deletedCommentResults = await db
                 .delete(comments)
-                .where(eq(comments.id, commentId))
+                .where(eq(comments.id, comment_id))
                 .returning();
 
-            if (!deletedComment) {
+            if (deletedCommentResults.length === 0) {
                 throw new NotFoundError(
-                    `Comment with ID ${commentId} not found`
+                    `Comment with ID ${String(comment_id)} not found`
                 );
             }
-
-            return deletedComment;
+            return deletedCommentResults[0];
         } catch (error) {
-            console.error('Error deleting comment:', error);
-            if (error instanceof NotFoundError) throw error;
-            throw new DatabaseError('Failed to delete comment');
+            console.error('Error with deleteComment ', error);
+            throw new HttpError('Failed to delete comment');
         }
     },
 
@@ -255,9 +233,8 @@ export const commentService = {
 
             return commentsResults[0];
         } catch (error) {
-            console.error('Error getting comment by ID:', error);
-            if (error instanceof NotFoundError) throw error;
-            throw new DatabaseError('Failed to get comment');
+            console.error('Error with getCommentById ', error);
+            throw new HttpError('Failed to get comment');
         }
     }
 };
