@@ -745,7 +745,7 @@ export interface CreateCommentWithAuth
 export interface CommentQueryParams {
     page?: number;
     limit?: number;
-    parentOnly?: boolean;
+    parent_only?: boolean;
 }
 
 export interface CommentPagination {
