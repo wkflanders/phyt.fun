@@ -1,26 +1,19 @@
 import {
     db,
     eq,
-    desc,
     and,
-    gt,
     runner_leaderboard,
     manager_leaderboard,
-    runners,
-    users,
     count,
     gte
 } from '@phyt/database';
 import {
-    DatabaseError,
     RunnerStanding,
-    RunnerProfile,
     ManagerStanding,
     RunnerLeaderboard,
     ManagerLeaderboard,
-    LeaderboardQueryParams,
-    User,
-    RunnerStatus
+    HttpError,
+    NotFoundError
 } from '@phyt/types';
 import { subDays } from 'date-fns';
 
@@ -64,11 +57,7 @@ export const leaderboardService = {
                 runner = await runnerService.getRunnerById(id as number);
             }
 
-            if (!runner) {
-                throw new Error('Runner not found');
-            }
-
-            const [leaderboardEntry] = await db
+            const leaderboardResults = await db
                 .select()
                 .from(runner_leaderboard)
                 .where(
@@ -79,22 +68,22 @@ export const leaderboardService = {
                 )
                 .limit(1);
 
-            if (!leaderboardEntry) {
-                throw new Error(
+            if (leaderboardResults.length === 0) {
+                throw new NotFoundError(
                     'Leaderboard entry not found for the given timeframe'
                 );
             }
 
             return {
                 id: runner.id,
-                runner: runner as RunnerProfile,
-                ranking: leaderboardEntry.ranking,
-                updated_at: runner.updated_at,
-                created_at: runner.created_at
+                runner: runner,
+                ranking: leaderboardResults[0].ranking,
+                updated_at: runner.updated_at ?? new Date(),
+                created_at: runner.created_at ?? new Date()
             };
         } catch (error) {
-            console.error('Error getting runner standing by id:', error);
-            throw error;
+            console.error('Error with getRunnerStanding ', error);
+            throw new HttpError('Error getting runner standings');
         }
     },
 
@@ -128,11 +117,7 @@ export const leaderboardService = {
                 user = await userService.getUserById(id as number);
             }
 
-            if (!user) {
-                throw new Error('User not found');
-            }
-
-            const [leaderboardEntry] = await db
+            const leaderboardResults = await db
                 .select()
                 .from(manager_leaderboard)
                 .where(
@@ -143,22 +128,22 @@ export const leaderboardService = {
                 )
                 .limit(1);
 
-            if (!leaderboardEntry) {
-                throw new Error(
+            if (leaderboardResults.length === 0) {
+                throw new NotFoundError(
                     'Leaderboard entry not found for the given timeframe'
                 );
             }
 
             return {
                 id: user.id,
-                user: user as User,
-                ranking: leaderboardEntry.ranking,
+                user: user,
+                ranking: leaderboardResults[0].ranking,
                 updated_at: user.updated_at,
                 created_at: user.created_at
             };
         } catch (error) {
-            console.error('Error getting manager standing by id:', error);
-            throw error;
+            console.error('Error with getManagerStanding ', error);
+            throw new HttpError('Error getting manager standings');
         }
     },
 
@@ -200,17 +185,13 @@ export const leaderboardService = {
                     const runner = await runnerService.getRunnerById(
                         entry.runner_id
                     );
-                    if (!runner) {
-                        throw new Error(
-                            `Runner with id ${entry.runner_id} not found`
-                        );
-                    }
+
                     return {
                         id: runner.id,
-                        runner: runner as RunnerProfile,
+                        runner: runner,
                         ranking: entry.ranking,
-                        updated_at: runner.updated_at,
-                        created_at: runner.created_at
+                        updated_at: runner.updated_at ?? new Date(),
+                        created_at: runner.created_at ?? new Date()
                     };
                 })
             );
@@ -232,8 +213,8 @@ export const leaderboardService = {
                 }
             };
         } catch (error) {
-            console.error('Error getting runner leaderboard:', error);
-            throw new DatabaseError('Failed to get runner leaderboard');
+            console.error('Error with getRunnerLeaderboard ', error);
+            throw new HttpError('Failed to get runner leaderboard');
         }
     },
 
@@ -273,14 +254,10 @@ export const leaderboardService = {
             const results = await Promise.all(
                 leaderboardEntries.map(async (entry) => {
                     const user = await userService.getUserById(entry.user_id);
-                    if (!user) {
-                        throw new Error(
-                            `User with id ${entry.user_id} not found`
-                        );
-                    }
+
                     return {
                         id: user.id,
-                        user: user as User,
+                        user: user,
                         ranking: entry.ranking,
                         updated_at: user.updated_at,
                         created_at: user.created_at
@@ -305,50 +282,50 @@ export const leaderboardService = {
                 }
             };
         } catch (error) {
-            console.error('Error getting manager leaderboard:', error);
-            throw new DatabaseError('Failed to get manager leaderboard');
-        }
-    },
-
-    updateLeaderboards: async () => {
-        try {
-            // await db.transaction(async (tx) => {
-            //     await tx.delete(runner_leaderboard);
-            //     const runnerRankings = await tx
-            //         .select({
-            //             id: runners.id,
-            //         })
-            //         .from(runners)
-            //         .where(eq(runners.status, 'active'))
-            //         .orderBy(desc(runners.total_distance_m));
-            //     // Insert new rankings
-            //     await Promise.all(runnerRankings.map((runner, index) =>
-            //         tx.insert(runner_leaderboard).values({
-            //             runner_id: runner.id,
-            //             ranking: index + 1
-            //         })
-            //     ));
-            // });
-            // await db.transaction(async (tx) => {
-            //     await tx.delete(manager_leaderboard);
-            //     const managerRankings = await tx
-            //         .select({
-            //             id: users.id,
-            //         })
-            //         .from(users)
-            //         .where(eq(users.role, 'user'))
-            //         .orderBy(desc(users.phytness_points));
-            //     await Promise.all(managerRankings.map((user, index) =>
-            //         tx.insert(manager_leaderboard).values({
-            //             user_id: user.id,
-            //             ranking: index + 1
-            //         })
-            //     ));
-            // });
-            // return { success: true };
-        } catch (error) {
-            console.error('Error updating leaderboards:', error);
-            throw new DatabaseError('Failed to update leaderboards');
+            console.error('Error with getManagerLeaderboard ', error);
+            throw new HttpError('Failed to get manager leaderboard');
         }
     }
+
+    // updateLeaderboards: async () => {
+    //     try {
+    // await db.transaction(async (tx) => {
+    //     await tx.delete(runner_leaderboard);
+    //     const runnerRankings = await tx
+    //         .select({
+    //             id: runners.id,
+    //         })
+    //         .from(runners)
+    //         .where(eq(runners.status, 'active'))
+    //         .orderBy(desc(runners.total_distance_m));
+    //     // Insert new rankings
+    //     await Promise.all(runnerRankings.map((runner, index) =>
+    //         tx.insert(runner_leaderboard).values({
+    //             runner_id: runner.id,
+    //             ranking: index + 1
+    //         })
+    //     ));
+    // });
+    // await db.transaction(async (tx) => {
+    //     await tx.delete(manager_leaderboard);
+    //     const managerRankings = await tx
+    //         .select({
+    //             id: users.id,
+    //         })
+    //         .from(users)
+    //         .where(eq(users.role, 'user'))
+    //         .orderBy(desc(users.phytness_points));
+    //     await Promise.all(managerRankings.map((user, index) =>
+    //         tx.insert(manager_leaderboard).values({
+    //             user_id: user.id,
+    //             ranking: index + 1
+    //         })
+    //     ));
+    // });
+    // return { success: true };
+    //     } catch (error) {
+    //         console.error('Error updating leaderboards:', error);
+    //         throw new DatabaseError('Failed to update leaderboards');
+    //     }
+    // }
 };
