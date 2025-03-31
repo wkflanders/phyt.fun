@@ -19,6 +19,9 @@ export type TransactionType =
     | 'rewardPayout';
 export type UserRole = 'admin' | 'user' | 'runner';
 export type BidType = 'listing' | 'open';
+export type BidStatusOpen = 'active' | 'filled';
+export type BidStatusListed = 'topbid' | 'outbid';
+export type BidStatus = BidStatusListed | BidStatusOpen | 'withdrawn';
 export type PackType = 'scrawny' | 'toned' | 'swole' | 'phyt';
 
 export const PackTypes = [
@@ -288,7 +291,7 @@ export interface Transaction {
     to_user_id: number | null;
     card_id: number | null;
     competition_id: number | null;
-    price: number | null;
+    price: string | null;
     transaction_type: TransactionType;
 }
 
@@ -344,7 +347,7 @@ export class DatabaseError extends Error {
     ) {
         super(message);
         this.name = 'DatabaseError';
-        this.statusCode = 500;
+        this.statusCode = 512;
     }
 }
 
@@ -376,13 +379,22 @@ export class ValidationError extends Error {
 }
 
 export class PackPurchaseError extends Error {
-    constructor(
-        message: string,
-        public code: string,
-        public details?: string
-    ) {
+    statusCode: number;
+
+    constructor(message: string, statusCode = 551) {
         super(message);
+        this.statusCode = statusCode;
         this.name = 'PackPurchaseError';
+    }
+}
+
+export class MarketplaceError extends Error {
+    statusCode: number;
+
+    constructor(message: string, statusCode = 571) {
+        super(message);
+        this.statusCode = statusCode;
+        this.name = 'MarketplaceError';
     }
 }
 
@@ -454,8 +466,8 @@ export interface Order {
     collection: `0x${string}`;
     token_id: bigint;
     payment_token: `0x${string}`;
-    price: bigint; // For sell orders: take price, For buy orders: bid price
-    expiration_time: bigint;
+    price: string; // For sell orders: take price, For buy orders: bid price
+    expiration_time: Date;
     merkle_root: `0x${string}`;
     salt: bigint;
 }
@@ -466,7 +478,7 @@ export interface Listing {
     seller_id: number;
     card_id: number;
     price: string; // Take price
-    highest_bid: bigint | null; // Current highest bid
+    highest_bid: string | null; // Current highest bid
     highest_bidder_id: number | null;
     expiration_time: Date;
     signature: string;
@@ -487,7 +499,7 @@ export interface CreateListingRequestBody {
     order_data: Order;
 }
 
-export interface CreateListing {
+export interface CreateListingProps {
     card_id: number;
     seller_id: number;
     price: string;
@@ -497,7 +509,7 @@ export interface CreateListing {
     expiration_time: string;
 }
 
-export interface ListingFilters {
+export interface GetListingProps {
     minPrice?: string;
     maxPrice?: string;
     rarity?: string[];
@@ -506,38 +518,96 @@ export interface ListingFilters {
 
 export interface Bid {
     id: number;
-    listing_id: number;
+    bidder_id: number;
     card_id: number;
-    bidder_id: number;
-    bid_amount: bigint;
+    bid_type: BidType;
+    bid_amount: string;
     signature: string;
     order_hash: string;
     order_data: Order;
-    bid_type: string;
-    status: BidType;
+    status: BidStatus;
     expiration_time: Date;
-    accepted_at: Date;
-    updated_at: Date;
-    created_at: Date;
+    accepted_at: Date | null;
+    updated_at?: Date;
+    created_at?: Date;
+    listing_id?: number | null;
 }
 
-export interface PlaceBid {
+export interface ListingBid extends Bid {
+    bid_type: 'listing';
+    bid_status: BidStatusListed | 'withdrawn';
     listing_id: number;
+}
+
+export interface OpenBid extends Bid {
+    bid_type: 'open';
+    bid_status: BidStatusOpen | 'withdrawn';
+}
+
+export interface BaseBidProps {
     bidder_id: number;
-    price: string;
-    bid_amount: bigint;
+    bid_amount: string;
     signature: string;
     order_hash: string;
     order_data: Order;
 }
 
-export interface PlaceBidRequestBody {
+export interface CreateListingBidProps extends BaseBidProps {
+    bid_type: 'listing';
     listing_id: number;
-    price: string;
+}
+
+export interface CreateOpenBidProps extends BaseBidProps {
+    bid_type: 'open';
+    card_id: number;
+    expiration_time: Date;
+}
+
+export interface ListedBidRequestBody {
+    listing_id: number;
+    bid_amount: string;
     signature: string;
     order_hash: string;
     order_data: Order;
     user: User;
+}
+
+export interface OpenBidRequestBody {
+    card_id: number;
+    bid_amount: string;
+    signature: string;
+    order_hash: string;
+    order_data: Order;
+    user: User;
+    expiration_time: Date;
+}
+
+export interface UserBids {
+    bid: Bid;
+    card: Card;
+    metadata: CardMetadata;
+    listing: {
+        id: number;
+        price: string;
+        expiration_time: Date;
+    } | null;
+    owner: {
+        id: number;
+        wallet_address: string;
+        username: string;
+        avatar_url: string;
+    };
+}
+
+export interface AcceptOpenBidProps {
+    bid_id: number;
+    transaction_hash: string;
+}
+
+export interface CompletePurchaseProps {
+    listing_id: number;
+    buyer_id: number;
+    transaction_hash: string;
 }
 
 export interface RunnerListing extends Listing {
@@ -564,7 +634,7 @@ export interface Offer {
     id: number;
     buyer_id: number;
     card_id: number;
-    price: number;
+    price: string;
     payment_token: string;
     expiration_time: Date;
     active: boolean;
@@ -769,7 +839,7 @@ export interface ExpirationOption {
     label: string;
 }
 
-export interface OrderBookEntry {
-    price: number;
-    quantity: number;
+export interface OrderBook {
+    bid: Bid[];
+    bidder: User[];
 }

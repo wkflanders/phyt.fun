@@ -52,8 +52,10 @@ export const enum_bid_type = pgEnum('enum_bid_type', ['listing', 'open']);
 
 export const enum_bid_status = pgEnum('enum_bid_status', [
     'active',
+    'filled',
+    'topbid',
     'outbid',
-    'no_bid'
+    'withdrawn'
 ]);
 
 export const enum_listing_status = pgEnum('enum_listing_status', [
@@ -61,7 +63,8 @@ export const enum_listing_status = pgEnum('enum_listing_status', [
     'expiring',
     'starting',
     'expired',
-    'innactive'
+    'inactive',
+    'fulfilled'
 ]);
 
 export const enum_users_role = pgEnum('enum_users_role', [
@@ -460,7 +463,7 @@ export const listings = pgTable(
         order_hash: varchar('order_hash').notNull().unique(),
         order_data: jsonb('order_data').notNull(),
         transaction_hash: varchar('transaction_hash', { length: 66 }).notNull(),
-        status: varchar('status').notNull().default('active'),
+        status: enum_listing_status('status').notNull().default('active'),
         created_at: timestamp('created_at', { precision: 3 })
             .defaultNow()
             .notNull(),
@@ -482,9 +485,9 @@ export const bids = pgTable(
     'bids',
     {
         id: serial('id').primaryKey(),
-        listing_id: integer('listing_id')
-            .notNull()
-            .references(() => listings.id, { onDelete: 'set null' }),
+        listing_id: integer('listing_id').references(() => listings.id, {
+            onDelete: 'set null'
+        }),
         card_id: integer('card_id')
             .notNull()
             .references(() => cards.id, { onDelete: 'set null' }),
@@ -502,8 +505,8 @@ export const bids = pgTable(
         signature: varchar('signature').notNull(),
         order_hash: varchar('order_hash').notNull().unique(),
         order_data: jsonb('order_data').notNull(),
-        bid_type: enum_bid_type('bid_type').default('listing'),
-        status: enum_bid_status('status').default('no_bid'),
+        bid_type: enum_bid_type('bid_type').default('listing').notNull(),
+        status: enum_bid_status('status').default('active').notNull(),
         expiration_time: timestamp('expiration_time', {
             precision: 3
         }).notNull(),

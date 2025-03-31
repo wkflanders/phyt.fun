@@ -1,6 +1,6 @@
 {
-  "id": "a2a87dfd-3144-4332-bc3b-82604244781d",
-  "prevId": "ae98f213-af31-4f1d-8a7a-11f600646487",
+  "id": "cd83cb4f-dcb2-4173-b742-6d167ee297e7",
+  "prevId": "51698557-7925-42d7-9731-318badc04727",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -18,7 +18,7 @@
           "name": "listing_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "card_id": {
           "name": "card_id",
@@ -67,7 +67,7 @@
           "type": "enum_bid_type",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "'listing'"
         },
         "status": {
@@ -75,8 +75,8 @@
           "type": "enum_bid_status",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": false,
-          "default": "'no_bid'"
+          "notNull": true,
+          "default": "'active'"
         },
         "expiration_time": {
           "name": "expiration_time",
@@ -1292,7 +1292,8 @@
         },
         "status": {
           "name": "status",
-          "type": "varchar",
+          "type": "enum_listing_status",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
           "default": "'active'"
@@ -3639,8 +3640,10 @@
       "schema": "public",
       "values": [
         "active",
+        "filled",
+        "topbid",
         "outbid",
-        "no_bid"
+        "withdrawn"
       ]
     },
     "public.enum_bid_type": {
@@ -3671,7 +3674,8 @@
         "expiring",
         "starting",
         "expired",
-        "innactive"
+        "inactive",
+        "fulfilled"
       ]
     },
     "public.enum_pack_type": {

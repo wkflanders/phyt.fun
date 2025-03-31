@@ -1,5 +1,5 @@
 {
-  "id": "ae98f213-af31-4f1d-8a7a-11f600646487",
+  "id": "15ce8ec5-8163-4f85-88bc-ca6225ac4523",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -67,7 +67,7 @@
           "type": "enum_bid_type",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "'listing'"
         },
         "status": {
@@ -75,8 +75,8 @@
           "type": "enum_bid_status",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": false,
-          "default": "'no_bid'"
+          "notNull": true,
+          "default": "'active'"
         },
         "expiration_time": {
           "name": "expiration_time",
@@ -88,7 +88,7 @@
           "name": "accepted_at",
           "type": "timestamp (3)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "updated_at": {
           "name": "updated_at",
@@ -1292,7 +1292,8 @@
         },
         "status": {
           "name": "status",
-          "type": "varchar",
+          "type": "enum_listing_status",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
           "default": "'active'"
@@ -3640,7 +3641,7 @@
       "values": [
         "active",
         "outbid",
-        "no_bid"
+        "withdrawn"
       ]
     },
     "public.enum_bid_type": {
@@ -3661,6 +3662,18 @@
         "sapphire",
         "ruby",
         "opal"
+      ]
+    },
+    "public.enum_listing_status": {
+      "name": "enum_listing_status",
+      "schema": "public",
+      "values": [
+        "active",
+        "expiring",
+        "starting",
+        "expired",
+        "inactive",
+        "fulfilled"
       ]
     },
     "public.enum_pack_type": {

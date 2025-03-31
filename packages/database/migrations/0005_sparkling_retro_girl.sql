@@ -1,7 +1,8 @@
 CREATE TYPE "public"."enum_acquisition_type" AS ENUM('mint', 'transfer', 'marketplace');--> statement-breakpoint
-CREATE TYPE "public"."enum_bid_status" AS ENUM('active', 'outbid', 'no_bid');--> statement-breakpoint
+CREATE TYPE "public"."enum_bid_status" AS ENUM('active', 'outbid', 'withdrawn');--> statement-breakpoint
 CREATE TYPE "public"."enum_bid_type" AS ENUM('listing', 'open');--> statement-breakpoint
 CREATE TYPE "public"."enum_cards_rarity" AS ENUM('bronze', 'silver', 'gold', 'sapphire', 'ruby', 'opal');--> statement-breakpoint
+CREATE TYPE "public"."enum_listing_status" AS ENUM('active', 'expiring', 'starting', 'expired', 'inactive', 'fulfilled');--> statement-breakpoint
 CREATE TYPE "public"."enum_pack_type" AS ENUM('scrawny', 'toned', 'swole', 'phyt');--> statement-breakpoint
 CREATE TYPE "public"."enum_posts_status" AS ENUM('visible', 'hidden', 'deleted');--> statement-breakpoint
 CREATE TYPE "public"."enum_reaction_type" AS ENUM('like', 'funny', 'insightful', 'fire');--> statement-breakpoint
@@ -22,10 +23,10 @@ CREATE TABLE "bids" (
 	"signature" varchar NOT NULL,
 	"order_hash" varchar NOT NULL,
 	"order_data" jsonb NOT NULL,
-	"bid_type" "enum_bid_type" DEFAULT 'listing',
-	"status" "enum_bid_status" DEFAULT 'no_bid',
+	"bid_type" "enum_bid_type" DEFAULT 'listing' NOT NULL,
+	"status" "enum_bid_status" DEFAULT 'active' NOT NULL,
 	"expiration_time" timestamp (3) NOT NULL,
-	"accepted_at" timestamp (3) NOT NULL,
+	"accepted_at" timestamp (3),
 	"updated_at" timestamp (3) DEFAULT now() NOT NULL,
 	"created_at" timestamp (3) DEFAULT now() NOT NULL,
 	CONSTRAINT "bids_order_hash_unique" UNIQUE("order_hash")
@@ -113,7 +114,7 @@ CREATE TABLE "listings" (
 	"order_hash" varchar NOT NULL,
 	"order_data" jsonb NOT NULL,
 	"transaction_hash" varchar(66) NOT NULL,
-	"status" varchar DEFAULT 'active' NOT NULL,
+	"status" "enum_listing_status" DEFAULT 'active' NOT NULL,
 	"created_at" timestamp (3) DEFAULT now() NOT NULL,
 	"updated_at" timestamp (3) DEFAULT now() NOT NULL,
 	CONSTRAINT "listings_order_hash_unique" UNIQUE("order_hash")
