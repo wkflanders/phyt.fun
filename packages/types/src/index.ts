@@ -18,6 +18,7 @@ export type TransactionType =
     | 'marketplaceListing'
     | 'rewardPayout';
 export type UserRole = 'admin' | 'user' | 'runner';
+export type BidType = 'listing' | 'open';
 export type PackType = 'scrawny' | 'toned' | 'swole' | 'phyt';
 
 export const PackTypes = [
@@ -496,13 +497,47 @@ export interface CreateListing {
     expiration_time: string;
 }
 
+export interface ListingFilters {
+    minPrice?: string;
+    maxPrice?: string;
+    rarity?: string[];
+    sort?: 'price_asc' | 'price_desc' | 'created_at';
+}
+
 export interface Bid {
     id: number;
     listing_id: number;
+    card_id: number;
     bidder_id: number;
     bid_amount: bigint;
-    signature: string; // Signed buy order
+    signature: string;
+    order_hash: string;
+    order_data: Order;
+    bid_type: string;
+    status: BidType;
+    expiration_time: Date;
+    accepted_at: Date;
+    updated_at: Date;
     created_at: Date;
+}
+
+export interface PlaceBid {
+    listing_id: number;
+    bidder_id: number;
+    price: string;
+    bid_amount: bigint;
+    signature: string;
+    order_hash: string;
+    order_data: Order;
+}
+
+export interface PlaceBidRequestBody {
+    listing_id: number;
+    price: string;
+    signature: string;
+    order_hash: string;
+    order_data: Order;
+    user: User;
 }
 
 export interface RunnerListing extends Listing {
