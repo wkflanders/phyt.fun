@@ -9,7 +9,13 @@ import {
     follows,
     users
 } from '@phyt/database';
-import { DatabaseError, NotFoundError } from '@phyt/types';
+import {
+    HttpError,
+    NotFoundError,
+    RunnerProfile,
+    RunnerActivity,
+    RunnerPoolStatus
+} from '@phyt/types';
 import { formatDistanceToNow } from 'date-fns';
 
 interface GetAllRunnersOptions {
@@ -17,9 +23,11 @@ interface GetAllRunnersOptions {
 }
 
 export const runnerService = {
-    getRecentActivities: async (filter?: string, privyId?: string) => {
+    getRecentActivities: async (
+        filter?: string,
+        privyId?: string
+    ): Promise<RunnerActivity[]> => {
         try {
-            // Fetch basic runs
             const runsData = await db
                 .select({
                     id: runs.id,
@@ -31,16 +39,13 @@ export const runnerService = {
                 .orderBy(desc(runs.end_time))
                 .limit(20);
 
-            // If no runs data, return empty array
             if (!runsData.length) {
                 return [];
             }
 
-            // For each run, get the related runner and user data
             const activitiesWithDetails = await Promise.all(
                 runsData.map(async (run) => {
                     try {
-                        // Get runner data
                         const runnerData = await db
                             .select({
                                 id: runners.id,
@@ -52,17 +57,15 @@ export const runnerService = {
                             .limit(1);
 
                         if (!runnerData.length) {
-                            return null; // Skip if runner not found
+                            return null;
                         }
 
                         const runner = runnerData[0];
 
-                        // Skip if filter is 'pooled' and runner is not pooled
                         if (filter === 'pooled' && !runner.is_pooled) {
                             return null;
                         }
 
-                        // For following filter, check if user follows this runner
                         if (filter === 'following' && privyId) {
                             const userQuery = db
                                 .select({
@@ -75,7 +78,7 @@ export const runnerService = {
                             const userData = await userQuery;
 
                             if (!userData.length) {
-                                return null; // Skip if user not found
+                                return null;
                             }
 
                             const userId = userData[0].id;
@@ -92,11 +95,10 @@ export const runnerService = {
                                 .limit(1);
 
                             if (!followData.length) {
-                                return null; // Skip if not following
+                                return null;
                             }
                         }
 
-                        // Get user data
                         const userData = await db
                             .select({
                                 username: users.username,
@@ -107,19 +109,18 @@ export const runnerService = {
                             .limit(1);
 
                         if (!userData.length) {
-                            return null; // Skip if user not found
+                            return null;
                         }
 
                         const user = userData[0];
 
-                        // Combine all data
                         return {
                             id: run.id,
                             runner_id: runner.id,
                             username: user.username,
                             avatar_url: user.avatar_url,
                             distance_m: run.distance_m,
-                            completed_at: run.completed_at,
+                            completed_at: run.completed_at.toISOString(),
                             is_pooled: runner.is_pooled,
                             time_ago: formatDistanceToNow(
                                 new Date(run.completed_at),
@@ -127,21 +128,25 @@ export const runnerService = {
                             )
                         };
                     } catch (err) {
-                        console.error('Error processing run:', err);
-                        return null; // Skip this run if there's an error
+                        console.error('Error with activitiesWithDetails ', err);
+                        throw new HttpError('Error processing run');
                     }
                 })
             );
 
             // Filter out null values and return
-            return activitiesWithDetails.filter(Boolean);
-        } catch (error) {
-            console.error('Error fetching runner activities:', error);
-            throw new DatabaseError('Failed to fetch recent activities');
+            return activitiesWithDetails.filter(
+                (activity): activity is RunnerActivity => activity !== null
+            );
+        } catch (err) {
+            console.error('Error with getRecentActivities ', err);
+            throw new HttpError('Failed to fetch recent activities');
         }
     },
 
-    getRunnerActivities: async (runnerId: number) => {
+    getRunnerActivities: async (
+        runnerId: number
+    ): Promise<RunnerActivity[]> => {
         try {
             const runner = await db
                 .select()
@@ -150,7 +155,9 @@ export const runnerService = {
                 .limit(1);
 
             if (!runner.length) {
-                throw new NotFoundError(`Runner with ID ${runnerId} not found`);
+                throw new NotFoundError(
+                    `Runner with ID ${String(runnerId)} not found`
+                );
             }
 
             const activities = await db
@@ -172,23 +179,33 @@ export const runnerService = {
 
             return activities.map((activity) => ({
                 ...activity,
+                completed_at: activity.completed_at.toISOString(),
                 time_ago: formatDistanceToNow(new Date(activity.completed_at), {
                     addSuffix: true
                 })
             }));
         } catch (error) {
-            if (error instanceof NotFoundError) throw error;
-            console.error(
-                `Error fetching activities for runner ${runnerId}:`,
-                error
-            );
-            throw new DatabaseError(
-                `Failed to fetch activities for runner ${runnerId}`
+            console.error(`Error with getRunnerActivities `, error);
+            throw new HttpError(
+                `Failed to fetch activities for runner ${String(runnerId)}`
             );
         }
     },
 
-    getAllRunners: async ({ search }: GetAllRunnersOptions = {}) => {
+    getAllRunners: async ({
+        search,
+        sortBy = 'total_distance_m',
+        sortOrder = 'desc'
+    }: GetAllRunnersOptions & {
+        sortBy?:
+            | 'total_distance_m'
+            | 'average_pace'
+            | 'total_runs'
+            | 'best_mile_time'
+            | 'created_at'
+            | 'username';
+        sortOrder?: 'asc' | 'desc';
+    } = {}): Promise<RunnerProfile[]> => {
         try {
             const conditions = [eq(runners.status, 'active')];
             if (search) {
@@ -211,29 +228,42 @@ export const runnerService = {
                     updated_at: runners.updated_at
                 })
                 .from(runners)
-                .innerJoin(users, eq(runners.user_id, users.id));
-            // .where(and(...conditions));
+                .innerJoin(users, eq(runners.user_id, users.id))
+                .where(and(...conditions));
 
-            return await query.orderBy(runners.total_distance_m);
+            // Apply sorting based on parameters
+            if (sortOrder === 'desc') {
+                if (sortBy === 'username') {
+                    return await query.orderBy(desc(users.username));
+                } else {
+                    return await query.orderBy(desc(runners[sortBy]));
+                }
+            } else {
+                if (sortBy === 'username') {
+                    return await query.orderBy(users.username);
+                } else {
+                    return await query.orderBy(runners[sortBy]);
+                }
+            }
         } catch (error) {
-            console.error('Error getting all runners:', error);
-            throw new DatabaseError('Failed to get runners');
+            console.error('Error with getAllRunners ', error);
+            throw new HttpError('Failed to get runners');
         }
     },
 
-    getRunnerByPrivyId: async (privyId: string) => {
+    getRunnerByPrivyId: async (privyId: string): Promise<RunnerProfile> => {
         try {
-            const [user] = await db
+            const userResults = await db
                 .select()
                 .from(users)
                 .where(eq(users.privy_id, privyId))
                 .limit(1);
 
-            if (!user) {
+            if (!userResults.length) {
                 throw new NotFoundError('User not found');
             }
 
-            const [runner] = await db
+            const runnerResults = await db
                 .select({
                     id: runners.id,
                     user_id: runners.user_id,
@@ -252,16 +282,19 @@ export const runnerService = {
                 .from(runners)
                 .innerJoin(users, eq(runners.user_id, users.id))
                 .limit(1);
-
-            return runner;
-        } catch (error) {
-            throw new DatabaseError('Failed to get runner');
+            if (!runnerResults.length) {
+                throw new NotFoundError('Runner not found');
+            }
+            return runnerResults[0];
+        } catch (error: unknown) {
+            console.error('Error with getRunnerByPrivyId ', error);
+            throw new HttpError('Failed to get runner');
         }
     },
 
-    getRunnerById: async (runnerId: number) => {
+    getRunnerById: async (runnerId: number): Promise<RunnerProfile> => {
         try {
-            const [runner] = await db
+            const runnerResults = await db
                 .select({
                     id: runners.id,
                     user_id: runners.user_id,
@@ -279,49 +312,51 @@ export const runnerService = {
                 })
                 .from(runners)
                 .innerJoin(users, eq(runners.user_id, users.id))
+                .where(eq(runners.id, runnerId))
                 .limit(1);
 
-            if (!runner) {
+            if (!runnerResults.length) {
                 throw new NotFoundError('Runner not found');
             }
 
-            return runner;
-        } catch (error) {
-            if (error instanceof NotFoundError) throw error;
-            throw new DatabaseError('Failed to get runner');
+            return runnerResults[0];
+        } catch (error: unknown) {
+            console.error('Error with getRunnerById ', error);
+            throw new HttpError('Failed to get runner');
         }
     },
 
-    getRunnerStatusByPrivyId: async (privyId: string) => {
+    getRunnerStatusByPrivyId: async (
+        privyId: string
+    ): Promise<RunnerPoolStatus> => {
         try {
-            const [user] = await db
+            const user = await db
                 .select()
                 .from(users)
                 .where(eq(users.privy_id, privyId))
                 .limit(1);
 
-            if (!user) {
+            if (!user.length) {
                 throw new NotFoundError('User not found');
             }
 
-            const [runner] = await db
+            const runner = await db
                 .select()
                 .from(runners)
-                .where(eq(runners.user_id, user.id))
+                .where(eq(runners.user_id, user[0].id))
                 .limit(1);
 
-            if (!runner) {
+            if (runner.length) {
                 throw new NotFoundError('Runner not found');
             }
 
             return {
-                status: runner.status,
-                is_pooled: runner.is_pooled
+                status: runner[0].status,
+                is_pooled: runner[0].is_pooled
             };
         } catch (error) {
-            console.error('Error getting runner status:', error);
-            if (error instanceof NotFoundError) throw error;
-            throw new DatabaseError('Failed to get runner status');
+            console.error('Error with getRunnerStatusByPrivyId ', error);
+            throw new HttpError('Failed to get runner status');
         }
     }
 };
