@@ -2,10 +2,12 @@ import {
     HttpError,
     CreateListingRequestBody,
     AuthenticatedBody,
-    PlaceBidRequestBody
+    ListedBidRequestBody,
+    OpenBidRequestBody
 } from '@phyt/types';
 import express, { Router, Request, Response } from 'express';
 
+import { toStringValue } from '@/lib/utils';
 import { openBidSchema, bidSchema, listingSchema } from '@/lib/validation';
 import { validateAuth } from '@/middleware/auth';
 import { validateSchema } from '@/middleware/validator';
@@ -15,15 +17,6 @@ const router: Router = express.Router();
 
 router.get('/listings', async (req: Request, res: Response) => {
     const { minPrice, maxPrice, rarity, sort } = req.query;
-
-    const toStringValue = (value: unknown): string | undefined => {
-        if (value == null) return undefined;
-        if (typeof value === 'string') return value;
-        if (typeof value === 'number' || typeof value === 'boolean')
-            return value.toString();
-        // For non-primitive objects, use JSON.stringify.
-        return JSON.stringify(value);
-    };
 
     const minPriceStr = toStringValue(minPrice);
     const maxPriceStr = toStringValue(maxPrice);
@@ -94,20 +87,27 @@ router.post(
         req: Request<
             Record<string, never>,
             unknown,
-            PlaceBidRequestBody & AuthenticatedBody
+            ListedBidRequestBody & AuthenticatedBody
         >,
         res: Response
     ) => {
-        const { listing_id, price, signature, order_hash, order_data, user } =
-            req.body;
+        const {
+            listing_id,
+            bid_amount,
+            signature,
+            order_hash,
+            order_data,
+            user
+        } = req.body;
 
         const bid = await marketplaceService.createBid({
             listing_id,
             bidder_id: user.id,
-            price,
             signature,
             order_hash,
-            order_data
+            order_data,
+            bid_type: 'listing', // Adding the missing property
+            bid_amount // Using price as bid_amount
         });
 
         res.status(201).json(bid);
@@ -116,28 +116,36 @@ router.post(
 
 // Place an open bid on a card
 router.post(
-    '/open-bids',
+    '/open-bid',
     validateAuth,
     validateSchema(openBidSchema),
-    async (req, res) => {
+    async (
+        req: Request<
+            Record<string, never>,
+            unknown,
+            OpenBidRequestBody & AuthenticatedBody
+        >,
+        res: Response
+    ) => {
         const {
-            cardId,
-            price,
+            card_id,
+            bid_amount,
             signature,
-            orderHash,
-            orderData,
-            expirationTime,
+            order_hash,
+            order_data,
+            expiration_time,
             user
         } = req.body;
 
         const bid = await marketplaceService.createOpenBid({
-            cardId,
-            bidderId: user.id,
-            price,
+            card_id,
+            bidder_id: user.id,
+            bid_type: 'open',
+            bid_amount,
             signature,
-            orderHash,
-            orderData,
-            expirationTime: new Date(expirationTime)
+            order_hash,
+            order_data,
+            expiration_time
         });
 
         res.status(201).json(bid);
@@ -163,16 +171,27 @@ router.get('/users/:userId/bids', validateAuth, async (req, res) => {
 });
 
 // Accept an open bid
-router.post('/open-bids/:bidId/accept', validateAuth, async (req, res) => {
-    const { bidId } = req.params;
-    const { transactionHash } = req.body;
+router.post(
+    '/open-bid/:bidId/accept',
+    validateAuth,
+    async (
+        req: Request<
+            Record<string, never>,
+            unknown,
+            { transaction_hash: string } & AuthenticatedBody
+        >,
+        res: Response
+    ) => {
+        const { bidId } = req.params;
+        const { transaction_hash } = req.body;
 
-    const result = await marketplaceService.acceptOpenBid({
-        bidId: parseInt(bidId),
-        transactionHash
-    });
+        const result = await marketplaceService.acceptOpenBid({
+            bid_id: parseInt(bidId),
+            transaction_hash
+        });
 
-    res.status(200).json(result);
-});
+        res.status(200).json(result);
+    }
+);
 
 export { router as marketplaceRouter };
