@@ -1,17 +1,17 @@
-import { HttpError, AuthenticatedRequest } from '@phyt/types';
-import { Response, NextFunction } from 'express';
+import { HttpError } from '@phyt/types';
+import { Request, Response, NextFunction } from 'express';
 
 import { privy } from '@/lib/privyClient';
 
 export const validateAuth = async (
-    req: AuthenticatedRequest,
+    req: Request,
     res: Response,
     next: NextFunction
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 ) => {
     try {
         const authHeader = req.headers.authorization;
-        if (!authHeader) {
+        if (!authHeader?.startsWith('Bearer ')) {
             throw new HttpError('Missing Authorization header', 401);
         }
 
@@ -26,7 +26,7 @@ export const validateAuth = async (
             throw new HttpError('Invalid token claims', 401);
         }
 
-        req.body.auth.privy_id = claims.userId;
+        req.auth = { privy_id: claims.userId };
         next();
     } catch (error) {
         console.error('Authentication error:', error);
