@@ -12,6 +12,7 @@ export const sanitizeInputs = (
     req: Request,
     res: Response,
     next: NextFunction
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 ) => {
     if (req.body) {
         sanitizeRequestObject(req.body);
