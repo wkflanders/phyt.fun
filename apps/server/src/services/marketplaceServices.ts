@@ -17,17 +17,30 @@ import {
 } from '@phyt/database';
 import {
     DatabaseError,
-    ListingFilters,
-    CreateListing,
+    GetListingProps,
+    CreateListingProps,
     Listing,
     MarketListing,
-    PlaceBid,
-    Bid,
-    Order
+    CreateListingBidProps,
+    CompletePurchaseProps,
+    CreateOpenBidProps,
+    ListingBid,
+    OpenBid,
+    Order,
+    OrderBook,
+    UserBids,
+    AcceptOpenBidProps,
+    NotFoundError,
+    MarketplaceError,
+    BidStatusListed,
+    BidStatusOpen,
+    HttpError
 } from '@phyt/types';
 
 export const marketplaceService = {
-    getListings: async (filters?: ListingFilters): Promise<MarketListing[]> => {
+    getListings: async (
+        filters?: GetListingProps
+    ): Promise<MarketListing[]> => {
         try {
             // Base conditions: active listings whose expiration_time is strictly after now.
             // We simulate ">" by using gte with a 1ms offset.
@@ -104,14 +117,14 @@ export const marketplaceService = {
                     ...item.listing,
                     highest_bid:
                         item.listing.highest_bid !== null
-                            ? BigInt(item.listing.highest_bid)
+                            ? String(item.listing.highest_bid)
                             : null,
                     order_data: item.listing.order_data as Order
                 }
             }));
         } catch (error) {
-            console.error('Database error in getListings:', error);
-            throw new DatabaseError('Failed to fetch listings');
+            console.error('Marketplace error in getListings:', error);
+            throw new MarketplaceError('Failed to fetch listings');
         }
     },
 
@@ -123,7 +136,7 @@ export const marketplaceService = {
         order_data,
         order_hash,
         expiration_time
-    }: CreateListing): Promise<Listing> => {
+    }: CreateListingProps): Promise<Listing> => {
         try {
             // Verify card ownership
             const cardQuery = db
@@ -136,7 +149,7 @@ export const marketplaceService = {
             const cardResult = await cardQuery;
 
             if (!cardResult.length) {
-                throw new Error('Card not owned by seller');
+                throw new MarketplaceError('Card not owned by seller');
             }
             const insertResult = await db
                 .insert(listings)
@@ -153,31 +166,30 @@ export const marketplaceService = {
                 })
                 .returning();
 
-            // Convert highest_bid from string to bigint if it exists
-            // Also convert expiration_time from Date to bigint timestamp
+            // Convert highest_bid from decimal to string
             const result = insertResult[0];
             return {
                 ...result,
                 highest_bid:
                     result.highest_bid !== null
-                        ? BigInt(result.highest_bid)
+                        ? String(result.highest_bid)
                         : null,
                 order_data: result.order_data as Order
             };
         } catch (error) {
-            console.error('Database error in createListing:', error);
-            throw new DatabaseError('Failed to create listing');
+            console.error('Marketplace error in createListing:', error);
+            throw new MarketplaceError('Failed to create listing');
         }
     },
 
     createBid: async ({
         listing_id,
         bidder_id,
-        price,
+        bid_amount,
         signature,
         order_hash,
         order_data
-    }: PlaceBid): Promise<Bid> => {
+    }: CreateListingBidProps): Promise<ListingBid> => {
         try {
             return await db.transaction(async (tx) => {
                 const listing = await tx
@@ -190,120 +202,131 @@ export const marketplaceService = {
                         )
                     )
                     .limit(1);
-
                 if (!listing.length) {
-                    throw new Error('Listing not found or not active');
+                    throw new NotFoundError('Listing not found or not active');
+                }
+
+                const bidListing = listing[0];
+
+                if (
+                    bidListing.highest_bid &&
+                    BigInt(bid_amount) <= BigInt(bidListing.highest_bid)
+                ) {
+                    throw new MarketplaceError(
+                        'Bid must be higher than current highest bid'
+                    );
                 }
 
                 if (
                     listing[0].highest_bid &&
-                    BigInt(price) <= BigInt(listing[0].highest_bid)
+                    BigInt(bid_amount) >= BigInt(bidListing.price)
                 ) {
-                    throw new Error(
-                        'Bid must be higher than current highest bid'
-                    );
+                    await marketplaceService.completePurchase({
+                        listing_id,
+                        buyer_id: bidder_id,
+                        transaction_hash: ''
+                    });
                 }
 
                 const [bid] = await tx
                     .insert(bids)
                     .values({
                         listing_id: listing_id,
-                        card_id: listing[0].card_id,
+                        card_id: bidListing.card_id,
                         bidder_id: bidder_id,
-                        price,
+                        price: bidListing.price,
+                        bid_amount,
                         signature,
                         order_hash: order_hash,
                         order_data: order_data,
                         bid_type: 'listing',
                         status: 'active',
-                        expiration_time: listing[0].expiration_time
+                        expiration_time: bidListing.expiration_time,
+                        accepted_at: null
                     })
                     .returning();
 
                 await tx
                     .update(listings)
                     .set({
-                        highest_bid: price,
+                        highest_bid: bid_amount,
                         highest_bidder_id: bidder_id
                     })
                     .where(eq(listings.id, listing_id));
 
-                return bid;
+                return {
+                    ...bid,
+                    bid_type: 'listing' as const,
+                    bid_status: bid.status as BidStatusListed | 'withdrawn',
+                    listing_id: bid.listing_id ?? listing_id,
+                    order_data: bid.order_data as Order
+                };
             });
         } catch (error) {
-            console.error('Database error in createBid:', error);
-            throw new DatabaseError('Failed to create bid');
+            console.error('Error in createBid:', error);
+            throw new MarketplaceError('Failed to create bid');
         }
     },
 
     completePurchase: async ({
-        listingId,
-        buyerId,
-        transactionHash
-    }: {
-        listingId: number;
-        buyerId: number;
-        transactionHash: string;
-    }) => {
+        listing_id,
+        buyer_id,
+        transaction_hash
+    }: CompletePurchaseProps): Promise<Listing> => {
         try {
             return await db.transaction(async (tx) => {
-                const [listing] = await tx
+                const listingResults = await tx
                     .select()
                     .from(listings)
                     .where(
                         and(
-                            eq(listings.id, listingId),
+                            eq(listings.id, listing_id),
                             eq(listings.status, 'active')
                         )
                     );
 
-                if (!listing) {
+                if (!listingResults.length) {
                     throw new Error('Listing not found or not active');
                 }
 
                 const [updatedListing] = await tx
                     .update(listings)
                     .set({
-                        status: 'completed',
-                        buyer_id: buyerId,
-                        transaction_hash: transactionHash
+                        status: 'active',
+                        buyer_id: buyer_id,
+                        transaction_hash: transaction_hash
                     })
-                    .where(eq(listings.id, listingId))
+                    .where(eq(listings.id, listing_id))
                     .returning();
 
                 await tx
                     .update(cards)
                     .set({
-                        owner_id: buyerId,
+                        owner_id: buyer_id,
                         acquisition_type: 'marketplace'
                     })
-                    .where(eq(cards.id, listing.card_id));
+                    .where(eq(cards.id, listings.card_id));
 
-                return updatedListing;
+                return {
+                    ...updatedListing,
+                    order_data: updatedListing.order_data as Order
+                };
             });
         } catch (error) {
-            console.error('Database error in completePurchase:', error);
-            throw new DatabaseError('Failed to complete purchase');
+            console.error('Error in completePurchase:', error);
+            throw new MarketplaceError('Failed to complete purchase');
         }
     },
 
     createOpenBid: async ({
-        cardId,
-        bidderId,
-        price,
+        card_id,
+        bidder_id,
+        bid_amount,
         signature,
-        orderHash,
-        orderData,
-        expirationTime
-    }: {
-        cardId: number;
-        bidderId: number;
-        price: string;
-        signature: string;
-        orderHash: string;
-        orderData: Order;
-        expirationTime: Date;
-    }) => {
+        order_hash,
+        order_data,
+        expiration_time
+    }: CreateOpenBidProps): Promise<OpenBid> => {
         try {
             const cardQuery = db
                 .select({
@@ -320,43 +343,57 @@ export const marketplaceService = {
                         eq(listings.status, 'active')
                     )
                 )
-                .where(eq(cards.id, cardId));
+                .where(eq(cards.id, card_id));
 
             const cardResult = await cardQuery;
 
             if (!cardResult.length) {
-                throw new Error('Card not found');
+                throw new NotFoundError('Card not found');
             }
 
             if (cardResult[0].activeListing?.id) {
-                throw new Error('Card is currently listed for sale');
+                throw new MarketplaceError('Card is currently listed for sale');
             }
 
             const insertResult = await db
                 .insert(bids)
                 .values({
-                    card_id: cardId,
-                    bidder_id: bidderId,
-                    price,
+                    card_id: card_id,
+                    bidder_id: bidder_id,
+                    price: bid_amount,
+                    bid_amount,
                     signature,
-                    order_hash: orderHash,
-                    order_data: orderData,
+                    order_hash: order_hash,
+                    order_data: order_data,
                     bid_type: 'open',
                     status: 'active',
-                    expiration_time: expirationTime
+                    expiration_time: expiration_time,
+                    accepted_at: null
                 })
                 .returning();
 
-            return insertResult[0];
+            if (!insertResult.length) {
+                throw new DatabaseError('Making open bid failed');
+            }
+
+            const bid = insertResult[0];
+
+            return {
+                ...bid,
+                bid_type: 'open' as const,
+                bid_status: bid.status as BidStatusOpen | 'withdrawn',
+                listing_id: null,
+                order_data: bid.order_data as Order
+            };
         } catch (error) {
-            console.error('Database error in createOpenBid:', error);
-            throw new DatabaseError('Failed to create open bid');
+            console.error('Error in createOpenBid:', error);
+            throw new MarketplaceError('Failed to create open bid');
         }
     },
 
-    getOpenBidsForCard: async (cardId: number) => {
+    getOpenBidsForCard: async (cardId: number): Promise<OrderBook> => {
         try {
-            return await db
+            const bidsData = await db
                 .select({
                     bid: bids,
                     bidder: users
@@ -372,15 +409,23 @@ export const marketplaceService = {
                     )
                 )
                 .orderBy(desc(bids.price));
+
+            return {
+                bid: bidsData.map((item) => ({
+                    ...item.bid,
+                    order_data: item.bid.order_data as Order
+                })),
+                bidder: bidsData.map((item) => item.bidder)
+            };
         } catch (error) {
-            console.error('Database error in getOpenBidsForCard:', error);
-            throw new DatabaseError('Failed to fetch open bids');
+            console.error('Error in getOpenBidsForCard:', error);
+            throw new MarketplaceError('Failed to fetch open bids');
         }
     },
 
-    getAllUserBids: async (userId: number) => {
+    getAllUserBids: async (userId: number): Promise<UserBids[]> => {
         try {
-            return await db
+            const results = await db
                 .select({
                     bid: bids,
                     card: cards,
@@ -392,6 +437,7 @@ export const marketplaceService = {
                     },
                     owner: {
                         id: users.id,
+                        wallet_address: users.wallet_address,
                         username: users.username,
                         avatar_url: users.avatar_url
                     }
@@ -407,48 +453,56 @@ export const marketplaceService = {
                 .where(
                     and(
                         eq(bids.bidder_id, userId),
-                        eq(bids.status, 'active'),
+                        // eq(bids.status, 'active'),
                         gt(bids.expiration_time, new Date())
                     )
                 )
                 .orderBy(desc(bids.created_at));
+
+            return results.map((result) => ({
+                ...result,
+                bid: {
+                    ...result.bid,
+                    order_data: result.bid.order_data as Order
+                }
+            }));
         } catch (error) {
-            console.error('Database error in getAllUserBids:', error);
-            throw new DatabaseError('Failed to fetch user bids');
+            console.error('Error in getAllUserBids:', error);
+            throw new HttpError('Failed to fetch user bids');
         }
     },
 
     acceptOpenBid: async ({
-        bidId,
-        transactionHash
-    }: {
-        bidId: number;
-        transactionHash: string;
-    }) => {
+        bid_id,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        transaction_hash
+    }: AcceptOpenBidProps): Promise<OpenBid> => {
         try {
             return await db.transaction(async (tx) => {
-                const [bid] = await tx
+                const bidResults = await tx
                     .select()
                     .from(bids)
                     .where(
                         and(
-                            eq(bids.id, bidId),
+                            eq(bids.id, bid_id),
                             eq(bids.status, 'active'),
                             eq(bids.bid_type, 'open')
                         )
                     );
 
-                if (!bid) {
+                if (!bidResults.length) {
                     throw new Error('Open bid not found or not active');
                 }
 
-                const updatedBid = await tx
+                const bid = bidResults[0];
+
+                const updatedBidResults = await tx
                     .update(bids)
                     .set({
-                        status: 'accepted',
+                        status: 'filled',
                         accepted_at: new Date()
                     })
-                    .where(eq(bids.id, bidId))
+                    .where(eq(bids.id, bid_id))
                     .returning();
 
                 await tx
@@ -462,17 +516,26 @@ export const marketplaceService = {
                 // Cancel other open bids for this card
                 await tx
                     .update(bids)
-                    .set({ status: 'cancelled' })
+                    .set({ status: 'withdrawn' })
                     .where(
                         and(
                             eq(bids.card_id, bid.card_id),
                             eq(bids.status, 'active'),
                             eq(bids.bid_type, 'open'),
-                            ne(bids.id, bidId)
+                            ne(bids.id, bid_id)
                         )
                     );
 
-                return updatedBid[0];
+                const updatedBid = updatedBidResults[0];
+                return {
+                    ...updatedBid,
+                    bid_type: 'open' as const,
+                    bid_status: updatedBid.status as
+                        | BidStatusOpen
+                        | 'withdrawn',
+                    listing_id: updatedBid.listing_id,
+                    order_data: updatedBid.order_data as Order
+                };
             });
         } catch (error) {
             console.error('Database error in acceptOpenBid:', error);
