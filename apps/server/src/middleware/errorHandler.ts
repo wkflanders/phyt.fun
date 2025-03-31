@@ -34,7 +34,7 @@ export const errorHandler = (
 
     // Handle ValidationError from your types
     if (err.name === 'ValidationError') {
-        res.status(400).json({
+        res.status(401).json({
             error: err.message,
             requestId: req.headers['x-request-id']
         });
