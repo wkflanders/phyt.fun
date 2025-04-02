@@ -1,133 +1,142 @@
-import { NotFoundError, DatabaseError } from '@phyt/types';
-import express, { Router } from 'express';
+import {
+    NotFoundError,
+    Post,
+    PostResponse,
+    ValidationError,
+    PostQueryParams,
+    PostStatus
+} from '@phyt/types';
+import express, { Request, Response, Router } from 'express';
 
-import { createPostSchema, updatePostSchema } from '../lib/validation';
-import { validateAuth } from '../middleware/auth';
-import { validateSchema } from '../middleware/validator';
-import { postService } from '../services/postServices';
+import { createPostSchema, updatePostSchema } from '@/lib/validation';
+import { validateAuth } from '@/middleware/auth';
+import { validateSchema } from '@/middleware/validator';
+import { postService } from '@/services/postServices';
 
 const router: Router = express.Router();
 
 router.use(validateAuth);
 
 // Get all posts with pagination and filtering
-router.get('/', async (req, res) => {
-    try {
+router.get(
+    '/',
+    async (
+        req: Request<
+            Record<string, never>,
+            PostResponse,
+            Record<string, never>,
+            PostQueryParams
+        >,
+        res: Response<PostResponse>
+    ) => {
         const { page = '1', limit = '10', filter } = req.query;
-        const userId = req.body.user?.id;
 
-        const result = await postService.getPosts({
-            pageParam: parseInt(page as string), // Changed to match pageParam in service
+        const privy_id = req.auth?.privy_id;
+        if (!privy_id) {
+            throw new ValidationError('Unauthorized');
+        }
+
+        const result = await postService.getPosts(privy_id, {
+            page: parseInt(page as string),
             limit: parseInt(limit as string),
-            userId,
             filter: filter as ('following' | 'trending' | 'all') | undefined
         });
 
-        return res.status(200).json(result);
-    } catch (error) {
-        console.error('Error fetching posts:', error);
-        return res.status(500).json({ error: 'Failed to fetch posts' });
+        res.status(200).json(result);
     }
-});
+);
 
 // Get a specific post by ID
-router.get('/:id', async (req, res) => {
-    try {
+router.get(
+    '/:id',
+    async (
+        req: Request<{ id: string }, PostResponse>,
+        res: Response<PostResponse>
+    ) => {
         const postId = parseInt(req.params.id);
         if (isNaN(postId)) {
-            return res.status(400).json({ error: 'Invalid post ID' });
+            throw new NotFoundError('No valid post id');
         }
 
         const post = await postService.getPostById(postId);
-        return res.status(200).json(post);
-    } catch (error) {
-        console.error('Error fetching post:', error);
-        if (error instanceof NotFoundError) {
-            return res.status(404).json({ error: error.message });
-        }
-        return res.status(500).json({ error: 'Failed to fetch post' });
+        res.status(200).json(post);
     }
-});
+);
 
 // Get posts by a specific user
-router.get('/user/:userId', async (req, res) => {
-    try {
-        const userId = parseInt(req.params.userId);
+router.get(
+    '/user/:userId',
+    async (
+        req: Request<
+            { userId: number },
+            PostResponse[],
+            Record<string, never>,
+            PostQueryParams
+        >,
+        res: Response<PostResponse[]>
+    ) => {
+        const userId = req.params.userId;
         if (isNaN(userId)) {
-            return res.status(400).json({ error: 'Invalid user ID' });
+            throw new ValidationError('No valid user Id');
         }
 
         const { page = '1', limit = '10' } = req.query;
-        const result = await postService.getUserPosts(userId, {
+        const result = await postService.getUserPostsById(userId, {
             page: parseInt(page as string),
             limit: parseInt(limit as string)
         });
 
-        return res.status(200).json(result);
-    } catch (error) {
-        console.error('Error fetching user posts:', error);
-        return res.status(500).json({ error: 'Failed to fetch user posts' });
+        res.status(200).json(result);
     }
-});
+);
 
-// Create a new post (for an existing run)
-router.post('/', validateSchema(createPostSchema), async (req, res) => {
-    try {
-        const { run_id } = req.body;
-        const post = await postService.createPost(run_id);
+router.post(
+    '/',
+    validateSchema(createPostSchema),
+    async (
+        req: Request<Record<string, never>, Post, { runId: number }>,
+        res: Response<Post>
+    ) => {
+        const { runId } = req.body;
+        const post = await postService.createPost(runId);
 
-        return res.status(201).json(post);
-    } catch (error) {
-        console.error('Error creating post:', error);
-        if (error instanceof NotFoundError) {
-            return res.status(404).json({ error: error.message });
-        }
-        return res.status(500).json({ error: 'Failed to create post' });
+        res.status(201).json(post);
     }
-});
+);
 
 // Update a post's visibility status
-router.patch('/:id', validateSchema(updatePostSchema), async (req, res) => {
-    try {
+router.patch(
+    '/:id',
+    validateSchema(updatePostSchema),
+    async (
+        req: Request<{ id: string }, Post, { status: PostStatus }>,
+        res: Response<Post>
+    ) => {
         const postId = parseInt(req.params.id);
         if (isNaN(postId)) {
-            return res.status(400).json({ error: 'Invalid post ID' });
+            throw new ValidationError('Invalid post Id');
         }
 
         const { status } = req.body;
 
         // TODO: Add authorization check - user can only update their own posts
-        const post = await postService.updatePostStatus(postId, status);
+        const post = await postService.updatePostStatus({ postId, status });
 
-        return res.status(200).json(post);
-    } catch (error) {
-        console.error('Error updating post:', error);
-        if (error instanceof NotFoundError) {
-            return res.status(404).json({ error: error.message });
-        }
-        return res.status(500).json({ error: 'Failed to update post' });
+        res.status(200).json(post);
     }
-});
+);
 
 // Delete a post
 router.delete('/:id', async (req, res) => {
-    try {
-        const postId = parseInt(req.params.id);
-        if (isNaN(postId)) {
-            return res.status(400).json({ error: 'Invalid post ID' });
-        }
-
-        // TODO: Add authorization check - user can only delete their own posts
-        const deletedPost = await postService.deletePost(postId);
-
-        return res.status(200).json(deletedPost);
-    } catch (error) {
-        console.error('Error deleting post:', error);
-        if (error instanceof NotFoundError) {
-            return res.status(404).json({ error: error.message });
-        }
-        return res.status(500).json({ error: 'Failed to delete post' });
+    const postId = parseInt(req.params.id);
+    if (isNaN(postId)) {
+        throw new ValidationError('Invalid post ID');
     }
+
+    // TODO: Add authorization check - user can only delete their own posts
+    const deletedPost = await postService.deletePost(postId);
+
+    res.status(200).json(deletedPost);
 });
 
 export { router as postsRouter };
