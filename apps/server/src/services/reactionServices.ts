@@ -9,50 +9,50 @@ import {
     comments,
     users
 } from '@phyt/database';
-import { NotFoundError, DatabaseError } from '@phyt/types';
+import {
+    NotFoundError,
+    DatabaseError,
+    ReactionToggleRequest,
+    ReactionToggleResponse
+} from '@phyt/types';
 
 export const reactionService = {
     toggleReaction: async ({
-        userId,
-        postId,
-        commentId,
+        user_id,
+        post_id,
+        comment_id,
         type
-    }: {
-        userId: number;
-        postId?: number;
-        commentId?: number;
-        type: 'like' | 'funny' | 'insightful' | 'fire';
-    }) => {
-        if (!postId && !commentId) {
+    }: ReactionToggleRequest): Promise<ReactionToggleResponse> => {
+        if (!user_id && post_id && !comment_id) {
             throw new Error('Either postId or commentId must be provided');
         }
 
         try {
             // Check if the target (post or comment) exists
-            if (postId) {
+            if (post_id) {
                 const post = await db
                     .select()
                     .from(posts)
                     .where(
-                        and(eq(posts.id, postId), eq(posts.status, 'visible'))
+                        and(eq(posts.id, post_id), eq(posts.status, 'visible'))
                     )
                     .limit(1);
 
                 if (!post.length) {
                     throw new NotFoundError(
-                        `Post with ID ${postId} not found or is not visible`
+                        `Post with ID ${String(post_id)} not found or is not visible`
                     );
                 }
-            } else if (commentId) {
+            } else if (comment_id) {
                 const comment = await db
                     .select()
                     .from(comments)
-                    .where(eq(comments.id, commentId))
+                    .where(eq(comments.id, comment_id))
                     .limit(1);
 
                 if (!comment.length) {
                     throw new NotFoundError(
-                        `Comment with ID ${commentId} not found`
+                        `Comment with ID ${String(comment_id)} not found`
                     );
                 }
             }
@@ -63,10 +63,10 @@ export const reactionService = {
                 .from(reactions)
                 .where(
                     and(
-                        eq(reactions.user_id, userId),
+                        eq(reactions.user_id, user_id),
                         postId
                             ? eq(reactions.post_id, postId)
-                            : eq(reactions.comment_id, commentId!),
+                            : eq(reactions.comment_id, commentId),
                         eq(reactions.type, type)
                     )
                 )
@@ -87,9 +87,9 @@ export const reactionService = {
             const [newReaction] = await db
                 .insert(reactions)
                 .values({
-                    user_id: userId,
-                    post_id: postId || null,
-                    comment_id: commentId || null,
+                    user_id,
+                    post_id,
+                    comment_id,
                     type
                 })
                 .returning();
