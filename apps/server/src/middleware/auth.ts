@@ -20,16 +20,19 @@ export const validateAuth = async (
             throw new HttpError('Invalid Authorization header format', 401);
         }
 
-        const claims = await privy.verifyAuthToken(token);
+        const claims = await privy.verifyAuthToken(
+            token,
+            process.env.PRIVY_VERIFICATION_KEY
+        );
 
         if (!claims.userId) {
-            throw new HttpError('Invalid token claims', 401);
+            throw new HttpError('Invalid token claims', 403);
         }
 
         req.auth = { privy_id: claims.userId };
         next();
     } catch (error) {
         console.error('Authentication error:', error);
-        next(new HttpError('Authentication failed', 401));
+        next(new HttpError('Authentication failed', 403));
     }
 };
