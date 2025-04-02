@@ -1,86 +1,104 @@
-import { NotFoundError } from '@phyt/types';
-import express, { Router } from 'express';
+import {
+    ValidationError,
+    RunnerProfile,
+    RunnerQueryParams,
+    RunnerActivity,
+    RunnerPoolStatus
+} from '@phyt/types';
+import express, { Request, Response, Router } from 'express';
 
-import { validateAuth } from '../middleware/auth';
-import { runnerService } from '../services/runnerServices';
+import { validateAuth } from '@/middleware/auth';
+import { runnerService } from '@/services/runnerServices';
 
 const router: Router = express.Router();
 
 router.use(validateAuth);
 
 // Get all runners
-router.get('/', async (req, res) => {
-    try {
-        const search = req.query.search as string | undefined;
-        const runners = await runnerService.getAllRunners({ search });
-        return res.status(200).json(runners);
-    } catch (error) {
-        console.error('Failed to fetch runners:', error);
-        return res.status(500).json({ error: 'Failed to fetch runners' });
+router.get(
+    '/',
+    async (
+        req: Request<undefined, RunnerProfile[], undefined, RunnerQueryParams>,
+        res: Response<RunnerProfile[]>
+    ) => {
+        const { search, sortBy, sortOrder } = {
+            search: req.query.search,
+            sortBy: req.query.sortBy ?? 'total_distance_m',
+            sortOrder: req.query.sortOrder ?? 'desc'
+        };
+
+        const runners = await runnerService.getAllRunners({
+            search,
+            sortBy,
+            sortOrder
+        });
+        res.status(200).json(runners);
     }
-});
+);
 
 // Get runner status by privyId
-router.get('/:privyId/status', async (req, res) => {
-    try {
+router.get(
+    '/:privyId/status',
+    async (
+        req: Request<{ privyId: string }, RunnerPoolStatus>,
+        res: Response<RunnerPoolStatus>
+    ) => {
         const { privyId } = req.params;
 
         const status = await runnerService.getRunnerStatusByPrivyId(privyId);
-        return res.status(200).json(status);
-    } catch (error) {
-        console.error('Error getting runner status:', error);
-        if (error instanceof NotFoundError) {
-            return res.status(404).json({ error: error.message });
-        }
-        return res.status(500).json({ error: 'Failed to get runner status' });
+        res.status(200).json(status);
     }
-});
+);
 
 // Get a specific runner by ID
-router.get('/runner/:id', async (req, res) => {
-    try {
-        const runnerId = parseInt(req.params.id);
+router.get(
+    '/runner/:id',
+    async (
+        req: Request<{ id: number }, RunnerProfile, undefined>,
+        res: Response<RunnerProfile>
+    ) => {
+        const runnerId = req.params.id;
         if (isNaN(runnerId)) {
-            return res.status(400).json({ error: 'Invalid runner ID' });
+            throw new ValidationError('Invalid runner id');
         }
 
         const runner = await runnerService.getRunnerById(runnerId);
-        return res.status(200).json(runner);
-    } catch (error) {
-        console.error('Failed to fetch runner:', error);
-        return res.status(500).json({ error: 'Failed to fetch runner' });
+        res.status(200).json(runner);
     }
-});
+);
 
 // Get all runner activities
-router.get('/activities', async (req, res) => {
-    try {
-        const filter = req.query.filter as string | undefined;
+router.get(
+    '/activities',
+    async (
+        req: Request<
+            undefined,
+            RunnerActivity[],
+            undefined,
+            { filter?: string }
+        >,
+        res: Response<RunnerActivity[]>
+    ) => {
+        const filter = req.query.filter;
         const activities = await runnerService.getRecentActivities(filter);
-        return res.status(200).json(activities);
-    } catch (error: any) {
-        console.error('Failed to get all activities:', error);
-        return res.status(error.statusCode || 500).json({
-            error: error.message || 'Failed to fetch runner activities'
-        });
+        res.status(200).json(activities);
     }
-});
+);
 
-router.get('/activities/:id', async (req, res) => {
-    try {
-        const runnerId = parseInt(req.params.id);
+router.get(
+    '/activities/:id',
+    async (
+        req: Request<{ id: number }, RunnerActivity[]>,
+        res: Response<RunnerActivity[]>
+    ) => {
+        const runnerId = req.params.id;
         if (isNaN(runnerId)) {
-            return res.status(400).json({ error: 'Invalid runner ID' });
+            throw new ValidationError('Invalid runner id');
         }
 
         const activities = await runnerService.getRunnerActivities(runnerId);
-        return res.status(200).json(activities);
-    } catch (error: any) {
-        console.error('Failed to get runner activity:', error);
-        return res.status(error.statusCode || 500).json({
-            error: error.message || 'Failed to fetch runner activities'
-        });
+        res.status(200).json(activities);
     }
-});
+);
 
 export { router as runnerRouter };
