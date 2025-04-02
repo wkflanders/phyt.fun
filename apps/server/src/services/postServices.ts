@@ -3,11 +3,6 @@ import {
     eq,
     and,
     desc,
-    asc,
-    or,
-    not,
-    like,
-    sql,
     count as countFn,
     posts,
     users,
@@ -17,10 +12,21 @@ import {
     reactions,
     follows
 } from '@phyt/database';
-import { NotFoundError, DatabaseError } from '@phyt/types';
+import {
+    NotFoundError,
+    DatabaseError,
+    Post,
+    PostQueryParams,
+    PostUpdateRequest,
+    PostResponse,
+    HttpError
+} from '@phyt/types';
+
+import { calculateTrendingScore } from '@/lib/utils';
+import { userService } from '@/services/userServices';
 
 export const postService = {
-    createPost: async (runId: number) => {
+    createPost: async (runId: number): Promise<Post> => {
         try {
             const run = await db
                 .select()
@@ -28,7 +34,9 @@ export const postService = {
                 .where(eq(runs.id, runId))
                 .limit(1);
             if (!run.length) {
-                throw new NotFoundError(`Run with ID ${runId} not found`);
+                throw new NotFoundError(
+                    `Run with ID ${String(runId)} not found`
+                );
             }
 
             const runner = await db
@@ -37,7 +45,9 @@ export const postService = {
                 .where(eq(runners.id, run[0].runner_id))
                 .limit(1);
             if (!runner.length) {
-                throw new NotFoundError(`Runner for run ID ${runId} not found`);
+                throw new NotFoundError(
+                    `Runner for run ID ${String(runId)} not found`
+                );
             }
 
             const userId = runner[0].user_id;
@@ -52,13 +62,12 @@ export const postService = {
 
             return post;
         } catch (error) {
-            console.error('Error creating post:', error);
-            if (error instanceof NotFoundError) throw error;
-            throw new DatabaseError('Failed to create post');
+            console.error('Error with createPost: ', error);
+            throw new HttpError('Failed to create post');
         }
     },
 
-    getPostById: async (postId: number) => {
+    getPostById: async (postId: number): Promise<PostResponse> => {
         try {
             const query = db
                 .select({
@@ -73,12 +82,14 @@ export const postService = {
                         distance_m: runs.distance_m,
                         duration_seconds: runs.duration_seconds,
                         average_pace_sec: runs.average_pace_sec,
+                        gps_route_data: runs.gps_route_data,
                         elevation_gain_m: runs.elevation_gain_m,
                         start_time: runs.start_time,
                         end_time: runs.end_time
                     },
                     stats: {
-                        comments: countFn(comments.id).as('comments')
+                        comments: countFn(comments.id).as('comments'),
+                        reactions: countFn(reactions.id).as('reactions')
                     }
                 })
                 .from(posts)
@@ -89,11 +100,21 @@ export const postService = {
                 .where(eq(posts.id, postId))
                 .groupBy(posts.id, users.id, runs.id, runners.id);
 
-            const [post] = await query;
-            if (!post) {
-                throw new NotFoundError(`Post with ID ${postId} not found`);
+            const post = await query;
+            if (!post.length) {
+                throw new NotFoundError(
+                    `Post with ID ${String(postId)} not found`
+                );
             }
-            return post;
+            return {
+                posts: [post[0]],
+                pagination: {
+                    page: 1,
+                    limit: 1,
+                    total: 1,
+                    totalPages: 1
+                }
+            };
         } catch (error) {
             console.error('Error getting post by ID:', error);
             if (error instanceof NotFoundError) throw error;
@@ -101,21 +122,17 @@ export const postService = {
         }
     },
 
-    getPosts: async ({
-        pageParam = 1,
-        limit = 10,
-        userId,
-        filter
-    }: {
-        pageParam?: number;
-        limit?: number;
-        userId?: number;
-        filter?: 'following' | 'trending' | 'all';
-    }) => {
+    getPosts: async (
+        privyId: string,
+        { limit = 10, page = 1, filter }: PostQueryParams
+    ): Promise<PostResponse> => {
         try {
-            const offset = (pageParam - 1) * limit;
+            const offset = (page - 1) * limit;
 
-            let query = db
+            const user = await userService.getUserByPrivyId(privyId);
+            const userId = user.id;
+
+            const baseQuery = db
                 .select({
                     post: posts,
                     user: {
@@ -128,12 +145,14 @@ export const postService = {
                         distance_m: runs.distance_m,
                         duration_seconds: runs.duration_seconds,
                         average_pace_sec: runs.average_pace_sec,
+                        gps_route_data: runs.gps_route_data,
                         elevation_gain_m: runs.elevation_gain_m,
                         start_time: runs.start_time,
                         end_time: runs.end_time
                     },
                     stats: {
-                        comments: countFn(comments.id).as('comments')
+                        comments: countFn(comments.id).as('comments'),
+                        reactions: countFn(reactions.id).as('reactions')
                     }
                 })
                 .from(posts)
@@ -141,54 +160,63 @@ export const postService = {
                 .innerJoin(runs, eq(posts.run_id, runs.id))
                 .innerJoin(runners, eq(posts.user_id, runners.user_id))
                 .leftJoin(comments, eq(comments.post_id, posts.id))
-                .groupBy(posts.id, users.id, runs.id, runners.id)
-                .where(eq(posts.status, 'visible'));
+                .leftJoin(reactions, eq(reactions.post_id, posts.id))
+                .where(eq(posts.status, 'visible'))
+                .groupBy(posts.id, users.id, runs.id, runners.id);
 
-            // Apply filter if specified
-            let orderByClause;
+            let allPosts = await baseQuery;
+
             if (filter === 'following' && userId) {
-                query = query.innerJoin(
-                    follows,
-                    and(
-                        eq(posts.user_id, follows.following_id),
-                        eq(posts.status, 'visible'),
-                        eq(follows.follower_id, userId)
-                    )
+                const followingResults = await db
+                    .select({ followingId: follows.follow_target_id })
+                    .from(follows)
+                    .where(eq(follows.follower_id, userId));
+
+                const followingIds = followingResults.map(
+                    (row) => row.followingId
                 );
-                orderByClause = desc(posts.created_at);
+
+                allPosts = allPosts.filter((post) =>
+                    followingIds.includes(post.post.user_id)
+                );
+
+                allPosts.sort(
+                    (a, b) =>
+                        b.post.created_at.getTime() -
+                        a.post.created_at.getTime()
+                );
             } else if (filter === 'trending') {
-                // For trending, order by most reactions/comments in the last 7 days
-                const sevenDaysAgo = new Date();
-                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-                orderByClause = desc(
-                    sql`(
-                SELECT COUNT(*) FROM reactions WHERE reactions.post_id = posts.id AND reactions.created_at > ${sevenDaysAgo.toISOString()}
-              ) + (
-                SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id AND comments.created_at > ${sevenDaysAgo.toISOString()}
-              )`
+                const trendingResults = await Promise.all(
+                    allPosts.map(async (post) => {
+                        const trendingScore = await calculateTrendingScore(
+                            post.post.id,
+                            1
+                        );
+                        return { post, trendingScore };
+                    })
                 );
+
+                allPosts = trendingResults
+                    .sort((a, b) => b.trendingScore - a.trendingScore)
+                    .map((item) => item.post);
             } else {
-                // Default sorting by most recent
-                orderByClause = desc(posts.created_at);
+                allPosts.sort(
+                    (a, b) =>
+                        b.post.created_at.getTime() -
+                        a.post.created_at.getTime()
+                );
             }
-            query = (query as any).orderBy(orderByClause);
 
-            const results = await query.limit(limit).offset(offset);
-
-            const [{ count }] = await db
-                .select({ count: countFn(posts.id) })
-                .from(posts)
-                .where(eq(posts.status, 'visible'));
-
-            const total = Number(count);
+            const total = allPosts.length;
             const totalPages = Math.ceil(total / limit);
-            const nextPage = pageParam < totalPages ? pageParam + 1 : undefined;
+            const nextPage = page < totalPages ? page + 1 : undefined;
+
+            const paginatedPosts = allPosts.slice(offset, offset + limit);
 
             return {
-                posts: results,
+                posts: paginatedPosts,
                 pagination: {
-                    page: pageParam,
+                    page,
                     limit,
                     total,
                     totalPages,
@@ -196,36 +224,48 @@ export const postService = {
                 }
             };
         } catch (error) {
-            console.error('Error getting posts:', error);
-            throw new DatabaseError('Failed to get posts');
+            console.error('Error with getPosts: ', error);
+            throw new HttpError('Failed to get posts');
         }
     },
 
-    getUserPosts: async (
+    getUserPostsById: async (
         userId: number,
         { page = 1, limit = 10 }: { page?: number; limit?: number } = {}
-    ) => {
+    ): Promise<PostResponse[]> => {
         try {
             const offset = (page - 1) * limit;
 
-            const results = await db
+            const queryResults = await db
                 .select({
                     post: posts,
+                    user: {
+                        username: users.username,
+                        avatar_url: users.avatar_url,
+                        role: users.role,
+                        is_pooled: runners.is_pooled
+                    },
                     run: {
                         distance_m: runs.distance_m,
                         duration_seconds: runs.duration_seconds,
                         average_pace_sec: runs.average_pace_sec,
+                        gps_route_data: runs.gps_route_data,
                         elevation_gain_m: runs.elevation_gain_m,
                         start_time: runs.start_time,
                         end_time: runs.end_time
                     },
                     stats: {
-                        comments: countFn(comments.id).as('comments')
+                        comments: countFn(comments.id).as('comments'),
+                        reactions: countFn(reactions.id).as('reactions')
                     }
                 })
                 .from(posts)
+                .innerJoin(users, eq(posts.user_id, users.id))
+                .innerJoin(runners, eq(posts.user_id, runners.user_id))
                 .innerJoin(runs, eq(posts.run_id, runs.id))
                 .leftJoin(comments, eq(comments.post_id, posts.id))
+                .leftJoin(reactions, eq(reactions.post_id, posts.id))
+                .groupBy(posts.id, users.id, runs.id, runners.id)
                 .where(
                     and(eq(posts.user_id, userId), eq(posts.status, 'visible'))
                 )
@@ -233,69 +273,124 @@ export const postService = {
                 .limit(limit)
                 .offset(offset);
 
-            // Get total count for pagination
-            const [{ count }] = await db
-                .select({ count: countFn(posts.id) })
-                .from(posts)
-                .where(
-                    and(eq(posts.user_id, userId), eq(posts.status, 'visible'))
-                );
+            const postResponses: PostResponse[] = queryResults.map((result) => {
+                return {
+                    posts: [result],
+                    pagination: undefined
+                };
+            });
 
-            return {
-                posts: results,
-                pagination: {
-                    page,
-                    limit,
-                    total: Number(count),
-                    totalPages: Math.ceil(Number(count) / limit)
-                }
-            };
+            return postResponses;
         } catch (error) {
-            console.error('Error getting user posts:', error);
-            throw new DatabaseError('Failed to get user posts');
+            console.error('Error with getUserPosts: ', error);
+            throw new HttpError('Failed to get user posts');
         }
     },
 
-    updatePostStatus: async (
-        postId: number,
-        status: 'visible' | 'hidden' | 'deleted'
-    ) => {
+    getUserPostsByWalletAddress: async (
+        walletAddress: string,
+        { page = 1, limit = 10 }: { page?: number; limit?: number } = {}
+    ): Promise<PostResponse[]> => {
         try {
-            const [post] = await db
+            const offset = (page - 1) * limit;
+
+            const user =
+                await userService.getUserByWalletAddress(walletAddress);
+            const userId = user.id;
+
+            const queryResults = await db
+                .select({
+                    post: posts,
+                    user: {
+                        username: users.username,
+                        avatar_url: users.avatar_url,
+                        role: users.role,
+                        is_pooled: runners.is_pooled
+                    },
+                    run: {
+                        distance_m: runs.distance_m,
+                        duration_seconds: runs.duration_seconds,
+                        average_pace_sec: runs.average_pace_sec,
+                        gps_route_data: runs.gps_route_data,
+                        elevation_gain_m: runs.elevation_gain_m,
+                        start_time: runs.start_time,
+                        end_time: runs.end_time
+                    },
+                    stats: {
+                        comments: countFn(comments.id).as('comments'),
+                        reactions: countFn(reactions.id).as('reactions')
+                    }
+                })
+                .from(posts)
+                .innerJoin(users, eq(posts.user_id, users.id))
+                .innerJoin(runners, eq(posts.user_id, runners.user_id))
+                .innerJoin(runs, eq(posts.run_id, runs.id))
+                .leftJoin(comments, eq(comments.post_id, posts.id))
+                .leftJoin(reactions, eq(reactions.post_id, posts.id))
+                .groupBy(posts.id, users.id, runs.id, runners.id)
+                .where(
+                    and(eq(posts.user_id, userId), eq(posts.status, 'visible'))
+                )
+                .orderBy(desc(posts.created_at))
+                .limit(limit)
+                .offset(offset);
+
+            const postResponses: PostResponse[] = queryResults.map((result) => {
+                return {
+                    posts: [result],
+                    pagination: undefined
+                };
+            });
+
+            return postResponses;
+        } catch (error) {
+            console.error('Error with getUserPosts: ', error);
+            throw new HttpError('Failed to get user posts');
+        }
+    },
+
+    updatePostStatus: async ({
+        postId,
+        status
+    }: PostUpdateRequest): Promise<Post> => {
+        try {
+            const postResults = await db
                 .update(posts)
                 .set({ status })
                 .where(eq(posts.id, postId))
                 .returning();
 
-            if (!post) {
-                throw new NotFoundError(`Post with ID ${postId} not found`);
+            if (!postResults.length) {
+                throw new NotFoundError(
+                    `Post with ID ${String(postId)} not found`
+                );
             }
 
-            return post;
+            return postResults[0];
         } catch (error) {
-            console.error('Error updating post status:', error);
-            if (error instanceof NotFoundError) throw error;
-            throw new DatabaseError('Failed to update post status');
+            console.error('Error with updatePostStatus: ', error);
+            throw new HttpError('Failed to update post status');
         }
     },
 
-    deletePost: async (postId: number) => {
+    deletePost: async (postId: number): Promise<Post> => {
         try {
             // This will cascade delete due to foreign key constraints
-            const [deletedPost] = await db
+            const postResults = await db
                 .delete(posts)
                 .where(eq(posts.id, postId))
                 .returning();
 
-            if (!deletedPost) {
-                throw new NotFoundError(`Post with ID ${postId} not found`);
+            if (!postResults.length) {
+                throw new NotFoundError(
+                    `Post with ID ${String(postId)} not found`
+                );
             }
 
-            return deletedPost;
+            return postResults[0];
         } catch (error) {
-            console.error('Error deleting post:', error);
-            if (error instanceof NotFoundError) throw error;
-            throw new DatabaseError('Failed to delete post');
+            console.error('Error with deletePost: ', error);
+            throw new HttpError('Failed to delete post');
         }
     }
 };
