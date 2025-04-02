@@ -5,8 +5,7 @@ import {
     Runner,
     Run,
     PendingRun,
-    User,
-    HttpError
+    User
 } from '@phyt/types';
 
 export const adminService = {
@@ -18,7 +17,7 @@ export const adminService = {
                 .where(eq(runners.status, 'pending'));
             return pendingRunners;
         } catch (error) {
-            console.error('Error with getPendingRunners ', error);
+            console.error('Error with getPendingRunners: ', error);
             throw new DatabaseError('Failed to get pending runners');
         }
     },
@@ -38,22 +37,6 @@ export const adminService = {
             const pendingRuns: PendingRun[] = results.map((item) => ({
                 run: {
                     ...item.run,
-                    start_time:
-                        typeof item.run.start_time === 'string'
-                            ? item.run.start_time
-                            : item.run.start_time.toISOString(),
-                    end_time:
-                        typeof item.run.end_time === 'string'
-                            ? item.run.end_time
-                            : item.run.end_time.toISOString(),
-                    updated_at:
-                        item.run.updated_at instanceof Date
-                            ? item.run.updated_at
-                            : new Date(item.run.updated_at),
-                    created_at:
-                        item.run.created_at instanceof Date
-                            ? item.run.created_at
-                            : new Date(item.run.created_at),
                     verification_status: item.run.verification_status,
                     raw_data_json: item.run.raw_data_json as Record<
                         string,
@@ -65,7 +48,7 @@ export const adminService = {
 
             return pendingRuns;
         } catch (error) {
-            console.error('Error with getPendingRuns ', error);
+            console.error('Error with getPendingRuns: ', error);
             throw new DatabaseError('Failed to get pending runs');
         }
     },
@@ -102,8 +85,8 @@ export const adminService = {
 
             return results[0];
         } catch (error) {
-            console.error('Error with approveRunner ', error);
-            throw new HttpError('Error approving runner');
+            console.error('Error with approveRunner: ', error);
+            throw new DatabaseError('Error approving runner');
         }
     },
 
@@ -128,22 +111,14 @@ export const adminService = {
             const run = updatedRunResults[0];
             return {
                 ...run,
-                start_time:
-                    typeof run.start_time === 'string'
-                        ? run.start_time
-                        : run.start_time.toISOString(),
-                end_time:
-                    typeof run.end_time === 'string'
-                        ? run.end_time
-                        : run.end_time.toISOString(),
                 raw_data_json: run.raw_data_json as Record<
                     string,
                     unknown
                 > | null
             };
         } catch (error) {
-            console.error('Error with updateRunVerification ', error);
-            throw new HttpError('Error with updating run verification');
+            console.error('Error with updateRunVerification: ', error);
+            throw new DatabaseError('Error with updating run verification');
         }
     }
 };
