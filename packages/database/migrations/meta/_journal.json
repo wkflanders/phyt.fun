@@ -64,6 +64,20 @@
       "when": 1743420619031,
       "tag": "0008_neat_black_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1743469481893,
+      "tag": "0009_parched_whizzer",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1743592581778,
+      "tag": "0010_puzzling_morlocks",
+      "breakpoints": true
     }
   ]
 }

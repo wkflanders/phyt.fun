@@ -155,7 +155,9 @@ export const runners = pgTable(
             .notNull()
             .references(() => users.id, { onDelete: 'restrict' }),
         average_pace: doublePrecision('average_pace'),
-        total_distance_m: doublePrecision('total_distance_m').default(0),
+        total_distance_m: doublePrecision('total_distance_m')
+            .default(0)
+            .notNull(),
         total_runs: integer('total_runs').default(0).notNull(),
         best_mile_time: doublePrecision('best_mile_time'),
         status: enum_runner_status('status').default('pending').notNull(),
@@ -702,7 +704,7 @@ export const follows = pgTable(
         follower_id: integer('follower_id')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
-        following_id: integer('following_id')
+        follow_target_id: integer('follow_target_id')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
         created_at: timestamp('created_at', { precision: 3 })
@@ -711,10 +713,10 @@ export const follows = pgTable(
     },
     (table) => [
         index('follows_follower_idx').on(table.follower_id),
-        index('follows_following_idx').on(table.following_id),
+        index('follows_following_idx').on(table.follow_target_id),
         uniqueIndex('follows_unique_idx').on(
             table.follower_id,
-            table.following_id
+            table.follow_target_id
         )
     ]
 );
