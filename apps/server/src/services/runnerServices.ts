@@ -14,13 +14,11 @@ import {
     NotFoundError,
     RunnerProfile,
     RunnerActivity,
-    RunnerPoolStatus
+    RunnerPoolStatus,
+    RunnerQueryParams,
+    RunnerSortFields
 } from '@phyt/types';
 import { formatDistanceToNow } from 'date-fns';
-
-interface GetAllRunnersOptions {
-    search?: string;
-}
 
 export const runnerService = {
     getRecentActivities: async (
@@ -89,7 +87,10 @@ export const runnerService = {
                                 .where(
                                     and(
                                         eq(follows.follower_id, userId),
-                                        eq(follows.following_id, runner.user_id)
+                                        eq(
+                                            follows.follow_target_id,
+                                            runner.user_id
+                                        )
                                     )
                                 )
                                 .limit(1);
@@ -196,21 +197,18 @@ export const runnerService = {
         search,
         sortBy = 'total_distance_m',
         sortOrder = 'desc'
-    }: GetAllRunnersOptions & {
-        sortBy?:
-            | 'total_distance_m'
-            | 'average_pace'
-            | 'total_runs'
-            | 'best_mile_time'
-            | 'created_at'
-            | 'username';
-        sortOrder?: 'asc' | 'desc';
-    } = {}): Promise<RunnerProfile[]> => {
+    }: RunnerQueryParams): Promise<RunnerProfile[]> => {
+        // Define the valid sort fields type
+        type ValidSortField = RunnerSortFields;
+
         try {
+            // Create base query with conditions
             const conditions = [eq(runners.status, 'active')];
             if (search) {
-                conditions.push(like(users.username, `%${search}%`));
+                conditions.push(like(users.username, `%${String(search)}%`));
             }
+
+            // Build the query
             const query = db
                 .select({
                     id: runners.id,
@@ -231,20 +229,43 @@ export const runnerService = {
                 .innerJoin(users, eq(runners.user_id, users.id))
                 .where(and(...conditions));
 
-            // Apply sorting based on parameters
-            if (sortOrder === 'desc') {
-                if (sortBy === 'username') {
-                    return await query.orderBy(desc(users.username));
-                } else {
-                    return await query.orderBy(desc(runners[sortBy]));
-                }
-            } else {
-                if (sortBy === 'username') {
-                    return await query.orderBy(users.username);
-                } else {
-                    return await query.orderBy(runners[sortBy]);
-                }
-            }
+            const isDesc = sortOrder === 'desc';
+
+            // Define the valid sort fields
+            const validSortFields: ValidSortField[] = [
+                'username',
+                'total_distance_m',
+                'average_pace',
+                'total_runs',
+                'best_mile_time',
+                'created_at'
+            ];
+
+            // Type guard to check if the sortBy is valid
+            const isValidSortField = (
+                field: string
+            ): field is ValidSortField => {
+                return validSortFields.includes(field as ValidSortField);
+            };
+
+            // Validate and get the sortBy field
+            const validSortBy = isValidSortField(sortBy)
+                ? sortBy
+                : 'total_distance_m';
+
+            // Map sort fields to their corresponding columns
+            const sortColumnMap = {
+                username: users.username,
+                total_distance_m: runners.total_distance_m,
+                average_pace: runners.average_pace,
+                total_runs: runners.total_runs,
+                best_mile_time: runners.best_mile_time,
+                created_at: runners.created_at
+            };
+
+            // Apply sorting
+            const sortColumn = sortColumnMap[validSortBy];
+            return await query.orderBy(isDesc ? desc(sortColumn) : sortColumn);
         } catch (error) {
             console.error('Error with getAllRunners ', error);
             throw new HttpError('Failed to get runners');
