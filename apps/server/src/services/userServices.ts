@@ -33,15 +33,15 @@ export const userService = {
 
         try {
             if (checkStatus) {
-                const results = await db
+                const userResults = await db
                     .select()
                     .from(users)
                     .where(eq(users.privy_id, privyId))
                     .limit(1);
 
-                if (results.length === 0)
+                if (userResults.length === 0)
                     throw new NotFoundError('User not found');
-                const user = results[0];
+                const user = userResults[0];
 
                 const [runner] = await db
                     .select()
@@ -53,18 +53,19 @@ export const userService = {
                     status: runner.status
                 };
             } else {
-                const results = await db
+                const userResults = await db
                     .select()
                     .from(users)
                     .where(eq(users.privy_id, privyId))
                     .limit(1);
 
-                if (results.length === 0)
+                if (userResults.length === 0)
                     throw new NotFoundError('User not found');
-                return results[0];
+                return userResults[0];
             }
         } catch (error) {
-            throw new DatabaseError('Failed to fetch user by Privy ID', error);
+            console.error('Error with getUserByPrivyId: ', error);
+            throw new DatabaseError('Failed to fetch user by Privy ID');
         }
     },
 
@@ -73,19 +74,18 @@ export const userService = {
             throw new ValidationError('Wallet address is required');
 
         try {
-            const results = await db
+            const userResults = await db
                 .select()
                 .from(users)
                 .where(eq(users.wallet_address, walletAddress))
                 .limit(1);
 
-            if (results.length === 0) throw new NotFoundError('User not found');
-            return results[0];
+            if (userResults.length === 0)
+                throw new NotFoundError('User not found');
+            return userResults[0];
         } catch (error) {
-            throw new DatabaseError(
-                'Failed to fetch user by wallet address',
-                error
-            );
+            console.error('Error with getUserByWalletAddress: ', error);
+            throw new DatabaseError('Failed to fetch user by wallet address');
         }
     },
 
@@ -93,16 +93,18 @@ export const userService = {
         if (!id) throw new ValidationError('User id is required');
 
         try {
-            const results = await db
+            const userResults = await db
                 .select()
                 .from(users)
                 .where(eq(users.id, id))
                 .limit(1);
 
-            if (results.length === 0) throw new NotFoundError('User not found');
-            return results[0];
+            if (userResults.length === 0)
+                throw new NotFoundError('User not found');
+            return userResults[0];
         } catch (error) {
-            throw new DatabaseError('Failed to fetch user by ID', error);
+            console.error('Error with getUserById: ', error);
+            throw new DatabaseError('Failed to fetch user by ID');
         }
     },
 
@@ -110,21 +112,18 @@ export const userService = {
         if (!email) throw new ValidationError('Email is required');
 
         try {
-            const results = await db
+            const userResults = await db
                 .select()
                 .from(users)
                 .where(eq(users.email, email))
                 .limit(1);
 
-            if (results.length === 0) throw new NotFoundError('User not found');
-            return results[0];
+            if (userResults.length === 0)
+                throw new NotFoundError('User not found');
+            return userResults[0];
         } catch (error) {
-            if (
-                error instanceof NotFoundError ||
-                error instanceof ValidationError
-            )
-                throw error;
-            throw new DatabaseError('Failed to fetch user by email', error);
+            console.error('Error with getUserByEmail: ', error);
+            throw new DatabaseError('Failed to fetch user by email');
         }
     },
 
@@ -132,21 +131,18 @@ export const userService = {
         if (!username) throw new ValidationError('Username is required');
 
         try {
-            const results = await db
+            const userResults = await db
                 .select()
                 .from(users)
                 .where(eq(users.username, username))
                 .limit(1);
 
-            if (results.length === 0) throw new NotFoundError('User not found');
-            return results[0];
+            if (userResults.length === 0)
+                throw new NotFoundError('User not found');
+            return userResults[0];
         } catch (error) {
-            if (
-                error instanceof NotFoundError ||
-                error instanceof ValidationError
-            )
-                throw error;
-            throw new DatabaseError('Failed to fetch user by username', error);
+            console.error('Error with getUserByUsername: ', error);
+            throw new DatabaseError('Failed to fetch user by username');
         }
     },
 
@@ -156,14 +152,15 @@ export const userService = {
         if (!privyId) throw new ValidationError('Privy ID is required');
 
         try {
-            const results = await db
+            const userResults = await db
                 .select()
                 .from(users)
                 .where(eq(users.privy_id, privyId))
                 .limit(1);
 
-            if (results.length === 0) throw new NotFoundError('User not found');
-            const user = results[0];
+            if (userResults.length === 0)
+                throw new NotFoundError('User not found');
+            const user = userResults[0];
             // Fetch transactions for the user (both sent and received)
             const userTransactions = await db
                 .select()
@@ -178,20 +175,22 @@ export const userService = {
 
             return userTransactions;
         } catch (error) {
-            throw new DatabaseError('Failed to fetch user transactions', error);
+            console.error('Error with getTransactionsByPrivyId: ', error);
+            throw new DatabaseError('Failed to fetch user transactions');
         }
     },
 
     getCardsByPrivyId: async (privyId: string): Promise<CardWithMetadata[]> => {
         try {
-            const results = await db
+            const userResults = await db
                 .select()
                 .from(users)
                 .where(eq(users.privy_id, privyId))
                 .limit(1);
 
-            if (results.length === 0) throw new NotFoundError('User not found');
-            const user = results[0];
+            if (userResults.length === 0)
+                throw new NotFoundError('User not found');
+            const user = userResults[0];
 
             const userCards = await db
                 .select()
@@ -209,7 +208,8 @@ export const userService = {
                 }
             }));
         } catch (error) {
-            throw new DatabaseError('Failed to fetch user cards', error);
+            console.error('Error with getCardsByPrivyId: ', error);
+            throw new DatabaseError('Failed to fetch user cards');
         }
     },
 
@@ -276,7 +276,8 @@ export const userService = {
 
             return newUser;
         } catch (error) {
-            throw new DatabaseError('Failed to create user', error);
+            console.error('Error with createUser: ', error);
+            throw new DatabaseError('Failed to create user');
         }
     }
 };
