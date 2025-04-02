@@ -1,4 +1,3 @@
-import type { Request } from 'express';
 import type { Address } from 'viem';
 
 export type CardRarity =
@@ -10,6 +9,12 @@ export type CardRarity =
     | 'opal';
 export type AcquisitionType = 'mint' | 'transfer' | 'marketplace';
 export type RunVerificationStatus = 'pending' | 'verified' | 'flagged';
+export type RunnerApplicationStatus =
+    | 'pending'
+    | 'success'
+    | 'already_runner'
+    | 'already_submitted'
+    | 'failed';
 export type RunnerStatus = 'pending' | 'active' | 'inactive';
 export type TransactionType =
     | 'packPurchase'
@@ -71,22 +76,6 @@ export const PackTypes = [
     }
 ];
 
-export interface AuthenticatedBody {
-    auth: {
-        privy_id: string;
-    };
-}
-
-export interface AuthenticatedRequest extends Request {
-    body: AuthenticatedBody;
-}
-
-export interface AdminRequest extends Request {
-    body: {
-        user: User;
-    };
-}
-
 export const RarityWeights = {
     bronze: 50,
     silver: 10,
@@ -129,8 +118,8 @@ export interface Run {
     updated_at: Date;
     created_at: Date;
     runner_id: number;
-    start_time: string;
-    end_time: string;
+    start_time: Date;
+    end_time: Date;
     duration_seconds: number;
     distance_m: number;
     average_pace_sec: number | null;
@@ -198,7 +187,7 @@ export interface Competition {
     event_name: string;
     start_time: string;
     end_time: string;
-    jackpot: number;
+    jackpot: number | null;
     distance_m: number | null;
     event_type: string | null;
 }
@@ -220,6 +209,12 @@ export interface LineupCard {
     position: number;
 }
 
+export interface LineupSubmissionResponse {
+    success: boolean;
+    message: string;
+    lineup_id: number;
+}
+
 export interface CompetitionLineupRequestBody {
     userId: number;
     cardIds: number[];
@@ -229,7 +224,7 @@ export interface Runner {
     id: number;
     user_id: number;
     average_pace: number | null;
-    total_distance_m: number | null;
+    total_distance_m: number;
     total_runs: number;
     best_mile_time: number | null;
     status: RunnerStatus;
@@ -242,6 +237,22 @@ export interface Runner {
 export interface RunnerProfile extends Runner {
     username: string;
     avatar_url: string;
+}
+
+export type RunnerSortFields =
+    | 'total_distance_m'
+    | 'average_pace'
+    | 'total_runs'
+    | 'best_mile_time'
+    | 'created_at'
+    | 'username';
+
+export type RunnerSortOrder = 'asc' | 'desc';
+
+export interface RunnerQueryParams {
+    search?: string;
+    sortBy?: RunnerSortFields;
+    sortOrder?: RunnerSortOrder;
 }
 
 export interface PendingRunner {
@@ -399,6 +410,13 @@ export class HttpError extends Error {
         this.statusCode = statusCode;
         this.name = 'HttpError';
     }
+}
+
+export interface MintConfigResponse {
+    mintConfigId: string;
+    packPrice: string;
+    merkleProof: string[];
+    packType: string;
 }
 
 export interface PackDetails {
@@ -657,6 +675,11 @@ export interface RunnerActivity {
     time_ago: string;
 }
 
+export interface RunnerPoolStatus {
+    status: RunnerStatus;
+    is_pooled: boolean;
+}
+
 export type PostFilter = 'all' | 'following' | 'trending';
 export type PostStatus = 'visible' | 'hidden' | 'deleted';
 
@@ -670,14 +693,14 @@ export interface Post {
     id: number;
     user_id: number;
     run_id: number;
-    status: 'visible' | 'hidden' | 'deleted';
+    status: PostStatus;
     updated_at: Date;
     created_at: Date;
 }
 
 export interface PostUpdateRequest {
     postId: number;
-    status: 'visible' | 'hidden' | 'deleted';
+    status: PostStatus;
 }
 
 export interface PostCreateRequest {
@@ -701,9 +724,11 @@ export interface PostResponse {
             elevation_gain_m: null | number;
             gps_route_data: string | null;
             start_time: Date;
+            end_time: Date;
         };
         stats: {
             comments: number;
+            reactions: number;
         };
     }[];
     pagination?: PostPagination;
@@ -714,7 +739,7 @@ export interface PostPagination {
     limit: number;
     total: number;
     totalPages: number;
-    nextPage: number | undefined;
+    nextPage?: number;
 }
 
 export interface Comment {
@@ -737,10 +762,6 @@ export interface CreateCommentRequest {
 export interface CommentUpdateRequest {
     content: string;
 }
-
-export interface CreateCommentWithAuth
-    extends CreateCommentRequest,
-        AuthenticatedBody {}
 
 export interface CommentQueryParams {
     page?: number;
