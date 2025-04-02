@@ -8,6 +8,7 @@
             "env": [
                 "NEXT_PUBLIC_PRIVY_APP_ID",
                 "PRIVY_SECRET_KEY",
+                "PRIVY_VERIFICATION_KEY",
                 "DATABASE_URL",
                 "NEXT_PUBLIC_*",
                 "BASE_RPC_URL",
