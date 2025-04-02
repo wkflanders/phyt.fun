@@ -1,10 +1,10 @@
-import { NotFoundError, DatabaseError } from '@phyt/types';
+import { NotFoundError } from '@phyt/types';
 import express, { Router } from 'express';
 
-import { createReactionSchema } from '../lib/validation';
-import { validateAuth } from '../middleware/auth';
-import { validateSchema } from '../middleware/validator';
-import { reactionService } from '../services/reactionServices';
+import { createReactionSchema } from '@/lib/validation';
+import { validateAuth } from '@/middleware/auth';
+import { validateSchema } from '@/middleware/validator';
+import { reactionService } from '@/services/reactionServices';
 
 const router: Router = express.Router();
 
@@ -12,24 +12,32 @@ router.use(validateAuth);
 
 // Toggle a reaction on a post or comment
 router.post('/', validateSchema(createReactionSchema), async (req, res) => {
-    try {
-        const { post_id, comment_id, type } = req.body;
+    const { user_id, post_id, comment_id, type } = req.body;
 
-        const result = await reactionService.toggleReaction({
-            userId: req.body.user.id, // From auth middleware
-            postId: post_id,
-            commentId: comment_id,
-            type
-        });
-
-        return res.status(200).json(result);
-    } catch (error) {
-        console.error('Error toggling reaction:', error);
-        if (error instanceof NotFoundError) {
-            return res.status(404).json({ error: error.message });
-        }
-        return res.status(500).json({ error: 'Failed to toggle reaction' });
+    if (!user_id) {
+        throw new NotFoundError('Missing valid user Id');
     }
+
+    if (!post_id) {
+        throw new NotFoundError('Missing valid post Id');
+    }
+
+    if (!comment_id) {
+        throw new NotFoundError('Missing valid comment Id');
+    }
+
+    if (!type) {
+        throw new NotFoundError('Missing valid reaction');
+    }
+
+    const result = await reactionService.toggleReaction({
+        userId: user_id, // From auth middleware
+        postId: post_id,
+        commentId: comment_id,
+        type
+    });
+
+    res.status(200).json(result);
 });
 
 // Get reactions for a post
