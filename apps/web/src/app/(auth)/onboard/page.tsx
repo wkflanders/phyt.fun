@@ -1,13 +1,16 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+
+import { ApiError } from '@phyt/types';
 import { usePrivy } from '@privy-io/react-auth';
+import { useRouter } from 'next/navigation';
+
 import { OnboardForm } from '@/components/OnboardForm';
-import { onboardFormSchema } from '@/lib/validation';
 import { useToast } from '@/hooks/use-toast';
 import { useCreateUser, useGetUser } from '@/hooks/use-users';
-import { ApiError } from '@phyt/types';
+import { onboardFormSchema } from '@/lib/validation';
+
 
 export default function OnboardPage() {
     const router = useRouter();
@@ -22,7 +25,7 @@ export default function OnboardPage() {
             router.push('/');
             return;
         }
-    }, [userData]);
+    }, [userData, router]);
 
     const handleSubmit = async (formData: FormData) => {
         if (!user?.google) {

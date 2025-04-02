@@ -1,6 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from './use-toast';
-import { ApiError, CommentQueryParams, CommentCreateRequest, CommentUpdateRequest, CommentResponse } from '@phyt/types';
+import {
+    ApiError,
+    CommentQueryParams,
+    CreateCommentRequest,
+    CommentUpdateRequest,
+    CommentResponse
+} from '@phyt/types';
 import {
     fetchPostComments,
     fetchCommentReplies,
@@ -13,21 +19,35 @@ import {
 import { POST_QUERY_KEYS } from '../queries/posts';
 import { usePrivy } from '@privy-io/react-auth';
 
-export function usePostComments(postId: number, params: CommentQueryParams = {}) {
+export function usePostComments(
+    postId: number,
+    params: CommentQueryParams = {}
+) {
     const { page = 1, limit = 20, parentOnly = false } = params;
     const { getAccessToken } = usePrivy();
 
     return useQuery<CommentResponse, ApiError>({
-        queryKey: COMMENT_QUERY_KEYS.postComments(postId, { page, limit, parentOnly }),
+        queryKey: COMMENT_QUERY_KEYS.postComments(postId, {
+            page,
+            limit,
+            parentOnly
+        }),
         queryFn: async () => {
             const token = await getAccessToken();
-            return fetchPostComments(postId, { page, limit, parentOnly }, token);
+            return fetchPostComments(
+                postId,
+                { page, limit, parentOnly },
+                token
+            );
         },
         enabled: !!postId
     });
 }
 
-export function useCommentReplies(commentId: number, params: CommentQueryParams = {}) {
+export function useCommentReplies(
+    commentId: number,
+    params: CommentQueryParams = {}
+) {
     const { page = 1, limit = 20 } = params;
     const { getAccessToken } = usePrivy();
 
@@ -67,13 +87,15 @@ export function useCreateComment() {
         onSuccess: (_, variables) => {
             toast({
                 title: 'Success',
-                description: 'Comment added successfully',
+                description: 'Comment added successfully'
             });
 
             // Invalidate relevant queries
             if (variables.parent_comment_id) {
                 queryClient.invalidateQueries({
-                    queryKey: COMMENT_QUERY_KEYS.replies(variables.parent_comment_id)
+                    queryKey: COMMENT_QUERY_KEYS.replies(
+                        variables.parent_comment_id
+                    )
                 });
             } else {
                 queryClient.invalidateQueries({
@@ -90,7 +112,7 @@ export function useCreateComment() {
             toast({
                 title: 'Error',
                 description: error.error || 'Failed to add comment',
-                variant: 'destructive',
+                variant: 'destructive'
             });
         }
     });
@@ -109,7 +131,7 @@ export function useUpdateComment() {
         onSuccess: (_, variables) => {
             toast({
                 title: 'Success',
-                description: 'Comment updated successfully',
+                description: 'Comment updated successfully'
             });
             queryClient.invalidateQueries({
                 queryKey: COMMENT_QUERY_KEYS.detail(variables.commentId)
@@ -119,7 +141,7 @@ export function useUpdateComment() {
             toast({
                 title: 'Error',
                 description: error.error || 'Failed to update comment',
-                variant: 'destructive',
+                variant: 'destructive'
             });
         }
     });
@@ -138,7 +160,7 @@ export function useDeleteComment() {
         onSuccess: (_, commentId) => {
             toast({
                 title: 'Success',
-                description: 'Comment deleted successfully',
+                description: 'Comment deleted successfully'
             });
             queryClient.invalidateQueries({
                 queryKey: COMMENT_QUERY_KEYS.all
@@ -151,7 +173,7 @@ export function useDeleteComment() {
             toast({
                 title: 'Error',
                 description: error.error || 'Failed to delete comment',
-                variant: 'destructive',
+                variant: 'destructive'
             });
         }
     });

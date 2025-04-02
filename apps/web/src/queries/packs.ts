@@ -45,7 +45,7 @@ export async function notifyServerPackTxn({
         } as ApiError;
     }
 
-    let data = response.json();
+    const data = response.json();
 
     return data;
 }
