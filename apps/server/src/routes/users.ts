@@ -117,43 +117,48 @@ router.get('/status/:privyId', async (req, res) => {
 // Get user by username
 
 // Create new user
-router.post('/create', upload.single('avatar'), async (req, res) => {
-    try {
-        // Validate the request body
-        const validatedData = createUserSchema.parse({
-            email: req.body.email,
-            username: req.body.username,
-            privy_id: req.body.privy_id,
-            wallet_address: req.body.wallet_address || undefined
-        });
+router.post(
+    '/create',
+    validateSchema(createUserSchema),
+    upload.single('avatar'),
+    async (req, res) => {
+        try {
+            // Validate the request body
+            const validatedData = createUserSchema.parse({
+                email: req.body.email,
+                username: req.body.username,
+                privy_id: req.body.privy_id,
+                wallet_address: req.body.wallet_address || undefined
+            });
 
-        const newUser = await userService.createUser({
-            ...validatedData,
-            avatarFile: req.file // Pass the file if it exists
-        });
+            const newUser = await userService.createUser({
+                ...validatedData,
+                avatarFile: req.file // Pass the file if it exists
+            });
 
-        return res.status(201).json({
-            id: newUser.id,
-            email: newUser.email,
-            username: newUser.username,
-            avatar_url: newUser.avatar_url,
-            role: newUser.role
-        });
-    } catch (error: any) {
-        console.error('Error in POST /create:', error);
-        if (error.code === 'LIMIT_FILE_SIZE') {
-            return res
-                .status(400)
-                .json({ error: 'File size cannot exceed 5MB' });
+            return res.status(201).json({
+                id: newUser.id,
+                email: newUser.email,
+                username: newUser.username,
+                avatar_url: newUser.avatar_url,
+                role: newUser.role
+            });
+        } catch (error: any) {
+            console.error('Error in POST /create:', error);
+            if (error.code === 'LIMIT_FILE_SIZE') {
+                return res
+                    .status(400)
+                    .json({ error: 'File size cannot exceed 5MB' });
+            }
+            if (error.name === 'ZodError') {
+                return res.status(400).json({ error: error.errors[0].message });
+            }
+            return res.status(error.statusCode || 500).json({
+                error: error.message || 'Failed to create user'
+            });
         }
-        if (error.name === 'ZodError') {
-            return res.status(400).json({ error: error.errors[0].message });
-        }
-        return res.status(error.statusCode || 500).json({
-            error: error.message || 'Failed to create user'
-        });
     }
-});
+);
 
 // Get all the cards owned by a privy Id
 router.get('/cards/:privyId', async (req, res) => {
