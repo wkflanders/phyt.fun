@@ -11,34 +11,38 @@ const router: Router = express.Router();
 router.use(validateAuth);
 
 // Toggle a reaction on a post or comment
-router.post('/', validateSchema(createReactionSchema), async (req, res) => {
-    const { user_id, post_id, comment_id, type } = req.body;
+router.post(
+    '/',
+    validateSchema(createReactionSchema),
+    async (req: Request<undefined>, res: Response<>) => {
+        const { user_id, post_id, comment_id, type } = req.body;
 
-    if (!user_id) {
-        throw new NotFoundError('Missing valid user Id');
+        if (!user_id) {
+            throw new NotFoundError('Missing valid user Id');
+        }
+
+        if (!post_id) {
+            throw new NotFoundError('Missing valid post Id');
+        }
+
+        if (!comment_id) {
+            throw new NotFoundError('Missing valid comment Id');
+        }
+
+        if (!type) {
+            throw new NotFoundError('Missing valid reaction');
+        }
+
+        const result = await reactionService.toggleReaction({
+            userId: user_id, // From auth middleware
+            postId: post_id,
+            commentId: comment_id,
+            type
+        });
+
+        res.status(200).json(result);
     }
-
-    if (!post_id) {
-        throw new NotFoundError('Missing valid post Id');
-    }
-
-    if (!comment_id) {
-        throw new NotFoundError('Missing valid comment Id');
-    }
-
-    if (!type) {
-        throw new NotFoundError('Missing valid reaction');
-    }
-
-    const result = await reactionService.toggleReaction({
-        userId: user_id, // From auth middleware
-        postId: post_id,
-        commentId: comment_id,
-        type
-    });
-
-    res.status(200).json(result);
-});
+);
 
 // Get reactions for a post
 router.get('/post/:postId', async (req, res) => {
