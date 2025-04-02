@@ -791,9 +791,12 @@ export type Reaction = 'like' | 'funny' | 'insightful' | 'fire';
 
 export type ReactionCount = Record<string, number>;
 
+export type ReactionAction = 'added' | 'removed';
+
 export interface ReactionToggleRequest {
-    post_id?: number;
-    comment_id?: number;
+    user_id: number;
+    post_id: number;
+    comment_id: number;
     type: Reaction;
 }
 
