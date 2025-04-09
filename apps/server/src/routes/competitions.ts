@@ -18,9 +18,9 @@ router.get(
     '/',
     async (
         req: Request<
-            Record<string, never>,
+            undefined,
             Competition[],
-            Record<string, never>,
+            undefined,
             { active: boolean; type: string }
         >,
         res: Response<Competition[]>
