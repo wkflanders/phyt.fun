@@ -789,7 +789,7 @@ export interface CommentResponse {
 
 export type Reaction = 'like' | 'funny' | 'insightful' | 'fire';
 
-export type ReactionCount = Record<string, number>;
+export type ReactionCount = Record<Reaction, number>;
 
 export type ReactionAction = 'added' | 'removed';
 
@@ -801,7 +801,7 @@ export interface ReactionToggleRequest {
 }
 
 export interface ReactionToggleResponse {
-    action: 'added' | 'removed';
+    action: ReactionAction;
     reaction: Reaction;
 }
 
