@@ -22,10 +22,10 @@
         "db:reset": "pnpm --filter @phyt/database run db:reset"
     },
     "devDependencies": {
-        "@types/node": "^22.13.14",
-        "eslint": "^9.23.0",
+        "@types/node": "^22.14.0",
+        "eslint": "^9.24.0",
         "prettier": "^3.5.3",
-        "turbo": "^2.4.4",
+        "turbo": "^2.5.0",
         "typescript": "5.7.3"
     },
     "packageManager": "pnpm@10.7.0",
