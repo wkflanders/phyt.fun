@@ -16,6 +16,7 @@ import {
     ValidationError,
     CardWithMetadata,
     User,
+    UserWithStatus,
     Transaction
 } from '@phyt/types';
 
@@ -28,7 +29,7 @@ export const userService = {
     getUserByPrivyId: async (
         privyId: string,
         checkStatus = false
-    ): Promise<(User & { status?: string }) | User> => {
+    ): Promise<UserWithStatus | User> => {
         if (!privyId) throw new ValidationError('Privy ID is required');
 
         try {
