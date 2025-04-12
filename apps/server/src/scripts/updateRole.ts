@@ -5,15 +5,17 @@ type UserRole = 'runner' | 'admin';
 async function updateUserRole(userId: number, role: UserRole) {
     try {
         // Update user role
-        const [updatedUser] = await db
+        const results = await db
             .update(users)
             .set({ role })
             .where(eq(users.id, userId))
             .returning();
 
-        if (!updatedUser) {
-            throw new Error(`No user found with ID ${userId}`);
+        if (!results.length) {
+            throw new Error(`No user found with ID ${String(userId)}`);
         }
+
+        const updatedUser = results[0];
 
         // If updating to runner role, handle runner-specific logic
         if (role === 'runner') {
@@ -34,18 +36,25 @@ async function updateUserRole(userId: number, role: UserRole) {
                         total_distance_m: 0,
                         total_runs: 0,
                         best_mile_time: null,
-                        runner_wallet: user
+                        runner_wallet: updatedUser.wallet_address
                     })
                     .returning();
 
-                console.log(`Created new runner entry with ID ${newRunner.id}`);
+                console.log(
+                    `Created new runner entry with ID ${String(newRunner.id)}`
+                );
             }
         }
 
-        console.log(`Successfully updated user ${updatedUser.username} (ID: ${updatedUser.id}) to ${role} role`);
+        console.log(
+            `Successfully updated user ${String(updatedUser.username)} (ID: ${String(updatedUser.id)}) to ${role} role`
+        );
         return updatedUser;
     } catch (error) {
-        console.error(`Failed to update user ${userId} to ${role}:`, error);
+        console.error(
+            `Failed to update user ${String(userId)} to ${role}:`,
+            error
+        );
         throw error;
     }
 }
@@ -80,4 +89,7 @@ async function main() {
     }
 }
 
-main();
+void main().catch((error: unknown) => {
+    console.error('Unhandled error:', error);
+    process.exit(1);
+});
