@@ -33,7 +33,8 @@ async function updateUserRole(userId: number, role: UserRole) {
                         average_pace: null,
                         total_distance_m: 0,
                         total_runs: 0,
-                        best_mile_time: null
+                        best_mile_time: null,
+                        runner_wallet: user
                     })
                     .returning();
 
