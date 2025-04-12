@@ -96,8 +96,6 @@ export const RarityMultipliers: Record<CardRarity, number> = {
 
 export interface User {
     id: number;
-    updated_at: Date;
-    created_at: Date;
     email: string;
     username: string;
     role: UserRole;
@@ -107,10 +105,23 @@ export interface User {
     phytness_points: number | null;
     twitter_handle: string | null;
     strava_handle: string | null;
+    created_at: Date;
+    updated_at: Date;
+}
+
+export interface UserWithStatus extends User {
+    status?: RunnerStatus;
+}
+
+export interface CreateUserFormData extends FormData {
+    email: string;
+    username: string;
+    privy_id: string;
+    wallet_address: `0x${string}`;
 }
 
 export interface CreateUserInput {
-    formData: FormData;
+    formData: CreateUserFormData;
 }
 
 export interface Run {
