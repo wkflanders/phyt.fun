@@ -19,7 +19,9 @@ export const createUserSchema = z.object({
     privy_id: z.string({
         required_error: 'Privy ID is required'
     }),
-    wallet_address: z.string().optional()
+    wallet_address: z.string({
+        required_error: 'Wallet address is required'
+    }).regex(/^0x[a-fA-F0-9]+$/, 'Wallet address must be a valid address')
 });
 
 export const purchasePackSchema = z.object({
