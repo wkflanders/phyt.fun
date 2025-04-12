@@ -1,4 +1,5 @@
-import express, { Router } from 'express';
+import { NotFoundError, Transaction, User, UserWithStatus, CreateUserFormData, CardWithMetadata } from '@phyt/types';
+import express, { Router, Request, Response } from 'express';
 import multer from 'multer';
 
 import { createUserSchema } from '@/lib/validation';
@@ -24,92 +25,60 @@ const upload = multer({
 router.use(validateAuth);
 
 // Get all user transactions
-router.get('/transactions/:privyId', async (req, res) => {
-    try {
-        const transactions = await userService.getTransactionsByPrivyId(
-            req.params.privyId
-        );
-        return res.status(200).json(transactions);
-    } catch (error: any) {
-        console.error('Error in GET /users/:privyId/transactions:', error);
-        return res.status(error.statusCode || 500).json({
-            error: error.message || 'Failed to fetch user transactions'
-        });
+router.get('/transactions/:privyId', async (req: Request<{ privyId: string; }, Transaction[]>, res: Response<Transaction[]>) => {
+    const { privyId } = req.params;
+
+    if (!privyId) {
+        throw new NotFoundError('Missing valid id');
     }
+
+    const result = await userService.getTransactionsByPrivyId(privyId);
+
+    res.status(200).json(result);
 });
 
 // Get user by privy Id
-router.get('/:privyId', async (req, res) => {
-    try {
-        const user = await userService.getUserByPrivyId(req.params.privyId);
-        return res.status(200).json({
-            id: user.id,
-            email: user.email,
-            username: user.username,
-            avatar_url: user.avatar_url,
-            role: user.role,
-            wallet_address: user.wallet_address,
-            phytness_points: user.phytness_points,
-            created_at: user.created_at,
-            updated_at: user.updated_at
-        });
-    } catch (error: any) {
-        console.error('Error in GET /:privyId:', error);
-        return res.status(error.statusCode || 500).json({
-            error: error.message || 'Failed to fetch user data'
-        });
+router.get('/:privyId', async (req: Request<{ privyId: string; }, User>, res: Response<User>) => {
+    const { privyId } = req.params;
+
+    if (!privyId) {
+        throw new NotFoundError('Missing valid id');
     }
+
+    const user = await userService.getUserByPrivyId(privyId);
+
+    res.status(200).json(user);
 });
 
-router.get('/:walletAddress', async (req, res) => {
-    try {
-        const user = await userService.getUserByWalletAddress(
-            req.params.walletAddress
-        );
-        return res.status(200).json({
-            id: user.id,
-            email: user.email,
-            username: user.username,
-            avatar_url: user.avatar_url,
-            role: user.role,
-            wallet_address: user.wallet_address,
-            phytness_points: user.phytness_points,
-            created_at: user.created_at,
-            updated_at: user.updated_at
-        });
-    } catch (error: any) {
-        console.error('Error in GET /:privyId:', error);
-        return res.status(error.statusCode || 500).json({
-            error: error.message || 'Failed to fetch user data'
-        });
+router.get('/:walletAddress', async (req: Request<{ walletAddress: string; }, User>, res: Response<User>) => {
+    const { walletAddress } = req.params;
+
+    if (!walletAddress) {
+        throw new NotFoundError('Missing valid wallet address');
     }
+
+    const user = await userService.getUserByWalletAddress(
+        walletAddress
+    );
+    res.status(200).json(user);
 });
+
+/// COME BACK TO THIS TO MAKE SURE THAT STATUS WILL NEVER BE RETURNED UNDEFINED (WHAT IF HAVENT CREATED A ROW IN RUNNER TABLE FOR USER?)
 
 // Get user by privy Id with runner status
-router.get('/status/:privyId', async (req, res) => {
-    try {
-        const user = await userService.getUserByPrivyId(
-            req.params.privyId,
-            true
-        );
-        return res.status(200).json({
-            id: user.id,
-            email: user.email,
-            username: user.username,
-            avatar_url: user.avatar_url,
-            role: user.role,
-            wallet_address: user.wallet_address,
-            phytness_points: user.phytness_points,
-            status: (user as any).status,
-            created_at: user.created_at,
-            updated_at: user.updated_at
-        });
-    } catch (error: any) {
-        console.error('Error in GET /:privyId/status:', error);
-        return res.status(error.statusCode || 500).json({
-            error: error.message || 'Failed to fetch user data'
-        });
+router.get('/status/:privyId', async (req: Request<{ privyId: string; }, UserWithStatus>, res: Response<UserWithStatus>) => {
+    const { privyId } = req.params;
+
+    if (!privyId) {
+        throw new NotFoundError('Missing valid id');
     }
+
+    const user = await userService.getUserByPrivyId(
+        privyId,
+        true
+    );
+
+    res.status(200).json(user);
 });
 
 // Get user by email
@@ -121,56 +90,38 @@ router.post(
     '/create',
     validateSchema(createUserSchema),
     upload.single('avatar'),
-    async (req, res) => {
-        try {
-            // Validate the request body
-            const validatedData = createUserSchema.parse({
-                email: req.body.email,
-                username: req.body.username,
-                privy_id: req.body.privy_id,
-                wallet_address: req.body.wallet_address || undefined
-            });
+    async (req: Request<Record<string, never>, User, CreateUserFormData>, res: Response<User>) => {
 
-            const newUser = await userService.createUser({
-                ...validatedData,
-                avatarFile: req.file // Pass the file if it exists
-            });
+        const {
+            email,
+            username,
+            privy_id,
+            wallet_address
+        } = req.body;
 
-            return res.status(201).json({
-                id: newUser.id,
-                email: newUser.email,
-                username: newUser.username,
-                avatar_url: newUser.avatar_url,
-                role: newUser.role
-            });
-        } catch (error: any) {
-            console.error('Error in POST /create:', error);
-            if (error.code === 'LIMIT_FILE_SIZE') {
-                return res
-                    .status(400)
-                    .json({ error: 'File size cannot exceed 5MB' });
-            }
-            if (error.name === 'ZodError') {
-                return res.status(400).json({ error: error.errors[0].message });
-            }
-            return res.status(error.statusCode || 500).json({
-                error: error.message || 'Failed to create user'
-            });
-        }
-    }
-);
+        const newUser = await userService.createUser({
+            email,
+            username,
+            privy_id,
+            wallet_address,
+            avatarFile: req.file // Pass the file if it exists
+        });
+
+        res.status(201).json(newUser);
+
+    });
 
 // Get all the cards owned by a privy Id
-router.get('/cards/:privyId', async (req, res) => {
-    try {
-        const cards = await userService.getCardsByPrivyId(req.params.privyId);
-        return res.status(200).json(cards);
-    } catch (error: any) {
-        console.error('Error in GET /users/:privyId/cards:', error);
-        return res.status(error.statusCode || 500).json({
-            error: error.message || 'Failed to fetch user cards'
-        });
+router.get('/cards/:privyId', async (req: Request<{ privyId: string; }, CardWithMetadata[]>, res: Response<CardWithMetadata[]>) => {
+    const { privyId } = req.params;
+
+    if (!privyId) {
+        throw new NotFoundError('Missing valid id');
     }
+
+    const cards = await userService.getCardsByPrivyId(privyId);
+
+    res.status(200).json(cards);
 });
 
 router.get('/');
