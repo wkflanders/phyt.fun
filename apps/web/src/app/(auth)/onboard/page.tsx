@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 
-import { ApiError } from '@phyt/types';
+import { ApiError, CreateUserFormData } from '@phyt/types';
 import { usePrivy } from '@privy-io/react-auth';
 import { useRouter } from 'next/navigation';
 
@@ -10,7 +10,6 @@ import { OnboardForm } from '@/components/OnboardForm';
 import { useToast } from '@/hooks/use-toast';
 import { useCreateUser, useGetUser } from '@/hooks/use-users';
 import { onboardFormSchema } from '@/lib/validation';
-
 
 export default function OnboardPage() {
     const router = useRouter();
@@ -30,9 +29,9 @@ export default function OnboardPage() {
     const handleSubmit = async (formData: FormData) => {
         if (!user?.google) {
             toast({
-                title: "Error",
-                description: "User email not found",
-                variant: "destructive",
+                title: 'Error',
+                description: 'User email not found',
+                variant: 'destructive'
             });
             return;
         }
@@ -40,35 +39,41 @@ export default function OnboardPage() {
         try {
             setIsSubmitting(true);
 
+            // Create a properly typed FormData object
+            const typedFormData = formData as unknown as CreateUserFormData;
+
             // Add additional user data to FormData
-            formData.append('email', user.google.email);
-            formData.append('privy_id', user.id);
+            typedFormData.append('email', user.google.email);
+            typedFormData.append('privy_id', user.id);
             if (user.wallet?.address) {
-                formData.append('wallet_address', user.wallet.address);
+                typedFormData.append('wallet_address', user.wallet.address);
             }
 
-            await createUser.mutateAsync({ formData });
+            await createUser.mutateAsync({ formData: typedFormData });
 
             router.push('/');
 
             toast({
-                title: "Success",
-                description: "Profile created successfully!",
+                title: 'Success',
+                description: 'Profile created successfully!'
             });
         } catch (error) {
             const apiError = error as ApiError;
 
             if (apiError.status === 409) {
                 toast({
-                    title: "Error",
-                    description: "Username already exists. Please choose another one.",
-                    variant: "destructive",
+                    title: 'Error',
+                    description:
+                        'Username already exists. Please choose another one.',
+                    variant: 'destructive'
                 });
             } else {
                 toast({
-                    title: "Error",
-                    description: apiError.error || "Failed to create profile. Please try again.",
-                    variant: "destructive",
+                    title: 'Error',
+                    description:
+                        apiError.error ||
+                        'Failed to create profile. Please try again.',
+                    variant: 'destructive'
                 });
             }
         } finally {
@@ -81,7 +86,7 @@ export default function OnboardPage() {
             <OnboardForm
                 schema={onboardFormSchema}
                 defaultValues={{
-                    username: '',
+                    username: ''
                 }}
                 onSubmit={handleSubmit}
                 isSubmitting={isSubmitting || createUser.isPending}
