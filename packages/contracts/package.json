@@ -10,7 +10,7 @@
         "clean": "rm -rf .turbo node_modules abi"
     },
     "devDependencies": {
-        "@phyt/typescript-config": "workspace:*",
+        "@phyt/tsconfig": "workspace:*",
         "@types/node": "^20.17.28",
         "tsx": "^4.19.3",
         "typescript": "^5.8.2"

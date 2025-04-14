@@ -16,7 +16,7 @@
         "@eslint/eslintrc": "^3.1.0",
         "@eslint/js": "^9.23.0",
         "@next/eslint-plugin-next": "^15.2.4",
-        "@phyt/typescript-config": "workspace:*",
+        "@phyt/tsconfig": "workspace:*",
         "@tanstack/eslint-plugin-query": "^5.68.0",
         "@typescript-eslint/eslint-plugin": "^8.28.0",
         "@typescript-eslint/parser": "^8.28.0",

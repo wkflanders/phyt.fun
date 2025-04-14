@@ -12,7 +12,7 @@
     },
     "devDependencies": {
         "@phyt/eslint": "workspace:*",
-        "@phyt/typescript-config": "workspace:*",
+        "@phyt/tsconfig": "workspace:*",
         "@types/express": "^5.0.1",
         "eslint": "^9.23.0",
         "eslint-config-prettier": "^9.1.0",

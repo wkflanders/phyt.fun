@@ -1,5 +1,5 @@
 {
-    "extends": "@phyt/typescript-config/base.json",
+    "extends": "@phyt/tsconfig/base.json",
     "compilerOptions": {
         "outDir": "dist",
         "baseUrl": ".",

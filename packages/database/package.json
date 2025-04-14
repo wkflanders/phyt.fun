@@ -23,7 +23,7 @@
     },
     "devDependencies": {
         "@phyt/eslint": "workspace:*",
-        "@phyt/typescript-config": "workspace:*",
+        "@phyt/tsconfig": "workspace:*",
         "@types/pg": "^8.11.11",
         "@types/ws": "^8.18.0",
         "drizzle-kit": "^0.30.6",
