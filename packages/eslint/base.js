@@ -3,6 +3,7 @@ import turboPlugin from 'eslint-plugin-turbo';
 import tseslint from 'typescript-eslint';
 import pluginImport from 'eslint-plugin-import';
 import pluginUnicorn from 'eslint-plugin-unicorn';
+import path from 'node:path';
 
 /** @type {import("eslint").Linter.Config[]} */
 export const config = [
@@ -27,8 +28,12 @@ export const config = [
         languageOptions: {
             parser: tseslint.parser,
             parserOptions: {
-                project: true,
-                tsconfigRootDir: process.cwd()
+                project: [
+                    './tsconfig.json',
+                    './packages/*/tsconfig.json',
+                    './apps/*/tsconfig.json'
+                ],
+                tsconfigRootDir: path.resolve(process.cwd(), '../../')
             }
         },
         plugins: {
