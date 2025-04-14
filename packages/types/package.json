@@ -11,7 +11,7 @@
         "type-check": "tsc --noEmit"
     },
     "devDependencies": {
-        "@phyt/eslint-config": "workspace:*",
+        "@phyt/eslint": "workspace:*",
         "@phyt/typescript-config": "workspace:*",
         "@types/express": "^5.0.1",
         "eslint": "^9.23.0",

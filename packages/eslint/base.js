@@ -3,11 +3,6 @@ import turboPlugin from 'eslint-plugin-turbo';
 import tseslint from 'typescript-eslint';
 import pluginImport from 'eslint-plugin-import';
 import pluginUnicorn from 'eslint-plugin-unicorn';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 /** @type {import("eslint").Linter.Config[]} */
 export const config = [
@@ -21,7 +16,7 @@ export const config = [
             'eslint.config.js',
             // "eslint.config.mjs",
             'eslint.config.cjs',
-            'packages/eslint-config'
+            'packages/eslint'
         ]
     },
     js.configs.recommended,

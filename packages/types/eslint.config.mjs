@@ -1,4 +1,4 @@
-import { config as baseConfig } from '@phyt/eslint-config/base';
+import { config as baseConfig } from '@phyt/eslint/base';
 import eslintConfigPrettier from 'eslint-config-prettier';
 // import { URL } from 'node:url';
 
