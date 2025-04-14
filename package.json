@@ -7,7 +7,7 @@
         "dev": "turbo dev",
         "lint": "turbo lint",
         "clean": "rm -rf node_modules && turbo clean",
-        "rebuild": "pnpm run clean && pnpm install && pnpm run build",
+        "rebuild": "pnpm exec turbo clean && pnpm install && pnpm exec turbo build",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
         "type-check": "turbo type-check",
         "db:up": "docker compose up -d",
