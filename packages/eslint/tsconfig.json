@@ -1,13 +1,16 @@
 {
     "extends": "@phyt/tsconfig/library.json",
     "compilerOptions": {
-        "outDir": "dist",
+        "module": "esnext",
+        "target": "es2020",
+        "moduleResolution": "node",
+        "outDir": "./dist",
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
         "typeRoots": ["./node_modules/@types", "src/eslint_types"],
         "baseUrl": ".",
-        // "noEmit": true,
         "strict": false,
         "skipLibCheck": true
-        // "allowImportingTsExtensions": true
     },
     "include": ["src/**/*.ts", "src/eslint_types/**/*.d.ts"],
     "exclude": ["dist", "node_modules"]
