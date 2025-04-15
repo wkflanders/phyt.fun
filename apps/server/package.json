@@ -3,8 +3,9 @@
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "dev": "nodemon",
+        "prebuild": "pnpm exec turbo clean && pnpm install",
         "build": "tsc",
+        "dev": "nodemon",
         "start": "node dist/index.js",
         "type-check": "tsc --noEmit",
         "clean": "rm -rf dist .turbo node_modules",

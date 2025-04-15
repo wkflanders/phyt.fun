@@ -5,7 +5,8 @@
     "main": "./abi/index.js",
     "types": "./abi/index.d.ts",
     "scripts": {
-        "build": "forge build && pnpm run export-abis && tsc",
+        "prebuild": "pnpm exec turbo clean && pnpm install",
+        "build": "forge build && tsx script/export-abis.ts && tsc",
         "export-abis": "tsx script/export-abis.ts",
         "clean": "rm -rf .turbo node_modules abi"
     },

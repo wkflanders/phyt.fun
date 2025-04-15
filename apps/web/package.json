@@ -3,8 +3,9 @@
     "version": "1.0.0",
     "private": true,
     "scripts": {
-        "dev": "next dev",
+        "prebuild": "pnpm exec turbo clean && pnpm install",
         "build": "next build",
+        "dev": "next dev",
         "start": "next start",
         "lint": "next lint",
         "lint:fix": "next lint --fix",

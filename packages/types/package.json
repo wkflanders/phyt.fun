@@ -5,6 +5,7 @@
     "main": "./dist/src/index.js",
     "types": "./dist/src/index.d.ts",
     "scripts": {
+        "prebuild": "pnpm exec turbo clean && pnpm install",
         "build": "tsc",
         "clean": "rm -rf dist .turbo node_modules",
         "lint": "eslint .",
@@ -13,6 +14,7 @@
     "devDependencies": {
         "@phyt/eslint": "workspace:*",
         "@phyt/tsconfig": "workspace:*",
+        "@types/eslint-config-prettier": "^6.11.3",
         "@types/express": "^5.0.1",
         "eslint": "^9.23.0",
         "eslint-config-prettier": "^9.1.0",

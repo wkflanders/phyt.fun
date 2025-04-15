@@ -3,11 +3,11 @@
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "build": "pnpm exec turbo build",
+        "prebuild": "pnpm exec turbo clean && pnpm install",
+        "build": "pnpm run prebuild && pnpm exec turbo build",
         "dev": "turbo dev",
         "lint": "turbo lint",
         "clean": "rm -rf node_modules && turbo clean",
-        "rebuild": "pnpm exec turbo clean && pnpm install && pnpm exec turbo build",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
         "type-check": "turbo type-check",
         "db:up": "docker compose up -d",

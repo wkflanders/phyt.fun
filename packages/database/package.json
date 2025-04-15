@@ -5,6 +5,7 @@
     "main": "./dist/src/index.js",
     "types": "./dist/src/index.d.ts",
     "scripts": {
+        "prebuild": "pnpm exec turbo clean && pnpm install",
         "build": "tsc",
         "clean": "rm -rf dist .turbo node_modules",
         "lint": "eslint .",
