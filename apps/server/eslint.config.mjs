@@ -1,4 +1,4 @@
-import { serverConfig } from '@phyt/eslint/server';
+import { serverConfig } from '@phyt/eslint';
 
 /** @type {import("eslint").Linter.Config} */
 export default serverConfig;
