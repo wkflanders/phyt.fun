@@ -1,8 +1,11 @@
 {
     "extends": "@phyt/tsconfig/base.json",
     "compilerOptions": {
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "module": "ESNext",
+        "moduleResolution": "node"
     },
-    "include": ["abi/**/*"],
+    "include": ["src/**/*", "abi/**/*"],
     "exclude": ["node_modules"]
 }
