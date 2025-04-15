@@ -1,12 +1,19 @@
 import eslintConfigPrettier from 'eslint-config-prettier';
-import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
-import tailwindPlugin from 'eslint-plugin-tailwindcss';
-import queryPlugin from '@tanstack/eslint-plugin-query';
-import pluginReactHooks from 'eslint-plugin-react-hooks';
-import pluginReact from 'eslint-plugin-react';
+import * as jsxA11yPluginNs from 'eslint-plugin-jsx-a11y';
+import * as tailwindPluginNs from 'eslint-plugin-tailwindcss';
+import * as queryPluginNs from '@tanstack/eslint-plugin-query';
+import * as pluginReactHooksNs from 'eslint-plugin-react-hooks';
+import * as pluginReactNs from 'eslint-plugin-react';
 import globals from 'globals';
-import pluginNext from '@next/eslint-plugin-next';
+import * as pluginNextNs from '@next/eslint-plugin-next';
 import { config as baseConfig } from './base.js';
+
+const jsxA11yPlugin = jsxA11yPluginNs;
+const tailwindPlugin = tailwindPluginNs;
+const queryPlugin = queryPluginNs.default ?? queryPluginNs;
+const pluginReactHooks = pluginReactHooksNs;
+const pluginReact = pluginReactNs;
+const pluginNext = pluginNextNs.default ?? pluginNextNs;
 
 /**
  * A custom ESLint configuration for libraries that use Next.js.
@@ -98,10 +105,12 @@ export const nextJsConfig: import('eslint').Linter.Config[] = [
     {
         files: ['**/*.{js,jsx,ts,tsx}'],
         plugins: {
+            // Use resolved plugin
             '@tanstack/query': queryPlugin
         },
         rules: {
-            ...queryPlugin.configs.recommended.rules
+            // Use optional chaining and nullish coalescing for safety
+            ...((queryPlugin as any).configs?.recommended?.rules ?? {})
         }
     },
     eslintConfigPrettier

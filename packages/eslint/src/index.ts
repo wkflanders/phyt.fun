@@ -1,4 +1,4 @@
-export { config as baseConfig } from './base.js';
-export { drizzleConfig } from './drizzle.js';
-export { nextJsConfig } from './next.js';
-export { serverConfig } from './server.js';
+export { config as baseConfig } from './base';
+export { drizzleConfig } from './drizzle';
+export { nextJsConfig } from './next';
+export { serverConfig } from './server';

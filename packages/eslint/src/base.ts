@@ -1,9 +1,13 @@
 import js from '@eslint/js';
 import turboPlugin from 'eslint-plugin-turbo';
 import tseslint from 'typescript-eslint';
-import pluginImport from 'eslint-plugin-import';
-import pluginUnicorn from 'eslint-plugin-unicorn';
+import * as pluginImportNs from 'eslint-plugin-import';
+import * as pluginUnicornNs from 'eslint-plugin-unicorn';
 import path from 'node:path';
+
+const resolvedPluginImport = pluginImportNs.default ?? pluginImportNs;
+
+const resolvedPluginUnicorn = pluginUnicornNs.default ?? pluginUnicornNs;
 
 /** @type {import("eslint").Linter.Config[]} */
 export const config: import('eslint').Linter.Config[] = [
@@ -38,7 +42,7 @@ export const config: import('eslint').Linter.Config[] = [
         },
         plugins: {
             '@typescript-eslint': tseslint.plugin as any,
-            import: pluginImport as any
+            import: resolvedPluginImport as any
         },
         settings: {
             'import/resolver': {
@@ -119,7 +123,7 @@ export const config: import('eslint').Linter.Config[] = [
     },
     {
         plugins: {
-            unicorn: pluginUnicorn
+            unicorn: resolvedPluginUnicorn
         },
         rules: {
             'unicorn/prefer-node-protocol': 'warn'
