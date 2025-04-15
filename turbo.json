@@ -1,14 +1,24 @@
 {
     "$schema": "https://turbo.build/schema.v2.json",
-    "globalEnv": [".env"],
+    "globalEnv": [
+        ".env"
+    ],
     "tasks": {
         "prebuild": {
             "outputs": [],
             "cache": false
         },
         "build": {
-            "dependsOn": ["prebuild", "^build"],
-            "outputs": [".next/**", "dist/**", "build/**", "src/**/*.json"],
+            "dependsOn": [
+                "prebuild",
+                "^build"
+            ],
+            "outputs": [
+                ".next/**",
+                "dist/**",
+                "build/**",
+                "src/**/*.json"
+            ],
             "env": [
                 "NEXT_PUBLIC_PRIVY_APP_ID",
                 "PRIVY_SECRET_KEY",
@@ -37,12 +47,33 @@
                 "NODE_ENV"
             ]
         },
+        "@phyt/eslint#build": {
+            "outputs": []
+        },
+        "@phyt/database#build": {
+            "outputs": []
+        },
+        "@phyt/types#build": {
+            "outputs": []
+        },
+        "@phyt/web#build": {
+            "dependsOn": [
+                "@phyt/database#build",
+                "@phyt/server#build"
+            ]
+        },
         "type-check": {
-            "dependsOn": ["build", "^type-check"],
+            "dependsOn": [
+                "build",
+                "^type-check"
+            ],
             "outputs": []
         },
         "lint": {
-            "dependsOn": ["type-check", "^lint"],
+            "dependsOn": [
+                "type-check",
+                "^lint"
+            ],
             "outputs": []
         },
         "dev": {
