@@ -2,6 +2,10 @@
     "extends": "@phyt/tsconfig/base.json",
     "compilerOptions": {
         "outDir": "dist",
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "module": "ESNext",
+        "moduleResolution": "node",
         "baseUrl": ".",
         "noErrorTruncation": true,
         "paths": {
