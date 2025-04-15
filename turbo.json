@@ -2,9 +2,12 @@
     "$schema": "https://turbo.build/schema.v2.json",
     "globalEnv": [".env"],
     "tasks": {
+        "prebuild": {
+            "outputs": []
+        },
         "build": {
-            "dependsOn": ["^build"],
-            "outputs": ["dist/**", ".next/**", "build/**"],
+            "dependsOn": ["prebuild", "^build"],
+            "outputs": ["abi/**", "dist/**", ".next/**", "build/**"],
             "env": [
                 "NEXT_PUBLIC_PRIVY_APP_ID",
                 "PRIVY_SECRET_KEY",
