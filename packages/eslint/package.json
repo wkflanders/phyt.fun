@@ -1,20 +1,19 @@
 {
     "name": "@phyt/eslint",
     "version": "0.0.0",
-    "type": "module",
     "private": true,
     "main": "./dist/src/index.js",
     "types": "./dist/src/index.d.ts",
     "scripts": {
         "prebuild": "pnpm exec turbo clean && pnpm install",
         "build": "tsc",
-        "clean": "rm -rf .turbo node_modules"
+        "clean": "rm -rf .turbo dist node_modules"
     },
     "devDependencies": {
+        "@phyt/tsconfig": "workspace:*",
         "@eslint/eslintrc": "^3.1.0",
         "@eslint/js": "^9.23.0",
         "@next/eslint-plugin-next": "^15.2.4",
-        "@phyt/tsconfig": "workspace:*",
         "@tanstack/eslint-plugin-query": "^5.68.0",
         "@types/eslint-config-prettier": "^6.11.3",
         "@types/eslint-plugin-jsx-a11y": "^6.10.0",
