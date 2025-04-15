@@ -3,7 +3,6 @@
     "version": "1.0.0",
     "private": true,
     "scripts": {
-        "prebuild": "pnpm exec turbo clean && pnpm install",
         "build": "next build",
         "dev": "next dev",
         "start": "next start",
@@ -13,10 +12,10 @@
         "clean": "rm -rf .next .turbo node_modules"
     },
     "dependencies": {
-        "@hookform/resolvers": "^3.10.0",
         "@phyt/eslint": "workspace:*",
         "@phyt/contracts": "workspace:*",
         "@phyt/types": "workspace:*",
+        "@hookform/resolvers": "^3.10.0",
         "@privy-io/react-auth": "^2.7.2",
         "@privy-io/wagmi": "^1.0.3",
         "@radix-ui/react-dialog": "^1.1.6",

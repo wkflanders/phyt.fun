@@ -2,13 +2,12 @@
     "name": "@phyt/contracts",
     "version": "0.0.0",
     "private": true,
-    "main": "./abi/index.js",
-    "types": "./abi/index.d.ts",
+    "main": "./src/index.ts",
+    "types": "./src/index.ts",
     "scripts": {
-        "prebuild": "pnpm exec turbo clean && pnpm install",
-        "build": "forge build && tsx script/export-abis.ts && tsc",
+        "build": "forge build && tsx script/export-abis.ts",
         "export-abis": "tsx script/export-abis.ts",
-        "clean": "rm -rf .turbo node_modules abi"
+        "clean": "rm -rf .turbo node_modules src/*.json"
     },
     "devDependencies": {
         "@phyt/tsconfig": "workspace:*",

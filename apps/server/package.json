@@ -3,15 +3,14 @@
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "prebuild": "pnpm exec turbo clean && pnpm install",
-        "build": "tsc",
         "dev": "nodemon",
-        "start": "node dist/index.js",
-        "type-check": "tsc --noEmit",
-        "clean": "rm -rf dist .turbo node_modules",
+        "build": "tsc",
+        "start": "node src/index.ts",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
-        "update-role": "ts-node ./src/scripts/updateRole.ts"
+        "type-check": "tsc --noEmit",
+        "update-role": "ts-node ./src/scripts/updateRole.ts",
+        "clean": "rm -rf .turbo node_modules"
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.779.0",

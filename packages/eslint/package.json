@@ -3,12 +3,11 @@
     "version": "0.0.0",
     "type": "module",
     "private": true,
-    "main": "./dist/src/index.js",
-    "types": "./dist/src/index.d.ts",
+    "main": "./src/index.ts",
+    "types": "./src/index.ts",
     "scripts": {
-        "prebuild": "pnpm exec turbo clean && pnpm install",
-        "build": "tsc",
-        "clean": "rm -rf .turbo dist node_modules"
+        "build": "echo 'No build artifacts'",
+        "clean": "rm -rf dist .turbo node_modules"
     },
     "dependencies": {
         "eslint": "^9.23.0",
