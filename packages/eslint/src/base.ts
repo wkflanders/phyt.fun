@@ -29,12 +29,12 @@ export const baseConfig: import('eslint').Linter.Config[] = [
         languageOptions: {
             parser: tseslint.parser as any,
             parserOptions: {
-                project: [
-                    './tsconfig.json',
-                    './packages/*/tsconfig.json',
-                    './apps/*/tsconfig.json'
-                ],
-                tsconfigRootDir: path.resolve(process.cwd(), '../../')
+                project: path.resolve(
+                    process.cwd(),
+                    '../../tsconfig.eslint.json'
+                ),
+                tsconfigRootDir: path.resolve(process.cwd(), '../../'),
+                sourceType: 'module'
             }
         },
         plugins: {
