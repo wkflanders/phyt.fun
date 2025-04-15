@@ -14,6 +14,7 @@
     },
     "dependencies": {
         "@hookform/resolvers": "^3.10.0",
+        "@phyt/eslint": "workspace:*",
         "@phyt/contracts": "workspace:*",
         "@phyt/types": "workspace:*",
         "@privy-io/react-auth": "^2.7.2",
@@ -51,7 +52,6 @@
         "zustand": "^5.0.3"
     },
     "devDependencies": {
-        "@phyt/eslint": "workspace:*",
         "@phyt/tsconfig": "workspace:*",
         "@types/node": "^20.17.28",
         "@types/react": "^19.0.12",

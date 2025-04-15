@@ -11,8 +11,10 @@
         "lint": "eslint .",
         "type-check": "tsc --noEmit"
     },
+    "dependencies": {
+        "@phyt/eslint": "workspace:*"
+    },
     "devDependencies": {
-        "@phyt/eslint": "workspace:*",
         "@phyt/tsconfig": "workspace:*",
         "@types/eslint-config-prettier": "^6.11.3",
         "@types/express": "^5.0.1",
