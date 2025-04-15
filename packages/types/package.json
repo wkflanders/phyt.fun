@@ -16,10 +16,7 @@
     },
     "devDependencies": {
         "@phyt/tsconfig": "workspace:*",
-        "@types/eslint-config-prettier": "^6.11.3",
         "@types/express": "^5.0.1",
-        "eslint": "^9.23.0",
-        "eslint-config-prettier": "^9.1.0",
         "viem": "^2.24.1"
     }
 }

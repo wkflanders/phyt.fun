@@ -1,6 +1,7 @@
 {
     "name": "@phyt/eslint",
     "version": "0.0.0",
+    "type": "module",
     "private": true,
     "main": "./dist/src/index.js",
     "types": "./dist/src/index.d.ts",
@@ -9,18 +10,7 @@
         "build": "tsc",
         "clean": "rm -rf .turbo dist node_modules"
     },
-    "devDependencies": {
-        "@phyt/tsconfig": "workspace:*",
-        "@eslint/eslintrc": "^3.1.0",
-        "@eslint/js": "^9.23.0",
-        "@next/eslint-plugin-next": "^15.2.4",
-        "@tanstack/eslint-plugin-query": "^5.68.0",
-        "@types/eslint-config-prettier": "^6.11.3",
-        "@types/eslint-plugin-jsx-a11y": "^6.10.0",
-        "@types/eslint-plugin-tailwindcss": "^3.17.0",
-        "@types/node": "^22.14.1",
-        "@typescript-eslint/eslint-plugin": "^8.28.0",
-        "@typescript-eslint/parser": "^8.28.0",
+    "dependencies": {
         "eslint": "^9.23.0",
         "eslint-config-prettier": "^9.1.0",
         "eslint-import-resolver-typescript": "^4.2.4",
@@ -34,7 +24,20 @@
         "eslint-plugin-tailwindcss": "^3.18.0",
         "eslint-plugin-turbo": "^2.4.4",
         "eslint-plugin-unicorn": "^58.0.0",
-        "globals": "^15.15.0",
+        "globals": "^15.15.0"
+    },
+    "devDependencies": {
+        "@phyt/tsconfig": "workspace:*",
+        "@eslint/eslintrc": "^3.1.0",
+        "@eslint/js": "^9.23.0",
+        "@next/eslint-plugin-next": "^15.2.4",
+        "@tanstack/eslint-plugin-query": "^5.68.0",
+        "@types/eslint-config-prettier": "^6.11.3",
+        "@types/eslint-plugin-jsx-a11y": "^6.10.0",
+        "@types/eslint-plugin-tailwindcss": "^3.17.0",
+        "@types/node": "^22.14.1",
+        "@typescript-eslint/eslint-plugin": "^8.28.0",
+        "@typescript-eslint/parser": "^8.28.0",
         "tsup": "^8.4.0",
         "typescript": "^5.8.2",
         "typescript-eslint": "^8.28.0"
