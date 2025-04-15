@@ -20,7 +20,7 @@ export const nextJsConfig: import('eslint').Linter.Config[] = [
         files: ['**/*.{js,jsx,ts,tsx}'],
         ...pluginReact.configs.flat.recommended,
         languageOptions: {
-            ...pluginReact.configs.flat.recommended.languageOptions,
+            ...pluginReact.configs.flat.recommended?.languageOptions,
             globals: {
                 ...globals.browser,
                 ...globals.node,
