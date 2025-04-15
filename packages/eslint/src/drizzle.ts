@@ -3,7 +3,7 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 import { config as baseConfig } from './base.js';
 
 /** @type {import("eslint").Linter.Config[]} */
-export const drizzleConfig = [
+export const drizzleConfig: import('eslint').Linter.Config[] = [
     ...baseConfig,
     {
         files: ['**/*.{ts,tsx,cts,mts}'],

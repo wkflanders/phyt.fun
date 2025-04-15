@@ -13,9 +13,9 @@ import { config as baseConfig } from './base.js';
  *
  * @type {import("eslint").Linter.Config[]}
  * */
-export const nextJsConfig = [
+export const nextJsConfig: import('eslint').Linter.Config[] = [
     ...baseConfig,
-    ...tailwindPlugin.configs['flat/recommended'],
+    tailwindPlugin.configs['flat/recommended'] as any,
     {
         files: ['**/*.{js,jsx,ts,tsx}'],
         ...pluginReact.configs.flat.recommended,

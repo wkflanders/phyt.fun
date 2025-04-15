@@ -1,0 +1,25 @@
+{
+    "extends": "@phyt/tsconfig/library.json",
+    "compilerOptions": {
+        "outDir": "dist",
+        "declaration": true,
+        "declarationMap": true,
+        "emitDeclarationOnly": false,
+        "esModuleInterop": true,
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "target": "ES2022",
+        "allowJs": false,
+        "checkJs": false,
+        "resolveJsonModule": true,
+        "rootDir": "."
+    },
+    "include": [
+        "*.ts",
+        "src/next.ts",
+        "src/server.ts",
+        "src/base.ts",
+        "src/drizzle.ts"
+    ],
+    "exclude": ["dist", "node_modules"]
+}

@@ -6,7 +6,7 @@ import pluginUnicorn from 'eslint-plugin-unicorn';
 import path from 'node:path';
 
 /** @type {import("eslint").Linter.Config[]} */
-export const config = [
+export const config: import('eslint').Linter.Config[] = [
     {
         ignores: [
             'dist/**',
@@ -21,12 +21,12 @@ export const config = [
         ]
     },
     js.configs.recommended,
-    ...tseslint.configs.strictTypeChecked,
-    ...tseslint.configs.stylisticTypeChecked,
+    ...(tseslint.configs.strictTypeChecked as any),
+    ...(tseslint.configs.stylisticTypeChecked as any),
     {
         files: ['**/*.{ts,tsx,cts,mts}'],
         languageOptions: {
-            parser: tseslint.parser,
+            parser: tseslint.parser as any,
             parserOptions: {
                 project: [
                     './tsconfig.json',
@@ -37,8 +37,8 @@ export const config = [
             }
         },
         plugins: {
-            '@typescript-eslint': tseslint.plugin,
-            import: pluginImport
+            '@typescript-eslint': tseslint.plugin as any,
+            import: pluginImport as any
         },
         settings: {
             'import/resolver': {
