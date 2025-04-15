@@ -29,6 +29,16 @@ export type BidStatusListed = 'topbid' | 'outbid';
 export type BidStatus = BidStatusListed | BidStatusOpen | 'withdrawn';
 export type PackType = 'scrawny' | 'toned' | 'swole' | 'phyt';
 
+export interface AdminService {
+    getPendingRunners: () => Promise<Runner[]>;
+    getPendingRuns: () => Promise<PendingRun[]>;
+    approveRunner: (userId: number) => Promise<User>;
+    updateRunVerification: (
+        runId: number,
+        status: 'verified' | 'flagged'
+    ) => Promise<Run>;
+}
+
 export const PackTypes = [
     {
         id: 'scrawny',

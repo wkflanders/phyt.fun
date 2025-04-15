@@ -5,10 +5,11 @@ import {
     Runner,
     Run,
     PendingRun,
-    User
+    User,
+    AdminService
 } from '@phyt/types';
 
-export const adminService = {
+export const adminService: AdminService = {
     getPendingRunners: async (): Promise<Runner[]> => {
         try {
             const pendingRunners = await db
@@ -16,8 +17,12 @@ export const adminService = {
                 .from(runners)
                 .where(eq(runners.status, 'pending'));
             return pendingRunners;
-        } catch (error) {
-            console.error('Error with getPendingRunners: ', error);
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error('Error with getPendingRunners:', error.message);
+            } else {
+                console.error('Error with getPendingRunners:', error);
+            }
             throw new DatabaseError('Failed to get pending runners');
         }
     },
@@ -38,17 +43,26 @@ export const adminService = {
                 run: {
                     ...item.run,
                     verification_status: item.run.verification_status,
-                    raw_data_json: item.run.raw_data_json as Record<
-                        string,
-                        unknown
-                    > | null
+                    // Handle raw_data_json properly based on its actual type
+                    raw_data_json: item.run.raw_data_json
+                        ? ((typeof item.run.raw_data_json === 'string'
+                              ? JSON.parse(item.run.raw_data_json)
+                              : item.run.raw_data_json) as Record<
+                              string,
+                              unknown
+                          >)
+                        : null
                 },
                 runner: item.runner
             }));
 
             return pendingRuns;
-        } catch (error) {
-            console.error('Error with getPendingRuns: ', error);
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error('Error with getPendingRuns:', error.message);
+            } else {
+                console.error('Error with getPendingRuns:', error);
+            }
             throw new DatabaseError('Failed to get pending runs');
         }
     },
@@ -84,9 +98,16 @@ export const adminService = {
             });
 
             return results[0];
-        } catch (error) {
-            console.error('Error with approveRunner: ', error);
-            throw new DatabaseError('Error approving runner');
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error(
+                    'Error with updateRunVerification:',
+                    error.message
+                );
+            } else {
+                console.error('Error with updateRunVerification:', error);
+            }
+            throw new DatabaseError('Error with updating run verification');
         }
     },
 
@@ -111,13 +132,22 @@ export const adminService = {
             const run = updatedRunResults[0];
             return {
                 ...run,
-                raw_data_json: run.raw_data_json as Record<
-                    string,
-                    unknown
-                > | null
+                // Handle raw_data_json properly based on its actual type
+                raw_data_json: run.raw_data_json
+                    ? ((typeof run.raw_data_json === 'string'
+                          ? JSON.parse(run.raw_data_json)
+                          : run.raw_data_json) as Record<string, unknown>)
+                    : null
             };
-        } catch (error) {
-            console.error('Error with updateRunVerification: ', error);
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error(
+                    'Error with updateRunVerification: ',
+                    error.message
+                );
+            } else {
+                console.error('Error with updateRunVerification: ', error);
+            }
             throw new DatabaseError('Error with updating run verification');
         }
     }
