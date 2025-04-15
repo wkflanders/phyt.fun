@@ -4,7 +4,11 @@
         "resolveJsonModule": true,
         "esModuleInterop": true,
         "module": "ESNext",
-        "moduleResolution": "node"
+        "moduleResolution": "node",
+        "paths": {
+            "@phyt/contracts": ["./src/index.ts"],
+            "@phyt/contracts/abi/*": ["./src/abi/*"]
+        }
     },
     "include": ["src/**/*", "abi/**/*"],
     "exclude": ["node_modules"]
