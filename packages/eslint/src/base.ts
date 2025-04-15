@@ -1,16 +1,14 @@
 import js from '@eslint/js';
-import turboPlugin from 'eslint-plugin-turbo';
+import eslintConfigPrettier from 'eslint-config-prettier';
+import turbo from 'eslint-plugin-turbo';
 import tseslint from 'typescript-eslint';
-import * as pluginImportNs from 'eslint-plugin-import';
-import * as pluginUnicornNs from 'eslint-plugin-unicorn';
 import path from 'node:path';
 
-const resolvedPluginImport = pluginImportNs.default ?? pluginImportNs;
+const { default: pluginImport } = await import('eslint-plugin-import');
+const { default: pluginUnicorn } = await import('eslint-plugin-unicorn');
 
-const resolvedPluginUnicorn = pluginUnicornNs.default ?? pluginUnicornNs;
-
-/** @type {import("eslint").Linter.Config[]} */
-export const config: import('eslint').Linter.Config[] = [
+/** @type {import('eslint').Linter.Config[]} */
+export const baseConfig: import('eslint').Linter.Config[] = [
     {
         ignores: [
             'dist/**',
@@ -19,7 +17,6 @@ export const config: import('eslint').Linter.Config[] = [
             'node_modules/**',
             '.next/**',
             'eslint.config.js',
-            // "eslint.config.mjs",
             'eslint.config.cjs',
             'packages/eslint'
         ]
@@ -42,13 +39,11 @@ export const config: import('eslint').Linter.Config[] = [
         },
         plugins: {
             '@typescript-eslint': tseslint.plugin as any,
-            import: resolvedPluginImport as any
+            import: pluginImport as any
         },
         settings: {
             'import/resolver': {
-                typescript: {
-                    alwaysTryTypes: true
-                },
+                typescript: { alwaysTryTypes: true },
                 node: true
             }
         },
@@ -77,17 +72,11 @@ export const config: import('eslint').Linter.Config[] = [
                             group: 'external',
                             position: 'before'
                         },
-                        {
-                            pattern: '@/**',
-                            group: 'internal'
-                        }
+                        { pattern: '@/**', group: 'internal' }
                     ],
                     pathGroupsExcludedImportTypes: ['react', 'type'],
                     'newlines-between': 'always',
-                    alphabetize: {
-                        order: 'asc',
-                        caseInsensitive: true
-                    }
+                    alphabetize: { order: 'asc', caseInsensitive: true }
                 }
             ],
             'import/no-duplicates': 'warn',
@@ -101,12 +90,7 @@ export const config: import('eslint').Linter.Config[] = [
                 'prefer-top-level'
             ],
             'import/first': 'error',
-            'no-restricted-imports': [
-                'error',
-                {
-                    patterns: ['../*']
-                }
-            ]
+            'no-restricted-imports': ['error', { patterns: ['../*'] }]
         }
     },
     {
@@ -114,20 +98,12 @@ export const config: import('eslint').Linter.Config[] = [
         ...tseslint.configs.disableTypeChecked
     },
     {
-        plugins: {
-            turbo: turboPlugin
-        },
-        rules: {
-            'turbo/no-undeclared-env-vars': 'warn'
-        }
+        plugins: { turbo },
+        rules: { 'turbo/no-undeclared-env-vars': 'warn' }
     },
     {
-        plugins: {
-            unicorn: resolvedPluginUnicorn
-        },
-        rules: {
-            'unicorn/prefer-node-protocol': 'warn'
-        }
+        plugins: { unicorn: pluginUnicorn as any },
+        rules: { 'unicorn/prefer-node-protocol': 'warn' }
     },
     {
         rules: {
@@ -141,5 +117,6 @@ export const config: import('eslint').Linter.Config[] = [
                 { allowShortCircuit: true, allowTernary: true }
             ]
         }
-    }
+    },
+    eslintConfigPrettier
 ];

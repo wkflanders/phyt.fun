@@ -1,6 +1,5 @@
 import * as pluginDrizzleNs from 'eslint-plugin-drizzle'; // Use namespace import
-import eslintConfigPrettier from 'eslint-config-prettier';
-import { config as baseConfig } from './base.js';
+import { baseConfig } from './base.js';
 
 const resolvedPlugin = pluginDrizzleNs.default ?? pluginDrizzleNs;
 
@@ -15,6 +14,5 @@ export const drizzleConfig: import('eslint').Linter.Config[] = [
         rules: {
             ...resolvedPlugin.configs.recommended.rules
         }
-    },
-    eslintConfigPrettier
+    }
 ];

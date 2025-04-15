@@ -1,117 +1,97 @@
-import eslintConfigPrettier from 'eslint-config-prettier';
-import * as jsxA11yPluginNs from 'eslint-plugin-jsx-a11y';
-import * as tailwindPluginNs from 'eslint-plugin-tailwindcss';
-import * as queryPluginNs from '@tanstack/eslint-plugin-query';
-import * as pluginReactHooksNs from 'eslint-plugin-react-hooks';
-import * as pluginReactNs from 'eslint-plugin-react';
+import * as jsxA11yNs from 'eslint-plugin-jsx-a11y';
+import * as tailwindNs from 'eslint-plugin-tailwindcss';
+import * as tanstackNs from '@tanstack/eslint-plugin-query';
+import * as reactHooksNs from 'eslint-plugin-react-hooks';
+import * as reactNs from 'eslint-plugin-react';
+import * as nextNs from '@next/eslint-plugin-next';
 import globals from 'globals';
-import * as pluginNextNs from '@next/eslint-plugin-next';
-import { config as baseConfig } from './base.js';
 
-const jsxA11yPlugin = jsxA11yPluginNs;
-const tailwindPlugin = tailwindPluginNs;
-const queryPlugin = queryPluginNs.default ?? queryPluginNs;
-const pluginReactHooks = pluginReactHooksNs;
-const pluginReact = pluginReactNs;
-const pluginNext = pluginNextNs.default ?? pluginNextNs;
+import { baseConfig } from './base.js';
 
-/**
- * A custom ESLint configuration for libraries that use Next.js.
- *
- * @type {import("eslint").Linter.Config[]}
- * */
+/* -------------------------------------------------------------------------- */
+/*  Resolve plugin objects (default export vs. namespace)                     */
+/* -------------------------------------------------------------------------- */
+
+const jsxA11y = jsxA11yNs;
+const tailwind = tailwindNs;
+const tanstack = tanstackNs.default ?? tanstackNs;
+const react = reactNs;
+const reactHooks = reactHooksNs;
+const nextPlugin = nextNs.default ?? nextNs;
+
+/* Helper to pick the first existing preset key */
+const pickPreset = (plugin: any, keys: string[]) =>
+    keys.map((k) => plugin.configs?.[k]).find(Boolean) ?? {};
+
+/* Presets that actually exist in current plugin versions */
+const tailwindPreset = pickPreset(tailwind, ['recommended']);
+const reactPreset = pickPreset(react, ['flat/recommended', 'recommended']);
+const tanstackPreset = pickPreset(tanstack, ['recommended']);
+
+/* -------------------------------------------------------------------------- */
+/*  Next‑JS flat config                                                       */
+/* -------------------------------------------------------------------------- */
+
 export const nextJsConfig: import('eslint').Linter.Config[] = [
     ...baseConfig,
-    tailwindPlugin.configs['flat/recommended'] as any,
+
+    /* Tailwind preset (if present) ------------------------------------------ */
+    ...(tailwindPreset ? [tailwindPreset] : []),
+
+    /* React language‑options + globals -------------------------------------- */
     {
         files: ['**/*.{js,jsx,ts,tsx}'],
-        ...pluginReact.configs.flat.recommended,
         languageOptions: {
-            ...pluginReact.configs.flat.recommended?.languageOptions,
+            ...reactPreset.languageOptions,
             globals: {
                 ...globals.browser,
                 ...globals.node,
                 React: 'readonly'
             }
         },
-        settings: {
-            react: {
-                version: 'detect'
-            }
-        },
+        plugins: { react },
+        settings: { react: { version: 'detect' } },
         rules: {
-            ...pluginReact.configs.recommended.rules,
-            'react/react-in-jsx-scope': 'off',
-            'react/prop-types': 'off',
-            'react/function-component-definition': [
-                'warn',
-                {
-                    namedComponents: 'arrow-function',
-                    unnamedComponents: 'arrow-function'
-                }
-            ],
-            'react/jsx-curly-brace-presence': [
-                'warn',
-                {
-                    props: 'never',
-                    children: 'never',
-                    propElementValues: 'always'
-                }
-            ],
-            'tailwindcss/no-custom-classname': 'warn',
-            'tailwindcss/classnames-order': 'warn'
-        }
-    },
-    /*
-  NOTE:
-    Next is surprisingly sensitive on how it detects the availability of its next eslint plugin.
-    So any scoping to specific file types or ignoring certain dir. must take this into account.
-    i.e. No scoping to js, jsx, ts, tsx for the actual plugin declaration, but can scope on the ruleset (as seen below).
-         And using an ignore config object requires that the actual eslint.config.{mjs, cjs, js} file that's loaded
-         not be ignored (this is kinda a duh).
-  */
-    {
-        plugins: {
-            '@next/next': pluginNext
+            ...reactPreset.rules,
+            'react/react-in-jsx-scope': 'off'
         }
     },
 
+    /* Next‑plugin rules ------------------------------------------------------ */
     {
-        files: ['**/*.{js,jsx,ts,tsx}'],
-        rules: {
-            ...pluginNext.configs.recommended.rules,
-            ...pluginNext.configs['core-web-vitals'].rules
-        }
+        plugins: { '@next/next': nextPlugin }
     },
     {
         files: ['**/*.{js,jsx,ts,tsx}'],
-        plugins: {
-            'react-hooks': pluginReactHooks
-        },
+        rules: {
+            ...(nextPlugin.configs?.recommended?.rules ?? {}),
+            ...(nextPlugin.configs?.['core-web-vitals']?.rules ?? {})
+        }
+    },
+
+    /* React‑Hooks preset ----------------------------------------------------- */
+    {
+        files: ['**/*.{js,jsx,ts,tsx}'],
+        plugins: { 'react-hooks': reactHooks },
         settings: { react: { version: 'detect' } },
-        rules: {
-            ...pluginReactHooks.configs.recommended.rules
-        }
+        rules: { ...(reactHooks.configs?.recommended?.rules ?? {}) }
     },
+
+    /* JSX‑a11y preset -------------------------------------------------------- */
     {
         files: ['**/*.{js,jsx,ts,tsx}'],
-        plugins: {
-            'jsx-a11y': jsxA11yPlugin
-        },
-        rules: {
-            ...jsxA11yPlugin.configs.recommended.rules
-        }
+        plugins: { 'jsx-a11y': jsxA11y },
+        rules: { ...(jsxA11y.configs?.recommended?.rules ?? {}) }
     },
-    {
-        files: ['**/*.{js,jsx,ts,tsx}'],
-        plugins: {
-            // Use resolved plugin
-            '@tanstack/query': queryPlugin
-        },
-        rules: {
-            // Use optional chaining and nullish coalescing for safety
-            ...((queryPlugin as any).configs?.recommended?.rules ?? {})
-        }
-    },
-    eslintConfigPrettier
+
+    /* TanStack Query preset (optional) -------------------------------------- */
+    ...(tanstackPreset
+        ? [
+              {
+                  files: ['**/*.{js,jsx,ts,tsx}'],
+                  plugins: { '@tanstack/query': tanstack },
+                  rules: { ...tanstackPreset.rules }
+              }
+          ]
+        : [])
 ];
