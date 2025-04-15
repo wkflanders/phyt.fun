@@ -1,10 +1,9 @@
 import { baseConfig } from '@phyt/eslint';
-import eslintConfigPrettier from 'eslint-config-prettier';
 // import { URL } from 'node:url';
 
 /** @type {import("eslint").Linter.Config} */
 export default [
-    ...baseConfig,
+    ...baseConfig
     // {
     //     files: ['**/*.ts', '**/*.tsx'],
     //     ignores: ['eslint.config.mjs'],
@@ -15,5 +14,4 @@ export default [
     //         }
     //     }
     // },
-    eslintConfigPrettier
 ];
