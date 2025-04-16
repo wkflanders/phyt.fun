@@ -16,21 +16,23 @@ const ESLINT_TSCONFIG = path.resolve(REPO_ROOT, 'tsconfig.eslint.json');
 export const baseConfig: import('eslint').Linter.Config[] = [
     {
         ignores: [
-            'dist/**',
-            'build/**',
-            '.turbo/**',
-            'node_modules/**',
-            '.next/**',
+            '**/dist/**',
+            '**/build/**',
+            '**/.turbo/**',
+            '**/node_modules/**',
             'eslint.config.js',
+            'eslint.config.mjs',
             'eslint.config.cjs',
-            'packages/eslint'
+            'packages/eslint/**',
+            'packages/contracts/**',
+            'packages/database/migrations/**',
+            '**/.next/**'
         ]
     },
     eslint.configs.recommended,
-    eslint.configs.recommended,
     ...tseslint.configs.recommended,
+    ...tseslint.configs.strictTypeChecked,
     ...tseslint.configs.stylisticTypeChecked,
-    ...tseslint.configs.strictTypeChecked, // <-- most important line, max strictness. if any of th rules don't work for your codebase as being too strict, disable them one by one, but it is worth trying to crank up strictness to max
     pluginImport.flatConfigs.recommended,
     {
         files: ['**/*.{ts,tsx,cts,mts}'],
@@ -39,12 +41,9 @@ export const baseConfig: import('eslint').Linter.Config[] = [
             parserOptions: {
                 project: [ESLINT_TSCONFIG],
                 tsconfigRootDir: REPO_ROOT,
-                sourceType: 'module'
+                sourceType: 'module',
+                ecmaVersion: 'latest'
             }
-        },
-        plugins: {
-            '@typescript-eslint': tseslint as any,
-            import: pluginImport as any
         },
         settings: {
             'import/resolver': {
@@ -56,52 +55,133 @@ export const baseConfig: import('eslint').Linter.Config[] = [
             }
         },
         rules: {
+            '@typescript-eslint/no-unsafe-assignment': 'off',
+            '@typescript-eslint/no-unsafe-call': 'off',
+            '@typescript-eslint/no-unsafe-member-access': 'off',
+            '@typescript-eslint/no-unsafe-return': 'off',
+            '@typescript-eslint/no-unsafe-argument': 'off',
+            // Optional: If you see errors from these too
+            // '@typescript-eslint/no-unsafe-declaration-merging': 'off',
+            // '@typescript-eslint/no-unsafe-enum-comparison': 'off',
             '@typescript-eslint/no-floating-promises': [
                 'error',
                 { ignoreVoid: true }
             ],
             '@typescript-eslint/no-misused-promises': 'error',
-            '@typescript-eslint/explicit-module-boundary-types': 'warn',
+            '@typescript-eslint/explicit-module-boundary-types': 'error',
+            '@typescript-eslint/no-unused-vars': [
+                'error',
+                { argsIgnorePattern: '^_' }
+            ],
+            '@typescript-eslint/no-explicit-any': 'error',
             'import/order': [
                 'error',
                 {
-                    named: true,
-                    'newlines-between': 'always',
-                    alphabetize: {
-                        order: 'asc'
-                    },
                     groups: [
                         'builtin',
-                        ['external', 'internal'],
-                        ['parent', 'sibling', 'index', 'object'],
+                        'external',
+                        'internal',
+                        ['parent', 'sibling'],
+                        'index',
+                        'object',
                         'type'
                     ],
+
                     pathGroups: [
                         {
-                            group: 'builtin',
-                            pattern: 'react',
+                            pattern:
+                                '{react,react-dom,react-dom/**,next,next/**}',
+                            group: 'external',
                             position: 'before'
                         },
                         {
+                            pattern:
+                                '{express,express/**,node:http,node:https}',
                             group: 'external',
-                            pattern: '@mui/icons-material',
+                            position: 'before'
+                        },
+                        {
+                            pattern: '@phyt/**',
+                            group: 'internal',
+                            position: 'before'
+                        },
+                        {
+                            pattern: '@/**',
+                            group: 'internal',
+                            position: 'before'
+                        },
+                        {
+                            pattern: '~/**',
+                            group: 'internal',
+                            position: 'before'
+                        },
+                        {
+                            pattern:
+                                '{@mui/**,**/@radix-ui/**,shadcn-ui/**,tailwind*,clsx,class-variance-authority}',
+                            group: 'external',
+                            position: 'after'
+                        },
+                        {
+                            pattern:
+                                '{@tanstack/**,zod,jotai,valtio,swr,axios,drizzle-orm/**}',
+                            group: 'external',
+                            position: 'after'
+                        },
+
+                        {
+                            pattern: '{@/components/ui/**,~/*/ui/**}',
+                            group: 'internal',
                             position: 'after'
                         }
-                    ]
+                    ],
+                    pathGroupsExcludedImportTypes: [
+                        'builtin',
+                        'external',
+                        'object',
+                        'type'
+                    ],
+                    'newlines-between': 'always',
+                    alphabetize: {
+                        order: 'asc',
+                        caseInsensitive: true
+                    },
+                    warnOnUnassignedImports: true
                 }
             ],
-            'import/no-duplicates': 'warn',
+            'import/no-duplicates': 'error',
             'import/no-useless-path-segments': [
-                'warn',
+                'error',
                 { noUselessIndex: true }
             ],
-            'import/no-relative-parent-imports': 'off',
+            'import/no-relative-parent-imports': 'off', // Often disabled in monorepos, but can enable ('warn'/'error') if preferred
             'import/consistent-type-specifier-style': [
-                'warn',
+                'error',
                 'prefer-top-level'
             ],
             'import/first': 'error',
-            'no-restricted-imports': ['error', { patterns: ['../*'] }]
+            'no-restricted-imports': [
+                'warn',
+                { patterns: ['**/../**/', '../../*'] }
+            ]
+        }
+    },
+    {
+        files: ['**/*.{js,cjs}'],
+        rules: {
+            // --- Turn OFF TypeScript-specific rules for JS files ---
+            '@typescript-eslint/explicit-module-boundary-types': 'off',
+            '@typescript-eslint/no-floating-promises': 'off',
+            '@typescript-eslint/no-misused-promises': 'off',
+            '@typescript-eslint/no-unsafe-argument': 'off',
+            '@typescript-eslint/no-unsafe-assignment': 'off',
+            '@typescript-eslint/no-unsafe-call': 'off',
+            '@typescript-eslint/no-unsafe-member-access': 'off',
+            '@typescript-eslint/no-unsafe-return': 'off',
+            '@typescript-eslint/dot-notation': 'off',
+            '@typescript-eslint/no-unused-vars': 'off',
+
+            'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+            'dot-notation': ['warn', { allowKeywords: true }]
         }
     },
     {
