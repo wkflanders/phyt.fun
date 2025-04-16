@@ -44,7 +44,8 @@
             "outputs": []
         },
         "@phyt/types#build": {
-            "outputs": []
+            "outputs": [],
+            "cache": false
         },
         "@phyt/web#build": {
             "dependsOn": ["@phyt/database#build", "@phyt/server#build"]
