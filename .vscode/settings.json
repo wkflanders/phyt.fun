@@ -1,0 +1,65 @@
+{
+    "postman.settings.dotenv-detection-notification-visibility": false,
+
+    // ---- ESLint Specific Settings ----
+
+    // *** Key Setting: Working Directories ***
+    // Explicitly list packages/apps that have their own eslint config or specific linting context.
+    "eslint.workingDirectories": [
+        { "directory": "./apps/web", "changeProcessCWD": true },
+        { "directory": "apps/server", "changeProcessCWD": true }
+        // { "directory": "packages/database", "changeProcessCWD": true },
+        // { "directory": "packages/types", "changeProcessCWD": true }
+    ],
+
+    "eslint.lintTask.enable": false,
+
+    // Enable ESLint validation for relevant file types
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact"
+        // "json",
+        // "yaml"
+    ],
+
+    // Enable auto-fixing on save
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit" // Or true for fix on auto-save
+    },
+
+    // Use flat config (ESLint v9+) - ESSENTIAL
+    "eslint.useFlatConfig": true,
+
+    // For PNPM: nodePath usually not required as PNPM handles resolution well via node_modules structure.
+    // If you encounter issues finding ESLint/plugins, you *might* need to specify a path,
+    // but try without it first.
+    // "eslint.nodePath": "./node_modules/.bin", // Example if needed, unlikely with pnpm workspaces
+
+    // ---- Other Useful Settings ----
+    "files.eol": "\n",
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "prettier.configPath": ".prettierrc",
+    "prettier.ignorePath": ".prettierignore",
+    "editor.formatOnPaste": false,
+    "prettier.useEditorConfig": false,
+    "prettier.useTabs": false,
+    "editor.detectIndentation": false
+
+    // For PNPM: tsdk path is also usually resolved correctly. Add if needed.
+    // "typescript.tsdk": "node_modules/typescript/lib"
+}

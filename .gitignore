@@ -39,7 +39,7 @@ yarn-error.log*
 .DS_Store
 *.pem
 
-.vscode
+# .vscode
 .cursor
 
 **/tsconfig.tsbuildinfo
