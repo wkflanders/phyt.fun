@@ -1,3 +1,4 @@
+//  packages/contracts/tsconfig.json
 {
     "extends": "@phyt/tsconfig/base.json",
     "compilerOptions": {

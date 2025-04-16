@@ -1,3 +1,4 @@
+//  packages/database/tsconfig.json
 {
     "extends": "@phyt/tsconfig/library.json",
     "compilerOptions": {

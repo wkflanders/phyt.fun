@@ -1,3 +1,4 @@
+//  apps/server/tsconfig.json
 {
     "extends": "@phyt/tsconfig/base.json",
     "compilerOptions": {

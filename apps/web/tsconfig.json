@@ -1,23 +1,15 @@
+//  apps/web/tsconfig.json
 {
-  "extends": "@phyt/tsconfig/nextjs.json",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+    "extends": "@phyt/tsconfig/nextjs.json",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["./src/*"]
+        },
+        "allowJs": true,
+        "resolveJsonModule": true,
+        "jsx": "preserve"
     },
-    "allowJs": true,
-    "resolveJsonModule": true,
-    "jsx": "preserve"
-  },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+    "exclude": ["node_modules"]
 }
