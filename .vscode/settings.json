@@ -5,14 +5,18 @@
 
     // *** Key Setting: Working Directories ***
     // Explicitly list packages/apps that have their own eslint config or specific linting context.
-    "eslint.workingDirectories": [
-        { "directory": "./apps/web", "changeProcessCWD": true },
-        { "directory": "apps/server", "changeProcessCWD": true }
-        // { "directory": "packages/database", "changeProcessCWD": true },
-        // { "directory": "packages/types", "changeProcessCWD": true }
-    ],
+    // "eslint.workingDirectories": [
+    //     { "directory": "./apps/web", "changeProcessCWD": true },
+    //     { "directory": "./apps/server", "changeProcessCWD": true }
+    // { "directory": "packages/database", "changeProcessCWD": true },
+    // { "directory": "packages/types", "changeProcessCWD": true }
+    // ],
 
-    "eslint.lintTask.enable": false,
+    // Enable background linting
+    "eslint.lintTask.enable": true,
+
+    // Run linting on all files in the workspace, not just open files
+    "eslint.run": "onType",
 
     // Enable ESLint validation for relevant file types
     "eslint.validate": [
