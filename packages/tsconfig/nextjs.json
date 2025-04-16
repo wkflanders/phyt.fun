@@ -1,14 +1,14 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": "./base.json",
-  "compilerOptions": {
-    "target": "es2022",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "jsx": "preserve",
-    "plugins": [{ "name": "next" }],
-    "incremental": true,
-    "noEmit": true
-  }
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "extends": "./base.json",
+    "compilerOptions": {
+        "target": "es2022",
+        "lib": ["dom", "dom.iterable", "esnext"],
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "jsx": "preserve",
+        "plugins": [{ "name": "next" }],
+        "incremental": true,
+        "noEmit": true
+    }
 }
