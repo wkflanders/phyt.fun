@@ -1,12 +1,19 @@
-import { HttpError, DatabaseError, NotFoundError } from '@phyt/types';
+import {
+    HttpError,
+    DatabaseError,
+    NotFoundError,
+    AdminService
+} from '@phyt/types';
 import express, { Router, Request, Response, NextFunction } from 'express';
 
 import { validateAdmin } from '@/middleware/admin';
 import { validateAuth } from '@/middleware/auth';
-import { adminService } from '@/services/adminServices';
+import { adminService as adminServiceObject } from '@/services/adminServices';
 interface VerifyRunStatus {
     status: 'verified' | 'flagged';
 }
+
+const adminService = adminServiceObject as AdminService;
 
 const router: Router = express.Router();
 

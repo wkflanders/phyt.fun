@@ -1,24 +1,17 @@
-import { Request, Response, NextFunction } from 'express';
-import { ZodSchema, ZodError } from 'zod';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
+import { ZodError, ZodSchema } from 'zod';
 
-export const validateSchema =
-    (schema: ZodSchema) =>
-    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export function validateSchema(schema: ZodSchema): RequestHandler {
+    return async (req: Request, res: Response, next: NextFunction) => {
         try {
             await schema.parseAsync(req.body);
             next();
-        } catch (error) {
-            if (error instanceof ZodError) {
-                // Get a single, user-friendly string with all messages
-                const combinedErrorMessage = error.issues
-                    .map((issue) => issue.message)
-                    .join(', ');
-
-                res.status(400).json({ error: combinedErrorMessage });
-                return;
+        } catch (err: unknown) {
+            if (err instanceof ZodError) {
+                res.status(400).json({ errors: err.errors });
+            } else {
+                next(err as Error);
             }
-
-            res.status(400).json({ error: 'Invalid request' });
-            return;
         }
     };
+}

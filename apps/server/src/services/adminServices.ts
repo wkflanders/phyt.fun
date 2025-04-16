@@ -9,6 +9,13 @@ import {
     AdminService
 } from '@phyt/types';
 
+function rethrowAsDatabaseError(message: string, err: unknown): never {
+    const originalMsg = err instanceof Error ? err.message : String(err);
+
+    console.error(`${message}:`, originalMsg);
+    throw new DatabaseError(message, err);
+}
+
 export const adminService: AdminService = {
     getPendingRunners: async (): Promise<Runner[]> => {
         try {
@@ -18,12 +25,7 @@ export const adminService: AdminService = {
                 .where(eq(runners.status, 'pending'));
             return pendingRunners;
         } catch (error: unknown) {
-            if (error instanceof Error) {
-                console.error('Error with getPendingRunners:', error.message);
-            } else {
-                console.error('Error with getPendingRunners:', error);
-            }
-            throw new DatabaseError('Failed to get pending runners');
+            rethrowAsDatabaseError('Failed to get pending runners', error);
         }
     },
 

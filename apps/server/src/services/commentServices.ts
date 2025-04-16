@@ -15,10 +15,11 @@ import {
     CreateCommentRequest,
     CommentQueryParams,
     CommentResponse,
-    HttpError
+    HttpError,
+    CommentService
 } from '@phyt/types';
 
-export const commentService = {
+export const commentService: CommentService = {
     createComment: async ({
         user_id,
         post_id,
@@ -104,7 +105,7 @@ export const commentService = {
                 .from(comments)
                 .where(whereConditions);
 
-            const total = Number(countResults[0]?.value || 0);
+            const total = Number(countResults[0]?.value ?? 0);
 
             return {
                 comments: results,
@@ -149,7 +150,7 @@ export const commentService = {
                 .from(comments)
                 .where(eq(comments.parent_comment_id, comment_id));
 
-            const total = Number(countResults[0]?.value || 0);
+            const total = Number(countResults[0]?.value ?? 0);
 
             return {
                 comments: results,
