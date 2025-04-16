@@ -38,7 +38,8 @@
             ]
         },
         "@phyt/eslint#build": {
-            "outputs": ["dist/**"]
+            "outputs": ["dist/**"],
+            "cache": false
         },
         "@phyt/database#build": {
             "outputs": []
@@ -51,7 +52,7 @@
             "dependsOn": ["@phyt/database#build", "@phyt/server#build"]
         },
         "type-check": {
-            "dependsOn": ["build", "^type-check"],
+            "dependsOn": ["^type-check"],
             "outputs": []
         },
         "lint": {

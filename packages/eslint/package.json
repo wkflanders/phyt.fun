@@ -1,14 +1,14 @@
 {
     "name": "@phyt/eslint",
     "version": "0.0.0",
-    "type": "module",
     "private": true,
-    "main": "./dist/src/index.js",
-    "types": "./dist/src/index.d.ts",
+    "type": "module",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
     "exports": {
         ".": {
-            "import": "./dist/src/index.js",
-            "require": "./dist/src/index.js"
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
         }
     },
     "scripts": {
@@ -32,10 +32,10 @@
         "globals": "^15.15.0"
     },
     "devDependencies": {
-        "@phyt/tsconfig": "workspace:*",
         "@eslint/eslintrc": "^3.1.0",
         "@eslint/js": "^9.23.0",
         "@next/eslint-plugin-next": "^15.2.4",
+        "@phyt/tsconfig": "workspace:*",
         "@tanstack/eslint-plugin-query": "^5.68.0",
         "@types/eslint-config-prettier": "^6.11.3",
         "@types/eslint-plugin-jsx-a11y": "^6.10.0",
@@ -43,8 +43,6 @@
         "@types/node": "^22.14.1",
         "@typescript-eslint/eslint-plugin": "^8.28.0",
         "@typescript-eslint/parser": "^8.28.0",
-        "tsup": "^8.4.0",
-        "typescript": "^5.8.2",
-        "typescript-eslint": "^8.28.0"
+        "typescript-eslint": "^8.30.1"
     }
 }

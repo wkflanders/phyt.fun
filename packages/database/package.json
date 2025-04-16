@@ -2,21 +2,27 @@
     "name": "@phyt/database",
     "version": "0.0.0",
     "private": true,
-    "main": "./src/index.ts",
+    "main": "./dist/index.js",
     "types": "./src/index.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "require": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
     "scripts": {
-        "build": "echo 'No build artifacts'",
+        "build": "tsc -p tsconfig.json",
         "clean": "rm -rf dist .turbo node_modules",
         "db:generate": "drizzle-kit generate",
         "db:migrate": "drizzle-kit push",
         "db:reset": "ts-node src/reset.ts",
         "db:studio": "drizzle-kit studio",
-        "db:seed": "tsc src/seed.ts"
+        "db:seed": "ts-node src/seed.ts"
     },
     "dependencies": {
         "@phyt/eslint": "workspace:*",
         "drizzle-orm": "^0.39.3",
-        "drizzle-seed": "^0.3.1",
         "pg": "^8.14.1",
         "ws": "^8.18.1"
     },
@@ -25,6 +31,7 @@
         "@types/pg": "^8.11.11",
         "@types/ws": "^8.18.0",
         "drizzle-kit": "^0.30.6",
-        "ts-node": "^10.9.2"
+        "ts-node": "^10.9.2",
+        "typescript": "^5.8.2"
     }
 }

@@ -2,18 +2,19 @@
     "name": "@phyt/contracts",
     "version": "0.0.0",
     "private": true,
-    "main": "./src/abi/index.ts",
-    "types": "./src/abi/index.ts",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
     "exports": {
         ".": {
-            "import": "./src/index.ts"
-        },
-        "./abi/*": "./src/abi/*"
+            "import": "./dist/index.js",
+            "require": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
     },
     "scripts": {
-        "build": "forge build && tsx script/export-abis.ts",
+        "build": "forge build && tsx script/export-abis.ts && tsc -p tsconfig.json",
         "export-abis": "tsx script/export-abis.ts",
-        "clean": "rm -rf .turbo node_modules src/*.json"
+        "clean": "rm -rf dist .turbo node_modules ./src/*.json ./src/index.ts ./out"
     },
     "devDependencies": {
         "@phyt/tsconfig": "workspace:*",
