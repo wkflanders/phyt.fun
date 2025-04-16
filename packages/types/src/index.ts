@@ -39,6 +39,24 @@ export interface AdminService {
     ) => Promise<Run>;
 }
 
+export interface CommentService {
+    createComment(request: CreateCommentRequest): Promise<Comment>;
+    getPostComments(
+        post_id: number,
+        params: CommentQueryParams
+    ): Promise<CommentResponse>;
+    getCommentReplies(
+        comment_id: number,
+        params: CommentQueryParams
+    ): Promise<CommentResponse>;
+    updateComment(
+        comment_id: number,
+        data: { content: string }
+    ): Promise<Comment>;
+    deleteComment(comment_id: number): Promise<Comment>;
+    getCommentById(commentId: number): Promise<Comment>;
+}
+
 export const PackTypes = [
     {
         id: 'scrawny',
