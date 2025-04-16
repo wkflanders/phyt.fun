@@ -1,16 +1,18 @@
-//  packages/contracts/tsconfig.json
 {
     "extends": "@phyt/tsconfig/base.json",
     "compilerOptions": {
+        "outDir": "dist",
+        "rootDir": "src",
         "resolveJsonModule": true,
         "esModuleInterop": true,
         "module": "ESNext",
         "moduleResolution": "node",
-        "paths": {
-            "@phyt/contracts": ["./src/index.ts"],
-            "@phyt/contracts/abi/*": ["./src/abi/*"]
-        }
+        "declaration": true,
+        "declarationMap": true,
+        "target": "ES2022",
+        "strict": true,
+        "skipLibCheck": true
     },
-    "include": ["src/**/*", "abi/**/*"],
-    "exclude": ["node_modules"]
+    "include": ["src/**/*", "src/abi/*.json"],
+    "exclude": ["node_modules", "dist"]
 }

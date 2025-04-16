@@ -3,6 +3,10 @@
     "extends": "@phyt/tsconfig/library.json",
     "compilerOptions": {
         "baseUrl": ".",
+        "outDir": "dist",
+        "emitDeclarationOnly": true,
+        "declaration": true,
+        "declarationMap": true,
         "strict": false,
         "skipLibCheck": true,
         "esModuleInterop": true,

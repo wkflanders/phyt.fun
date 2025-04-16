@@ -1,5 +1,10 @@
-// tsconfig.eslint.json
+// root tsconfig.eslint.json
 {
     "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "moduleResolution": "node16",
+        "module": "NodeNext",
+        "types": ["node"]
+    },
     "include": ["apps/*/src", "packages/*/src"]
 }
