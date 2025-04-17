@@ -8,10 +8,7 @@ import globals from 'globals';
 
 import { baseConfig } from './base.js';
 
-/* -------------------------------------------------------------------------- */
 /*  Resolve plugin objects (default export vs. namespace)                     */
-/* -------------------------------------------------------------------------- */
-
 const jsxA11y = jsxA11yNs;
 const tailwind = tailwindNs;
 const tanstack = tanstackNs.default ?? tanstackNs;
@@ -28,9 +25,7 @@ const tailwindPreset = pickPreset(tailwind, ['recommended']);
 const reactPreset = pickPreset(react, ['flat/recommended', 'recommended']);
 const tanstackPreset = pickPreset(tanstack, ['recommended']);
 
-/* -------------------------------------------------------------------------- */
 /*  Next‑JS flat config                                                       */
-/* -------------------------------------------------------------------------- */
 
 export const nextJsConfig: import('eslint').Linter.Config[] = [
     ...baseConfig,
@@ -54,6 +49,14 @@ export const nextJsConfig: import('eslint').Linter.Config[] = [
         rules: {
             ...reactPreset.rules,
             'react/react-in-jsx-scope': 'off'
+        }
+    },
+
+    /* Disable explicit return-type requirement for Next.js route and layout files during initial fixup */
+    {
+        files: ['src/app/**/*.{ts,tsx}'],
+        rules: {
+            '@typescript-eslint/explicit-module-boundary-types': 'off'
         }
     },
 
@@ -84,7 +87,7 @@ export const nextJsConfig: import('eslint').Linter.Config[] = [
         rules: { ...(jsxA11y.configs?.recommended?.rules ?? {}) }
     },
 
-    /* TanStack Query preset (optional) -------------------------------------- */
+    /* TanStack Query preset -------------------------------------- */
     ...(tanstackPreset
         ? [
               {

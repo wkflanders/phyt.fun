@@ -3,12 +3,12 @@
     "version": "1.0.0",
     "private": true,
     "scripts": {
-        "build": "echo 'temp'",
+        "build": "next build",
         "dev": "next dev",
         "start": "next start",
-        "lint": "echo 'temp'",
+        "lint": "next lint",
         "lint:fix": "next lint --fix",
-        "type-check": "echo 'temp'",
+        "type-check": "tsc --noEmit",
         "clean": "rm -rf .next .turbo node_modules"
     },
     "dependencies": {
