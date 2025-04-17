@@ -12,7 +12,7 @@ import {
 import {
     NotFoundError,
     Comment,
-    CreateCommentRequest,
+    CommentCreateRequest,
     CommentQueryParams,
     CommentResponse,
     HttpError,
@@ -25,7 +25,7 @@ export const commentService: CommentService = {
         post_id,
         content,
         parent_comment_id
-    }: CreateCommentRequest): Promise<Comment> => {
+    }: CommentCreateRequest): Promise<Comment> => {
         try {
             // First, verify the post exists
             const post = await db

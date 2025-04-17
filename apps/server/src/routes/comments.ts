@@ -2,7 +2,7 @@ import {
     CommentUpdateRequest,
     HttpError,
     CommentQueryParams,
-    CreateCommentRequest,
+    CommentCreateRequest,
     CommentResponse,
     Comment,
     DatabaseError,
@@ -143,7 +143,7 @@ router.post(
     '/',
     validateSchema(createCommentSchema),
     async (
-        req: Request<Record<string, never>, Comment, CreateCommentRequest>,
+        req: Request<Record<string, never>, Comment, CommentCreateRequest>,
         res: Response<Comment>,
         next: NextFunction
     ) => {
