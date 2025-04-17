@@ -175,7 +175,7 @@ export interface Run {
 
 export interface PendingRun {
     run: Run;
-    runner: string;
+    runner: RunnerProfile;
 }
 
 export type SeasonCollection = 'season_0';

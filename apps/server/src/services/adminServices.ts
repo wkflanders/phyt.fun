@@ -44,7 +44,6 @@ export const adminService: AdminService = {
             const pendingRuns: PendingRun[] = results.map((item) => ({
                 run: {
                     ...item.run,
-                    verification_status: item.run.verification_status,
                     // Handle raw_data_json properly based on its actual type
                     raw_data_json: item.run.raw_data_json
                         ? ((typeof item.run.raw_data_json === 'string'

@@ -11,7 +11,7 @@ import {
     TableCell,
     TableHead,
     TableHeader,
-    TableRow,
+    TableRow
 } from '@/components/ui/table';
 import { useGetUser } from '@/hooks/use-users';
 import {
@@ -26,7 +26,7 @@ import {
     Search,
     RefreshCw,
     CheckCircle,
-    XCircle,
+    XCircle
 } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -35,7 +35,8 @@ const AdminDashboard = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const { data: user, isLoading: userLoading } = useGetUser();
 
-    const { data: pendingRunners = [], isLoading: loadingRunners } = usePendingRunners();
+    const { data: pendingRunners = [], isLoading: loadingRunners } =
+        usePendingRunners();
     const { data: pendingRuns = [], isLoading: loadingRuns } = usePendingRuns();
     const approveRunnerMutation = useApproveRunner();
     const verifyRunMutation = useUpdateRunVerification();
@@ -54,13 +55,14 @@ const AdminDashboard = () => {
         return null;
     }
 
-    const filteredRunners = pendingRunners.filter(runner =>
-        runner.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        runner.email.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredRunners = pendingRunners.filter(
+        (runner) =>
+            runner.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            runner.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const filteredRuns = pendingRuns.filter(run =>
-        run.runner_name.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredRuns = pendingRuns.filter((run) =>
+        run.username.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -76,7 +78,9 @@ const AdminDashboard = () => {
                         <Users className="h-4 w-4 text-phyt_blue" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-phyt_text">{pendingRunners.length}</div>
+                        <div className="text-2xl font-bold text-phyt_text">
+                            {pendingRunners.length}
+                        </div>
                     </CardContent>
                 </Card>
                 <Card className="bg-phyt_form border-phyt_form_border">
@@ -87,7 +91,9 @@ const AdminDashboard = () => {
                         <Activity className="h-4 w-4 text-phyt_blue" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-phyt_text">{pendingRuns.length}</div>
+                        <div className="text-2xl font-bold text-phyt_text">
+                            {pendingRuns.length}
+                        </div>
                     </CardContent>
                 </Card>
             </div>
@@ -107,8 +113,12 @@ const AdminDashboard = () => {
 
                 <Tabs defaultValue="runners" className="space-y-4">
                     <TabsList className="bg-phyt_form">
-                        <TabsTrigger value="runners" className="text-phyt_text">Pending Runners</TabsTrigger>
-                        <TabsTrigger value="runs" className="text-phyt_text">Pending Runs</TabsTrigger>
+                        <TabsTrigger value="runners" className="text-phyt_text">
+                            Pending Runners
+                        </TabsTrigger>
+                        <TabsTrigger value="runs" className="text-phyt_text">
+                            Pending Runs
+                        </TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="runners">
@@ -116,40 +126,66 @@ const AdminDashboard = () => {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead className="text-phyt_text">Username</TableHead>
-                                        <TableHead className="text-phyt_text">Email</TableHead>
-                                        <TableHead className="text-phyt_text">Applied At</TableHead>
-                                        <TableHead className="text-phyt_text">Actions</TableHead>
+                                        <TableHead className="text-phyt_text">
+                                            Username
+                                        </TableHead>
+                                        <TableHead className="text-phyt_text">
+                                            Email
+                                        </TableHead>
+                                        <TableHead className="text-phyt_text">
+                                            Applied At
+                                        </TableHead>
+                                        <TableHead className="text-phyt_text">
+                                            Actions
+                                        </TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {loadingRunners ? (
                                         <TableRow>
-                                            <TableCell colSpan={4} className="text-center text-phyt_text">
+                                            <TableCell
+                                                colSpan={4}
+                                                className="text-center text-phyt_text"
+                                            >
                                                 <RefreshCw className="w-4 h-4 animate-spin inline mr-2" />
                                                 Loading runners...
                                             </TableCell>
                                         </TableRow>
                                     ) : filteredRunners.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={4} className="text-center text-phyt_text">
+                                            <TableCell
+                                                colSpan={4}
+                                                className="text-center text-phyt_text"
+                                            >
                                                 No pending runners found
                                             </TableCell>
                                         </TableRow>
                                     ) : (
                                         filteredRunners.map((runner) => (
                                             <TableRow key={runner.id}>
-                                                <TableCell className="text-phyt_text">{runner.username}</TableCell>
-                                                <TableCell className="text-phyt_text">{runner.email}</TableCell>
                                                 <TableCell className="text-phyt_text">
-                                                    {new Date(runner.created_at).toLocaleDateString()}
+                                                    {runner.username}
+                                                </TableCell>
+                                                <TableCell className="text-phyt_text">
+                                                    {runner.email}
+                                                </TableCell>
+                                                <TableCell className="text-phyt_text">
+                                                    {new Date(
+                                                        runner.created_at
+                                                    ).toLocaleDateString()}
                                                 </TableCell>
                                                 <TableCell>
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        onClick={() => approveRunnerMutation.mutate(runner.id)}
-                                                        disabled={approveRunnerMutation.isPending}
+                                                        onClick={() =>
+                                                            approveRunnerMutation.mutate(
+                                                                runner.id
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            approveRunnerMutation.isPending
+                                                        }
                                                     >
                                                         {approveRunnerMutation.isPending ? (
                                                             <RefreshCw className="w-4 h-4 animate-spin mr-2" />
@@ -172,49 +208,86 @@ const AdminDashboard = () => {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead className="text-phyt_text">Runner</TableHead>
-                                        <TableHead className="text-phyt_text">Distance</TableHead>
-                                        <TableHead className="text-phyt_text">Time</TableHead>
-                                        <TableHead className="text-phyt_text">Date</TableHead>
-                                        <TableHead className="text-phyt_text">Actions</TableHead>
+                                        <TableHead className="text-phyt_text">
+                                            Runner
+                                        </TableHead>
+                                        <TableHead className="text-phyt_text">
+                                            Distance
+                                        </TableHead>
+                                        <TableHead className="text-phyt_text">
+                                            Time
+                                        </TableHead>
+                                        <TableHead className="text-phyt_text">
+                                            Date
+                                        </TableHead>
+                                        <TableHead className="text-phyt_text">
+                                            Actions
+                                        </TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {loadingRuns ? (
                                         <TableRow>
-                                            <TableCell colSpan={5} className="text-center text-phyt_text">
+                                            <TableCell
+                                                colSpan={5}
+                                                className="text-center text-phyt_text"
+                                            >
                                                 <RefreshCw className="w-4 h-4 animate-spin inline mr-2" />
                                                 Loading runs...
                                             </TableCell>
                                         </TableRow>
                                     ) : filteredRuns.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={5} className="text-center text-phyt_text">
+                                            <TableCell
+                                                colSpan={5}
+                                                className="text-center text-phyt_text"
+                                            >
                                                 No pending runs found
                                             </TableCell>
                                         </TableRow>
                                     ) : (
                                         filteredRuns.map((run) => (
                                             <TableRow key={run.run.id}>
-                                                <TableCell className="text-phyt_text">{run.runner_name}</TableCell>
                                                 <TableCell className="text-phyt_text">
-                                                    {(run.run.distance_m / 1000).toFixed(2)} km
+                                                    {run.username}
                                                 </TableCell>
                                                 <TableCell className="text-phyt_text">
-                                                    {new Date(run.run.duration_seconds * 1000).toISOString().substr(11, 8)}
+                                                    {(
+                                                        run.run.distance_m /
+                                                        1000
+                                                    ).toFixed(2)}{' '}
+                                                    km
                                                 </TableCell>
                                                 <TableCell className="text-phyt_text">
-                                                    {new Date(run.run.created_at).toLocaleDateString()}
+                                                    {new Date(
+                                                        run.run
+                                                            .duration_seconds *
+                                                            1000
+                                                    )
+                                                        .toISOString()
+                                                        .substr(11, 8)}
+                                                </TableCell>
+                                                <TableCell className="text-phyt_text">
+                                                    {new Date(
+                                                        run.run.created_at
+                                                    ).toLocaleDateString()}
                                                 </TableCell>
                                                 <TableCell className="space-x-2">
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        onClick={() => verifyRunMutation.mutate({
-                                                            runId: run.run.id,
-                                                            status: 'verified'
-                                                        })}
-                                                        disabled={verifyRunMutation.isPending}
+                                                        onClick={() =>
+                                                            verifyRunMutation.mutate(
+                                                                {
+                                                                    runId: run
+                                                                        .run.id,
+                                                                    status: 'verified'
+                                                                }
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            verifyRunMutation.isPending
+                                                        }
                                                     >
                                                         <CheckCircle className="w-4 h-4 mr-1" />
                                                         Verify
@@ -222,11 +295,18 @@ const AdminDashboard = () => {
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        onClick={() => verifyRunMutation.mutate({
-                                                            runId: run.run.id,
-                                                            status: 'flagged'
-                                                        })}
-                                                        disabled={verifyRunMutation.isPending}
+                                                        onClick={() =>
+                                                            verifyRunMutation.mutate(
+                                                                {
+                                                                    runId: run
+                                                                        .run.id,
+                                                                    status: 'flagged'
+                                                                }
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            verifyRunMutation.isPending
+                                                        }
                                                     >
                                                         <XCircle className="w-4 h-4 mr-1" />
                                                         Flag

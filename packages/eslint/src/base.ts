@@ -153,14 +153,14 @@ export const baseConfig: import('eslint').Linter.Config[] = [
                 'error',
                 { noUselessIndex: true }
             ],
-            'import/no-relative-parent-imports': 'off', // Often disabled in monorepos, but can enable ('warn'/'error') if preferred
+            'import/no-relative-parent-imports': 'off', // Often disabled in monorepos
             'import/consistent-type-specifier-style': [
                 'error',
                 'prefer-top-level'
             ],
             'import/first': 'error',
             'no-restricted-imports': [
-                'warn',
+                'error',
                 { patterns: ['**/../**/', '../../*'] }
             ]
         }
