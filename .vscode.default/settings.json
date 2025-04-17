@@ -36,7 +36,7 @@
     // Use flat config (ESLint v9+) - ESSENTIAL
     "eslint.useFlatConfig": true,
 
-    // For PNPM: nodePath usually not required as PNPM handles resolution well via node_modules structure.
+    // For pnpm: nodePath usually not required as PNPM handles resolution well via node_modules structure.
     // If you encounter issues finding ESLint/plugins, you *might* need to specify a path,
     // but try without it first.
     // "eslint.nodePath": "./node_modules/.bin", // Example if needed, unlikely with pnpm workspaces
@@ -64,6 +64,6 @@
     "prettier.useTabs": false,
     "editor.detectIndentation": false
 
-    // For PNPM: tsdk path is also usually resolved correctly. Add if needed.
+    // For pnpm: tsdk path is also usually resolved correctly. Add if needed.
     // "typescript.tsdk": "node_modules/typescript/lib"
 }

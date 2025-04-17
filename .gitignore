@@ -1,5 +1,3 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # Dependencies
 node_modules
 .pnp
@@ -29,6 +27,7 @@ out/
 build
 dist
 abi/
+**/tsconfig.tsbuildinfo
 
 # Debug
 npm-debug.log*
@@ -39,10 +38,12 @@ yarn-error.log*
 .DS_Store
 *.pem
 
-# .vscode
+# IDE
+# sharing settings via .vscode.default and .windsurfrules.default; this is mostly for me so that I can keep consistent settings between different machines with maximum low effort but you can use the rules too by removing the .default extensions
+# I **HIGHLY** recommend you only do this if you know what you're doing, because I hardly know what I'm doing, and you can mess your settings up pretty badly
+.vscode
 .cursor
-
-**/tsconfig.tsbuildinfo
+.windsurfrules
 
 # Foundry
 cache/
