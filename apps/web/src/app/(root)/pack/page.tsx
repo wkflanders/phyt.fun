@@ -1,6 +1,6 @@
 import React from 'react';
-import { Packs } from '@/components/Packs/Packs';
-import { SynthwaveBackground } from '@/components/Packs/SynthwaveBackground';
+import { Packs } from '@/components/packs/Packs';
+import { SynthwaveBackground } from '@/components/packs/SynthwaveBackground';
 
 export default function PackPage() {
     return (

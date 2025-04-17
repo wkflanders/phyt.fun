@@ -1,31 +1,38 @@
 import { ApiError, CommentQueryParams, CommentResponse } from '@phyt/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
 export const COMMENT_QUERY_KEYS = {
     all: ['comments'] as const,
     lists: () => [...COMMENT_QUERY_KEYS.all, 'list'] as const,
-    detail: (commentId: number) => [...COMMENT_QUERY_KEYS.all, commentId] as const,
+    detail: (commentId: number) =>
+        [...COMMENT_QUERY_KEYS.all, commentId] as const,
     postComments: (postId: number, params?: CommentQueryParams) =>
         ['postComments', postId, params] as const,
-    replies: (commentId: number, params?: { page?: number, limit?: number; }) =>
+    replies: (commentId: number, params?: { page?: number; limit?: number }) =>
         ['commentReplies', commentId, params] as const
 };
 
-export async function fetchPostComments(postId: number, params: CommentQueryParams = {}, token: string | null): Promise<CommentResponse> {
-    const { page = 1, limit = 20, parentOnly = false } = params;
+export async function fetchPostComments(
+    postId: number,
+    params: CommentQueryParams = {},
+    token: string | null
+): Promise<CommentResponse> {
+    const { page = 1, limit = 20, parent_only = false } = params;
 
     const searchParams = new URLSearchParams();
     searchParams.append('page', page.toString());
     searchParams.append('limit', limit.toString());
-    searchParams.append('parentOnly', parentOnly.toString());
-
-    const response = await fetch(`${API_URL}/comments/post/${postId}?${searchParams.toString()}`, {
-        method: 'GET',
-        headers: {
-            "Authorization": `Bearer ${token}`
+    searchParams.append('parent_only', parent_only.toString());
+    const response = await fetch(
+        `${API_URL}/comments/post/${postId}?${searchParams.toString()}`,
+        {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         }
-    });
+    );
 
     if (!response.ok) {
         const error = await response.json();
@@ -39,19 +46,26 @@ export async function fetchPostComments(postId: number, params: CommentQueryPara
 }
 
 // Function to fetch replies to a comment
-export async function fetchCommentReplies(commentId: number, params: CommentQueryParams = {}, token: string | null): Promise<CommentResponse> {
+export async function fetchCommentReplies(
+    commentId: number,
+    params: CommentQueryParams = {},
+    token: string | null
+): Promise<CommentResponse> {
     const { page = 1, limit = 20 } = params;
 
     const searchParams = new URLSearchParams();
     searchParams.append('page', page.toString());
     searchParams.append('limit', limit.toString());
 
-    const response = await fetch(`${API_URL}/comments/replies/${commentId}?${searchParams.toString()}`, {
-        method: 'GET',
-        headers: {
-            "Authorization": `Bearer ${token}`
+    const response = await fetch(
+        `${API_URL}/comments/replies/${commentId}?${searchParams.toString()}`,
+        {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         }
-    });
+    );
 
     if (!response.ok) {
         const error = await response.json();
@@ -65,11 +79,14 @@ export async function fetchCommentReplies(commentId: number, params: CommentQuer
 }
 
 // Function to fetch a single comment by ID
-export async function fetchComment(commentId: number, token: string | null): Promise<Comment> {
+export async function fetchComment(
+    commentId: number,
+    token: string | null
+): Promise<Comment> {
     const response = await fetch(`${API_URL}/comments/${commentId}`, {
         method: 'GET',
         headers: {
-            "Authorization": `Bearer ${token}`
+            Authorization: `Bearer ${token}`
         }
     });
 
@@ -85,16 +102,19 @@ export async function fetchComment(commentId: number, token: string | null): Pro
 }
 
 // Function to create a comment or reply
-export async function createComment(commentData: {
-    post_id: number,
-    content: string,
-    parent_comment_id?: number;
-}, token: string | null): Promise<Comment> {
+export async function createComment(
+    commentData: {
+        post_id: number;
+        content: string;
+        parent_comment_id?: number;
+    },
+    token: string | null
+): Promise<Comment> {
     const response = await fetch(`${API_URL}/comments`, {
         method: 'POST',
         headers: {
-            "Authorization": `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify(commentData)
     });
@@ -111,17 +131,20 @@ export async function createComment(commentData: {
 }
 
 // Function to update a comment
-export async function updateComment({
-    commentId,
-    content
-}: {
-    commentId: number,
-    content: string;
-}, token: string | null): Promise<Comment> {
+export async function updateComment(
+    {
+        commentId,
+        content
+    }: {
+        commentId: number;
+        content: string;
+    },
+    token: string | null
+): Promise<Comment> {
     const response = await fetch(`${API_URL}/comments/${commentId}`, {
         method: 'PATCH',
         headers: {
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({ content })
@@ -139,11 +162,14 @@ export async function updateComment({
 }
 
 // Function to delete a comment
-export async function deleteComment(commentId: number, token: string | null): Promise<Comment> {
+export async function deleteComment(
+    commentId: number,
+    token: string | null
+): Promise<Comment> {
     const response = await fetch(`${API_URL}/comments/${commentId}`, {
         method: 'DELETE',
         headers: {
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
         }
     });

@@ -1,13 +1,21 @@
 'use client';
 
 import React from 'react';
-import { ProfileHeader } from '@/components/Profile/ProfileHeader';
-import { ProfileTabs } from '@/components/Profile/ProfileTabs';
+import { ProfileHeader } from '@/components/profile/ProfileHeader';
+import { ProfileTabs } from '@/components/profile/ProfileTabs';
 import { useGetUser, useGetUserCards } from '@/hooks/use-users';
 import { Loader2 } from 'lucide-react';
 
-export default function ProfileLayout({ children }: { children: React.ReactNode; }) {
-    const { data: user, isFetching: fetchingUser, status: userFetchStatus } = useGetUser();
+export default function ProfileLayout({
+    children
+}: {
+    children: React.ReactNode;
+}) {
+    const {
+        data: user,
+        isFetching: fetchingUser,
+        status: userFetchStatus
+    } = useGetUser();
     const { data: cards, isFetching: fetchingCards } = useGetUserCards();
 
     if (!user) {
@@ -29,16 +37,11 @@ export default function ProfileLayout({ children }: { children: React.ReactNode;
     return (
         <div className="flex flex-col pl-14 min-h-screen bg-background">
             <div className="relative">
-                <ProfileHeader
-                    user={user}
-                    cards={cards || []}
-                />
+                <ProfileHeader user={user} cards={cards || []} />
             </div>
             <div className="flex flex-col">
                 <ProfileTabs />
-                <div className="px-6 py-4">
-                    {children}
-                </div>
+                <div className="px-6 py-4">{children}</div>
             </div>
         </div>
     );

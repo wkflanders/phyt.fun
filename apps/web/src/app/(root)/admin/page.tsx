@@ -1,7 +1,7 @@
 // src/app/(admin)/admin/page.tsx
-"use client";
+'use client';
 
-import AdminDashboard from "@/components/Admin/AdminDashboard";
+import AdminDashboard from '@/components/admin/AdminDashboard';
 
 export default function AdminPage() {
     return <AdminDashboard />;

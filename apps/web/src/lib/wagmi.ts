@@ -5,6 +5,8 @@ import { http } from 'wagmi';
 export const config = createConfig({
     chains: [baseSepolia],
     transports: {
-        [baseSepolia.id]: http(process.env.BASE_RPC_URL),
-    },
+        [baseSepolia.id]: http(
+            process.env.NEXT_PUBLIC_BASE_RPC_URL ?? 'https://sepolia.base.org'
+        )
+    }
 });

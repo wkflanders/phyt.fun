@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { CardWithMetadata, User } from '@phyt/types';
-import { ListingModal } from '@/components/Marketplace/ListingModal';
+import { ListingModal } from '@/components/marketplace/ListingModal';
 
 interface ItemCardProps {
     id: string;
@@ -45,11 +45,17 @@ export const ItemCard: React.FC<ItemCardProps> = ({
                 </div>
                 <Card className="w-full p-0 rounded-none bg-neutral-700/20 backdrop-blur-lg border-white/10 border-t-0">
                     <CardContent className="px-4 py-4">
-                        <div className="font-medium text-base text-text truncate">{name}</div>
-                        <div className="text-sm mt-2 text-text-dim truncate">{season}</div>
+                        <div className="font-medium text-base text-text truncate">
+                            {name}
+                        </div>
+                        <div className="text-sm mt-2 text-text-dim truncate">
+                            {season}
+                        </div>
                         <div className="flex justify-between mt-2">
                             <div className="text-sm text-text-dim">Listed</div>
-                            <div className="text-sm font-medium text-text">{price}</div>
+                            <div className="text-sm font-medium text-text">
+                                {price}
+                            </div>
                         </div>
                     </CardContent>
                 </Card>

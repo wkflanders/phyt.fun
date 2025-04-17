@@ -40,7 +40,7 @@ export interface AdminService {
 }
 
 export interface CommentService {
-    createComment(request: CreateCommentRequest): Promise<Comment>;
+    createComment(request: CommentCreateRequest): Promise<Comment>;
     getPostComments(
         post_id: number,
         params: CommentQueryParams
@@ -791,7 +791,7 @@ export interface Comment {
     created_at: Date;
 }
 
-export interface CreateCommentRequest {
+export interface CommentCreateRequest {
     user_id: number;
     post_id: number;
     content: string;

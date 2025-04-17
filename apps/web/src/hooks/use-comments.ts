@@ -3,7 +3,7 @@ import { useToast } from './use-toast';
 import {
     ApiError,
     CommentQueryParams,
-    CreateCommentRequest,
+    CommentCreateRequest,
     CommentUpdateRequest,
     CommentResponse
 } from '@phyt/types';
@@ -23,20 +23,20 @@ export function usePostComments(
     postId: number,
     params: CommentQueryParams = {}
 ) {
-    const { page = 1, limit = 20, parentOnly = false } = params;
+    const { page = 1, limit = 20, parent_only = false } = params;
     const { getAccessToken } = usePrivy();
 
     return useQuery<CommentResponse, ApiError>({
         queryKey: COMMENT_QUERY_KEYS.postComments(postId, {
             page,
             limit,
-            parentOnly
+            parent_only
         }),
         queryFn: async () => {
             const token = await getAccessToken();
             return fetchPostComments(
                 postId,
-                { page, limit, parentOnly },
+                { page, limit, parent_only },
                 token
             );
         },

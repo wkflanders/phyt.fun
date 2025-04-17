@@ -1,12 +1,12 @@
-"use client";
-import React from "react";
-import Image from "next/image";
-import { useAccount, useBalance } from "wagmi";
-import { CommandSearch } from "@/components/CommandSearch";
-import { useGetUser } from "@/hooks/use-users";
-import { WalletPopover } from "@/components/WalletPopover";
-import { NotificationsPopover } from "./NotificationsPopover";
-import { ProfilePopover } from "./Profile/ProfilePopover";
+'use client';
+import React from 'react';
+import Image from 'next/image';
+import { useAccount, useBalance } from 'wagmi';
+import { CommandSearch } from '@/components/CommandSearch';
+import { useGetUser } from '@/hooks/use-users';
+import { WalletPopover } from '@/components/WalletPopover';
+import { NotificationsPopover } from './NotificationsPopover';
+import { ProfilePopover } from './profile/ProfilePopover';
 
 type NavbarProps = {
     scrolled: boolean;
@@ -16,7 +16,7 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
     const { data: user, isLoading: userLoading } = useGetUser();
     const { address } = useAccount();
     const { data: balance, isLoading: balanceLoading } = useBalance({
-        address: address as `0x${string}`,
+        address: address as `0x${string}`
     });
 
     const PointsSkeleton = () => (
@@ -34,8 +34,11 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
 
     return (
         <div
-            className={`fixed top-0 z-40 flex h-16 w-full items-center border-b ${scrolled ? "border-white/10 bg-zinc-900/20 backdrop-blur-lg" : "border-transparent bg-transparent"
-                }`}
+            className={`fixed top-0 z-40 flex h-16 w-full items-center border-b ${
+                scrolled
+                    ? 'border-white/10 bg-zinc-900/20 backdrop-blur-lg'
+                    : 'border-transparent bg-transparent'
+            }`}
         >
             <div className="flex items-center justify-between flex-1 pl-24 pr-12">
                 <CommandSearch />
@@ -44,7 +47,9 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
                         <PointsSkeleton />
                     ) : (
                         <div className="flex items-center gap-4 px-4 py-2 transition-colors duration-200 group rounded-xl hover:bg-black/20 hover:cursor-pointer">
-                            <span className="font-medium text-md">{user?.phytness_points ?? 0}</span>
+                            <span className="font-medium text-md">
+                                {user?.phytness_points ?? 0}
+                            </span>
                             <Image
                                 src="https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFEiSLtcfUBum8Mgfo1FYyXsrLc3tahDp4Q2JS"
                                 alt="Phytness Points"
