@@ -41,7 +41,6 @@
         "@types/eslint-plugin-jsx-a11y": "^6.10.0",
         "@types/eslint-plugin-tailwindcss": "^3.17.0",
         "@types/node": "^22.14.1",
-        "@typescript-eslint/eslint-plugin": "^8.28.0",
         "@typescript-eslint/parser": "^8.28.0",
         "typescript-eslint": "^8.30.1"
     }
