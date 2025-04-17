@@ -7,20 +7,20 @@ export const validateAuth = async (
     req: Request,
     res: Response,
     next: NextFunction
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-) => {
+): Promise<void> => {
     try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader?.startsWith('Bearer ')) {
+        const authorizationHeader = req.headers.authorization;
+        if (!authorizationHeader?.startsWith('Bearer ')) {
             throw new HttpError('Missing Authorization header', 401);
         }
 
-        const token = authHeader.split(' ')[1];
+        const token = authorizationHeader.split(' ')[1];
         if (!token) {
             throw new HttpError('Invalid Authorization header format', 401);
         }
 
-        const claims = await privy.verifyAuthToken(
+        // Verify and type the token claims
+        const claims: { userId?: string } = await privy.verifyAuthToken(
             token,
             process.env.PRIVY_VERIFICATION_KEY
         );
@@ -31,8 +31,10 @@ export const validateAuth = async (
 
         req.auth = { privy_id: claims.userId };
         next();
-    } catch (error) {
-        console.error('Authentication error:', error);
+    } catch (err) {
+        // Safely handle unknown error
+        const error = err instanceof Error ? err : new Error(String(err));
+        console.error('Authentication error:', error.message);
         next(new HttpError('Authentication failed', 403));
     }
 };

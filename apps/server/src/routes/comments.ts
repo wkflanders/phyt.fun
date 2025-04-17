@@ -5,24 +5,15 @@ import {
     CreateCommentRequest,
     CommentResponse,
     Comment,
-    CommentService,
     DatabaseError,
     NotFoundError
 } from '@phyt/types';
-import express, {
-    Router,
-    Request,
-    Response,
-    NextFunction,
-    RequestHandler
-} from 'express';
+import express, { Router, Request, Response, NextFunction } from 'express';
 
 import { createCommentSchema, updateCommentSchema } from '@/lib/validation';
 import { validateAuth } from '@/middleware/auth';
 import { validateSchema } from '@/middleware/validator';
-import { commentService as commentServiceObject } from '@/services/commentServices';
-
-const commentService = commentServiceObject as CommentService;
+import { commentService } from '@/services/commentServices';
 
 const router: Router = express.Router();
 
@@ -47,11 +38,11 @@ router.get(
                 throw new HttpError('Invalid post ID', 400);
             }
 
-            const { page = '1', limit = '20' } = req.query;
-
+            const pageStr = String(req.query.page ?? '1');
+            const limitStr = String(req.query.limit ?? '20');
             const result = await commentService.getPostComments(postId, {
-                page: parseInt(page as string),
-                limit: parseInt(limit as string),
+                page: parseInt(pageStr, 10),
+                limit: parseInt(limitStr, 10),
                 parent_only: true
             });
 
@@ -91,11 +82,11 @@ router.get(
                 throw new HttpError('Invalid comment ID', 400);
             }
 
-            const { page = '1', limit = '20' } = req.query;
-
+            const pageStr = String(req.query.page ?? '1');
+            const limitStr = String(req.query.limit ?? '20');
             const result = await commentService.getCommentReplies(commentId, {
-                page: parseInt(page as string),
-                limit: parseInt(limit as string)
+                page: parseInt(pageStr, 10),
+                limit: parseInt(limitStr, 10)
             });
 
             res.status(200).json(result);
@@ -150,7 +141,7 @@ router.get(
 // Create a new comment
 router.post(
     '/',
-    validateSchema(createCommentSchema) as RequestHandler,
+    validateSchema(createCommentSchema),
     async (
         req: Request<Record<string, never>, Comment, CreateCommentRequest>,
         res: Response<Comment>,
@@ -186,29 +177,25 @@ router.post(
 // Update a comment
 router.patch(
     '/:id',
-    validateSchema(updateCommentSchema) as RequestHandler,
+    validateSchema(updateCommentSchema),
     // Verify comment owner
     async (
         req: Request<
             { id: string },
             Comment,
-            Partial<CommentUpdateRequest> & {
-                user_id?: number;
-            }
+            Partial<CommentUpdateRequest> & { user_id?: number }
         >,
         res: Response<Comment>,
         next: NextFunction
     ) => {
         try {
-            const typedBody = req.body as Partial<CommentUpdateRequest> & {
-                user_id?: number;
-            };
+            // req.body is already correctly typed
             const commentId = parseInt(req.params.id, 10);
             if (isNaN(commentId)) {
                 throw new HttpError('Invalid comment ID', 400);
             }
 
-            const { content } = typedBody;
+            const { content } = req.body;
             const comment = await commentService.updateComment(commentId, {
                 content: content ?? ''
             });

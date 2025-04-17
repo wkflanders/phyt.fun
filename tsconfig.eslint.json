@@ -4,7 +4,12 @@
     "compilerOptions": {
         "moduleResolution": "node16",
         "module": "NodeNext",
-        "types": ["node"]
+        "types": ["node"],
+        "baseUrl": ".",
+        "paths": {
+            "@phyt/*": ["packages/*/src"],
+            "@/*": ["apps/server/src/*", "apps/web/src/*"]
+        }
     },
     "include": ["apps/*/src", "packages/*/src"]
 }

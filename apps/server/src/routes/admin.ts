@@ -1,19 +1,12 @@
-import {
-    HttpError,
-    DatabaseError,
-    NotFoundError,
-    AdminService
-} from '@phyt/types';
+import { HttpError, Run, DatabaseError, NotFoundError } from '@phyt/types';
 import express, { Router, Request, Response, NextFunction } from 'express';
 
 import { validateAdmin } from '@/middleware/admin';
 import { validateAuth } from '@/middleware/auth';
-import { adminService as adminServiceObject } from '@/services/adminServices';
+import { adminService } from '@/services/adminServices';
 interface VerifyRunStatus {
     status: 'verified' | 'flagged';
 }
-
-const adminService = adminServiceObject as AdminService;
 
 const router: Router = express.Router();
 
@@ -97,10 +90,15 @@ router.post(
 // Update run verification status
 router.patch(
     '/runs/:id/verify',
-    async (req: Request, res: Response, next: NextFunction) => {
+    // type req.body as VerifyRunStatus so no cast is needed
+    async (
+        req: Request<{ id: string }, Run, VerifyRunStatus>,
+        res: Response,
+        next: NextFunction
+    ) => {
         try {
-            const runId = parseInt(req.params.id);
-            const { status } = req.body as VerifyRunStatus;
+            const runId = parseInt(req.params.id, 10);
+            const { status } = req.body;
 
             if (isNaN(runId)) {
                 throw new HttpError('Invalid run ID', 400);

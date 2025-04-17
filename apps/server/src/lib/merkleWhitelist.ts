@@ -1,11 +1,12 @@
 import { db, users } from '@phyt/database';
-import { User } from '@phyt/types';
 import { MerkleTree } from 'merkletreejs';
 import { keccak256 } from 'viem';
 
 export async function getWhitelistedWallets(): Promise<string[]> {
-    const userRecords = await (db.select().from(users) as Promise<User[]>);
-    return userRecords.map((u) => u.wallet_address.toLowerCase());
+    const records = await db
+        .select({ wallet_address: users.wallet_address })
+        .from(users);
+    return records.map((r) => r.wallet_address.toLowerCase());
 }
 
 export async function generateMerkleTree(): Promise<MerkleTree> {

@@ -20,13 +20,12 @@ export const toStringValue = (value: unknown): string | undefined => {
 export const calculateTrendingScore = async (
     postId: number,
     daysAgo: number
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-) => {
+): Promise<number> => {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - daysAgo);
 
     // Get count of recent reactions for this post
-    const [reactionResult] = await db
+    const reactionRows = await db
         .select({ count: countFn() })
         .from(reactions)
         .where(
@@ -35,9 +34,10 @@ export const calculateTrendingScore = async (
                 gt(reactions.created_at, cutoffDate)
             )
         );
+    const reactionResult = reactionRows[0] as { count: number };
 
     // Get count of recent comments for this post
-    const [commentResult] = await db
+    const commentRows = await db
         .select({ count: countFn() })
         .from(comments)
         .where(
@@ -46,7 +46,8 @@ export const calculateTrendingScore = async (
                 gt(comments.created_at, cutoffDate)
             )
         );
+    const commentResult = commentRows[0] as { count: number };
 
     // Return the sum of counts
-    return Number(reactionResult.count) + Number(commentResult.count);
+    return reactionResult.count + commentResult.count;
 };
