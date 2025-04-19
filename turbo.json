@@ -1,6 +1,5 @@
 {
     "$schema": "https://turbo.build/schema.v2.json",
-    "globalEnv": [".env"],
     "tasks": {
         "prebuild": {
             "outputs": [],
@@ -10,11 +9,10 @@
             "dependsOn": ["prebuild", "^build"],
             "outputs": [".next/**", "dist/**", "build/**", "src/**/*.json"],
             "env": [
-                "NEXT_PUBLIC_PRIVY_APP_ID",
+                "NEXT_PUBLIC_*",
                 "PRIVY_SECRET_KEY",
                 "PRIVY_VERIFICATION_KEY",
                 "DATABASE_URL",
-                "NEXT_PUBLIC_*",
                 "BASE_RPC_URL",
                 "EXCHANGE_ADDRESS",
                 "PHYT_CARDS_ADDRESS",
@@ -47,6 +45,13 @@
         "@phyt/types#build": {
             "outputs": [],
             "cache": false
+        },
+        "@phyt/server#build": {
+            "dependsOn": [
+                "@phyt/database#build",
+                "@phyt/types#build",
+                "@phyt/contracts#build"
+            ]
         },
         "@phyt/web#build": {
             "dependsOn": [
