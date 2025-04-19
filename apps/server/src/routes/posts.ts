@@ -8,10 +8,10 @@ import {
 } from '@phyt/types';
 import express, { Request, Response, Router } from 'express';
 
-import { createPostSchema, updatePostSchema } from '@/lib/validation';
-import { validateAuth } from '@/middleware/auth';
-import { validateSchema } from '@/middleware/validator';
-import { postService } from '@/services/postServices';
+import { createPostSchema, updatePostSchema } from '@/lib/validation.js';
+import { validateAuth } from '@/middleware/auth.js';
+import { validateSchema } from '@/middleware/validator.js';
+import { postService } from '@/services/postServices.js';
 
 const router: Router = express.Router();
 

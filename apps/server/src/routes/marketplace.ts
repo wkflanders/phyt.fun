@@ -12,11 +12,11 @@ import {
 } from '@phyt/types';
 import express, { Request, Router, Response } from 'express';
 
-import { toStringValue } from '@/lib/utils';
-import { openBidSchema, bidSchema, listingSchema } from '@/lib/validation';
-import { validateAuth } from '@/middleware/auth';
-import { validateSchema } from '@/middleware/validator';
-import { marketplaceService } from '@/services/marketplaceServices';
+import { toStringValue } from '@/lib/utils.js';
+import { openBidSchema, bidSchema, listingSchema } from '@/lib/validation.js';
+import { validateAuth } from '@/middleware/auth.js';
+import { validateSchema } from '@/middleware/validator.js';
+import { marketplaceService } from '@/services/marketplaceServices.js';
 
 const router: Router = express.Router();
 

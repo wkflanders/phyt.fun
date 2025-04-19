@@ -1,9 +1,9 @@
 import { HttpError, Run, DatabaseError, NotFoundError } from '@phyt/types';
 import express, { Router, Request, Response, NextFunction } from 'express';
 
-import { validateAdmin } from '@/middleware/admin';
-import { validateAuth } from '@/middleware/auth';
-import { adminService } from '@/services/adminServices';
+import { validateAdmin } from '@/middleware/admin.js';
+import { validateAuth } from '@/middleware/auth.js';
+import { adminService } from '@/services/adminServices.js';
 interface VerifyRunStatus {
     status: 'verified' | 'flagged';
 }

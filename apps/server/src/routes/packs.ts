@@ -5,10 +5,10 @@ import {
 } from '@phyt/types';
 import express, { Router, Request, Response } from 'express';
 
-import { purchasePackSchema } from '@/lib/validation';
-import { validateAuth } from '@/middleware/auth';
-import { validateSchema } from '@/middleware/validator';
-import { packService } from '@/services/packServices';
+import { purchasePackSchema } from '@/lib/validation.js';
+import { validateAuth } from '@/middleware/auth.js';
+import { validateSchema } from '@/middleware/validator.js';
+import { packService } from '@/services/packServices.js';
 
 const router: Router = express.Router();
 

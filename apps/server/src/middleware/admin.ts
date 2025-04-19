@@ -1,13 +1,13 @@
 import { HttpError } from '@phyt/types';
 import { Request, Response, NextFunction } from 'express';
 
-import { userService } from '@/services/userServices';
+import { userService } from '@/services/userServices.js';
 
-import { validateAuth } from './auth';
+import { validateAuth } from './auth.js';
 
 export const validateAdmin = [
     validateAuth,
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.auth) {

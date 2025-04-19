@@ -9,11 +9,11 @@ import {
 import express, { Router, Request, Response } from 'express';
 import { z } from 'zod';
 
-import { workoutSchema, createPostSchema } from '@/lib/validation';
-import { validateAuth } from '@/middleware/auth';
-import { validateSchema } from '@/middleware/validator';
-import { postService } from '@/services/postServices';
-import { runService } from '@/services/runServices';
+import { workoutSchema, createPostSchema } from '@/lib/validation.js';
+import { validateAuth } from '@/middleware/auth.js';
+import { validateSchema } from '@/middleware/validator.js';
+import { postService } from '@/services/postServices.js';
+import { runService } from '@/services/runServices.js';
 
 const router: Router = express.Router();
 

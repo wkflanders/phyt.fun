@@ -5,13 +5,13 @@ import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 
-import { corsOptions } from './middleware/CORS';
-import { errorHandler } from './middleware/errorHandler';
-import { requestIdMiddleware, logFormat } from './middleware/logging';
-import { standardLimiter } from './middleware/rateLimiter';
-import { responseTimeMonitor } from './middleware/responseTime';
-import { sanitizeInputs } from './middleware/sanitize';
-import router from './routes';
+import { corsOptions } from './middleware/CORS.js';
+import { errorHandler } from './middleware/errorHandler.js';
+import { requestIdMiddleware, logFormat } from './middleware/logging.js';
+import { standardLimiter } from './middleware/rateLimiter.js';
+import { responseTimeMonitor } from './middleware/responseTime.js';
+import { sanitizeInputs } from './middleware/sanitize.js';
+import router from './routes/router.js';
 
 config();
 

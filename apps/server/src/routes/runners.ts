@@ -7,8 +7,8 @@ import {
 } from '@phyt/types';
 import express, { Request, Response, Router } from 'express';
 
-import { validateAuth } from '@/middleware/auth';
-import { runnerService } from '@/services/runnerServices';
+import { validateAuth } from '@/middleware/auth.js';
+import { runnerService } from '@/services/runnerServices.js';
 
 const router: Router = express.Router();
 

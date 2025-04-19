@@ -1,7 +1,7 @@
 import { HttpError } from '@phyt/types';
 import { Request, Response, NextFunction } from 'express';
 
-import { privy } from '@/lib/privyClient';
+import { privy } from '@/lib/privyClient.js';
 
 export const validateAuth = async (
     req: Request,

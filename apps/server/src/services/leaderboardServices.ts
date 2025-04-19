@@ -17,8 +17,8 @@ import {
 } from '@phyt/types';
 import { subDays } from 'date-fns';
 
-import { runnerService } from './runnerServices';
-import { userService } from './userServices';
+import { runnerService } from './runnerServices.js';
+import { userService } from './userServices.js';
 
 interface LeaderboardParams {
     page?: number;

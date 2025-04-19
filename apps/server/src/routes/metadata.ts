@@ -1,8 +1,8 @@
 import { ValidationError, TokenURIMetadata } from '@phyt/types';
 import express, { Router, Request, Response } from 'express';
 
-import { validateAuth } from '@/middleware/auth';
-import { metadataService } from '@/services/metadataServices';
+import { validateAuth } from '@/middleware/auth.js';
+import { metadataService } from '@/services/metadataServices.js';
 
 const router: Router = express.Router();
 

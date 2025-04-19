@@ -22,8 +22,8 @@ import {
     HttpError
 } from '@phyt/types';
 
-import { calculateTrendingScore } from '@/lib/utils';
-import { userService } from '@/services/userServices';
+import { calculateTrendingScore } from '@/lib/utils.js';
+import { userService } from '@/services/userServices.js';
 
 export const postService = {
     createPost: async (runId: number): Promise<Post> => {

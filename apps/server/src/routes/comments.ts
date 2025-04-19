@@ -10,10 +10,10 @@ import {
 } from '@phyt/types';
 import express, { Router, Request, Response, NextFunction } from 'express';
 
-import { createCommentSchema, updateCommentSchema } from '@/lib/validation';
-import { validateAuth } from '@/middleware/auth';
-import { validateSchema } from '@/middleware/validator';
-import { commentService } from '@/services/commentServices';
+import { createCommentSchema, updateCommentSchema } from '@/lib/validation.js';
+import { validateAuth } from '@/middleware/auth.js';
+import { validateSchema } from '@/middleware/validator.js';
+import { commentService } from '@/services/commentServices.js';
 
 const router: Router = express.Router();
 

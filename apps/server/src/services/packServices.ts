@@ -15,10 +15,13 @@ import {
 } from '@phyt/types';
 import { decodeEventLog, parseEther, formatEther, Abi } from 'viem';
 
-import { getMerkleRoot, getMerkleProofForWallet } from '@/lib/merkleWhitelist';
-import { walletClient, publicClient, account } from '@/lib/viemClient';
+import {
+    getMerkleRoot,
+    getMerkleProofForWallet
+} from '@/lib/merkleWhitelist.js';
+import { walletClient, publicClient, account } from '@/lib/viemClient.js';
 
-import { metadataService } from './metadataServices';
+import { metadataService } from './metadataServices.js';
 
 if (!process.env.MINTER_ADDRESS || !process.env.PHYT_CARDS_ADDRESS) {
     throw new Error('Missing contract addresses in environment variables');

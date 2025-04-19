@@ -20,7 +20,7 @@ import {
     Transaction
 } from '@phyt/types';
 
-import { s3Service } from '@/lib/awsClient';
+import { s3Service } from '@/lib/awsClient.js';
 
 const DEFAULT_AVATAR =
     'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut';

@@ -12,7 +12,7 @@ import {
     DatabaseError
 } from '@phyt/types';
 
-import { s3Service } from '@/lib/awsClient';
+import { s3Service } from '@/lib/awsClient.js';
 
 export const metadataService = {
     generateRarity: (): CardRarity => {

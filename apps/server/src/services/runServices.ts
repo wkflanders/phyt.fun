@@ -15,7 +15,7 @@ import {
     RunVerificationStatus
 } from '@phyt/types';
 
-import { runnerService } from '@/services/runnerServices';
+import { runnerService } from '@/services/runnerServices.js';
 
 export const runService = {
     processRunnerApplication: async ({

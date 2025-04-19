@@ -1,7 +1,7 @@
 import express, { Router, Request, Response } from 'express';
 
-import { validateAuth } from '@/middleware/auth';
-import { leaderboardService } from '@/services/leaderboardServices';
+import { validateAuth } from '@/middleware/auth.js';
+import { leaderboardService } from '@/services/leaderboardServices.js';
 
 const router: Router = express.Router();
 
