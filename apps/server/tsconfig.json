@@ -5,13 +5,12 @@
         "outDir": "dist",
         "resolveJsonModule": true,
         "esModuleInterop": true,
-        "module": "ESNext",
-        "moduleResolution": "node",
         "baseUrl": ".",
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
         "noErrorTruncation": true,
         "paths": {
-            "@/*": ["./src/*"],
-            "@phyt/*": ["../../packages/*/src"]
+            "@/*": ["./src/*"]
         }
     },
     "include": ["src/**/*"],

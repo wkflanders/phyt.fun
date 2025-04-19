@@ -4,7 +4,9 @@
     "compilerOptions": {
         "outDir": "dist",
         "baseUrl": ".",
-        "emitDeclarationOnly": true
+        "emitDeclarationOnly": true,
+        "module": "nodenext",
+        "moduleResolution": "nodenext"
     },
     "include": ["src/**/*"],
     "exclude": ["node_modules", "dist"]

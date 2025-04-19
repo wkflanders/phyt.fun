@@ -5,6 +5,8 @@
         "baseUrl": ".",
         "outDir": "dist",
         "emitDeclarationOnly": true,
+        "moduleResolution": "nodenext",
+        "module": "nodenext",
         "declaration": true,
         "declarationMap": true,
         "strict": false,
