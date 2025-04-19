@@ -1,4 +1,3 @@
-// apps/web/src/components/OnboardForm.tsx
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,7 +7,7 @@ import React, { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ZodType } from 'zod';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
     Form,
     FormControl,
@@ -16,9 +15,9 @@ import {
     FormField,
     FormItem,
     FormLabel,
-    FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+    FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 
 interface OnboardFormProps {
@@ -54,9 +53,9 @@ export const OnboardForm = ({
         // Validate file type
         if (!file.type.startsWith('image/')) {
             toast({
-                title: "Invalid File Type",
-                description: "Please select an image file",
-                variant: "destructive"
+                title: 'Invalid File Type',
+                description: 'Please select an image file',
+                variant: 'destructive'
             });
             return;
         }
@@ -64,9 +63,9 @@ export const OnboardForm = ({
         // Validate file size (5MB)
         if (file.size > 5 * 1024 * 1024) {
             toast({
-                title: "File Too Large",
-                description: "Please select an image under 5MB",
-                variant: "destructive"
+                title: 'File Too Large',
+                description: 'Please select an image under 5MB',
+                variant: 'destructive'
             });
             return;
         }
@@ -76,7 +75,7 @@ export const OnboardForm = ({
         setPreviewUrl(URL.createObjectURL(file));
     };
 
-    const handleSubmit = async (values: { username: string; }) => {
+    const handleSubmit = async (values: { username: string }) => {
         const formData = new FormData();
         formData.append('username', values.username);
 
@@ -89,15 +88,23 @@ export const OnboardForm = ({
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-12">
+            <form
+                onSubmit={form.handleSubmit(handleSubmit)}
+                className="space-y-12"
+            >
                 <FormField
                     control={form.control}
                     name="username"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel className="font-inter">Username</FormLabel>
+                            <FormLabel className="font-inter">
+                                Username
+                            </FormLabel>
                             <FormControl>
-                                <Input className="border-2 h-14 text-text font-inter" {...field} />
+                                <Input
+                                    className="border-2 h-14 text-text font-inter"
+                                    {...field}
+                                />
                             </FormControl>
                             <FormDescription className="font-inter">
                                 This is your public display name
@@ -129,7 +136,9 @@ export const OnboardForm = ({
                                 width={20}
                                 height={20}
                             />
-                            <span className="font-inter text-phyt_text">Upload Avatar</span>
+                            <span className="font-inter text-phyt_text">
+                                Upload Avatar
+                            </span>
                         </Button>
 
                         {previewUrl && (

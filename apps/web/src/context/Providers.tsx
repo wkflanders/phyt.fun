@@ -1,27 +1,24 @@
 'use client';
 
 import { PrivyProvider } from '@privy-io/react-auth';
-import { WagmiProvider } from "@privy-io/wagmi";
+import { WagmiProvider } from '@privy-io/wagmi';
 import React from 'react';
 
+import { env } from '@/env';
 import { privyConfig } from '@/lib/privyConfig';
-import { config } from "@/lib/wagmi";
+import { config } from '@/lib/wagmi';
 
 import { QueryProvider } from './QueryProvider';
 
-export default function Providers({ children }: { children: React.ReactNode; }) {
+export default function Providers({ children }: { children: React.ReactNode }) {
     return (
-
         <PrivyProvider
-            appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID!}
+            appId={env.NEXT_PUBLIC_PRIVY_APP_ID}
             config={privyConfig}
         >
             <QueryProvider>
-                <WagmiProvider config={config}>
-                    {children}
-                </WagmiProvider>
+                <WagmiProvider config={config}>{children}</WagmiProvider>
             </QueryProvider>
         </PrivyProvider>
-
     );
 }

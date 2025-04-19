@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // These parameters in the URL indicate an OAuth flow is in progress
-const bypassAuthParams = ['privy_oauth_code', 'privy_oauth_state', 'privy_oauth_provider'];
+const bypassAuthParams = [
+    'privy_oauth_code',
+    'privy_oauth_state',
+    'privy_oauth_provider'
+];
 
 export const config = {
     // This matcher applies the middleware to all routes EXCEPT:
@@ -30,7 +34,10 @@ export function middleware(req: NextRequest) {
     if (!definitelyAuthenticated && maybeAuthenticated) {
         const refreshUrl = req.nextUrl.clone();
         refreshUrl.pathname = '/refresh';
-        refreshUrl.searchParams.set('redirect_uri', req.nextUrl.pathname + req.nextUrl.search);
+        refreshUrl.searchParams.set(
+            'redirect_uri',
+            `${String(req.nextUrl.pathname)}${String(req.nextUrl.search)}`
+        );
         return NextResponse.redirect(refreshUrl);
     }
 

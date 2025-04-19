@@ -1,7 +1,7 @@
-import { Search } from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import { Search } from 'lucide-react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 
 import {
     Command,
@@ -9,13 +9,13 @@ import {
     CommandEmpty,
     CommandGroup,
     CommandInput,
-    CommandItem,
-} from "@/components/ui/command";
-import { useGetRunners } from "@/hooks/use-runners";
+    CommandItem
+} from '@/components/ui/command';
+import { useGetRunners } from '@/hooks/use-runners';
 
 export function CommandSearch() {
     const [open, setOpen] = useState(false);
-    const [search, setSearch] = useState("");
+    const [search, setSearch] = useState('');
     const router = useRouter();
     const { data: runners = [], isLoading } = useGetRunners();
 
@@ -25,23 +25,23 @@ export function CommandSearch() {
 
     const handleOpenSearch = () => {
         setOpen(true);
-        document.body.style.overflow = "hidden";
-        window.addEventListener("keydown", handleKeyDown);
+        document.body.style.overflow = 'hidden';
+        window.addEventListener('keydown', handleKeyDown);
     };
 
     const handleCloseSearch = () => {
         setOpen(false);
-        document.body.style.overflow = "unset";
-        window.removeEventListener("keydown", handleKeyDown);
+        document.body.style.overflow = 'unset';
+        window.removeEventListener('keydown', handleKeyDown);
     };
 
     const handleKeyDown = (e: any) => {
-        if (e.key === "Escape") handleCloseSearch();
+        if (e.key === 'Escape') handleCloseSearch();
     };
 
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
         window.onkeydown = (e) => {
-            if (e.key === "/" && !open) {
+            if (e.key === '/' && !open) {
                 e.preventDefault();
                 handleOpenSearch();
             }
@@ -57,7 +57,9 @@ export function CommandSearch() {
             >
                 <Search className="w-4 h-4 text-text" />
                 <span className="text-text">Search runners</span>
-                <span className="ml-auto text-xs text-text border border-white/10 px-2 py-0.5 rounded">/</span>
+                <span className="ml-auto text-xs text-text border border-white/10 px-2 py-0.5 rounded">
+                    /
+                </span>
             </button>
 
             {open && (
@@ -105,67 +107,125 @@ export function CommandSearch() {
                                                             <div className="w-5 h-5 border-2 rounded-full border-r-transparent border-white/10 animate-spin" />
                                                         </div>
                                                     ) : (
-                                                        filteredRunners.map((runner) => (
-                                                            <CommandItem
-                                                                key={runner.id}
-                                                                onSelect={() => {
-                                                                    router.push(`/runner/${runner.id}`);
-                                                                    handleCloseSearch();
-                                                                }}
-                                                                className="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer hover:bg-black/30"
-                                                            >
-                                                                <Image
-                                                                    src={runner.avatar_url}
-                                                                    alt={runner.username}
-                                                                    width={38}
-                                                                    height={38}
-                                                                    className="rounded-full"
-                                                                />
-                                                                <div>
-                                                                    <p className="font-medium text-text">{runner.username}</p>
-                                                                    <p className="text-md text-text-dim">{String(runner.id).slice(0, 8)}...</p>
-                                                                </div>
-                                                            </CommandItem>
-                                                        ))
+                                                        filteredRunners.map(
+                                                            (runner) => (
+                                                                <CommandItem
+                                                                    key={
+                                                                        runner.id
+                                                                    }
+                                                                    onSelect={() => {
+                                                                        router.push(
+                                                                            `/runner/${String(runner.id)}`
+                                                                        );
+                                                                        handleCloseSearch();
+                                                                    }}
+                                                                    className="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer hover:bg-black/30"
+                                                                >
+                                                                    <Image
+                                                                        src={
+                                                                            runner.avatar_url
+                                                                        }
+                                                                        alt={
+                                                                            runner.username
+                                                                        }
+                                                                        width={
+                                                                            38
+                                                                        }
+                                                                        height={
+                                                                            38
+                                                                        }
+                                                                        className="rounded-full"
+                                                                    />
+                                                                    <div>
+                                                                        <p className="font-medium text-text">
+                                                                            {
+                                                                                runner.username
+                                                                            }
+                                                                        </p>
+                                                                        <p className="text-md text-text-dim">
+                                                                            {String(
+                                                                                runner.id
+                                                                            ).slice(
+                                                                                0,
+                                                                                8
+                                                                            )}
+                                                                            ...
+                                                                        </p>
+                                                                    </div>
+                                                                </CommandItem>
+                                                            )
+                                                        )
                                                     )}
                                                 </CommandGroup>
                                             </CommandList>
                                         ) : (
                                             <div className="py-8">
-                                                <h3 className="px-4 mb-3 font-medium text-text-dim text-md">TRENDING RUNNERS</h3>
+                                                <h3 className="px-4 mb-3 font-medium text-text-dim text-md">
+                                                    TRENDING RUNNERS
+                                                </h3>
                                                 <CommandList className="max-h-[60vh] overflow-y-auto">
                                                     {isLoading ? (
                                                         <div className="flex justify-center py-6">
                                                             <div className="w-5 h-5 border-2 rounded-full border-r-transparent border-white/10 animate-spin" />
                                                         </div>
                                                     ) : (
-                                                        runners.slice(0, 5).map((runner) => (
-                                                            <CommandItem
-                                                                key={runner.id}
-                                                                onSelect={() => {
-                                                                    router.push(`/runner/${runner.id}`);
-                                                                    handleCloseSearch();
-                                                                }}
-                                                                className="flex items-center justify-between px-4 py-3 rounded-lg cursor-pointer hover:bg-black/30"
-                                                            >
-                                                                <div className="flex items-center gap-3">
-                                                                    <Image
-                                                                        src={runner.avatar_url}
-                                                                        alt={runner.username}
-                                                                        width={38}
-                                                                        height={38}
-                                                                        className="rounded-full"
-                                                                    />
-                                                                    <div>
-                                                                        <p className="font-medium text-text">{runner.username}</p>
-                                                                        <p className="text-md text-text-dim">{Math.floor(Math.random() * 10000)} runs</p>
+                                                        runners
+                                                            .slice(0, 5)
+                                                            .map((runner) => (
+                                                                <CommandItem
+                                                                    key={
+                                                                        runner.id
+                                                                    }
+                                                                    onSelect={() => {
+                                                                        router.push(
+                                                                            `/runner/${String(runner.id)}`
+                                                                        );
+                                                                        handleCloseSearch();
+                                                                    }}
+                                                                    className="flex items-center justify-between px-4 py-3 rounded-lg cursor-pointer hover:bg-black/30"
+                                                                >
+                                                                    <div className="flex items-center gap-3">
+                                                                        <Image
+                                                                            src={
+                                                                                runner.avatar_url
+                                                                            }
+                                                                            alt={
+                                                                                runner.username
+                                                                            }
+                                                                            width={
+                                                                                38
+                                                                            }
+                                                                            height={
+                                                                                38
+                                                                            }
+                                                                            className="rounded-full"
+                                                                        />
+                                                                        <div>
+                                                                            <p className="font-medium text-text">
+                                                                                {
+                                                                                    runner.username
+                                                                                }
+                                                                            </p>
+                                                                            <p className="text-md text-text-dim">
+                                                                                {Math.floor(
+                                                                                    Math.random() *
+                                                                                        10000
+                                                                                )}{' '}
+                                                                                runs
+                                                                            </p>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                                <div className="font-medium text-md text-text-dim">
-                                                                    {(Math.random() * 0.01).toFixed(4)} ETH
-                                                                </div>
-                                                            </CommandItem>
-                                                        ))
+                                                                    <div className="font-medium text-md text-text-dim">
+                                                                        {(
+                                                                            Math.random() *
+                                                                            0.01
+                                                                        ).toFixed(
+                                                                            4
+                                                                        )}{' '}
+                                                                        ETH
+                                                                    </div>
+                                                                </CommandItem>
+                                                            ))
                                                     )}
                                                 </CommandList>
                                             </div>

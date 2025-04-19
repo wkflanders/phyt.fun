@@ -1,17 +1,15 @@
-import { PendingRunner, PendingRun } from '@phyt/types';
+import { PendingRunner, PendingRun, ApiError } from '@phyt/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+import { env } from '@/env';
+
+const API_URL: string = env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api';
 
 export const PENDING_RUNNERS_QUERY_KEY = 'pendingRunners';
 export const PENDING_RUNS_QUERY_KEY = 'pendingRuns';
 
 export const getPendingRunners = async (
-    token: string | null
+    token: string
 ): Promise<PendingRunner[]> => {
-    if (!token) {
-        throw new Error('No token available. Is user logged in with privy?');
-    }
-
     const response = await fetch(`${API_URL}/admin/pending-runners`, {
         method: 'GET',
         headers: {
@@ -20,19 +18,17 @@ export const getPendingRunners = async (
     });
 
     if (!response.ok) {
-        throw new Error('Failed to fetch pending runners');
+        const error = await response.json();
+        throw {
+            error: error.error ?? 'Failed to fetch pending runners',
+            status: response.status
+        } as ApiError;
     }
 
     return response.json();
 };
 
-export const getPendingRuns = async (
-    token: string | null
-): Promise<PendingRun[]> => {
-    if (!token) {
-        throw new Error('No token available. Is user logged in with privy?');
-    }
-
+export const getPendingRuns = async (token: string): Promise<PendingRun[]> => {
     const response = await fetch(`${API_URL}/admin/pending-runs`, {
         method: 'GET',
         headers: {
@@ -41,19 +37,19 @@ export const getPendingRuns = async (
     });
 
     if (!response.ok) {
-        throw new Error('Failed to fetch pending runs');
+        const error = await response.json();
+        throw {
+            error: error.error ?? 'Failed to fetch pending runs',
+            status: response.status
+        } as ApiError;
     }
 
     return response.json();
 };
 
-export const approveRunner = async (runnerId: number, token: string | null) => {
-    if (!token) {
-        throw new Error('No token available. Is user logged in with privy?');
-    }
-
+export const approveRunner = async (runnerId: number, token: string) => {
     const response = await fetch(
-        `${API_URL}/admin/runners/${runnerId}/approve`,
+        `${API_URL}/admin/runners/${String(runnerId)}/approve`,
         {
             method: 'POST',
             headers: {
@@ -64,7 +60,11 @@ export const approveRunner = async (runnerId: number, token: string | null) => {
     );
 
     if (!response.ok) {
-        throw new Error('Failed to approve runner');
+        const error = await response.json();
+        throw {
+            error: error.error ?? 'Failed to approve runner',
+            status: response.status
+        } as ApiError;
     }
 
     return response.json();
@@ -73,23 +73,26 @@ export const approveRunner = async (runnerId: number, token: string | null) => {
 export const updateRunVerification = async (
     runId: number,
     status: 'verified' | 'flagged',
-    token: string | null
+    token: string
 ) => {
-    if (!token) {
-        throw new Error('No token available. Is user logged in with privy?');
-    }
-
-    const response = await fetch(`${API_URL}/admin/runs/${runId}/verify`, {
-        method: 'PATCH',
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status })
-    });
+    const response = await fetch(
+        `${API_URL}/admin/runs/${String(runId)}/verify`,
+        {
+            method: 'PATCH',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status })
+        }
+    );
 
     if (!response.ok) {
-        throw new Error('Failed to update run verification');
+        const error = await response.json();
+        throw {
+            error: error.error ?? 'Failed to update run verification',
+            status: response.status
+        } as ApiError;
     }
 
     return response.json();

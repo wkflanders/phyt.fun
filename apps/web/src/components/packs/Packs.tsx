@@ -3,6 +3,7 @@
 import { TokenURIMetadata, PackTypes, PackType } from '@phyt/types';
 import { usePrivy } from '@privy-io/react-auth';
 import { HelpCircle } from 'lucide-react';
+import Image from 'next/image';
 import React, { useState } from 'react';
 import { parseEther } from 'viem';
 import { useAccount, useBalance } from 'wagmi';
@@ -17,7 +18,6 @@ import {
 import { usePurchasePack } from '@/hooks/use-purchase-pack';
 import { useToast } from '@/hooks/use-toast';
 import { useGetUser } from '@/hooks/use-users';
-
 
 export const Packs = () => {
     const [isPurchaseComplete, setIsPurchaseComplete] = useState(false);
@@ -38,21 +38,20 @@ export const Packs = () => {
     const { ready } = usePrivy();
     const { data: user } = useGetUser();
     const { mutate: purchasePack, isPending } = usePurchasePack();
-    const { data: balance } = useBalance({
-        address: address!
-    });
+    const { data: balance } = useBalance(
+        address ? { address } : { address: undefined }
+    );
 
     const DEFAULT_AVATAR =
         'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut';
 
     // Check if the current card is special (gold, ruby, sapphire)
     const currentCard = revealedCards[currentCardIndex];
-    const isSpecial =
-        currentCard?.attributes.some((attr) =>
-            ['gold', 'ruby', 'sapphire'].includes(attr.rarity)
-        );
+    const isSpecial = currentCard?.attributes.some((attr) =>
+        ['gold', 'ruby', 'sapphire'].includes(attr.rarity)
+    );
 
-    const handlePurchase = async (packType: string, price: string) => {
+    const handlePurchase = (packType: string, price: string) => {
         if (!ready || !address || !user?.id) {
             toast({
                 title: 'Error',
@@ -61,9 +60,11 @@ export const Packs = () => {
             });
             return;
         }
+
         setLoadingPackId(packType);
         setSelectedPack(packType);
         setPackPrice(price);
+
         const parsedPrice = parseEther(price);
         if (!balance || balance.value < parsedPrice) {
             toast({
@@ -112,7 +113,7 @@ export const Packs = () => {
                     }
                     toast({
                         title: 'Error',
-                        description: error.message || 'Failed to purchase pack',
+                        description: error.message ?? 'Failed to purchase pack',
                         variant: 'destructive'
                     });
                 },
@@ -160,7 +161,7 @@ export const Packs = () => {
             {isOverlayVisible && (
                 <div
                     className="fixed inset-0 bg-black transition-opacity duration-500"
-                    style={{ zIndex: 50, opacity: isOverlayVisible ? 1 : 0 }}
+                    style={{ zIndex: 50, opacity: 1 }}
                 />
             )}
             <div className="flex flex-col items-center justify-center min-h-screen p-12">
@@ -173,7 +174,7 @@ export const Packs = () => {
                                     className={`bg-gradient-to-br ${pack.bgGradient} rounded-xl p-6 flex flex-col items-center`}
                                 >
                                     <div className="relative w-96 h-96 mb-4">
-                                        <img
+                                        <Image
                                             src={pack.image}
                                             alt={`${pack.name} Pack`}
                                             className="object-contain w-full h-full hover:scale-105 transition-all duration-300"
@@ -199,11 +200,11 @@ export const Packs = () => {
                                     </div>
                                     <Button
                                         variant="outline"
-                                        onClick={() =>
-                                            handlePurchase(pack.id, pack.price)
-                                        }
+                                        onClick={() => {
+                                            handlePurchase(pack.id, pack.price);
+                                        }}
                                         disabled={
-                                            isPending || loadingPackId !== null
+                                            isPending ?? loadingPackId !== null
                                         }
                                         className="px-24 py-6 bg-transparent backdrop-blur-xl border-white/10 hover:bg-white/10 rounded-xl"
                                     >
@@ -226,19 +227,18 @@ export const Packs = () => {
                         <h2 className="text-2xl text-white mb-6">Your Cards</h2>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                             {revealedCards.map((card, index) => {
-                                const isGridSpecial =
-                                    card.attributes &&
-                                    card.attributes.some((attr) =>
+                                const isGridSpecial = card.attributes.some(
+                                    (attr) =>
                                         ['gold', 'ruby', 'sapphire'].includes(
                                             attr.rarity
                                         )
-                                    );
+                                );
                                 return (
                                     <div
                                         key={index}
                                         className={`w-64 h-64 ${isGridSpecial ? 'special-effect' : ''}`}
                                     >
-                                        <img
+                                        <Image
                                             src={card.image}
                                             alt={card.name}
                                             className="w-full h-full object-contain rounded-lg"
@@ -259,7 +259,7 @@ export const Packs = () => {
                     // Sequential card view with special effect for gold and above
                     <div className="relative w-full flex flex-col items-center pt-8">
                         <div className="relative w-96 h-96">
-                            {(!isPurchaseComplete || isPackDisappearing) && (
+                            {isPackDisappearing && (
                                 <div
                                     style={{
                                         position: 'absolute',
@@ -269,20 +269,18 @@ export const Packs = () => {
                                         height: '100%',
                                         transition:
                                             'all 750ms cubic-bezier(0.4, 0, 0.2, 1)',
-                                        transform: isPackDisappearing
-                                            ? 'scale(0.1)'
-                                            : 'scale(1)',
-                                        opacity: isPackDisappearing ? '0' : '1',
-                                        zIndex: isPackDisappearing ? 0 : 2
+                                        transform: 'scale(0.1)',
+                                        opacity: '0',
+                                        zIndex: 0
                                     }}
                                 >
-                                    <img
+                                    <Image
                                         src={
                                             PackTypes.find(
                                                 (p) => p.id === selectedPack
-                                            )?.image || DEFAULT_AVATAR
+                                            )?.image ?? DEFAULT_AVATAR
                                         }
-                                        alt={`${selectedPack} Pack`}
+                                        alt={`${selectedPack ?? ''} Pack`}
                                         className="w-full h-full object-contain"
                                     />
                                 </div>
@@ -295,7 +293,7 @@ export const Packs = () => {
                                     <div className="absolute inset-0 -z-10">
                                         <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full blur-3xl animate-pulse opacity-50" />
                                     </div>
-                                    <img
+                                    <Image
                                         src={
                                             revealedCards[currentCardIndex]
                                                 ?.image

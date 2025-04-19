@@ -1,6 +1,8 @@
 import { ApiError, CommentQueryParams, CommentResponse } from '@phyt/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+import { env } from '@/env';
+
+const API_URL: string = env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api';
 
 export const COMMENT_QUERY_KEYS = {
     all: ['comments'] as const,
@@ -16,7 +18,7 @@ export const COMMENT_QUERY_KEYS = {
 export async function fetchPostComments(
     postId: number,
     params: CommentQueryParams = {},
-    token: string | null
+    token: string
 ): Promise<CommentResponse> {
     const { page = 1, limit = 20, parent_only = false } = params;
 
@@ -25,7 +27,7 @@ export async function fetchPostComments(
     searchParams.append('limit', limit.toString());
     searchParams.append('parent_only', parent_only.toString());
     const response = await fetch(
-        `${API_URL}/comments/post/${postId}?${searchParams.toString()}`,
+        `${API_URL}/comments/post/${String(postId)}?${searchParams.toString()}`,
         {
             method: 'GET',
             headers: {
@@ -37,7 +39,7 @@ export async function fetchPostComments(
     if (!response.ok) {
         const error = await response.json();
         throw {
-            error: error.error || 'Failed to fetch comments',
+            error: error.error ?? 'Failed to fetch comments',
             status: response.status
         } as ApiError;
     }
@@ -49,7 +51,7 @@ export async function fetchPostComments(
 export async function fetchCommentReplies(
     commentId: number,
     params: CommentQueryParams = {},
-    token: string | null
+    token: string
 ): Promise<CommentResponse> {
     const { page = 1, limit = 20 } = params;
 
@@ -58,7 +60,7 @@ export async function fetchCommentReplies(
     searchParams.append('limit', limit.toString());
 
     const response = await fetch(
-        `${API_URL}/comments/replies/${commentId}?${searchParams.toString()}`,
+        `${API_URL}/comments/replies/${String(commentId)}?${searchParams.toString()}`,
         {
             method: 'GET',
             headers: {
@@ -70,7 +72,7 @@ export async function fetchCommentReplies(
     if (!response.ok) {
         const error = await response.json();
         throw {
-            error: error.error || 'Failed to fetch comment replies',
+            error: error.error ?? 'Failed to fetch comment replies',
             status: response.status
         } as ApiError;
     }
@@ -81,9 +83,9 @@ export async function fetchCommentReplies(
 // Function to fetch a single comment by ID
 export async function fetchComment(
     commentId: number,
-    token: string | null
+    token: string
 ): Promise<Comment> {
-    const response = await fetch(`${API_URL}/comments/${commentId}`, {
+    const response = await fetch(`${API_URL}/comments/${String(commentId)}`, {
         method: 'GET',
         headers: {
             Authorization: `Bearer ${token}`
@@ -93,7 +95,7 @@ export async function fetchComment(
     if (!response.ok) {
         const error = await response.json();
         throw {
-            error: error.error || 'Failed to fetch comment',
+            error: error.error ?? 'Failed to fetch comment',
             status: response.status
         } as ApiError;
     }
@@ -108,7 +110,7 @@ export async function createComment(
         content: string;
         parent_comment_id?: number;
     },
-    token: string | null
+    token: string
 ): Promise<Comment> {
     const response = await fetch(`${API_URL}/comments`, {
         method: 'POST',
@@ -122,7 +124,7 @@ export async function createComment(
     if (!response.ok) {
         const error = await response.json();
         throw {
-            error: error.error || 'Failed to create comment',
+            error: error.error ?? 'Failed to create comment',
             status: response.status
         } as ApiError;
     }
@@ -139,9 +141,9 @@ export async function updateComment(
         commentId: number;
         content: string;
     },
-    token: string | null
+    token: string
 ): Promise<Comment> {
-    const response = await fetch(`${API_URL}/comments/${commentId}`, {
+    const response = await fetch(`${API_URL}/comments/${String(commentId)}`, {
         method: 'PATCH',
         headers: {
             Authorization: `Bearer ${token}`,
@@ -153,7 +155,7 @@ export async function updateComment(
     if (!response.ok) {
         const error = await response.json();
         throw {
-            error: error.error || 'Failed to update comment',
+            error: error.error ?? 'Failed to update comment',
             status: response.status
         } as ApiError;
     }
@@ -164,9 +166,9 @@ export async function updateComment(
 // Function to delete a comment
 export async function deleteComment(
     commentId: number,
-    token: string | null
+    token: string
 ): Promise<Comment> {
-    const response = await fetch(`${API_URL}/comments/${commentId}`, {
+    const response = await fetch(`${API_URL}/comments/${String(commentId)}`, {
         method: 'DELETE',
         headers: {
             Authorization: `Bearer ${token}`,
@@ -177,7 +179,7 @@ export async function deleteComment(
     if (!response.ok) {
         const error = await response.json();
         throw {
-            error: error.error || 'Failed to delete comment',
+            error: error.error ?? 'Failed to delete comment',
             status: response.status
         } as ApiError;
     }

@@ -17,9 +17,9 @@ interface NavbarProps {
 export const Navbar = ({ scrolled }: NavbarProps) => {
     const { data: user, isLoading: userLoading } = useGetUser();
     const { address } = useAccount();
-    const { data: balance, isLoading: balanceLoading } = useBalance({
-        address: address!
-    });
+    const { data: balance, isLoading: balanceLoading } = useBalance(
+        address ? { address } : { address: undefined }
+    );
 
     const PointsSkeleton = () => (
         <div className="flex items-center gap-4 px-4 py-2 group rounded-xl">

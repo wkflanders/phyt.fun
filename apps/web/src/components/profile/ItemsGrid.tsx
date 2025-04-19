@@ -23,7 +23,10 @@ export const ItemsGrid: React.FC<ItemsGridProps> = ({
         if (!fetchingCards && cardsFetchStatus !== 'pending') {
             return (
                 <div className="flex items-center mr-24 justify-center min-h-[300px]">
-                    <p className="text-text-dim">You have no cards. Start by opening packs or buying cards from the marketplace!</p>
+                    <p className="text-text-dim">
+                        You have no cards. Start by opening packs or buying
+                        cards from the marketplace!
+                    </p>
                 </div>
             );
         } else {
@@ -36,7 +39,9 @@ export const ItemsGrid: React.FC<ItemsGridProps> = ({
     }
 
     return (
-        <div className={`mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-10`}>
+        <div
+            className={`mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-10`}
+        >
             {items.map((item) => (
                 <ItemCard
                     key={item.id}

@@ -13,13 +13,7 @@ const Logout = () => {
         await logout();
         router.push('/');
     };
-    return (
-        ready && (
-            <Button onClick={handleLogout}>
-                logout
-            </Button>
-        )
-    );
+    return ready && <Button onClick={handleLogout}>logout</Button>;
 };
 
 export default Logout;

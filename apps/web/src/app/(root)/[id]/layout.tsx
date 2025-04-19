@@ -39,7 +39,7 @@ export default function ProfileLayout({
     return (
         <div className="flex flex-col pl-14 min-h-screen bg-background">
             <div className="relative">
-                <ProfileHeader user={user} cards={cards || []} />
+                <ProfileHeader user={user} cards={cards ?? []} />
             </div>
             <div className="flex flex-col">
                 <ProfileTabs />

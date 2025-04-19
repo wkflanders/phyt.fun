@@ -1,15 +1,12 @@
-"use client";
+'use client';
 
-import { ApiError } from '@phyt/types';
+import { ApiError, AuthenticationError } from '@phyt/types';
 import { usePrivy, useLogin } from '@privy-io/react-auth';
-import { useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { useGetUser } from '@/hooks/use-users';
-import { getUser } from "@/queries/user";
-
+import { getUser } from '@/queries/user';
 
 export const Login = () => {
     const router = useRouter();
@@ -26,7 +23,7 @@ export const Login = () => {
                 setError(null);
 
                 if (wasAlreadyAuthenticated) {
-                    const redirectTo = searchParams.get('redirect') || '/';
+                    const redirectTo = searchParams.get('redirect') ?? '/';
                     router.push(redirectTo);
                     return;
                 }
@@ -35,9 +32,14 @@ export const Login = () => {
                 } else {
                     try {
                         const token = await getAccessToken();
+                        if (!token) {
+                            throw new AuthenticationError(
+                                'No token available. Is user logged in with privy?'
+                            );
+                        }
                         const data = await getUser(user.id, token); // Cacheing user data
 
-                        const redirectTo = searchParams.get('redirect') || '/';
+                        const redirectTo = searchParams.get('redirect') ?? '/';
                         router.push(redirectTo);
                     } catch (error) {
                         const apiError = error as ApiError;
@@ -63,9 +65,7 @@ export const Login = () => {
             </Button>
 
             {error && (
-                <div className="text-red text-sm text-center">
-                    {error}
-                </div>
+                <div className="text-red text-sm text-center">{error}</div>
             )}
         </div>
     );

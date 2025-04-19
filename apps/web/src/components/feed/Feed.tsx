@@ -32,10 +32,10 @@ const formatTime = (seconds: number): string => {
     const remainingSeconds = seconds % 60;
 
     if (hours > 0) {
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
     }
 
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
 };
 
 // Format pace in min:sec per mile or km
@@ -45,7 +45,7 @@ const formatPace = (paceInSeconds: number | null): string => {
     const minutes = Math.floor(paceInSeconds / 60);
     const seconds = Math.floor(paceInSeconds % 60);
 
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    return `${String(minutes)}:${String(seconds).padStart(2, '0')}`;
 };
 
 // Convert distance from meters to miles or kilometers
@@ -144,7 +144,7 @@ const RunMap: React.FC<RunMapProps> = ({ gpsRouteData, distanceInMeters }) => {
                 >
                     {[...Array(Math.floor(height / 20))].map((_, i) => (
                         <line
-                            key={`h${i}`}
+                            key={`h${String(i)}`}
                             x1="0"
                             y1={i * 20}
                             x2={width}
@@ -154,7 +154,7 @@ const RunMap: React.FC<RunMapProps> = ({ gpsRouteData, distanceInMeters }) => {
                     ))}
                     {[...Array(Math.floor(width / 20))].map((_, i) => (
                         <line
-                            key={`v${i}`}
+                            key={`v${String(i)}`}
                             x1={i * 20}
                             y1="0"
                             x2={i * 20}
@@ -164,7 +164,9 @@ const RunMap: React.FC<RunMapProps> = ({ gpsRouteData, distanceInMeters }) => {
                     ))}
                 </g>
 
-                <g transform={`translate(${padding}, ${height + 15})`}>
+                <g
+                    transform={`translate(${String(padding)}, ${String(height + 15)})`}
+                >
                     <line
                         x1="0"
                         y1="0"
@@ -201,7 +203,7 @@ const RunMap: React.FC<RunMapProps> = ({ gpsRouteData, distanceInMeters }) => {
                 </g>
 
                 <path
-                    d={`M ${transformedPath.map(([x, y]) => `${x},${y}`).join(' L ')}`}
+                    d={`M ${transformedPath.map(([x, y]) => `${String(x)},${String(y)}`).join(' L ')}`}
                     stroke="#0EF9FE"
                     strokeWidth="3"
                     strokeLinecap="round"
@@ -290,21 +292,27 @@ export const Feed: React.FC = () => {
                 <Tab
                     label="All"
                     isActive={activeTab === 'all'}
-                    onClick={() => { setActiveTab('all'); }}
+                    onClick={() => {
+                        setActiveTab('all');
+                    }}
                     icon={<ArrowDown size={24} />}
                 />
                 <div className="w-[2px] h-8 mx-1 bg-white/20"></div>
                 <Tab
                     label="Trending"
                     isActive={activeTab === 'trending'}
-                    onClick={() => { setActiveTab('trending'); }}
+                    onClick={() => {
+                        setActiveTab('trending');
+                    }}
                     icon={<TrendingUp size={24} />}
                 />
                 <div className="w-[2px] h-8 mx-1 bg-white/20"></div>
                 <Tab
                     label="Following"
                     isActive={activeTab === 'following'}
-                    onClick={() => { setActiveTab('following'); }}
+                    onClick={() => {
+                        setActiveTab('following');
+                    }}
                     icon={<Heart size={24} />}
                 />
             </div>
@@ -346,7 +354,7 @@ export const Feed: React.FC = () => {
                                     <div className="flex items-center gap-5">
                                         <Image
                                             src={
-                                                user.avatar_url ||
+                                                user.avatar_url ??
                                                 DEFAULT_AVATAR
                                             }
                                             alt={user.username}
@@ -410,7 +418,7 @@ export const Feed: React.FC = () => {
                                     </button> */}
                                     <button className="flex items-center gap-2 p-2 transition-colors rounded-full text-text-dim hover:text-primary-shade hover:bg-primary-faded">
                                         <MessageCircle size={20} />
-                                        <span>{stats.comments || 0}</span>
+                                        <span>{stats.comments ?? 0}</span>
                                     </button>
                                     <button className="flex items-center gap-2 p-2 transition-colors rounded-full text-text-dim hover:text-emerald-500 hover:bg-emerald-500/5">
                                         <Share2 size={20} />

@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import React, { useEffect, useRef } from "react";
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useRef } from 'react';
 
-import { Navbar } from "@/components/Navbar";
-import { Sidebar } from "@/components/Sidebar";
-import { useScroll } from "@/hooks/use-scroll";
-import { useGetUser } from "@/hooks/use-users";
+import { Navbar } from '@/components/Navbar';
+import { Sidebar } from '@/components/Sidebar';
+import { useScroll } from '@/hooks/use-scroll';
+import { useGetUser } from '@/hooks/use-users';
 
-export default function Layout({ children }: { children: React.ReactNode; }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const { data: dbUser, isFetching, status } = useGetUser();
 
@@ -17,9 +17,9 @@ export default function Layout({ children }: { children: React.ReactNode; }) {
 
     useEffect(() => {
         if (status !== 'pending' && !isFetching && !dbUser) {
-            router.push("/onboard");
+            router.push('/onboard');
         }
-    }, [isFetching, dbUser, router]);
+    }, [status, isFetching, dbUser, router]);
 
     return (
         <main className="h-screen bg-background bg-primary-blotch bg-blend-overlay backdrop-blur-lg">

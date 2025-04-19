@@ -1,6 +1,8 @@
 import { ApiError, PostQueryParams, PostResponse, Post } from '@phyt/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+import { env } from '@/env';
+
+const API_URL: string = env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api';
 
 export const POST_QUERY_KEYS = {
     all: ['posts'] as const,
@@ -15,7 +17,7 @@ export const POST_QUERY_KEYS = {
 
 export async function fetchPosts(
     params: PostQueryParams = {},
-    token: string | null
+    token: string
 ): Promise<PostResponse> {
     const { page = 1, limit = 10, filter = 'all' } = params;
 
@@ -39,7 +41,7 @@ export async function fetchPosts(
     if (!response.ok) {
         const error = await response.json();
         throw {
-            error: error.error || 'Failed to fetch posts',
+            error: error.error ?? 'Failed to fetch posts',
             status: response.status
         } as ApiError;
     }
@@ -50,9 +52,9 @@ export async function fetchPosts(
 // Function to fetch a specific post by ID
 export async function fetchPostById(
     postId: number,
-    token: string | null
+    token: string
 ): Promise<Post> {
-    const response = await fetch(`${API_URL}/posts/${postId}`, {
+    const response = await fetch(`${API_URL}/posts/${String(postId)}`, {
         method: 'GET',
         headers: {
             Authorization: `Bearer ${token}`
@@ -62,7 +64,7 @@ export async function fetchPostById(
     if (!response.ok) {
         const error = await response.json();
         throw {
-            error: error.error || 'Failed to fetch post',
+            error: error.error ?? 'Failed to fetch post',
             status: response.status
         } as ApiError;
     }
@@ -74,7 +76,7 @@ export async function fetchPostById(
 export async function fetchUserPosts(
     userId: number,
     params: { page?: number; limit?: number } = {},
-    token: string | null
+    token: string
 ): Promise<PostResponse> {
     const { page = 1, limit = 10 } = params;
 
@@ -83,7 +85,7 @@ export async function fetchUserPosts(
     searchParams.append('limit', limit.toString());
 
     const response = await fetch(
-        `${API_URL}/posts/user/${userId}?${searchParams.toString()}`,
+        `${API_URL}/posts/user/${String(userId)}?${searchParams.toString()}`,
         {
             method: 'GET',
             headers: {
@@ -95,7 +97,7 @@ export async function fetchUserPosts(
     if (!response.ok) {
         const error = await response.json();
         throw {
-            error: error.error || 'Failed to fetch user posts',
+            error: error.error ?? 'Failed to user posts',
             status: response.status
         } as ApiError;
     }
@@ -105,8 +107,8 @@ export async function fetchUserPosts(
 
 // Function to create a new post
 export async function createPost(
-    data: { run_id: number; content?: string },
-    token: string | null
+    postData: { run_id: number; content?: string },
+    token: string
 ): Promise<Post> {
     const response = await fetch(`${API_URL}/posts`, {
         method: 'POST',
@@ -114,13 +116,13 @@ export async function createPost(
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(postData)
     });
 
     if (!response.ok) {
         const error = await response.json();
         throw {
-            error: error.error || 'Failed to create post',
+            error: error.error ?? 'Failed to create post',
             status: response.status
         } as ApiError;
     }
@@ -134,9 +136,9 @@ export async function updatePostStatus(
         postId,
         status
     }: { postId: number; status: 'visible' | 'hidden' | 'deleted' },
-    token: string | null
+    token: string
 ): Promise<Post> {
-    const response = await fetch(`${API_URL}/posts/${postId}`, {
+    const response = await fetch(`${API_URL}/posts/${String(postId)}`, {
         method: 'PATCH',
         headers: {
             Authorization: `Bearer ${token}`,
@@ -148,7 +150,7 @@ export async function updatePostStatus(
     if (!response.ok) {
         const error = await response.json();
         throw {
-            error: error.error || 'Failed to update post status',
+            error: error.error ?? 'Failed to update post status',
             status: response.status
         } as ApiError;
     }
@@ -157,11 +159,8 @@ export async function updatePostStatus(
 }
 
 // Function to delete a post
-export async function deletePost(
-    postId: number,
-    token: string | null
-): Promise<Post> {
-    const response = await fetch(`${API_URL}/posts/${postId}`, {
+export async function deletePost(postId: number, token: string): Promise<Post> {
+    const response = await fetch(`${API_URL}/posts/${String(postId)}`, {
         method: 'DELETE',
         headers: {
             Authorization: `Bearer ${token}`
@@ -171,7 +170,7 @@ export async function deletePost(
     if (!response.ok) {
         const error = await response.json();
         throw {
-            error: error.error || 'Failed to delete post',
+            error: error.error ?? 'Failed to delete post',
             status: response.status
         } as ApiError;
     }

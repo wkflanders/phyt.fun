@@ -4,7 +4,12 @@ import Image from 'next/image';
 import React, { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    DialogDescription
+} from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 
 import { SellModal } from './SellModal';
@@ -20,10 +25,13 @@ export const CardModal = ({ user, isOpen, onClose, card }: CardModalProps) => {
     const [isSellModal, setIsSellModal] = useState(false);
     const { toast } = useToast();
 
-    if (!card) return null;
-
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <Dialog
+            open={isOpen}
+            onOpenChange={(open) => {
+                if (!open) onClose();
+            }}
+        >
             <DialogContent className="bg-waves_card bg-cover w-full max-w-6xl max-h-[90vh] overflow-y-hidden">
                 <VisuallyHidden>
                     <DialogTitle></DialogTitle>
@@ -34,10 +42,11 @@ export const CardModal = ({ user, isOpen, onClose, card }: CardModalProps) => {
                     <div className="col-span-1 row-span-1 flex justify-center items-center">
                         <Image
                             src={card.metadata.image_url}
-                            alt={`Card ${card.metadata.token_id}`}
+                            alt={`Card ${String(card.metadata.token_id)}`}
                             width={200}
                             height={300}
-                            className="rounded-lg w-[300px] h-[500px]" />
+                            className="rounded-lg w-[300px] h-[500px]"
+                        />
                     </div>
 
                     {/* (1,2) Price Over Time Chart */}
@@ -52,24 +61,37 @@ export const CardModal = ({ user, isOpen, onClose, card }: CardModalProps) => {
                         <div className="space-y-4">
                             <div className="flex gap-4">
                                 <div className="bg-black p-4 rounded-lg border border-gray-800 flex-1">
-                                    <p className="text-sm text-phyt_text_secondary mb-1">Price</p>
-                                    <p className="text-lg font-bold text-white">0.007</p>
+                                    <p className="text-sm text-phyt_text_secondary mb-1">
+                                        Price
+                                    </p>
+                                    <p className="text-lg font-bold text-white">
+                                        0.007
+                                    </p>
                                 </div>
                                 <div className="bg-black p-4 rounded-lg border border-gray-800 flex-1">
-                                    <p className="text-sm text-phyt_text_secondary mb-1">Highest bid</p>
-                                    <p className="text-lg font-bold text-white">0.005</p>
+                                    <p className="text-sm text-phyt_text_secondary mb-1">
+                                        Highest bid
+                                    </p>
+                                    <p className="text-lg font-bold text-white">
+                                        0.005
+                                    </p>
                                 </div>
                                 <div className="bg-black p-4 rounded-lg border border-gray-800 flex-1">
-                                    <p className="text-sm text-phyt_text_secondary mb-1">Last sale</p>
-                                    <p className="text-lg font-bold text-white">0.006</p>
+                                    <p className="text-sm text-phyt_text_secondary mb-1">
+                                        Last sale
+                                    </p>
+                                    <p className="text-lg font-bold text-white">
+                                        0.006
+                                    </p>
                                 </div>
                             </div>
                             <div className="grid grid-cols-3 gap-4">
                                 <Button
                                     onClick={() =>
                                         toast({
-                                            title: "Coming Soon",
-                                            description: "Buy functionality will be available soon!",
+                                            title: 'Coming Soon',
+                                            description:
+                                                'Buy functionality will be available soon!'
                                         })
                                     }
                                     className="w-full bg-phyt_blue hover:bg-phyt_blue/80"
@@ -77,7 +99,9 @@ export const CardModal = ({ user, isOpen, onClose, card }: CardModalProps) => {
                                     Buy
                                 </Button>
                                 <Button
-                                    onClick={() => { setIsSellModal(true); }}
+                                    onClick={() => {
+                                        setIsSellModal(true);
+                                    }}
                                     className="w-full bg-phyt_blue hover:bg-phyt_blue/80"
                                 >
                                     Sell
@@ -86,8 +110,9 @@ export const CardModal = ({ user, isOpen, onClose, card }: CardModalProps) => {
                                     variant="outline"
                                     onClick={() =>
                                         toast({
-                                            title: "Coming Soon",
-                                            description: "Bid functionality will be available soon!",
+                                            title: 'Coming Soon',
+                                            description:
+                                                'Bid functionality will be available soon!'
                                         })
                                     }
                                     className="w-full border-gray-800 text-white hover:bg-gray-800"
@@ -102,16 +127,28 @@ export const CardModal = ({ user, isOpen, onClose, card }: CardModalProps) => {
                     <div className="col-span-1 row-span-1">
                         <div className="bg-gray-800 p-4 rounded-lg space-y-2">
                             <div>
-                                <p className="text-sm text-phyt_text_secondary">Total Distance Ran</p>
-                                <p className="text-lg font-bold text-white">X mi</p>
+                                <p className="text-sm text-phyt_text_secondary">
+                                    Total Distance Ran
+                                </p>
+                                <p className="text-lg font-bold text-white">
+                                    X mi
+                                </p>
                             </div>
                             <div>
-                                <p className="text-sm text-phyt_text_secondary">Pace</p>
-                                <p className="text-lg font-bold text-white">Y /mi</p>
+                                <p className="text-sm text-phyt_text_secondary">
+                                    Pace
+                                </p>
+                                <p className="text-lg font-bold text-white">
+                                    Y /mi
+                                </p>
                             </div>
                             <div>
-                                <p className="text-sm text-phyt_text_secondary">Best Time</p>
-                                <p className="text-lg font-bold text-white">Z</p>
+                                <p className="text-sm text-phyt_text_secondary">
+                                    Best Time
+                                </p>
+                                <p className="text-lg font-bold text-white">
+                                    Z
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -120,7 +157,9 @@ export const CardModal = ({ user, isOpen, onClose, card }: CardModalProps) => {
                 <SellModal
                     user={user}
                     isOpen={isSellModal}
-                    onClose={() => { setIsSellModal(false); }}
+                    onClose={() => {
+                        setIsSellModal(false);
+                    }}
                     card={card}
                 />
             </DialogContent>

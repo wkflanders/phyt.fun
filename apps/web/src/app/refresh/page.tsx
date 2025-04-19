@@ -2,7 +2,7 @@
 
 import { getAccessToken } from '@privy-io/react-auth';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { Suspense , useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
 
 export default function RefreshPageWrapper() {
     return (
@@ -19,7 +19,7 @@ function RefreshPage() {
     useEffect(() => {
         async function refresh() {
             const token = await getAccessToken();
-            const redirectUri = searchParams.get('redirect_uri') || '/';
+            const redirectUri = searchParams.get('redirect_uri') ?? '/';
             if (token) {
                 router.push(redirectUri);
             } else {
@@ -29,5 +29,9 @@ function RefreshPage() {
         refresh();
     }, [router, searchParams]);
 
-    return <div className="flex justify-center items-center h-screen">Refreshing session...</div>;
+    return (
+        <div className="flex justify-center items-center h-screen">
+            Refreshing session...
+        </div>
+    );
 }

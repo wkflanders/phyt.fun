@@ -1,10 +1,17 @@
 import { cn } from '@/lib/utils';
 import { CardWithMetadata } from '@phyt/types';
-import { ArrowDown, Grid, List, Columns, Menu, Flame, ArrowUpCircle } from 'lucide-react';
+import {
+    ArrowDown,
+    Grid,
+    List,
+    Columns,
+    Menu,
+    Flame,
+    ArrowUpCircle
+} from 'lucide-react';
 import React from 'react';
 
 import { Button } from '@/components/ui/button';
-
 
 interface ItemsToolbarProps {
     totalItems: number;
@@ -71,22 +78,35 @@ export const ItemsToolbar: React.FC<ItemsToolbarProps> = ({
                     <Button
                         variant="outline"
                         className={cn(
-                            "p-2 rounded-none",
-                            viewMode === 'grid' ? "bg-secondary/30" : "bg-form"
+                            'p-2 rounded-none',
+                            viewMode === 'grid' ? 'bg-secondary/30' : 'bg-form'
                         )}
-                        onClick={() => { onViewModeChange('grid'); }}
+                        onClick={() => {
+                            onViewModeChange('grid');
+                        }}
                     >
                         <Grid className="h-5 w-5" />
                     </Button>
                     <Button
                         variant="outline"
                         className={cn(
-                            "p-2 rounded-none",
-                            viewMode === 'large-grid' ? "bg-secondary/30" : "bg-form"
+                            'p-2 rounded-none',
+                            viewMode === 'large-grid'
+                                ? 'bg-secondary/30'
+                                : 'bg-form'
                         )}
-                        onClick={() => { onViewModeChange('large-grid'); }}
+                        onClick={() => {
+                            onViewModeChange('large-grid');
+                        }}
                     >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                        >
                             <rect x="3" y="3" width="7" height="7" />
                             <rect x="14" y="3" width="7" height="7" />
                             <rect x="3" y="14" width="7" height="7" />
@@ -96,20 +116,26 @@ export const ItemsToolbar: React.FC<ItemsToolbarProps> = ({
                     <Button
                         variant="outline"
                         className={cn(
-                            "p-2 rounded-none",
-                            viewMode === 'list' ? "bg-secondary/30" : "bg-form"
+                            'p-2 rounded-none',
+                            viewMode === 'list' ? 'bg-secondary/30' : 'bg-form'
                         )}
-                        onClick={() => { onViewModeChange('list'); }}
+                        onClick={() => {
+                            onViewModeChange('list');
+                        }}
                     >
                         <Menu className="h-5 w-5" />
                     </Button>
                     <Button
                         variant="outline"
                         className={cn(
-                            "p-2 rounded-none",
-                            viewMode === 'columns' ? "bg-secondary/30" : "bg-form"
+                            'p-2 rounded-none',
+                            viewMode === 'columns'
+                                ? 'bg-secondary/30'
+                                : 'bg-form'
                         )}
-                        onClick={() => { onViewModeChange('columns'); }}
+                        onClick={() => {
+                            onViewModeChange('columns');
+                        }}
                     >
                         <Columns className="h-5 w-5" />
                     </Button>

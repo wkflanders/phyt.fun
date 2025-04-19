@@ -18,8 +18,9 @@ export const ProfileTabs: React.FC = () => {
         { href: '/profile/performance', label: 'Performance' },
         { href: '/profile/integrations', label: 'Integrations' },
         {
-            href: '/profile/settings', label: <Settings className="h-5 w-5" />
-        },
+            href: '/profile/settings',
+            label: <Settings className="h-5 w-5" />
+        }
     ];
 
     return (
@@ -27,13 +28,15 @@ export const ProfileTabs: React.FC = () => {
             <div className="flex px-6">
                 {tabs.map((tab) => (
                     <Link
-                        key={typeof tab.label === 'string' ? tab.label : tab.href}
+                        key={
+                            typeof tab.label === 'string' ? tab.label : tab.href
+                        }
                         href={tab.href}
                         className={cn(
-                            "px-4 py-3 font-medium text-sm",
+                            'px-4 py-3 font-medium text-sm',
                             pathname === tab.href
-                                ? "text-text border-b-2 border-text"
-                                : "text-text-dim hover:text-text"
+                                ? 'text-text border-b-2 border-text'
+                                : 'text-text-dim hover:text-text'
                         )}
                     >
                         {tab.label}

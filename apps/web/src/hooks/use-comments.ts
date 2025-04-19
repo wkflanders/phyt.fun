@@ -1,5 +1,6 @@
 import {
     ApiError,
+    AuthenticationError,
     CommentQueryParams,
     CommentCreateRequest,
     CommentUpdateRequest,
@@ -8,7 +9,6 @@ import {
 import { usePrivy } from '@privy-io/react-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { useToast } from './use-toast';
 import {
     fetchPostComments,
     fetchCommentReplies,
@@ -17,9 +17,10 @@ import {
     updateComment,
     deleteComment,
     COMMENT_QUERY_KEYS
-} from '../queries/comments';
-import { POST_QUERY_KEYS } from '../queries/posts';
+} from '@/queries/comments';
+import { POST_QUERY_KEYS } from '@/queries/posts';
 
+import { useToast } from './use-toast';
 
 export function usePostComments(
     postId: number,
@@ -36,6 +37,11 @@ export function usePostComments(
         }),
         queryFn: async () => {
             const token = await getAccessToken();
+            if (!token) {
+                throw new AuthenticationError(
+                    'No token available. Is user logged in with privy?'
+                );
+            }
             return fetchPostComments(
                 postId,
                 { page, limit, parent_only },
@@ -57,6 +63,12 @@ export function useCommentReplies(
         queryKey: COMMENT_QUERY_KEYS.replies(commentId, { page, limit }),
         queryFn: async () => {
             const token = await getAccessToken();
+            if (!token) {
+                throw new AuthenticationError(
+                    'No token available. Is user logged in with privy?'
+                );
+            }
+
             return fetchCommentReplies(commentId, { page, limit }, token);
         },
         enabled: !!commentId
@@ -70,6 +82,11 @@ export function useComment(commentId: number) {
         queryKey: COMMENT_QUERY_KEYS.detail(commentId),
         queryFn: async () => {
             const token = await getAccessToken();
+            if (!token) {
+                throw new AuthenticationError(
+                    'No token available. Is user logged in with privy?'
+                );
+            }
             return fetchComment(commentId, token);
         },
         enabled: !!commentId
@@ -84,6 +101,11 @@ export function useCreateComment() {
     return useMutation<Comment, ApiError, CommentCreateRequest>({
         mutationFn: async (commentData) => {
             const token = await getAccessToken();
+            if (!token) {
+                throw new AuthenticationError(
+                    'No token available. Is user logged in with privy?'
+                );
+            }
             return createComment(commentData, token);
         },
         onSuccess: (_, variables) => {
@@ -128,6 +150,11 @@ export function useUpdateComment() {
     return useMutation<Comment, ApiError, CommentUpdateRequest>({
         mutationFn: async (commentData) => {
             const token = await getAccessToken();
+            if (!token) {
+                throw new AuthenticationError(
+                    'No token available. Is user logged in with privy?'
+                );
+            }
             return updateComment(commentData, token);
         },
         onSuccess: (_, variables) => {
@@ -157,6 +184,11 @@ export function useDeleteComment() {
     return useMutation<Comment, ApiError, number>({
         mutationFn: async (commentId) => {
             const token = await getAccessToken();
+            if (!token) {
+                throw new AuthenticationError(
+                    'No token available. Is user logged in with privy?'
+                );
+            }
             return deleteComment(commentId, token);
         },
         onSuccess: (_, commentId) => {

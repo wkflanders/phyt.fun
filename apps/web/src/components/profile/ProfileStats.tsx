@@ -12,7 +12,8 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ cards }) => {
 
     // Calculate NFT and token percentages
     const totalCards = cards.length;
-    const nftPercentage = totalCards > 0 ? Math.round((totalCards / totalCards) * 100) : 0;
+    const nftPercentage =
+        totalCards > 0 ? Math.round((totalCards / totalCards) * 100) : 0;
     const tokenPercentage = 100 - nftPercentage;
 
     return (
@@ -27,11 +28,15 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ cards }) => {
             </div>
             <div className="text-right">
                 <div className="text-sm text-text-dim">NFTS</div>
-                <div className="text-xl font-bold text-text">{nftPercentage}%</div>
+                <div className="text-xl font-bold text-text">
+                    {nftPercentage}%
+                </div>
             </div>
             <div className="text-right">
                 <div className="text-sm text-text-dim">TOKENS</div>
-                <div className="text-xl font-bold text-text">{tokenPercentage}%</div>
+                <div className="text-xl font-bold text-text">
+                    {tokenPercentage}%
+                </div>
             </div>
         </div>
     );

@@ -1,9 +1,12 @@
-import { Competition, ApiError } from '@phyt/types';
+import { Competition, ApiError, AuthenticationError } from '@phyt/types';
 import { usePrivy } from '@privy-io/react-auth';
 import { useQuery } from '@tanstack/react-query';
 
-import { getCompetitions, getMajorCompetitions, getCompetitionsQueryKey } from '@/queries/competitions';
-
+import {
+    getCompetitions,
+    getMajorCompetitions,
+    getCompetitionsQueryKey
+} from '@/queries/competitions';
 
 export function useGetCompetitions() {
     const { getAccessToken } = usePrivy();
@@ -12,8 +15,13 @@ export function useGetCompetitions() {
         queryKey: getCompetitionsQueryKey(),
         queryFn: async () => {
             const token = await getAccessToken();
+            if (!token) {
+                throw new AuthenticationError(
+                    'No token available. Is user logged in with privy?'
+                );
+            }
             return getCompetitions(token);
-        },
+        }
     });
 }
 
@@ -24,7 +32,12 @@ export function useGetMajorCompetitions() {
         queryKey: [...getCompetitionsQueryKey(), 'major'],
         queryFn: async () => {
             const token = await getAccessToken();
+            if (!token) {
+                throw new AuthenticationError(
+                    'No token available. Is user logged in with privy?'
+                );
+            }
             return getMajorCompetitions(token);
-        },
+        }
     });
 }

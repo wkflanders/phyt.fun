@@ -1,6 +1,14 @@
-import { LeaderboardQueryParams, RunnerLeaderboard, ManagerLeaderboard, ApiError, ManagerStanding, RunnerStanding } from '@phyt/types';
-import { usePrivy } from "@privy-io/react-auth";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+    LeaderboardQueryParams,
+    RunnerLeaderboard,
+    ManagerLeaderboard,
+    ApiError,
+    AuthenticationError,
+    ManagerStanding,
+    RunnerStanding
+} from '@phyt/types';
+import { usePrivy } from '@privy-io/react-auth';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import {
     getManagerLeaderboard,
@@ -10,21 +18,25 @@ import {
     LEADERBOARD_RUNNER_QUERY_KEY,
     LEADERBOARD_USER_QUERY_KEY,
     MANAGER_STANDING_QUERY_KEY,
-    RUNNER_STANDING_QUERY_KEY,
+    RUNNER_STANDING_QUERY_KEY
 } from '@/queries/leaderboard';
-
 
 export function useGetRunnerLeadeboard(params: LeaderboardQueryParams) {
     const { getAccessToken } = usePrivy();
 
     return useQuery<RunnerLeaderboard, ApiError>({
-        queryKey: [LEADERBOARD_RUNNER_QUERY_KEY],
+        queryKey: [LEADERBOARD_RUNNER_QUERY_KEY, params],
         queryFn: async () => {
             const token = await getAccessToken();
+            if (!token) {
+                throw new AuthenticationError(
+                    'No token available. Is user logged in with privy?'
+                );
+            }
 
             const leaderboardData = await getRunnerLeaderboard(params, token);
             return leaderboardData;
-        },
+        }
     });
 }
 
@@ -32,40 +44,69 @@ export function useGetManagerLeaderboard(params: LeaderboardQueryParams) {
     const { getAccessToken } = usePrivy();
 
     return useQuery<ManagerLeaderboard, ApiError>({
-        queryKey: [LEADERBOARD_USER_QUERY_KEY],
+        queryKey: [LEADERBOARD_USER_QUERY_KEY, params],
         queryFn: async () => {
             const token = await getAccessToken();
+            if (!token) {
+                throw new AuthenticationError(
+                    'No token available. Is user logged in with privy?'
+                );
+            }
 
             const leaderboardData = await getManagerLeaderboard(params, token);
             return leaderboardData;
-        },
+        }
     });
 }
 
-export function useGetManagerStanding(id: string | number, params: LeaderboardQueryParams) {
+export function useGetManagerStanding(
+    id: string | number,
+    params: LeaderboardQueryParams
+) {
     const { getAccessToken } = usePrivy();
 
     return useQuery<ManagerStanding, ApiError>({
-        queryKey: [MANAGER_STANDING_QUERY_KEY],
+        queryKey: [MANAGER_STANDING_QUERY_KEY, id, params],
         queryFn: async () => {
             const token = await getAccessToken();
+            if (!token) {
+                throw new AuthenticationError(
+                    'No token available. Is user logged in with privy?'
+                );
+            }
 
-            const managerStandingData = await getManagerStanding(id, params, token);
+            const managerStandingData = await getManagerStanding(
+                id,
+                params,
+                token
+            );
             return managerStandingData;
-        },
+        }
     });
 }
 
-export function useGetRunnerStanding(id: string | number, params: LeaderboardQueryParams) {
+export function useGetRunnerStanding(
+    id: string | number,
+    params: LeaderboardQueryParams
+) {
     const { getAccessToken } = usePrivy();
 
     return useQuery<RunnerStanding, ApiError>({
-        queryKey: [RUNNER_STANDING_QUERY_KEY],
+        queryKey: [RUNNER_STANDING_QUERY_KEY, id, params],
         queryFn: async () => {
             const token = await getAccessToken();
+            if (!token) {
+                throw new AuthenticationError(
+                    'No token available. Is user logged in with privy?'
+                );
+            }
 
-            const runnerStandingData = await getRunnerStanding(id, params, token);
+            const runnerStandingData = await getRunnerStanding(
+                id,
+                params,
+                token
+            );
             return runnerStandingData;
-        },
+        }
     });
-}   
+}

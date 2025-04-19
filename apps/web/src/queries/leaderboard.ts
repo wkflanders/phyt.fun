@@ -1,13 +1,25 @@
-import { ApiError, RunnerLeaderboard, LeaderboardQueryParams, ManagerLeaderboard, ManagerStanding, RunnerStanding } from "@phyt/types";
+import {
+    ApiError,
+    RunnerLeaderboard,
+    LeaderboardQueryParams,
+    ManagerLeaderboard,
+    ManagerStanding,
+    RunnerStanding
+} from '@phyt/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+import { env } from '@/env';
 
-export const LEADERBOARD_RUNNER_QUERY_KEY = "leaderboard_runner";
-export const LEADERBOARD_USER_QUERY_KEY = "leaderboard_user";
-export const MANAGER_STANDING_QUERY_KEY = "manager_standing";
-export const RUNNER_STANDING_QUERY_KEY = "runner_standing";
+const API_URL: string = env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api';
 
-export async function getRunnerLeaderboard(params: LeaderboardQueryParams = {}, token: string | null): Promise<RunnerLeaderboard> {
+export const LEADERBOARD_RUNNER_QUERY_KEY = 'leaderboard_runner';
+export const LEADERBOARD_USER_QUERY_KEY = 'leaderboard_user';
+export const MANAGER_STANDING_QUERY_KEY = 'manager_standing';
+export const RUNNER_STANDING_QUERY_KEY = 'runner_standing';
+
+export async function getRunnerLeaderboard(
+    params: LeaderboardQueryParams = {},
+    token: string
+): Promise<RunnerLeaderboard> {
     const { page = 1, limit = 20, timeFrame = 'weekly' } = params;
 
     const searchParams = new URLSearchParams();
@@ -15,26 +27,31 @@ export async function getRunnerLeaderboard(params: LeaderboardQueryParams = {}, 
     searchParams.append('limit', limit.toString());
     searchParams.append('timeFrame', timeFrame);
 
-    const response = await fetch(`${API_URL}/leaderboard/runner/?${searchParams.toString()}`, {
-        method: 'GET',
-        headers: {
-            "Authorization": `Bearer ${token}`
+    const response = await fetch(
+        `${API_URL}/leaderboard/runner/?${searchParams.toString()}`,
+        {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         }
-    });
-
-    const data = await response.json();
+    );
 
     if (!response.ok) {
+        const error = await response.json();
         throw {
-            error: data.error || 'Failed to fetch user',
+            error: error.error ?? 'Failed to fetch leaderboard',
             status: response.status
         } as ApiError;
     }
 
-    return data;
+    return response.json();
 }
 
-export async function getManagerLeaderboard(params: LeaderboardQueryParams = {}, token: string | null): Promise<ManagerLeaderboard> {
+export async function getManagerLeaderboard(
+    params: LeaderboardQueryParams = {},
+    token: string
+): Promise<ManagerLeaderboard> {
     const { page = 1, limit = 20, timeFrame = 'weekly' } = params;
 
     const searchParams = new URLSearchParams();
@@ -42,26 +59,32 @@ export async function getManagerLeaderboard(params: LeaderboardQueryParams = {},
     searchParams.append('limit', limit.toString());
     searchParams.append('timeFrame', timeFrame);
 
-    const response = await fetch(`${API_URL}/leaderboard/users/?${searchParams.toString()}`, {
-        method: 'GET',
-        headers: {
-            "Authorization": `Bearer ${token}`
+    const response = await fetch(
+        `${API_URL}/leaderboard/users/?${searchParams.toString()}`,
+        {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         }
-    });
-
-    const data = await response.json();
+    );
 
     if (!response.ok) {
+        const error = await response.json();
         throw {
-            error: data.error || 'Failed to fetch user',
+            error: error.error ?? 'Failed to fetch leaderboard',
             status: response.status
         } as ApiError;
     }
 
-    return data;
+    return response.json();
 }
 
-export async function getManagerStanding(id: string | number, params: LeaderboardQueryParams = {}, token: string | null): Promise<ManagerStanding> {
+export async function getManagerStanding(
+    id: string | number,
+    params: LeaderboardQueryParams = {},
+    token: string
+): Promise<ManagerStanding> {
     const { page = 1, limit = 20, timeFrame = 'weekly' } = params;
 
     const searchParams = new URLSearchParams();
@@ -69,26 +92,32 @@ export async function getManagerStanding(id: string | number, params: Leaderboar
     searchParams.append('limit', limit.toString());
     searchParams.append('timeFrame', timeFrame);
 
-    const response = await fetch(`${API_URL}/leaderboard/manager/${id}?${searchParams.toString()}`, {
-        method: 'GET',
-        headers: {
-            "Authorization": `Bearer ${token}`
+    const response = await fetch(
+        `${API_URL}/leaderboard/manager/${String(id)}?${searchParams.toString()}`,
+        {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         }
-    });
-
-    const data = await response.json();
+    );
 
     if (!response.ok) {
+        const error = await response.json();
         throw {
-            error: data.error || 'Failed to fetch user',
+            error: error.error ?? 'Failed to fetch standing',
             status: response.status
         } as ApiError;
     }
 
-    return data;
+    return response.json();
 }
 
-export async function getRunnerStanding(id: string | number, params: LeaderboardQueryParams = {}, token: string | null): Promise<RunnerStanding> {
+export async function getRunnerStanding(
+    id: string | number,
+    params: LeaderboardQueryParams = {},
+    token: string
+): Promise<RunnerStanding> {
     const { page = 1, limit = 20, timeFrame = 'weekly' } = params;
 
     const searchParams = new URLSearchParams();
@@ -96,21 +125,23 @@ export async function getRunnerStanding(id: string | number, params: Leaderboard
     searchParams.append('limit', limit.toString());
     searchParams.append('timeFrame', timeFrame);
 
-    const response = await fetch(`${API_URL}/leaderboard/runner/${id}?${searchParams.toString()}`, {
-        method: 'GET',
-        headers: {
-            "Authorization": `Bearer ${token}`
+    const response = await fetch(
+        `${API_URL}/leaderboard/runner/${String(id)}?${searchParams.toString()}`,
+        {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         }
-    });
-
-    const data = await response.json();
+    );
 
     if (!response.ok) {
+        const error = await response.json();
         throw {
-            error: data.error || 'Failed to fetch user',
+            error: error.error ?? 'Failed to fetch standing',
             status: response.status
         } as ApiError;
     }
 
-    return data;
+    return response.json();
 }

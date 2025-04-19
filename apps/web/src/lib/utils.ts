@@ -1,26 +1,25 @@
-import { ApiError } from "@phyt/types";
-import { clsx  } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { ApiError } from '@phyt/types';
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
-import type {ClassValue} from "clsx";
-
+import type { ClassValue } from 'clsx';
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+    return twMerge(clsx(inputs));
 }
 
 export const handleApiError = async (response: Response): Promise<ApiError> => {
-  const errorData = await response.json();
-  return {
-    name: 'ApiError',
-    message: errorData.error || 'An unexpected error has occurred',
-    error: errorData.error,
-    status: response.status
-  };
+    const errorData = await response.json();
+    return {
+        name: 'ApiError',
+        message: errorData.error ?? 'An unexpected error has occurred',
+        error: errorData.error,
+        status: response.status
+    };
 };
 
 export const formatSeasonName = (seasonId: string): string => {
-  return seasonId
-    .replace('season_', 'Season ')
-    .replace(/(^|\s)\S/g, letter => letter.toUpperCase());
+    return seasonId
+        .replace('season_', 'Season ')
+        .replace(/(^|\s)\S/g, (letter) => letter.toUpperCase());
 };

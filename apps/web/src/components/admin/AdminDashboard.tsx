@@ -30,7 +30,6 @@ import {
 } from '@/hooks/use-admin';
 import { useGetUser } from '@/hooks/use-users';
 
-
 const AdminDashboard = () => {
     const router = useRouter();
     const { ready } = usePrivy();
@@ -59,7 +58,7 @@ const AdminDashboard = () => {
 
     const filteredRunners = pendingRunners.filter(
         (runner) =>
-            runner.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            runner.username.toLowerCase().includes(searchTerm.toLowerCase()) ??
             runner.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -108,7 +107,9 @@ const AdminDashboard = () => {
                             placeholder="Search..."
                             className="pl-8 bg-phyt_form border-phyt_form_border text-phyt_text"
                             value={searchTerm}
-                            onChange={(e) => { setSearchTerm(e.target.value); }}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value);
+                            }}
                         />
                     </div>
                 </div>
@@ -180,11 +181,11 @@ const AdminDashboard = () => {
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        onClick={() =>
-                                                            { approveRunnerMutation.mutate(
+                                                        onClick={() => {
+                                                            approveRunnerMutation.mutate(
                                                                 runner.id
-                                                            ); }
-                                                        }
+                                                            );
+                                                        }}
                                                         disabled={
                                                             approveRunnerMutation.isPending
                                                         }
@@ -267,7 +268,7 @@ const AdminDashboard = () => {
                                                             1000
                                                     )
                                                         .toISOString()
-                                                        .substr(11, 8)}
+                                                        .slice(11, 19)}
                                                 </TableCell>
                                                 <TableCell className="text-phyt_text">
                                                     {new Date(
@@ -278,15 +279,15 @@ const AdminDashboard = () => {
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        onClick={() =>
-                                                            { verifyRunMutation.mutate(
+                                                        onClick={() => {
+                                                            verifyRunMutation.mutate(
                                                                 {
                                                                     runId: run
                                                                         .run.id,
                                                                     status: 'verified'
                                                                 }
-                                                            ); }
-                                                        }
+                                                            );
+                                                        }}
                                                         disabled={
                                                             verifyRunMutation.isPending
                                                         }
@@ -297,15 +298,15 @@ const AdminDashboard = () => {
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        onClick={() =>
-                                                            { verifyRunMutation.mutate(
+                                                        onClick={() => {
+                                                            verifyRunMutation.mutate(
                                                                 {
                                                                     runId: run
                                                                         .run.id,
                                                                     status: 'flagged'
                                                                 }
-                                                            ); }
-                                                        }
+                                                            );
+                                                        }}
                                                         disabled={
                                                             verifyRunMutation.isPending
                                                         }

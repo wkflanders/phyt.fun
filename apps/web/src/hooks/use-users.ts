@@ -1,6 +1,13 @@
-import { User, ApiError, CardWithMetadata, CreateUserInput, Transaction } from '@phyt/types';
-import { usePrivy } from "@privy-io/react-auth";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+    User,
+    ApiError,
+    AuthenticationError,
+    CardWithMetadata,
+    CreateUserInput,
+    Transaction
+} from '@phyt/types';
+import { usePrivy } from '@privy-io/react-auth';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import {
     getUser,
@@ -12,7 +19,6 @@ import {
     TRANSACTIONS_QUERY_KEY
 } from '@/queries/user';
 
-
 export function useGetUser() {
     const { user: privyUser, ready, getAccessToken } = usePrivy();
 
@@ -20,18 +26,22 @@ export function useGetUser() {
         queryKey: [USER_QUERY_KEY, privyUser?.id],
         queryFn: async () => {
             if (!privyUser?.id) {
-                throw new Error("No authenticated user");
+                throw new Error('No authenticated user');
             }
             const token = await getAccessToken();
-
+            if (!token) {
+                throw new AuthenticationError(
+                    'No token available. Is user logged in with privy?'
+                );
+            }
             const userData = await getUser(privyUser.id, token);
             return userData;
         },
         enabled: Boolean(ready && privyUser?.id),
         staleTime: 300000, // 5 minutes
-        gcTime: 3600000,  // 1 hour
+        gcTime: 3600000, // 1 hour
         refetchOnMount: false,
-        refetchOnWindowFocus: false,
+        refetchOnWindowFocus: false
     });
 }
 
@@ -42,6 +52,11 @@ export function useCreateUser() {
     return useMutation<User, ApiError, CreateUserInput>({
         mutationFn: async ({ formData }) => {
             const token = await getAccessToken();
+            if (!token) {
+                throw new AuthenticationError(
+                    'No token available. Is user logged in with privy?'
+                );
+            }
             return createUser({ formData }, token);
         },
         onSuccess: (data: User, { formData }) => {
@@ -64,16 +79,23 @@ export function useGetUserTransactions() {
         queryKey: [TRANSACTIONS_QUERY_KEY, privyUser?.id],
         queryFn: async () => {
             if (!privyUser?.id) {
-                throw new Error("No authenticated user");
+                throw new Error('No authenticated user');
             }
             const token = await getAccessToken();
-
-            const transactionData = await getUserTransactions(privyUser.id, token);
+            if (!token) {
+                throw new AuthenticationError(
+                    'No token available. Is user logged in with privy?'
+                );
+            }
+            const transactionData = await getUserTransactions(
+                privyUser.id,
+                token
+            );
             return transactionData;
         },
         enabled: Boolean(ready && privyUser?.id),
         staleTime: 300000, // 5 minutes
-        gcTime: 3600000,  // 1 hour
+        gcTime: 3600000 // 1 hour
     });
 }
 
@@ -81,15 +103,19 @@ export function useGetUserCards() {
     const { user: privyUser, ready, getAccessToken } = usePrivy();
 
     return useQuery<CardWithMetadata[], ApiError>({
-        queryKey: ["userCards", privyUser?.id],
+        queryKey: ['userCards', privyUser?.id],
         queryFn: async () => {
             if (!privyUser?.id) {
-                throw new Error("No authenticated user");
+                throw new Error('No authenticated user');
             }
             const token = await getAccessToken();
-
+            if (!token) {
+                throw new AuthenticationError(
+                    'No token available. Is user logged in with privy?'
+                );
+            }
             return getUserCards(privyUser.id, token);
         },
-        enabled: Boolean(ready && privyUser?.id),
+        enabled: Boolean(ready && privyUser?.id)
     });
 }

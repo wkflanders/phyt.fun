@@ -2,19 +2,22 @@
 
 import { cn } from '@/lib/utils';
 import { RunnerActivity } from '@phyt/types';
-import { Zap, Users, Heart, ArrowDown, Loader2 } from 'lucide-react';
+import { Zap, Users, ArrowDown, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useGetRunnerActivities } from '@/hooks/use-runners';
 
-
 type TabType = 'all' | 'pooled';
 
 export const ActivityBox: React.FC = () => {
     const [activeTab, setActiveTab] = useState<TabType>('all');
-    const { data: activities, isLoading, isError } = useGetRunnerActivities(activeTab !== 'all' ? activeTab : undefined);
+    const {
+        data: activities,
+        isLoading,
+        isError
+    } = useGetRunnerActivities(activeTab !== 'all' ? activeTab : undefined);
 
     return (
         <Card className="w-1/5 bg-transparent rounded-none border-0 border-l border-white/10">
@@ -28,14 +31,18 @@ export const ActivityBox: React.FC = () => {
             <div className="flex">
                 <TabButton
                     isActive={activeTab === 'all'}
-                    onClick={() => { setActiveTab('all'); }}
+                    onClick={() => {
+                        setActiveTab('all');
+                    }}
                     icon={<ArrowDown size={16} />}
                 >
                     All Runners
                 </TabButton>
                 <TabButton
                     isActive={activeTab === 'pooled'}
-                    onClick={() => { setActiveTab('pooled'); }}
+                    onClick={() => {
+                        setActiveTab('pooled');
+                    }}
                     icon={<Users size={16} />}
                 >
                     Pooled
@@ -54,7 +61,10 @@ export const ActivityBox: React.FC = () => {
                         </div>
                     ) : activities && activities.length > 0 ? (
                         activities.map((activity) => (
-                            <ActivityItem key={activity.id} activity={activity} />
+                            <ActivityItem
+                                key={activity.id}
+                                activity={activity}
+                            />
                         ))
                     ) : (
                         <div className="text-center text-phyt_text_secondary py-4">
@@ -74,14 +84,17 @@ interface TabButtonProps {
     icon: React.ReactNode;
 }
 
-const TabButton: React.FC<TabButtonProps> = ({ isActive, onClick, children, icon }) => (
+const TabButton: React.FC<TabButtonProps> = ({
+    isActive,
+    onClick,
+    children,
+    icon
+}) => (
     <button
         onClick={onClick}
         className={cn(
             'flex items-center gap-1 px-4 py-2 text-md transition-colors flex-1 justify-center',
-            isActive
-                ? 'text-text'
-                : 'text-text-dim hover:text-text'
+            isActive ? 'text-text' : 'text-text-dim hover:text-text'
         )}
     >
         {icon}
@@ -108,7 +121,10 @@ const ActivityItem: React.FC<ActivityItemProps> = ({ activity }) => {
                 />
                 <div>
                     <p className="text-phyt_text font-medium">
-                        {activity.username} <span className="text-phyt_text_third ml-1">| RUNNER</span>
+                        {activity.username}{' '}
+                        <span className="text-phyt_text_third ml-1">
+                            | RUNNER
+                        </span>
                     </p>
                     <p className="text-phyt_text_secondary text-xs">
                         Ran {distanceKm} km • {activity.time_ago}

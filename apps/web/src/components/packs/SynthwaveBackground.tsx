@@ -1,22 +1,19 @@
-// src/components/Packs/SynthwaveBackground.tsx
-"use client";
-import React, { useEffect, useRef, useState } from "react";
-import * as THREE from "three";
+'use client';
+import React, { useEffect, useRef, useState } from 'react';
+import * as THREE from 'three';
 
 export function SynthwaveBackground() {
     const mountRef = useRef<HTMLDivElement | null>(null);
     const [hasInitialized, setHasInitialized] = useState(false);
 
     useEffect(() => {
-        // Clear any previous state
-        if (mountRef.current) {
-            while (mountRef.current.firstChild) {
-                mountRef.current.removeChild(mountRef.current.firstChild);
-            }
-        }
+        const mount = mountRef.current;
+        if (!mount) return;
 
-        // Ensure DOM is ready
-        if (!mountRef.current) return;
+        // Clear any previous state
+        while (mount.firstChild) {
+            mount.removeChild(mount.firstChild);
+        }
 
         // Setup scene
         const scene = new THREE.Scene();
@@ -24,18 +21,15 @@ export function SynthwaveBackground() {
 
         const camera = new THREE.PerspectiveCamera(
             75,
-            mountRef.current.clientWidth / mountRef.current.clientHeight,
+            mount.clientWidth / mount.clientHeight,
             0.1,
             1000
         );
         camera.position.set(0, 1, 5);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(
-            mountRef.current.clientWidth,
-            mountRef.current.clientHeight
-        );
-        mountRef.current.appendChild(renderer.domElement);
+        renderer.setSize(mount.clientWidth, mount.clientHeight);
+        mount.appendChild(renderer.domElement);
 
         // Force component to recognize initialization is complete
         setHasInitialized(true);
@@ -58,7 +52,7 @@ export function SynthwaveBackground() {
             color: 0xff66cc,
             wireframe: true,
             opacity: 0.3,
-            transparent: true,
+            transparent: true
         });
         const plane = new THREE.Mesh(planeGeometry, planeMaterial);
         plane.rotation.x = -Math.PI / 2;
@@ -93,9 +87,10 @@ export function SynthwaveBackground() {
             const frequency = 1;
             const speed = 0.5;
             for (let i = 0; i < positions.length; i += 3) {
-                const x = originalPositions[i];
-                const y = originalPositions[i + 1];
-                positions[i + 2] = amplitude * Math.sin(frequency * (x + y) + time * speed);
+                const x = originalPositions[i] ?? 0;
+                const y = originalPositions[i + 1] ?? 0;
+                positions[i + 2] =
+                    amplitude * Math.sin(frequency * (x + y) + time * speed);
             }
             planeGeometry.attributes.position.needsUpdate = true;
 
@@ -113,9 +108,9 @@ export function SynthwaveBackground() {
         // Ensure resize is handled
         const handleResize = () => {
             if (!mountRef.current) return;
-            camera.aspect = mountRef.current.clientWidth / mountRef.current.clientHeight;
+            camera.aspect = mount.clientWidth / mount.clientHeight;
             camera.updateProjectionMatrix();
-            renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
+            renderer.setSize(mount.clientWidth, mount.clientHeight);
         };
 
         window.addEventListener('resize', handleResize);
@@ -125,23 +120,21 @@ export function SynthwaveBackground() {
             window.removeEventListener('resize', handleResize);
             cancelAnimationFrame(req);
             renderer.dispose();
-            if (mountRef.current) {
-                mountRef.current.removeChild(renderer.domElement);
-            }
+            mount.removeChild(renderer.domElement);
         };
-    }, []);  // Empty dependency array to run once on mount
+    }, []); // Empty dependency array to run once on mount
 
     return (
         <div
             ref={mountRef}
             style={{
-                width: "100%",
-                height: "100%",
-                position: "absolute",
+                width: '100%',
+                height: '100%',
+                position: 'absolute',
                 top: 0,
                 left: 0,
-                overflow: "hidden",
-                zIndex: -1,
+                overflow: 'hidden',
+                zIndex: -1
             }}
         />
     );

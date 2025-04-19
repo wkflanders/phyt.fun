@@ -1,4 +1,5 @@
-import { getAccessToken, usePrivy } from '@privy-io/react-auth';
+import { AuthenticationError } from '@phyt/types';
+import { usePrivy } from '@privy-io/react-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import {
@@ -18,6 +19,11 @@ export function usePendingRunners() {
         queryKey: [PENDING_RUNNERS_QUERY_KEY],
         queryFn: async () => {
             const token = await getAccessToken();
+            if (!token) {
+                throw new AuthenticationError(
+                    'No token available. Is user logged in with privy?'
+                );
+            }
             return getPendingRunners(token);
         }
     });
@@ -29,6 +35,11 @@ export function usePendingRuns() {
         queryKey: [PENDING_RUNS_QUERY_KEY],
         queryFn: async () => {
             const token = await getAccessToken();
+            if (!token) {
+                throw new AuthenticationError(
+                    'No token available. Is user logged in with privy?'
+                );
+            }
             return getPendingRuns(token);
         }
     });
@@ -42,22 +53,29 @@ export function useApproveRunner() {
     return useMutation({
         mutationFn: async (runnerId: number) => {
             const token = await getAccessToken();
+            if (!token) {
+                throw new AuthenticationError(
+                    'No token available. Is user logged in with privy?'
+                );
+            }
             return approveRunner(runnerId, token);
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: [PENDING_RUNNERS_QUERY_KEY] });
+            queryClient.invalidateQueries({
+                queryKey: [PENDING_RUNNERS_QUERY_KEY]
+            });
             toast({
-                title: "Success",
-                description: "Runner approved successfully",
+                title: 'Success',
+                description: 'Runner approved successfully'
             });
         },
         onError: (error: Error) => {
             toast({
-                title: "Error",
-                description: error.message || "Failed to approve runner",
-                variant: "destructive",
+                title: 'Error',
+                description: error.message || 'Failed to approve runner',
+                variant: 'destructive'
             });
-        },
+        }
     });
 }
 
@@ -67,23 +85,37 @@ export function useUpdateRunVerification() {
     const { getAccessToken } = usePrivy();
 
     return useMutation({
-        mutationFn: async ({ runId, status }: { runId: number; status: 'verified' | 'flagged'; }) => {
+        mutationFn: async ({
+            runId,
+            status
+        }: {
+            runId: number;
+            status: 'verified' | 'flagged';
+        }) => {
             const token = await getAccessToken();
+            if (!token) {
+                throw new AuthenticationError(
+                    'No token available. Is user logged in with privy?'
+                );
+            }
             updateRunVerification(runId, status, token);
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: [PENDING_RUNS_QUERY_KEY] });
+            queryClient.invalidateQueries({
+                queryKey: [PENDING_RUNS_QUERY_KEY]
+            });
             toast({
-                title: "Success",
-                description: "Run verification status updated successfully",
+                title: 'Success',
+                description: 'Run verification status updated successfully'
             });
         },
         onError: (error: Error) => {
             toast({
-                title: "Error",
-                description: error.message || "Failed to update run verification",
-                variant: "destructive",
+                title: 'Error',
+                description:
+                    error.message || 'Failed to update run verification',
+                variant: 'destructive'
             });
-        },
+        }
     });
 }

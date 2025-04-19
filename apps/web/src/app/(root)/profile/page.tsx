@@ -27,10 +27,10 @@ export default function ProfilePage() {
             (card) =>
                 card.metadata.runner_name
                     .toLowerCase()
-                    .includes(searchTerm.toLowerCase()) ||
+                    .includes(searchTerm.toLowerCase()) ??
                 card.metadata.season
                     .toLowerCase()
-                    .includes(searchTerm.toLowerCase()) ||
+                    .includes(searchTerm.toLowerCase()) ??
                 card.metadata.token_id
                     .toString()
                     .includes(searchTerm.toLowerCase())
@@ -58,7 +58,7 @@ export default function ProfilePage() {
     return (
         <div className="flex">
             <SearchSidebar
-                cards={cards || []}
+                cards={cards ?? []}
                 onSearchResultsChange={setSearchTerm}
             />
             <div className="flex-1">

@@ -10,7 +10,11 @@ import { useToast } from '@/hooks/use-toast';
 import { EthIcon, PhytIcon } from '@/lib/icons';
 
 export const CompetitionMast = () => {
-    const { data: majorCompetitions, isLoading, error } = useGetMajorCompetitions();
+    const {
+        data: majorCompetitions,
+        isLoading,
+        error
+    } = useGetMajorCompetitions();
     const { toast } = useToast();
 
     if (isLoading) {
@@ -51,19 +55,19 @@ export const CompetitionMast = () => {
     const isCompleted = now > endDate;
 
     // Get status text and color
-    let statusText = "Active";
-    let statusColor = "text-green-400";
+    let statusText = 'Active';
+    let statusColor = 'text-green-400';
 
     if (isUpcoming) {
-        statusText = "Upcoming";
-        statusColor = "text-text";
+        statusText = 'Upcoming';
+        statusColor = 'text-text';
     } else if (isCompleted) {
-        statusText = "Completed";
-        statusColor = "text-text-dim";
+        statusText = 'Completed';
+        statusColor = 'text-text-dim';
     }
 
     // Generate competition image URL
-    const imageUrl = `https://d5mhfgomyfg7p.cloudfront.net/competitions/${featuredCompetition.id}.png`;
+    const imageUrl = `https://d5mhfgomyfg7p.cloudfront.net/competitions/${String(featuredCompetition.id)}.png`;
 
     return (
         <div className="relative w-full overflow-hidden h-96 shadow-lg rounded-xl">
@@ -80,9 +84,13 @@ export const CompetitionMast = () => {
 
             {/* Content */}
             <div className="relative z-10 flex flex-col justify-end h-full p-8">
-                <div className={`inline-flex items-center text-sm font-medium mb-2 ${statusColor}`}>
-                    <span className="flex w-2 h-2 mr-2 rounded-full animate-pulse"
-                        style={{ backgroundColor: '#FE205D' }} />
+                <div
+                    className={`inline-flex items-center text-sm font-medium mb-2 ${statusColor}`}
+                >
+                    <span
+                        className="flex w-2 h-2 mr-2 rounded-full animate-pulse"
+                        style={{ backgroundColor: '#FE205D' }}
+                    />
                     {statusText}
                 </div>
 
@@ -100,13 +108,9 @@ export const CompetitionMast = () => {
                 <div className="flex items-center mb-4 text-text-dim">
                     <TrophyIcon className="w-6 h-6 mr-2" />
                     <EthIcon color={'text-text-dim'} />
-                    <span className="mr-2">
-                        {featuredCompetition.jackpot}
-                    </span>
+                    <span className="mr-2">{featuredCompetition.jackpot}</span>
                     <PhytIcon color={`text-text-dim`} />
-                    <span className="ml-0.5">
-                        1,000
-                    </span>
+                    <span className="ml-0.5">1,000</span>
                 </div>
 
                 {featuredCompetition.distance_m && (
@@ -120,8 +124,9 @@ export const CompetitionMast = () => {
                         className="px-6 py-6 bg-secondary rounded-xl text-text text-md hover:bg-secondary-shade"
                         onClick={() => {
                             toast({
-                                title: "Competition Active",
-                                description: "All runners are automatically participating in this competition!"
+                                title: 'Competition Active',
+                                description:
+                                    'All runners are automatically participating in this competition!'
                             });
                         }}
                     >
@@ -134,8 +139,9 @@ export const CompetitionMast = () => {
                         className="px-4 py-6 border-white/10 hover:bg-white/10 rounded-xl"
                         onClick={() => {
                             toast({
-                                title: "Coming soon",
-                                description: "Competition details will be available soon!"
+                                title: 'Coming soon',
+                                description:
+                                    'Competition details will be available soon!'
                             });
                         }}
                     >

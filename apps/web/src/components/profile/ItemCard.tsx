@@ -5,8 +5,6 @@ import React from 'react';
 import { ListingModal } from '@/components/marketplace/ListingModal';
 import { Card, CardContent } from '@/components/ui/card';
 
-
-
 interface ItemCardProps {
     id: string;
     name: string;
@@ -32,7 +30,9 @@ export const ItemCard: React.FC<ItemCardProps> = ({
         <>
             <div
                 className="flex flex-col cursor-pointer group"
-                onClick={() => { setShowListingModal(true); }}
+                onClick={() => {
+                    setShowListingModal(true);
+                }}
             >
                 <div className="relative w-full border-white/10 border-b-0 border rounded-t-2xl">
                     <div className="relative transition-transform duration-300 group-hover:scale-[1.05]">
@@ -67,7 +67,9 @@ export const ItemCard: React.FC<ItemCardProps> = ({
             <ListingModal
                 user={user}
                 isOpen={showListingModal}
-                onClose={() => { setShowListingModal(false); }}
+                onClose={() => {
+                    setShowListingModal(false);
+                }}
                 card={card}
             />
         </>

@@ -1,25 +1,13 @@
 import { ExchangeAbi } from '@phyt/contracts';
 import { Order } from '@phyt/types';
-import {
-    keccak256,
-    encodeAbiParameters,
-    concat
-    
-} from 'viem';
+import { keccak256, encodeAbiParameters, concat } from 'viem';
 import { usePublicClient, useWalletClient, useAccount } from 'wagmi';
 import { writeContract, simulateContract } from 'wagmi/actions';
 
+import { env } from '@/env';
 import { config } from '@/lib/wagmi';
 
-import type {AbiParameter} from 'viem';
-
-
-const EXCHANGE_ADDRESS =
-    process.env.EXCHANGE_ADDRESS! ||
-    '0x50480bDEF93a26f45B33aa2c26A00108bbC358c3';
-const PHYT_CARDS_ADDRESS =
-    process.env.PHYT_CARDS_ADDRESS! ||
-    '0x8a1c168113088F7414fc637817859Afa87fb4244';
+import type { AbiParameter } from 'viem';
 
 export function useExchange() {
     const publicClient = usePublicClient();
@@ -30,7 +18,7 @@ export function useExchange() {
         name: 'Phyt Exchange',
         version: '1',
         chainId: 84532, // Base Sepolia
-        verifyingContract: EXCHANGE_ADDRESS
+        verifyingContract: env.NEXT_PUBLIC_EXCHANGE_ADDRESS as `0x${string}`
     } as const;
 
     const ORDER_PARAMETERS: { Order: AbiParameter[] } = {
@@ -48,13 +36,7 @@ export function useExchange() {
     };
 
     function generateOrderHash(order: Order): `0x${string}` {
-        const verifyingContract =
-            EXCHANGE_DOMAIN.verifyingContract || process.env.EXCHANGE_ADDRESS;
-        if (!verifyingContract) {
-            throw new Error(
-                'Missing verifying contract address for EXCHANGE_DOMAIN'
-            );
-        }
+        const verifyingContract = EXCHANGE_DOMAIN.verifyingContract;
 
         // Encode the domain separator
         const domainSeparator = keccak256(
@@ -69,7 +51,7 @@ export function useExchange() {
                     EXCHANGE_DOMAIN.name,
                     EXCHANGE_DOMAIN.version,
                     BigInt(EXCHANGE_DOMAIN.chainId),
-                    verifyingContract as `0x${string}`
+                    verifyingContract
                 ]
             )
         );
@@ -105,17 +87,17 @@ export function useExchange() {
         if (!walletClient || !address) {
             throw new Error('Wallet not connected');
         }
-        if (!EXCHANGE_ADDRESS) {
+        if (!env.NEXT_PUBLIC_EXCHANGE_ADDRESS) {
             throw new Error('Missing environment variable: EXCHANGE_ADDRESS');
         }
-        if (!PHYT_CARDS_ADDRESS) {
+        if (!env.NEXT_PUBLIC_PHYT_CARDS_ADDRESS) {
             throw new Error('Missing environment variable: PHYT_CARDS_ADDRESS');
         }
 
         const order: Order = {
             trader: address,
             side: 1, // sell
-            collection: PHYT_CARDS_ADDRESS as `0x${string}`,
+            collection: env.NEXT_PUBLIC_PHYT_CARDS_ADDRESS as `0x${string}`,
             token_id: BigInt(tokenId),
             payment_token: '0x0000000000000000000000000000000000000000', // ETH
             price: takePrice,
@@ -127,8 +109,7 @@ export function useExchange() {
 
         const signature = await walletClient.signTypedData({
             domain: {
-                ...EXCHANGE_DOMAIN,
-                verifyingContract: EXCHANGE_ADDRESS as `0x${string}`
+                ...EXCHANGE_DOMAIN
             },
             types: ORDER_PARAMETERS,
             primaryType: 'Order',
@@ -159,7 +140,7 @@ export function useExchange() {
         const order: Order = {
             trader: address,
             side: 0, // buy
-            collection: PHYT_CARDS_ADDRESS as `0x${string}`,
+            collection: env.NEXT_PUBLIC_PHYT_CARDS_ADDRESS as `0x${string}`,
             token_id: BigInt(cardId),
             payment_token: '0x0000000000000000000000000000000000000000', // ETH
             price: bidAmount,
@@ -173,8 +154,7 @@ export function useExchange() {
 
         const signature = await walletClient.signTypedData({
             domain: {
-                ...EXCHANGE_DOMAIN,
-                verifyingContract: EXCHANGE_ADDRESS as `0x${string}`
+                ...EXCHANGE_DOMAIN
             },
             types: ORDER_PARAMETERS,
             primaryType: 'Order',
@@ -199,7 +179,7 @@ export function useExchange() {
         if (!address) throw new Error('Wallet not connected');
 
         const { request } = await simulateContract(config, {
-            address: EXCHANGE_ADDRESS as `0x${string}`,
+            address: env.NEXT_PUBLIC_EXCHANGE_ADDRESS as `0x${string}`,
             abi: ExchangeAbi,
             functionName: 'buy',
             args: [sellOrder, signature, false],
@@ -208,7 +188,10 @@ export function useExchange() {
         });
 
         const hash = await writeContract(config, request);
-        const receipt = await publicClient!.waitForTransactionReceipt({ hash });
+        if (!publicClient) {
+            throw new Error('Public client not available');
+        }
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
         return { hash, receipt };
     };
@@ -228,7 +211,7 @@ export function useExchange() {
         if (!address) throw new Error('Wallet not connected');
 
         const { request } = await simulateContract(config, {
-            address: EXCHANGE_ADDRESS as `0x${string}`,
+            address: env.NEXT_PUBLIC_EXCHANGE_ADDRESS as `0x${string}`,
             abi: ExchangeAbi,
             functionName: 'matchOrders',
             args: [sellOrder, buyOrder, sellerSignature, buyerSignature],
@@ -237,7 +220,10 @@ export function useExchange() {
         });
 
         const hash = await writeContract(config, request);
-        const receipt = await publicClient!.waitForTransactionReceipt({ hash });
+        if (!publicClient) {
+            throw new Error('Public client not available');
+        }
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
         return { hash, receipt };
     };
