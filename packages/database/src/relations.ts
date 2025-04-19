@@ -14,7 +14,7 @@ import {
     pack_purchases,
     listings,
     user_device_authorizations
-} from './schema';
+} from './schema.js';
 
 export const usersRelations = relations(users, ({ many }) => ({
     runners: many(runners),

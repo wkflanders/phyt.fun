@@ -1,7 +1,8 @@
+import { env } from './src/env.js';
 import { config } from 'dotenv';
 import { defineConfig } from 'drizzle-kit';
 
-config({ path: '../../.env' });
+config({ path: '.env' });
 
 export default defineConfig({
     schema: './src/schema.ts',
@@ -9,7 +10,7 @@ export default defineConfig({
     dialect: 'postgresql',
     dbCredentials: {
         url:
-            process.env.DATABASE_URL ??
+            env.DATABASE_URL ??
             (() => {
                 throw new Error('DATABASE_URL is not defined');
             })()

@@ -1,7 +1,7 @@
-export * from './schema';
-export * from './relations';
-export * from './drizzle';
-export * from './transactions';
+export * from './schema.js';
+export * from './relations.js';
+export * from './drizzle.js';
+export * from './transactions.js';
 export {
     eq,
     and,
