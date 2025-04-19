@@ -154,8 +154,6 @@ export interface CreateUserInput {
 
 export interface Run {
     id: number;
-    updated_at: Date;
-    created_at: Date;
     runner_id: number;
     start_time: Date;
     end_time: Date;
@@ -169,13 +167,16 @@ export interface Run {
     max_heart_rate: number | null;
     device_id: string | null;
     gps_route_data: string | null;
+    is_posted: boolean | null;
     verification_status: RunVerificationStatus;
     raw_data_json: Record<string, unknown> | null;
+    created_at: Date;
+    updated_at: Date;
 }
 
 export interface PendingRun {
     run: Run;
-    runner: RunnerProfile;
+    runner: string;
 }
 
 export type SeasonCollection = 'season_0';
@@ -221,22 +222,22 @@ export interface CardWithMetadata extends Card {
 
 export interface Competition {
     id: number;
-    updated_at: Date;
-    created_at: Date;
     event_name: string;
     start_time: string;
     end_time: string;
-    jackpot: number | null;
+    jackpot: string;
     distance_m: number | null;
     event_type: string | null;
+    created_at: Date;
+    updated_at: Date;
 }
 
 export interface Lineup {
     id: number;
-    updated_at: Date;
-    created_at: Date;
     competition_id: number;
-    gambler_id: number;
+    manager_id: number;
+    created_at: Date;
+    updated_at: Date;
 }
 
 export interface LineupCard {
@@ -269,8 +270,8 @@ export interface Runner {
     status: RunnerStatus;
     is_pooled: boolean;
     runner_wallet: string;
-    created_at?: Date;
-    updated_at?: Date;
+    created_at: Date;
+    updated_at: Date;
 }
 
 export interface RunnerProfile extends Runner {
@@ -328,22 +329,25 @@ export interface GamblerResult {
 
 export interface Transaction {
     id: number;
-    updated_at: Date;
-    created_at: Date;
     from_user_id: number | null;
     to_user_id: number | null;
     card_id: number | null;
     competition_id: number | null;
     price: string | null;
     transaction_type: TransactionType;
+    pack_purchases_id: number | null;
+    hash: string | null;
+    created_at: Date;
+    updated_at: Date;
 }
 
 export interface PackPurchase {
     id: number;
-    updated_at: Date;
-    created_at: Date;
     buyer_id: number;
-    purchase_price: number;
+    purchase_price: string;
+    pack_type: PackType;
+    created_at: Date;
+    updated_at: Date;
 }
 
 export interface PackPurchaseCardId {
@@ -516,10 +520,20 @@ export interface Order {
     collection: `0x${string}`;
     token_id: bigint;
     payment_token: `0x${string}`;
-    price: string; // For sell orders: take price, For buy orders: bid price
-    expiration_time: Date;
+    price: bigint; // For sell orders: take price, For buy orders: bid price
+    expiration_time: bigint;
     merkle_root: `0x${string}`;
     salt: bigint;
+}
+
+export interface OrderBook {
+    bid: Bid[];
+    bidder: User[];
+}
+
+export interface OrderBookEntry {
+    price: number;
+    quantity: number;
 }
 
 export interface Listing {
@@ -799,6 +813,7 @@ export interface CommentCreateRequest {
 }
 
 export interface CommentUpdateRequest {
+    commentId: number;
     content: string;
 }
 
@@ -893,9 +908,4 @@ export interface ListingModalProps {
 export interface ExpirationOption {
     value: string;
     label: string;
-}
-
-export interface OrderBook {
-    bid: Bid[];
-    bidder: User[];
 }

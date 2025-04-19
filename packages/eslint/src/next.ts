@@ -27,7 +27,7 @@ const tanstackPreset = pickPreset(tanstack, ['recommended']);
 
 /*  Next‑JS flat config                                                       */
 
-export const nextJsConfig: import('eslint').Linter.Config[] = [
+export const nextConfig: import('eslint').Linter.Config[] = [
     ...baseConfig,
 
     /* Tailwind preset (if present) ------------------------------------------ */
