@@ -1,5 +1,8 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ApiError, Reaction, ReactionCount, ReactionToggleRequest, ReactionToggleResponse } from '@phyt/types';
+import { usePrivy } from '@privy-io/react-auth';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+import { POST_QUERY_KEYS } from '../queries/posts';
 import {
     fetchPostReactions,
     fetchCommentReactions,
@@ -8,8 +11,7 @@ import {
     toggleReaction,
     REACTION_QUERY_KEYS
 } from '../queries/reactions';
-import { POST_QUERY_KEYS } from '../queries/posts';
-import { usePrivy } from '@privy-io/react-auth';
+
 
 export function usePostReactions(postId: number) {
     const { getAccessToken } = usePrivy();

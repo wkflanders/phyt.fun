@@ -1,10 +1,10 @@
 "use client";
 
-import React from 'react';
+import { cn } from '@/lib/utils';
 import { usePrivy } from '@privy-io/react-auth';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
+import React from 'react';
 
 export function Header() {
     const pathname = usePathname();

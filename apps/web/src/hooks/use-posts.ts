@@ -1,6 +1,8 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from './use-toast';
 import { ApiError, PostQueryParams, PostUpdateRequest, PostCreateRequest, PostResponse, Post } from '@phyt/types';
+import { usePrivy } from '@privy-io/react-auth';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+import { useToast } from './use-toast';
 import {
     fetchPosts,
     fetchPostById,
@@ -10,7 +12,7 @@ import {
     deletePost,
     POST_QUERY_KEYS
 } from '../queries/posts';
-import { usePrivy } from '@privy-io/react-auth';
+
 
 export function useGetPosts(params: PostQueryParams = {}) {
     const { page = 1, limit = 10, filter = 'all' } = params;

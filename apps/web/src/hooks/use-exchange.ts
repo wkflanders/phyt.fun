@@ -1,14 +1,18 @@
-import { usePublicClient, useWalletClient, useAccount } from 'wagmi';
-import { writeContract, simulateContract } from 'wagmi/actions';
+import { ExchangeAbi } from '@phyt/contracts';
+import { Order } from '@phyt/types';
 import {
     keccak256,
     encodeAbiParameters,
-    concat,
-    type AbiParameter
+    concat
+    
 } from 'viem';
+import { usePublicClient, useWalletClient, useAccount } from 'wagmi';
+import { writeContract, simulateContract } from 'wagmi/actions';
+
 import { config } from '@/lib/wagmi';
-import { ExchangeAbi } from '@phyt/contracts';
-import { Order } from '@phyt/types';
+
+import type {AbiParameter} from 'viem';
+
 
 const EXCHANGE_ADDRESS =
     process.env.EXCHANGE_ADDRESS! ||

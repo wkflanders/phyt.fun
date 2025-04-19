@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
+import {
+    Users,
+    Activity,
+    Search,
+    RefreshCw,
+    CheckCircle,
+    XCircle
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React, { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
     Table,
@@ -13,21 +21,15 @@ import {
     TableHeader,
     TableRow
 } from '@/components/ui/table';
-import { useGetUser } from '@/hooks/use-users';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
     usePendingRunners,
     usePendingRuns,
     useApproveRunner,
     useUpdateRunVerification
 } from '@/hooks/use-admin';
-import {
-    Users,
-    Activity,
-    Search,
-    RefreshCw,
-    CheckCircle,
-    XCircle
-} from 'lucide-react';
+import { useGetUser } from '@/hooks/use-users';
+
 
 const AdminDashboard = () => {
     const router = useRouter();
@@ -106,7 +108,7 @@ const AdminDashboard = () => {
                             placeholder="Search..."
                             className="pl-8 bg-phyt_form border-phyt_form_border text-phyt_text"
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => { setSearchTerm(e.target.value); }}
                         />
                     </div>
                 </div>
@@ -179,9 +181,9 @@ const AdminDashboard = () => {
                                                         variant="outline"
                                                         size="sm"
                                                         onClick={() =>
-                                                            approveRunnerMutation.mutate(
+                                                            { approveRunnerMutation.mutate(
                                                                 runner.id
-                                                            )
+                                                            ); }
                                                         }
                                                         disabled={
                                                             approveRunnerMutation.isPending
@@ -277,13 +279,13 @@ const AdminDashboard = () => {
                                                         variant="outline"
                                                         size="sm"
                                                         onClick={() =>
-                                                            verifyRunMutation.mutate(
+                                                            { verifyRunMutation.mutate(
                                                                 {
                                                                     runId: run
                                                                         .run.id,
                                                                     status: 'verified'
                                                                 }
-                                                            )
+                                                            ); }
                                                         }
                                                         disabled={
                                                             verifyRunMutation.isPending
@@ -296,13 +298,13 @@ const AdminDashboard = () => {
                                                         variant="outline"
                                                         size="sm"
                                                         onClick={() =>
-                                                            verifyRunMutation.mutate(
+                                                            { verifyRunMutation.mutate(
                                                                 {
                                                                     runId: run
                                                                         .run.id,
                                                                     status: 'flagged'
                                                                 }
-                                                            )
+                                                            ); }
                                                         }
                                                         disabled={
                                                             verifyRunMutation.isPending

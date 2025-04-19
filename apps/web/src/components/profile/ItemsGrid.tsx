@@ -1,8 +1,9 @@
-import React from 'react';
-import { ItemCard } from './ItemCard';
+import { formatSeasonName } from '@/lib/utils';
 import { CardWithMetadata, User } from '@phyt/types';
 import { Loader2 } from 'lucide-react';
-import { formatSeasonName } from '@/lib/utils';
+import React from 'react';
+
+import { ItemCard } from './ItemCard';
 interface ItemsGridProps {
     items: CardWithMetadata[];
     columns?: number;
@@ -40,7 +41,7 @@ export const ItemsGrid: React.FC<ItemsGridProps> = ({
                 <ItemCard
                     key={item.id}
                     id={item.id.toString()}
-                    name={`${item.metadata.runner_name}`}
+                    name={item.metadata.runner_name}
                     season={formatSeasonName(item.metadata.season)}
                     image={item.metadata.image_url}
                     price="0 ETH" // TODO: Get actual price from market data

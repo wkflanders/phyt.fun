@@ -1,6 +1,12 @@
 'use client';
 
+import { TokenURIMetadata, PackTypes, PackType } from '@phyt/types';
+import { usePrivy } from '@privy-io/react-auth';
+import { HelpCircle } from 'lucide-react';
 import React, { useState } from 'react';
+import { parseEther } from 'viem';
+import { useAccount, useBalance } from 'wagmi';
+
 import { Button } from '@/components/ui/button';
 import {
     Tooltip,
@@ -8,14 +14,10 @@ import {
     TooltipProvider,
     TooltipTrigger
 } from '@/components/ui/tooltip';
-import { HelpCircle } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 import { usePurchasePack } from '@/hooks/use-purchase-pack';
+import { useToast } from '@/hooks/use-toast';
 import { useGetUser } from '@/hooks/use-users';
-import { usePrivy } from '@privy-io/react-auth';
-import { useAccount, useBalance } from 'wagmi';
-import { parseEther } from 'viem';
-import { TokenURIMetadata, PackTypes, PackType } from '@phyt/types';
+
 
 export const Packs = () => {
     const [isPurchaseComplete, setIsPurchaseComplete] = useState(false);
@@ -37,7 +39,7 @@ export const Packs = () => {
     const { data: user } = useGetUser();
     const { mutate: purchasePack, isPending } = usePurchasePack();
     const { data: balance } = useBalance({
-        address: address as `0x${string}`
+        address: address!
     });
 
     const DEFAULT_AVATAR =
@@ -46,8 +48,7 @@ export const Packs = () => {
     // Check if the current card is special (gold, ruby, sapphire)
     const currentCard = revealedCards[currentCardIndex];
     const isSpecial =
-        currentCard &&
-        currentCard.attributes.some((attr) =>
+        currentCard?.attributes.some((attr) =>
             ['gold', 'ruby', 'sapphire'].includes(attr.rarity)
         );
 
@@ -76,14 +77,14 @@ export const Packs = () => {
         purchasePack(
             {
                 buyerId: user.id,
-                buyerAddress: address as `0x${string}`,
+                buyerAddress: address,
                 packType: packType as PackType
             },
             {
                 onSuccess: (data) => {
                     setIsPurchaseComplete(true);
                     setOverlayVisible(true);
-                    if (data.cardsMetadata?.length) {
+                    if (data.cardsMetadata.length) {
                         setRevealedCards(data.cardsMetadata);
                     }
                     setTimeout(() => {
@@ -92,7 +93,7 @@ export const Packs = () => {
                             setShowCard(true);
                             // Reset the animation for the first card
                             setCardAnimation('zoom-in');
-                            if (data.cardsMetadata?.length === 1) {
+                            if (data.cardsMetadata.length === 1) {
                                 setTimeout(() => {
                                     setOverlayVisible(false);
                                 }, 500); // Adjust if needed

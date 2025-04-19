@@ -1,9 +1,11 @@
 'use client';
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trophy, Medal, Timer, Activity, Wallet, Award, TrendingUp, Target } from 'lucide-react';
 import Image from 'next/image';
-import { type LucideIcon } from 'lucide-react';
+import React, { useState } from 'react';
+
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+import type {LucideIcon} from 'lucide-react';
 
 interface GamblerData {
   id: number;
@@ -180,7 +182,7 @@ const DualLeaderboard = () => {
             ? 'bg-phyt_blue text-black'
             : 'bg-phyt_form text-phyt_text'
             }`}
-          onClick={() => setActiveBoard('gamblers')}
+          onClick={() => { setActiveBoard('gamblers'); }}
         >
           Gamblers
         </button>
@@ -189,7 +191,7 @@ const DualLeaderboard = () => {
             ? 'bg-phyt_blue text-black'
             : 'bg-phyt_form text-phyt_text'
             }`}
-          onClick={() => setActiveBoard('runners')}
+          onClick={() => { setActiveBoard('runners'); }}
         >
           Runners
         </button>
@@ -222,7 +224,7 @@ const DualLeaderboard = () => {
               ? 'text-phyt_blue border-b-2 border-phyt_blue'
               : 'text-phyt_text_secondary'
               }`}
-            onClick={() => setTimeFrame(period as TimeFrame)}
+            onClick={() => { setTimeFrame(period as TimeFrame); }}
           >
             {period.charAt(0).toUpperCase() + period.slice(1)}
           </button>

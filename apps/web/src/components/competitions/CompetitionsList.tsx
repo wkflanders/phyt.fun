@@ -1,9 +1,10 @@
 'use client';
 
+import Image from 'next/image';
 import React from 'react';
+
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import Image from 'next/image';
 
 // Helper function to format dates
 const formatDate = (date: Date) => {

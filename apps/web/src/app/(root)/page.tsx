@@ -1,6 +1,6 @@
+import { ActivityBox } from '@/components/ActivityBox';
 import { CompetitionMast } from '@/components/competitions/CompetitionMast';
 import { Feed } from '@/components/feed/Feed';
-import { ActivityBox } from '@/components/ActivityBox';
 
 export default function Home() {
     return (

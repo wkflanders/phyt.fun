@@ -1,12 +1,14 @@
-import React from 'react';
-import Image from 'next/image';
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { Button } from '@/components/ui/button';
-import { Loader2, Heart, MessageCircle, Share2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { formatEther } from 'viem';
 import { CardRarity, Listing, MarketListing } from '@phyt/types';
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { Loader2, Heart, MessageCircle, Share2 } from 'lucide-react';
+import Image from 'next/image';
+import React from 'react';
+import { formatEther } from 'viem';
+
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useToast } from '@/hooks/use-toast';
+
 
 interface MarketModalProps {
     marketListing: MarketListing | null;
@@ -91,7 +93,7 @@ export const MarketModal = ({
                             <div className="space-y-2">
                                 {/* Buy Now Button (Full Width) */}
                                 <Button
-                                    onClick={() => onBuyNow(marketListing.listing)}
+                                    onClick={() => { onBuyNow(marketListing.listing); }}
                                     disabled={isPurchasing}
                                     className="w-full bg-phyt_blue hover:bg-phyt_blue/80"
                                 >

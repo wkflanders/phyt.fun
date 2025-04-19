@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import Image from 'next/image';
-import { useListings, usePurchaseListing } from '@/hooks/use-marketplace';
-import { useToast } from '@/hooks/use-toast';
+import { Listing, MarketListing } from '@phyt/types';
 import { usePrivy } from '@privy-io/react-auth';
-import { useAccount } from 'wagmi';
 import { Loader2, Filter, ArrowUpDown } from 'lucide-react';
-import { MarketModal } from './MarketModal';
+import Image from 'next/image';
+import React, { useState } from 'react';
+import { formatEther } from 'viem';
+import { useAccount } from 'wagmi';
+
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import {
     Select,
@@ -14,8 +14,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Listing, MarketListing } from '@phyt/types';
-import { formatEther } from 'viem';
+import { useListings, usePurchaseListing } from '@/hooks/use-marketplace';
+import { useToast } from '@/hooks/use-toast';
+
+
+import { MarketModal } from './MarketModal';
+
+
 
 type SortOption = 'created_at' | 'price_asc' | 'price_desc';
 type RarityFilter = 'all' | 'bronze' | 'silver' | 'gold' | 'sapphire' | 'ruby' | 'opal';
@@ -79,7 +84,7 @@ const Marketplace = () => {
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-0">
                             <Filter className="text-phyt_text" size={20} />
-                            <Select value={filterRarity} onValueChange={(value) => setFilterRarity(value as RarityFilter)}>
+                            <Select value={filterRarity} onValueChange={(value) => { setFilterRarity(value as RarityFilter); }}>
                                 <SelectTrigger className="bg-transparent text-md text-phyt_text border-0">
                                     <SelectValue placeholder="All Rarities" />
                                 </SelectTrigger>
@@ -96,7 +101,7 @@ const Marketplace = () => {
 
                     <div className="flex items-center gap-2">
                         <ArrowUpDown className="text-phyt_text" size={20} />
-                        <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
+                        <Select value={sortBy} onValueChange={(value) => { setSortBy(value as SortOption); }}>
                             <SelectTrigger className="bg-transparent text-md text-phyt_text border-0">
                                 <SelectValue className="text-lg" placeholder="Sort By" />
                             </SelectTrigger>
@@ -157,7 +162,7 @@ const Marketplace = () => {
             <MarketModal
                 marketListing={selectedListing}
                 isOpen={!!selectedListing}
-                onClose={() => setSelectedListing(null)}
+                onClose={() => { setSelectedListing(null); }}
                 onBuyNow={handleBuyNow}
                 isPurchasing={isPurchasing}
             />

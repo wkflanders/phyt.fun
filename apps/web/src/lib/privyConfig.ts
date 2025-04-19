@@ -1,5 +1,6 @@
-import type { PrivyClientConfig } from "@privy-io/react-auth";
 import { baseSepolia } from "viem/chains";
+
+import type { PrivyClientConfig } from "@privy-io/react-auth";
 
 export const privyConfig: PrivyClientConfig = {
     appearance: {

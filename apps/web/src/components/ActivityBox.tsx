@@ -1,12 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import Image from 'next/image';
-import { Zap, Users, Heart, ArrowDown, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useGetRunnerActivities } from '@/hooks/use-runners';
 import { RunnerActivity } from '@phyt/types';
+import { Zap, Users, Heart, ArrowDown, Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import React, { useState } from 'react';
+
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useGetRunnerActivities } from '@/hooks/use-runners';
+
 
 type TabType = 'all' | 'pooled';
 
@@ -26,14 +28,14 @@ export const ActivityBox: React.FC = () => {
             <div className="flex">
                 <TabButton
                     isActive={activeTab === 'all'}
-                    onClick={() => setActiveTab('all')}
+                    onClick={() => { setActiveTab('all'); }}
                     icon={<ArrowDown size={16} />}
                 >
                     All Runners
                 </TabButton>
                 <TabButton
                     isActive={activeTab === 'pooled'}
-                    onClick={() => setActiveTab('pooled')}
+                    onClick={() => { setActiveTab('pooled'); }}
                     icon={<Users size={16} />}
                 >
                     Pooled

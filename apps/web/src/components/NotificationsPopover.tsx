@@ -1,9 +1,10 @@
 "use client";
-import React from "react";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Bell, Loader2 } from "lucide-react";
+import React from "react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 // import { useGetNotifications } from "@/hooks/use-get-notifications";
 
 export const NotificationsPopover = () => {

@@ -1,11 +1,13 @@
 // apps/web/src/components/OnboardForm.tsx
 'use client';
 
-import React, { useRef, useState } from 'react';
-import Image from 'next/image';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import React, { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ZodType } from 'zod';
+
 import { Button } from "@/components/ui/button";
 import {
     Form,
@@ -17,11 +19,10 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface OnboardFormProps {
-    schema: ZodType<any>;
+    schema: ZodType;
     defaultValues: {
         username: string;
     };

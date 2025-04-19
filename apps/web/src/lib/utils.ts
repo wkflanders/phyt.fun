@@ -1,7 +1,9 @@
-import { clsx, type ClassValue } from "clsx";
+import { ApiError } from "@phyt/types";
+import { clsx  } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-import { ApiError } from "@phyt/types";
+import type {ClassValue} from "clsx";
+
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

@@ -1,5 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { LeaderboardQueryParams, RunnerLeaderboard, ManagerLeaderboard, ApiError, ManagerStanding, RunnerStanding } from '@phyt/types';
 import { usePrivy } from "@privy-io/react-auth";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
 import {
     getManagerLeaderboard,
     getManagerStanding,
@@ -10,7 +12,7 @@ import {
     MANAGER_STANDING_QUERY_KEY,
     RUNNER_STANDING_QUERY_KEY,
 } from '@/queries/leaderboard';
-import { LeaderboardQueryParams, RunnerLeaderboard, ManagerLeaderboard, ApiError, ManagerStanding, RunnerStanding } from '@phyt/types';
+
 
 export function useGetRunnerLeadeboard(params: LeaderboardQueryParams) {
     const { getAccessToken } = usePrivy();

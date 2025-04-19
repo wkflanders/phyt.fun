@@ -1,15 +1,15 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-
+import { onboardFormSchema } from '@/lib/validation';
 import { ApiError, CreateUserFormData } from '@phyt/types';
 import { usePrivy } from '@privy-io/react-auth';
 import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 
 import { OnboardForm } from '@/components/OnboardForm';
 import { useToast } from '@/hooks/use-toast';
 import { useCreateUser, useGetUser } from '@/hooks/use-users';
-import { onboardFormSchema } from '@/lib/validation';
+
 
 export default function OnboardPage() {
     const router = useRouter();

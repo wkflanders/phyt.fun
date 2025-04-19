@@ -1,9 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAccount } from 'wagmi';
-import { useToast } from './use-toast';
-import { useExchange } from './use-exchange';
 import { MarketListing, Order, User, Runner, Listing, ApiError } from '@phyt/types';
 import { usePrivy } from '@privy-io/react-auth';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAccount } from 'wagmi';
+
+import { useExchange } from './use-exchange';
+import { useToast } from './use-toast';
 
 interface ListingFilters {
     minPrice?: string;
@@ -18,14 +19,14 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 export function useListings(filters?: ListingFilters) {
     const { getAccessToken } = usePrivy();
 
-    return useQuery<MarketListing[], Error>({
+    return useQuery<MarketListing[]>({
         queryKey: ['listings', filters],
         queryFn: async () => {
             const token = await getAccessToken();
             const searchParams = new URLSearchParams();
             if (filters?.minPrice) searchParams.append('minPrice', filters.minPrice);
             if (filters?.maxPrice) searchParams.append('maxPrice', filters.maxPrice);
-            if (filters?.rarity) filters.rarity.forEach(r => searchParams.append('rarity', r));
+            if (filters?.rarity) filters.rarity.forEach(r => { searchParams.append('rarity', r); });
             if (filters?.sort) searchParams.append('sort', filters.sort);
 
             const response = await fetch(`${API_URL}/marketplace/listings?${searchParams.toString()}`, {
@@ -212,11 +213,11 @@ export function usePurchaseListing() {
 
             // Convert the listing data into the Order format
             const sellOrder: Order = {
-                trader: listing.order_data.trader as `0x${string}`,
+                trader: listing.order_data.trader,
                 side: 1, // 1 for sell
-                collection: listing.order_data.collection as `0x${string}`,
+                collection: listing.order_data.collection,
                 token_id: BigInt(listing.order_data.token_id),
-                payment_token: listing.order_data.payment_token as `0x${string}`,
+                payment_token: listing.order_data.payment_token,
                 price: BigInt(listing.order_data.price),
                 expiration_time: BigInt(listing.order_data.expiration_time),
                 merkle_root: '0x0000000000000000000000000000000000000000000000000000000000000000' as `0x${string}`,

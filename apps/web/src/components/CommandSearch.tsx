@@ -1,4 +1,8 @@
+import { Search } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+
 import {
     Command,
     CommandList,
@@ -7,9 +11,6 @@ import {
     CommandInput,
     CommandItem,
 } from "@/components/ui/command";
-import { Search } from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useGetRunners } from "@/hooks/use-runners";
 
 export function CommandSearch() {

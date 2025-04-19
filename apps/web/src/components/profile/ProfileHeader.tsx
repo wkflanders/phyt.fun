@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import Image from 'next/image';
-import { Copy, Check } from 'lucide-react';
-import { ProfileStats } from './ProfileStats';
 import { User, CardWithMetadata } from '@phyt/types';
+import { Copy, Check } from 'lucide-react';
+import Image from 'next/image';
+import React, { useState } from 'react';
+
+import { ProfileStats } from './ProfileStats';
+
 
 interface ProfileHeaderProps {
     user: User | undefined,
@@ -25,7 +27,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         if (user?.wallet_address) {
             navigator.clipboard.writeText(user.wallet_address);
             setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
+            setTimeout(() => { setCopied(false); }, 2000);
         }
     };
 

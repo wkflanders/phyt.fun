@@ -1,23 +1,26 @@
 "use client";
 
-import React from "react";
-import Link from "next/link";
-import Image from "next/image";
 import { useLogout } from "@privy-io/react-auth";
+import { LogOut } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import React from "react";
+
 import {
     Popover,
     PopoverTrigger,
     PopoverContent,
 } from "@/components/ui/popover";
-import { Button } from "../ui/button";
-import { LogOut } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-type ProfilePopoverProps = {
+import { Button } from "../ui/button";
+
+
+interface ProfilePopoverProps {
     avatarUrl?: string;
     username?: string;
-};
+}
 
 export const ProfilePopover = ({ avatarUrl, username }: ProfilePopoverProps) => {
     const router = useRouter();

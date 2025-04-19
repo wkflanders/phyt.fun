@@ -1,4 +1,5 @@
 import React from 'react';
+
 import DualLeaderboard from '@/components/leaderboard/DualLeaderboard';
 
 export default function LeaderboardPage() {

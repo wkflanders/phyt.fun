@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
-import { ItemsToolbar } from '@/components/profile/ItemsToolbar';
-import { ItemsGrid } from '@/components/profile/ItemsGrid';
-import { SearchSidebar } from '@/components/profile/SearchSidebar';
-import { useGetUserCards, useGetUser } from '@/hooks/use-users';
-import { useToast } from '@/hooks/use-toast';
 import { CardWithMetadata } from '@phyt/types';
+import React, { useState } from 'react';
+
+import { ItemsGrid } from '@/components/profile/ItemsGrid';
+import { ItemsToolbar } from '@/components/profile/ItemsToolbar';
+import { SearchSidebar } from '@/components/profile/SearchSidebar';
+import { useToast } from '@/hooks/use-toast';
+import { useGetUserCards, useGetUser } from '@/hooks/use-users';
 
 export default function ProfilePage() {
     const { data: user } = useGetUser();

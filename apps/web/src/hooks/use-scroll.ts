@@ -15,7 +15,7 @@ export function useScroll(ref: RefObject<HTMLDivElement | null>) {
         scrollEl.addEventListener("scroll", handleScroll);
         // Initial check
         handleScroll();
-        return () => scrollEl.removeEventListener("scroll", handleScroll);
+        return () => { scrollEl.removeEventListener("scroll", handleScroll); };
     }, [handleScroll, ref]);
 
     return scrolled;

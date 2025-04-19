@@ -1,4 +1,6 @@
+import { getAccessToken, usePrivy } from '@privy-io/react-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
 import {
     getPendingRunners,
     getPendingRuns,
@@ -7,8 +9,8 @@ import {
     PENDING_RUNNERS_QUERY_KEY,
     PENDING_RUNS_QUERY_KEY
 } from '@/queries/admin';
+
 import { useToast } from './use-toast';
-import { getAccessToken, usePrivy } from '@privy-io/react-auth';
 
 export function usePendingRunners() {
     const { getAccessToken } = usePrivy();

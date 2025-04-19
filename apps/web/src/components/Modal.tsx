@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
+import React, { useEffect } from 'react';
 
 interface ModalProps {
     isOpen: boolean;
@@ -36,7 +36,7 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
         >
             <div
                 className="relative w-full max-w-lg bg-gradient-to-b from-card_blue-200/80 to-card_blue-100/100 rounded-xl p-6"
-                onClick={e => e.stopPropagation()}
+                onClick={e => { e.stopPropagation(); }}
             >
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-phyt_text">{title}</h2>

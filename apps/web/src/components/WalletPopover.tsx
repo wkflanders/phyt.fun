@@ -1,9 +1,4 @@
-import React, { useState } from 'react';
 import { usePrivy, useFundWallet } from '@privy-io/react-auth';
-import { useAccount, useBalance } from 'wagmi';
-import { formatEther } from 'viem';
-import { CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import {
     Wallet,
     CreditCard,
@@ -17,10 +12,15 @@ import {
     ArrowUp,
     Download,
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { useGetUserTransactions } from '@/hooks/use-users';
-import { useGetUser } from '@/hooks/use-users';
+import React, { useState } from 'react';
+import { formatEther } from 'viem';
+import { useAccount, useBalance } from 'wagmi';
+
+import { Button } from '@/components/ui/button';
+import { CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { useToast } from '@/hooks/use-toast';
+import { useGetUserTransactions , useGetUser } from '@/hooks/use-users';
 
 export const WalletPopover: React.FC = () => {
     const { ready, exportWallet } = usePrivy();
@@ -33,7 +33,7 @@ export const WalletPopover: React.FC = () => {
     const { data: transactions, isLoading: isTransactionLoading } = useGetUserTransactions();
     const { fundWallet } = useFundWallet();
     const { data: balanceData, isLoading: isBalanceLoading } = useBalance({
-        address: address as `0x${string}`,
+        address: address!,
     });
 
     const formatAddress = (addr: string | undefined) => {
@@ -50,7 +50,7 @@ export const WalletPopover: React.FC = () => {
                 title: 'Address Copied',
                 description: 'Wallet address copied to clipboard',
             });
-            setTimeout(() => setCopied(false), 2000);
+            setTimeout(() => { setCopied(false); }, 2000);
         } catch (err) {
             toast({
                 title: 'Error',
@@ -242,7 +242,7 @@ export const WalletPopover: React.FC = () => {
                             <Button
                                 variant="default"
                                 className="flex flex-col items-center h-auto gap-2 py-4 bg-transparent border rounded-xl hover:bg-zinc-900 border-white/10"
-                                onClick={(e) => { e.stopPropagation(); exportWallet({ address: address as `0x${string}` }); }}
+                                onClick={(e) => { e.stopPropagation(); exportWallet({ address: address! }); }}
                             >
                                 <Download size={20} className="text-text" />
                                 <span className="text-xs">Export</span>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { cn } from '@/lib/utils';
 import {
     Home,
     PackageSearch,
@@ -10,7 +10,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
+import React, { useState } from 'react';
 
 export const Sidebar = () => {
     const pathname = usePathname();
@@ -38,8 +38,8 @@ export const Sidebar = () => {
                     "fixed left-0 top-0 z-50 h-screen transition-all duration-300 ease-in-out sidebar-glass",
                     isExpanded ? "w-56" : "w-16"
                 )}
-                onMouseEnter={() => setIsExpanded(true)}
-                onMouseLeave={() => setIsExpanded(false)}
+                onMouseEnter={() => { setIsExpanded(true); }}
+                onMouseLeave={() => { setIsExpanded(false); }}
             >
                 <div className="flex items-center px-4 py-2 mt-1">
                     <div className="flex items-center">

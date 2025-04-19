@@ -1,7 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
 import { Competition, ApiError } from '@phyt/types';
-import { getCompetitions, getMajorCompetitions, getCompetitionsQueryKey } from '@/queries/competitions';
 import { usePrivy } from '@privy-io/react-auth';
+import { useQuery } from '@tanstack/react-query';
+
+import { getCompetitions, getMajorCompetitions, getCompetitionsQueryKey } from '@/queries/competitions';
+
 
 export function useGetCompetitions() {
     const { getAccessToken } = usePrivy();

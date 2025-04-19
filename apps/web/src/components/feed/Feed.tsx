@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import { cn } from '@/lib/utils';
+import { formatDistanceToNow } from 'date-fns';
 import {
     Heart,
     MessageCircle,
@@ -13,11 +14,11 @@ import {
     TrendingUp
 } from 'lucide-react';
 import Image from 'next/image';
+import React, { useState } from 'react';
+
+import { Skeleton } from '@/components/ui/skeleton';
 import { useGetPosts, useDeletePost } from '@/hooks/use-posts';
 import { useToggleReaction } from '@/hooks/use-reactions';
-import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
-import { formatDistanceToNow } from 'date-fns';
 
 type PostFilter = 'all' | 'following' | 'trending';
 
@@ -79,7 +80,7 @@ interface RunMapProps {
 
 const RunMap: React.FC<RunMapProps> = ({ gpsRouteData, distanceInMeters }) => {
     // Default coordinates if no GPS data
-    const defaultCoordinates: Array<[number, number]> = [
+    const defaultCoordinates: [number, number][] = [
         [0, 0],
         [20, 15],
         [40, 25],
@@ -90,7 +91,7 @@ const RunMap: React.FC<RunMapProps> = ({ gpsRouteData, distanceInMeters }) => {
 
     // Parse GPS route data if provided
     const coordinates = gpsRouteData
-        ? (JSON.parse(gpsRouteData) as Array<[number, number]>)
+        ? (JSON.parse(gpsRouteData) as [number, number][])
         : defaultCoordinates;
 
     const padding = 20;
@@ -289,21 +290,21 @@ export const Feed: React.FC = () => {
                 <Tab
                     label="All"
                     isActive={activeTab === 'all'}
-                    onClick={() => setActiveTab('all')}
+                    onClick={() => { setActiveTab('all'); }}
                     icon={<ArrowDown size={24} />}
                 />
                 <div className="w-[2px] h-8 mx-1 bg-white/20"></div>
                 <Tab
                     label="Trending"
                     isActive={activeTab === 'trending'}
-                    onClick={() => setActiveTab('trending')}
+                    onClick={() => { setActiveTab('trending'); }}
                     icon={<TrendingUp size={24} />}
                 />
                 <div className="w-[2px] h-8 mx-1 bg-white/20"></div>
                 <Tab
                     label="Following"
                     isActive={activeTab === 'following'}
-                    onClick={() => setActiveTab('following')}
+                    onClick={() => { setActiveTab('following'); }}
                     icon={<Heart size={24} />}
                 />
             </div>
@@ -431,7 +432,7 @@ export const Feed: React.FC = () => {
                                 key={i}
                                 className={cn(
                                     'w-8 h-8 rounded-full flex items-center justify-center',
-                                    data?.pagination?.page === i + 1
+                                    data.pagination?.page === i + 1
                                         ? 'bg-primary text-black'
                                         : 'bg-gray-800 text-white hover:bg-gray-700'
                                 )}

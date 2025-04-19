@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { formatSeasonName } from '@/lib/utils';
 import { CardWithMetadata } from '@phyt/types';
 import { Search } from 'lucide-react';
-import { formatSeasonName } from '@/lib/utils';
+import React, { useState } from 'react';
 
 interface SearchSidebarProps {
     cards: CardWithMetadata[];
@@ -16,7 +16,7 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
     const [isSearching, setIsSearching] = useState(false);
 
     // Group cards by season
-    const seasons = cards.reduce((acc, card) => {
+    const seasons = cards.reduce<Record<string, { name: string; items: number; value: string; }>>((acc, card) => {
         const season = card.metadata.season;
         if (!acc[season]) {
             acc[season] = {
@@ -27,7 +27,7 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
         }
         acc[season].items++;
         return acc;
-    }, {} as Record<string, { name: string; items: number; value: string; }>);
+    }, {});
 
     const handleSearch = (query: string) => {
         setSearchQuery(query);
@@ -58,7 +58,7 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                     type="text"
                     placeholder="Search cards..."
                     value={searchQuery}
-                    onChange={(e) => handleSearch(e.target.value)}
+                    onChange={(e) => { handleSearch(e.target.value); }}
                     className="w-full pl-10 pr-4 py-2 bg-black/20 border border-border rounded-lg text-text placeholder:text-text-dim focus:outline-none"
                 />
             </div>

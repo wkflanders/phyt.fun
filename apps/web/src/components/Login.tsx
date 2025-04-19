@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useState } from 'react';
-import { usePrivy, useLogin } from '@privy-io/react-auth';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { getUser } from "@/queries/user";
-import { useQueryClient } from "@tanstack/react-query";
-import { Button } from '@/components/ui/button';
 import { ApiError } from '@phyt/types';
+import { usePrivy, useLogin } from '@privy-io/react-auth';
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useState } from 'react';
+
+import { Button } from '@/components/ui/button';
 import { useGetUser } from '@/hooks/use-users';
+import { getUser } from "@/queries/user";
+
 
 export const Login = () => {
     const router = useRouter();

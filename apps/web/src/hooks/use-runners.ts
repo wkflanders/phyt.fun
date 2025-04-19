@@ -1,7 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
-import { getRunners, getRunnersQueryKey, getRunner, getRunnerQueryKey, getRunnerActivities, RUNNER_ACTIVITIES_QUERY_KEY } from '@/queries/runners';
-import type { Runner, RunnerProfile, ApiError } from '@phyt/types';
 import { usePrivy } from '@privy-io/react-auth';
+import { useQuery } from '@tanstack/react-query';
+
+import { getRunners, getRunnersQueryKey, getRunner, getRunnerQueryKey, getRunnerActivities, RUNNER_ACTIVITIES_QUERY_KEY } from '@/queries/runners';
+
+import type { Runner, RunnerProfile, ApiError } from '@phyt/types';
 
 export function useGetRunners(search?: string) {
     const { getAccessToken } = usePrivy();

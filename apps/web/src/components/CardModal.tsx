@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
-import { Button } from '@/components/ui/button';
-import { SellModal } from './SellModal';
 import { User, CardWithMetadata } from '@phyt/types';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import Image from 'next/image';
+import React, { useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+
+import { SellModal } from './SellModal';
 
 interface CardModalProps {
     user: User;
@@ -75,7 +77,7 @@ export const CardModal = ({ user, isOpen, onClose, card }: CardModalProps) => {
                                     Buy
                                 </Button>
                                 <Button
-                                    onClick={() => setIsSellModal(true)}
+                                    onClick={() => { setIsSellModal(true); }}
                                     className="w-full bg-phyt_blue hover:bg-phyt_blue/80"
                                 >
                                     Sell
@@ -118,7 +120,7 @@ export const CardModal = ({ user, isOpen, onClose, card }: CardModalProps) => {
                 <SellModal
                     user={user}
                     isOpen={isSellModal}
-                    onClose={() => setIsSellModal(false)}
+                    onClose={() => { setIsSellModal(false); }}
                     card={card}
                 />
             </DialogContent>

@@ -1,5 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { User, ApiError, CardWithMetadata, CreateUserInput, Transaction } from '@phyt/types';
 import { usePrivy } from "@privy-io/react-auth";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
 import {
     getUser,
     getUserCards,
@@ -9,7 +11,7 @@ import {
     USER_QUERY_KEY,
     TRANSACTIONS_QUERY_KEY
 } from '@/queries/user';
-import { User, ApiError, CardWithMetadata, CreateUserInput, Transaction } from '@phyt/types';
+
 
 export function useGetUser() {
     const { user: privyUser, ready, getAccessToken } = usePrivy();

@@ -1,7 +1,8 @@
+import { Trophy, Users, Timer } from 'lucide-react';
 import React from 'react';
+
 import CompetitionsList from '@/components/competitions/CompetitionsList';
 import { Card, CardContent } from '@/components/ui/card';
-import { Trophy, Users, Timer } from 'lucide-react';
 
 export default function CompetitionsPage() {
     const stats = [

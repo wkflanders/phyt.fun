@@ -1,19 +1,20 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-type PriceHistoryEntry = {
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+interface PriceHistoryEntry {
     timestamp: string;
     price: number;
-};
+}
 
 interface PriceChartProps {
-    listings: Array<{
+    listings: {
         listing: {
             price: string;
             created_at: string;
         };
-    }>;
+    }[];
 }
 
 const PriceChart = ({ listings }: PriceChartProps) => {

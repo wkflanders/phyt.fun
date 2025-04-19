@@ -26,7 +26,13 @@ export const baseConfig: import('eslint').Linter.Config[] = [
             'packages/eslint/**',
             'packages/contracts/**',
             'packages/database/migrations/**',
-            '**/.next/**'
+            '**/.next/**',
+            'next-env.d.ts',
+            'postcss.config.mjs',
+            'tailwind.config.ts',
+            'next-env.d.ts',
+            'next.config.ts',
+            'drizzle.config.ts'
         ]
     },
     eslint.configs.recommended,

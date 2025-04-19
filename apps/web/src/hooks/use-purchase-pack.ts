@@ -1,13 +1,16 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useToast } from "./use-toast";
 import { MinterAbi } from "@phyt/contracts";
-import type { Address } from 'viem';
-import { simulateContract, writeContract } from "wagmi/actions";
 import { PackDetails, PackPurchaseInput, PackPurchaseResponse } from "@phyt/types";
-import { notifyServerPackTxn, fetchPackDetails } from "@/queries/packs";
-import { config } from "@/lib/wagmi";
 import { usePrivy } from '@privy-io/react-auth';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { simulateContract, writeContract } from "wagmi/actions";
+
+import { config } from "@/lib/wagmi";
+import { notifyServerPackTxn, fetchPackDetails } from "@/queries/packs";
+
+import { useToast } from "./use-toast";
+
+import type { Address } from 'viem';
 
 const MINTER = '0x7Ee08f7d4707F94C2f2664327D16cF6b30cA87D1';
 
@@ -22,7 +25,7 @@ export function usePurchasePack() {
         mutationFn: async ({ buyerId, buyerAddress, packType }) => {
             const token = await getAccessToken();
             // Get config and price
-            const packDetails = await fetchPackDetails(buyerAddress as `0x${string}`, packType, token) as PackDetails;
+            const packDetails = await fetchPackDetails(buyerAddress, packType, token);
             const { mintConfigId, packPrice: fetchedPrice, merkleProof } = packDetails;
 
             // Store the pack price for components to use
@@ -37,7 +40,7 @@ export function usePurchasePack() {
                 functionName: 'mint',
                 args: [BigInt(mintConfigId), merkleProof],
                 value: BigInt(fetchedPrice),
-                account: buyerAddress as Address,
+                account: buyerAddress,
             });
 
             // Execute transaction with two arguments

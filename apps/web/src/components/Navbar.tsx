@@ -1,22 +1,24 @@
 'use client';
-import React from 'react';
 import Image from 'next/image';
+import React from 'react';
 import { useAccount, useBalance } from 'wagmi';
+
 import { CommandSearch } from '@/components/CommandSearch';
-import { useGetUser } from '@/hooks/use-users';
 import { WalletPopover } from '@/components/WalletPopover';
+import { useGetUser } from '@/hooks/use-users';
+
 import { NotificationsPopover } from './NotificationsPopover';
 import { ProfilePopover } from './profile/ProfilePopover';
 
-type NavbarProps = {
+interface NavbarProps {
     scrolled: boolean;
-};
+}
 
 export const Navbar = ({ scrolled }: NavbarProps) => {
     const { data: user, isLoading: userLoading } = useGetUser();
     const { address } = useAccount();
     const { data: balance, isLoading: balanceLoading } = useBalance({
-        address: address as `0x${string}`
+        address: address!
     });
 
     const PointsSkeleton = () => (

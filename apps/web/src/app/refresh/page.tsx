@@ -1,9 +1,8 @@
 'use client';
 
-import React, { Suspense } from 'react';
-import { useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { getAccessToken } from '@privy-io/react-auth';
+import { useRouter, useSearchParams } from 'next/navigation';
+import React, { Suspense , useEffect } from 'react';
 
 export default function RefreshPageWrapper() {
     return (

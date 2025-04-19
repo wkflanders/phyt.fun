@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { CardWithMetadata, Listing, User } from "@phyt/types";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import Image from "next/image";
+import React, { useState } from 'react';
+import { parseEther } from 'viem';
+
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import Image from "next/image";
-import { CardWithMetadata, Listing, User } from "@phyt/types";
 import { useCreateListing, useListings, usePurchaseListing } from "@/hooks/use-marketplace";
-import { parseEther } from 'viem';
 import { useToast } from '@/hooks/use-toast';
 
 interface SellModalProps {
@@ -17,15 +18,15 @@ interface SellModalProps {
     card: CardWithMetadata;
 }
 
-type OrderBookEntry = {
+interface OrderBookEntry {
     price: number;
     quantity: number;
-};
+}
 
-type ExpirationOption = {
+interface ExpirationOption {
     value: string;
     label: string;
-};
+}
 
 const expirationOptions: ExpirationOption[] = [
     { value: '1', label: '1 Hour' },
@@ -195,7 +196,7 @@ export const SellModal = ({ user, isOpen, onClose, card }: SellModalProps) => {
                             placeholder="Price (ETH)"
                             className="border-gray-800"
                             value={listingPrice}
-                            onChange={(e) => setListingPrice(e.target.value)}
+                            onChange={(e) => { setListingPrice(e.target.value); }}
                         />
                         <Select value={expirationHours} onValueChange={setExpirationHours}>
                             <SelectTrigger className="border-gray-800 text-white">

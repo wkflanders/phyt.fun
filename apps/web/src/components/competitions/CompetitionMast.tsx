@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
-import Image from 'next/image';
-import { useGetMajorCompetitions } from '@/hooks/use-competitions';
 import { Loader2, Calendar, TrophyIcon, Layers } from 'lucide-react';
+import Image from 'next/image';
+import React from 'react';
+
 import { Button } from '@/components/ui/button';
+import { useGetMajorCompetitions } from '@/hooks/use-competitions';
 import { useToast } from '@/hooks/use-toast';
 import { EthIcon, PhytIcon } from '@/lib/icons';
 

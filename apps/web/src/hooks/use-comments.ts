@@ -1,5 +1,3 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from './use-toast';
 import {
     ApiError,
     CommentQueryParams,
@@ -7,6 +5,10 @@ import {
     CommentUpdateRequest,
     CommentResponse
 } from '@phyt/types';
+import { usePrivy } from '@privy-io/react-auth';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+import { useToast } from './use-toast';
 import {
     fetchPostComments,
     fetchCommentReplies,
@@ -17,7 +19,7 @@ import {
     COMMENT_QUERY_KEYS
 } from '../queries/comments';
 import { POST_QUERY_KEYS } from '../queries/posts';
-import { usePrivy } from '@privy-io/react-auth';
+
 
 export function usePostComments(
     postId: number,
