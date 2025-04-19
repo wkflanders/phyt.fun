@@ -28,6 +28,20 @@ const tanstackPreset = pickPreset(tanstack, ['recommended']);
 /*  Next‑JS flat config                                                       */
 
 export const nextConfig: import('eslint').Linter.Config[] = [
+    {
+        ignores: [
+            '**/.next/**',
+            'next-env.d.ts',
+            'postcss.config.mjs',
+            'tailwind.config.ts',
+            'next-env.d.ts',
+            'next.config.js',
+            'src/components/ui/**',
+            'src/env.ts',
+            'src/hooks/use-toast.ts',
+            'src/hooks/use-mobile.tsx'
+        ]
+    },
     ...baseConfig,
 
     /* Tailwind preset (if present) ------------------------------------------ */

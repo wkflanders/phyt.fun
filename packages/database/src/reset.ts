@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 
-import { db } from './drizzle';
+import { db } from './drizzle.js';
 
 if (!('POSTGRES_URL' in process.env)) {
     throw new Error('POSTGRES_URL not found in environment');

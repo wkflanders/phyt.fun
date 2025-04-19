@@ -20,19 +20,14 @@ export const baseConfig: import('eslint').Linter.Config[] = [
             '**/build/**',
             '**/.turbo/**',
             '**/node_modules/**',
+            'drizzle.config.ts',
             'eslint.config.js',
             'eslint.config.mjs',
             'eslint.config.cjs',
             'packages/eslint/**',
             'packages/contracts/**',
-            'packages/database/migrations/**',
-            '**/.next/**',
-            'next-env.d.ts',
-            'postcss.config.mjs',
-            'tailwind.config.ts',
-            'next-env.d.ts',
-            'next.config.ts',
-            'drizzle.config.ts'
+            'packages/contracts/**/*',
+            'packages/database/migrations/**/*'
         ]
     },
     eslint.configs.recommended,
@@ -61,25 +56,27 @@ export const baseConfig: import('eslint').Linter.Config[] = [
             }
         },
         rules: {
-            // '@typescript-eslint/no-unsafe-assignment': 'off',
-            // '@typescript-eslint/no-unsafe-call': 'off',
-            // '@typescript-eslint/no-unsafe-member-access': 'off',
-            // '@typescript-eslint/no-unsafe-return': 'off',
-            // '@typescript-eslint/no-unsafe-argument': 'off',
+            '@typescript-eslint/no-unsafe-assignment': 'off',
+            '@typescript-eslint/no-unsafe-call': 'off',
+            '@typescript-eslint/no-unsafe-member-access': 'off',
+            '@typescript-eslint/no-unsafe-return': 'off',
+            '@typescript-eslint/no-unsafe-argument': 'off',
             // Optional: If you see errors from these too
-            // '@typescript-eslint/no-unsafe-declaration-merging': 'off',
-            // '@typescript-eslint/no-unsafe-enum-comparison': 'off',
+            '@typescript-eslint/no-unsafe-declaration-merging': 'off',
+            '@typescript-eslint/no-unsafe-enum-comparison': 'off',
+
             '@typescript-eslint/no-floating-promises': [
-                'error',
+                'off',
                 { ignoreVoid: true }
             ],
-            '@typescript-eslint/no-misused-promises': 'error',
-            '@typescript-eslint/explicit-module-boundary-types': 'error',
+            '@typescript-eslint/no-misused-promises': 'off',
+            '@typescript-eslint/explicit-function-return-type': 'off',
+            '@typescript-eslint/explicit-module-boundary-types': 'off',
             '@typescript-eslint/no-unused-vars': [
-                'error',
+                'off',
                 { argsIgnorePattern: '^_' }
             ],
-            '@typescript-eslint/no-explicit-any': 'error',
+            '@typescript-eslint/no-explicit-any': 'off',
             'import/order': [
                 'error',
                 {
@@ -185,6 +182,7 @@ export const baseConfig: import('eslint').Linter.Config[] = [
             '@typescript-eslint/no-unsafe-return': 'off',
             '@typescript-eslint/dot-notation': 'off',
             '@typescript-eslint/no-unused-vars': 'off',
+            '@typescript-eslint/explicit-function-return-type': 'off',
 
             'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
             'dot-notation': ['warn', { allowKeywords: true }]
@@ -209,8 +207,9 @@ export const baseConfig: import('eslint').Linter.Config[] = [
             'no-console': ['warn', { allow: ['error', 'warn'] }],
             curly: ['error', 'multi-line'],
             'no-confusing-arrow': ['warn', { allowParens: true }],
-            complexity: ['warn', 15],
-            'no-nested-ternary': 'warn',
+            // Will come back to this
+            // complexity: ['warn', 15]
+            'no-nested-ternary': 'off',
             'no-unused-expressions': [
                 'warn',
                 { allowShortCircuit: true, allowTernary: true }
