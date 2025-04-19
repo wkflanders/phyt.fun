@@ -37,6 +37,36 @@ import {
     HttpError
 } from '@phyt/types';
 
+// helper to convert BigInt fields to string for JSONB
+function serializeOrder(order: Order): Record<string, unknown> {
+    return {
+        trader: order.trader,
+        side: order.side,
+        collection: order.collection,
+        token_id: order.token_id.toString(),
+        payment_token: order.payment_token,
+        price: order.price.toString(),
+        expiration_time: order.expiration_time.toString(),
+        merkle_root: order.merkle_root,
+        salt: order.salt.toString()
+    };
+}
+
+// helper to reconstruct Order from JSONB
+function deserializeOrder(raw: Record<string, any>): Order {
+    return {
+        trader: raw.trader,
+        side: raw.side,
+        collection: raw.collection,
+        token_id: BigInt(raw.token_id),
+        payment_token: raw.payment_token,
+        price: BigInt(raw.price),
+        expiration_time: BigInt(raw.expiration_time),
+        merkle_root: raw.merkle_root,
+        salt: BigInt(raw.salt)
+    };
+}
+
 export const marketplaceService = {
     getListings: async (
         filters?: GetListingProps
@@ -119,7 +149,9 @@ export const marketplaceService = {
                         item.listing.highest_bid !== null
                             ? String(item.listing.highest_bid)
                             : null,
-                    order_data: item.listing.order_data as Order
+                    order_data: deserializeOrder(
+                        item.listing.order_data as Record<string, unknown>
+                    )
                 }
             }));
         } catch (error) {
@@ -159,7 +191,7 @@ export const marketplaceService = {
                     price,
                     signature,
                     order_hash,
-                    order_data,
+                    order_data: serializeOrder(order_data),
                     expiration_time: new Date(expiration_time),
                     status: 'active',
                     transaction_hash: '' // default value since listing isn't completed
@@ -174,7 +206,9 @@ export const marketplaceService = {
                     result.highest_bid !== null
                         ? String(result.highest_bid)
                         : null,
-                order_data: result.order_data as Order
+                order_data: deserializeOrder(
+                    result.order_data as Record<string, unknown>
+                )
             };
         } catch (error) {
             console.error('Marketplace error in createListing:', error);
@@ -238,7 +272,7 @@ export const marketplaceService = {
                         bid_amount,
                         signature,
                         order_hash: order_hash,
-                        order_data: order_data,
+                        order_data: serializeOrder(order_data),
                         bid_type: 'listing',
                         status: 'active',
                         expiration_time: bidListing.expiration_time,
@@ -259,7 +293,9 @@ export const marketplaceService = {
                     bid_type: 'listing' as const,
                     bid_status: bid.status as BidStatusListed | 'withdrawn',
                     listing_id: bid.listing_id ?? listing_id,
-                    order_data: bid.order_data as Order
+                    order_data: deserializeOrder(
+                        bid.order_data as Record<string, unknown>
+                    )
                 };
             });
         } catch (error) {
@@ -364,7 +400,7 @@ export const marketplaceService = {
                     bid_amount,
                     signature,
                     order_hash: order_hash,
-                    order_data: order_data,
+                    order_data: serializeOrder(order_data),
                     bid_type: 'open',
                     status: 'active',
                     expiration_time: expiration_time,
@@ -383,7 +419,9 @@ export const marketplaceService = {
                 bid_type: 'open' as const,
                 bid_status: bid.status as BidStatusOpen | 'withdrawn',
                 listing_id: null,
-                order_data: bid.order_data as Order
+                order_data: deserializeOrder(
+                    bid.order_data as Record<string, unknown>
+                )
             };
         } catch (error) {
             console.error('Error in createOpenBid:', error);
@@ -413,7 +451,9 @@ export const marketplaceService = {
             return {
                 bid: bidsData.map((item) => ({
                     ...item.bid,
-                    order_data: item.bid.order_data as Order
+                    order_data: deserializeOrder(
+                        item.bid.order_data as Record<string, unknown>
+                    )
                 })),
                 bidder: bidsData.map((item) => item.bidder)
             };
@@ -463,7 +503,9 @@ export const marketplaceService = {
                 ...result,
                 bid: {
                     ...result.bid,
-                    order_data: result.bid.order_data as Order
+                    order_data: deserializeOrder(
+                        result.bid.order_data as Record<string, unknown>
+                    )
                 }
             }));
         } catch (error) {
@@ -534,7 +576,9 @@ export const marketplaceService = {
                         | BidStatusOpen
                         | 'withdrawn',
                     listing_id: updatedBid.listing_id,
-                    order_data: updatedBid.order_data as Order
+                    order_data: deserializeOrder(
+                        updatedBid.order_data as Record<string, unknown>
+                    )
                 };
             });
         } catch (error) {
