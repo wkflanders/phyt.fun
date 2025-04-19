@@ -49,7 +49,11 @@
             "cache": false
         },
         "@phyt/web#build": {
-            "dependsOn": ["@phyt/database#build", "@phyt/server#build"]
+            "dependsOn": [
+                "@phyt/database#build",
+                "@phyt/server#build",
+                "@phyt/types#build"
+            ]
         },
         "type-check": {
             "dependsOn": ["^type-check"],
