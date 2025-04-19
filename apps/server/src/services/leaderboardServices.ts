@@ -78,8 +78,8 @@ export const leaderboardService = {
                 id: runner.id,
                 runner: runner,
                 ranking: leaderboardResults[0].ranking,
-                updated_at: runner.updated_at ?? new Date(),
-                created_at: runner.created_at ?? new Date()
+                updated_at: runner.updated_at,
+                created_at: runner.created_at
             };
         } catch (error) {
             console.error('Error with getRunnerStanding ', error);
@@ -190,8 +190,8 @@ export const leaderboardService = {
                         id: runner.id,
                         runner: runner,
                         ranking: entry.ranking,
-                        updated_at: runner.updated_at ?? new Date(),
-                        created_at: runner.created_at ?? new Date()
+                        updated_at: runner.updated_at,
+                        created_at: runner.created_at
                     };
                 })
             );

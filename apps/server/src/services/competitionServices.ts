@@ -63,7 +63,7 @@ export const competitionService = {
                 end_time: new Date(result.end_time).toISOString(),
                 updated_at: new Date(result.updated_at),
                 created_at: new Date(result.created_at),
-                jackpot: result.jackpot !== null ? result.jackpot : '0'
+                jackpot: result.jackpot ?? '0'
             }));
         } catch (error) {
             console.error('Error with getCompetitions ', error);
@@ -91,8 +91,7 @@ export const competitionService = {
                 end_time: new Date(competition.end_time).toISOString(),
                 updated_at: new Date(competition.updated_at),
                 created_at: new Date(competition.created_at),
-                jackpot:
-                    competition.jackpot !== null ? competition.jackpot : '0'
+                jackpot: competition.jackpot ?? '0'
             };
         } catch (error) {
             console.error('Error with getCompetitionById ', error);

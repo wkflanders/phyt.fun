@@ -53,17 +53,17 @@ function serializeOrder(order: Order): Record<string, unknown> {
 }
 
 // helper to reconstruct Order from JSONB
-function deserializeOrder(raw: Record<string, any>): Order {
+function deserializeOrder(raw: Record<string, unknown>): Order {
     return {
-        trader: raw.trader,
-        side: raw.side,
-        collection: raw.collection,
-        token_id: BigInt(raw.token_id),
-        payment_token: raw.payment_token,
-        price: BigInt(raw.price),
-        expiration_time: BigInt(raw.expiration_time),
-        merkle_root: raw.merkle_root,
-        salt: BigInt(raw.salt)
+        trader: raw.trader as `0x${string}`,
+        side: raw.side as 0 | 1,
+        collection: raw.collection as `0x${string}`,
+        token_id: BigInt(String(raw.token_id)),
+        payment_token: raw.payment_token as `0x${string}`,
+        price: BigInt(String(raw.price)),
+        expiration_time: BigInt(String(raw.expiration_time)),
+        merkle_root: raw.merkle_root as `0x${string}`,
+        salt: BigInt(String(raw.salt))
     };
 }
 
