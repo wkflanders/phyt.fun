@@ -1,12 +1,21 @@
 import { usePublicClient, useWalletClient, useAccount } from 'wagmi';
 import { writeContract, simulateContract } from 'wagmi/actions';
-import { keccak256, encodeAbiParameters, concat } from 'viem';
+import {
+    keccak256,
+    encodeAbiParameters,
+    concat,
+    type AbiParameter
+} from 'viem';
 import { config } from '@/lib/wagmi';
 import { ExchangeAbi } from '@phyt/contracts';
 import { Order } from '@phyt/types';
 
-const EXCHANGE_ADDRESS = process.env.EXCHANGE_ADDRESS! || "0x50480bDEF93a26f45B33aa2c26A00108bbC358c3";
-const PHYT_CARDS_ADDRESS = process.env.PHYT_CARDS_ADDRESS! || "0x8a1c168113088F7414fc637817859Afa87fb4244";
+const EXCHANGE_ADDRESS =
+    process.env.EXCHANGE_ADDRESS! ||
+    '0x50480bDEF93a26f45B33aa2c26A00108bbC358c3';
+const PHYT_CARDS_ADDRESS =
+    process.env.PHYT_CARDS_ADDRESS! ||
+    '0x8a1c168113088F7414fc637817859Afa87fb4244';
 
 export function useExchange() {
     const publicClient = usePublicClient();
@@ -17,10 +26,10 @@ export function useExchange() {
         name: 'Phyt Exchange',
         version: '1',
         chainId: 84532, // Base Sepolia
-        verifyingContract: EXCHANGE_ADDRESS,
+        verifyingContract: EXCHANGE_ADDRESS
     } as const;
 
-    const ORDER_TYPE = {
+    const ORDER_PARAMETERS: { Order: AbiParameter[] } = {
         Order: [
             { name: 'trader', type: 'address' },
             { name: 'side', type: 'uint8' },
@@ -30,14 +39,17 @@ export function useExchange() {
             { name: 'price', type: 'uint256' },
             { name: 'expiration_time', type: 'uint256' },
             { name: 'merkle_root', type: 'bytes32' },
-            { name: 'salt', type: 'uint256' },
-        ],
-    } as const;
+            { name: 'salt', type: 'uint256' }
+        ]
+    };
 
     function generateOrderHash(order: Order): `0x${string}` {
-        const verifyingContract = EXCHANGE_DOMAIN.verifyingContract || process.env.EXCHANGE_ADDRESS;
+        const verifyingContract =
+            EXCHANGE_DOMAIN.verifyingContract || process.env.EXCHANGE_ADDRESS;
         if (!verifyingContract) {
-            throw new Error('Missing verifying contract address for EXCHANGE_DOMAIN');
+            throw new Error(
+                'Missing verifying contract address for EXCHANGE_DOMAIN'
+            );
         }
 
         // Encode the domain separator
@@ -60,29 +72,20 @@ export function useExchange() {
 
         // Encode the order struct
         const orderHash = keccak256(
-            encodeAbiParameters(
-                ORDER_TYPE.Order,
-                [
-                    order.trader,
-                    order.side,
-                    order.collection,
-                    order.token_id,
-                    order.payment_token,
-                    order.price,
-                    order.expiration_time,
-                    order.merkle_root,
-                    order.salt,
-                ]
-            )
-        );
-
-        return keccak256(
-            concat([
-                '0x1901',
-                domainSeparator,
-                orderHash
+            encodeAbiParameters(ORDER_PARAMETERS.Order, [
+                order.trader,
+                order.side,
+                order.collection,
+                order.token_id,
+                order.payment_token,
+                order.price,
+                order.expiration_time,
+                order.merkle_root,
+                order.salt
             ])
         );
+
+        return keccak256(concat(['0x1901', domainSeparator, orderHash]));
     }
 
     // Sign a sell order (listing)
@@ -113,24 +116,25 @@ export function useExchange() {
             payment_token: '0x0000000000000000000000000000000000000000', // ETH
             price: takePrice,
             expiration_time: BigInt(new Date(expiration).getTime()),
-            merkle_root: '0x0000000000000000000000000000000000000000000000000000000000000000',
+            merkle_root:
+                '0x0000000000000000000000000000000000000000000000000000000000000000',
             salt: BigInt(Math.floor(Math.random() * 1000000))
         };
 
         const signature = await walletClient.signTypedData({
             domain: {
                 ...EXCHANGE_DOMAIN,
-                verifyingContract: EXCHANGE_ADDRESS as `0x${string}`,
+                verifyingContract: EXCHANGE_ADDRESS as `0x${string}`
             },
-            types: ORDER_TYPE,
+            types: ORDER_PARAMETERS,
             primaryType: 'Order',
-            message: order,
+            message: order as unknown as Record<string, unknown>
         });
 
         return {
             order,
             signature,
-            orderHash: generateOrderHash(order),
+            orderHash: generateOrderHash(order)
         };
     };
 
@@ -155,32 +159,35 @@ export function useExchange() {
             token_id: BigInt(cardId),
             payment_token: '0x0000000000000000000000000000000000000000', // ETH
             price: bidAmount,
-            expiration_time: BigInt(Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60),
-            merkle_root: '0x0000000000000000000000000000000000000000000000000000000000000000',
+            expiration_time: BigInt(
+                Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60
+            ),
+            merkle_root:
+                '0x0000000000000000000000000000000000000000000000000000000000000000',
             salt: BigInt(Math.floor(Math.random() * 1000000))
         };
 
         const signature = await walletClient.signTypedData({
             domain: {
                 ...EXCHANGE_DOMAIN,
-                verifyingContract: EXCHANGE_ADDRESS as `0x${string}`,
+                verifyingContract: EXCHANGE_ADDRESS as `0x${string}`
             },
-            types: ORDER_TYPE,
+            types: ORDER_PARAMETERS,
             primaryType: 'Order',
-            message: order,
+            message: order as unknown as Record<string, unknown>
         });
 
         return {
             order,
             signature,
-            orderHash: generateOrderHash(order),
+            orderHash: generateOrderHash(order)
         };
     };
 
     // Execute an immediate purchase at the take price
     const executeBuy = async ({
         sellOrder,
-        signature,
+        signature
     }: {
         sellOrder: Order;
         signature: string;
@@ -193,7 +200,7 @@ export function useExchange() {
             functionName: 'buy',
             args: [sellOrder, signature, false],
             value: sellOrder.price,
-            account: address,
+            account: address
         });
 
         const hash = await writeContract(config, request);
@@ -222,7 +229,7 @@ export function useExchange() {
             functionName: 'matchOrders',
             args: [sellOrder, buyOrder, sellerSignature, buyerSignature],
             value: buyOrder.price,
-            account: address,
+            account: address
         });
 
         const hash = await writeContract(config, request);
@@ -235,6 +242,6 @@ export function useExchange() {
         signSellOrder,
         signBuyOrder,
         executeBuy,
-        executeMatch,
+        executeMatch
     };
 }

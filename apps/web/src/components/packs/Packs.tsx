@@ -2,7 +2,12 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger
+} from '@/components/ui/tooltip';
 import { HelpCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { usePurchasePack } from '@/hooks/use-purchase-pack';
@@ -23,7 +28,6 @@ export const Packs = () => {
     const [loadingPackId, setLoadingPackId] = useState<string | null>(null);
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [isOverlayVisible, setOverlayVisible] = useState(false);
-    // New state for controlling the animation class and view mode.
     const [cardAnimation, setCardAnimation] = useState('zoom-in');
     const [showAllCards, setShowAllCards] = useState(false);
 
@@ -33,16 +37,17 @@ export const Packs = () => {
     const { data: user } = useGetUser();
     const { mutate: purchasePack, isPending } = usePurchasePack();
     const { data: balance } = useBalance({
-        address: address as `0x${string}`,
+        address: address as `0x${string}`
     });
 
-    const DEFAULT_AVATAR = 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut';
+    const DEFAULT_AVATAR =
+        'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut';
 
     // Check if the current card is special (gold, ruby, sapphire)
     const currentCard = revealedCards[currentCardIndex];
     const isSpecial =
         currentCard &&
-        currentCard.attributes.some(attr =>
+        currentCard.attributes.some((attr) =>
             ['gold', 'ruby', 'sapphire'].includes(attr.rarity)
         );
 
@@ -51,7 +56,7 @@ export const Packs = () => {
             toast({
                 title: 'Error',
                 description: 'Please connect your wallet and select a pack',
-                variant: 'destructive',
+                variant: 'destructive'
             });
             return;
         }
@@ -63,7 +68,7 @@ export const Packs = () => {
             toast({
                 title: 'Error',
                 description: `Insufficient balance – you need at least ${price} ETH`,
-                variant: 'destructive',
+                variant: 'destructive'
             });
             setLoadingPackId(null);
             return;
@@ -72,7 +77,7 @@ export const Packs = () => {
             {
                 buyerId: user.id,
                 buyerAddress: address as `0x${string}`,
-                packType: packType as PackType,
+                packType: packType as PackType
             },
             {
                 onSuccess: (data) => {
@@ -100,21 +105,21 @@ export const Packs = () => {
                     if (error.message.includes('User rejected the request')) {
                         toast({
                             title: 'Transaction cancelled',
-                            variant: 'destructive',
+                            variant: 'destructive'
                         });
                         return;
                     }
                     toast({
                         title: 'Error',
                         description: error.message || 'Failed to purchase pack',
-                        variant: 'destructive',
+                        variant: 'destructive'
                     });
                 },
                 onSettled: () => {
                     if (!isPurchaseComplete) {
                         setLoadingPackId(null);
                     }
-                },
+                }
             }
         );
     };
@@ -164,7 +169,8 @@ export const Packs = () => {
                             {PackTypes.map((pack) => (
                                 <div
                                     key={pack.id}
-                                    className={`bg-gradient-to-br ${pack.bgGradient} rounded-xl p-6 flex flex-col items-center`}>
+                                    className={`bg-gradient-to-br ${pack.bgGradient} rounded-xl p-6 flex flex-col items-center`}
+                                >
                                     <div className="relative w-96 h-96 mb-4">
                                         <img
                                             src={pack.image}
@@ -173,7 +179,9 @@ export const Packs = () => {
                                         />
                                     </div>
                                     <div className="flex items-center gap-2 mb-2">
-                                        <h3 className="text-xl text-white">{pack.name}</h3>
+                                        <h3 className="text-xl text-white">
+                                            {pack.name}
+                                        </h3>
                                         <TooltipProvider>
                                             <Tooltip delayDuration={100}>
                                                 <TooltipTrigger>
@@ -185,11 +193,17 @@ export const Packs = () => {
                                             </Tooltip>
                                         </TooltipProvider>
                                     </div>
-                                    <div className="text-lg text-text mb-4">{pack.price} ETH</div>
+                                    <div className="text-lg text-text mb-4">
+                                        {pack.price} ETH
+                                    </div>
                                     <Button
                                         variant="outline"
-                                        onClick={() => handlePurchase(pack.id, pack.price)}
-                                        disabled={isPending || loadingPackId !== null}
+                                        onClick={() =>
+                                            handlePurchase(pack.id, pack.price)
+                                        }
+                                        disabled={
+                                            isPending || loadingPackId !== null
+                                        }
                                         className="px-24 py-6 bg-transparent backdrop-blur-xl border-white/10 hover:bg-white/10 rounded-xl"
                                     >
                                         {loadingPackId === pack.id ? (
@@ -213,8 +227,10 @@ export const Packs = () => {
                             {revealedCards.map((card, index) => {
                                 const isGridSpecial =
                                     card.attributes &&
-                                    card.attributes.some(attr =>
-                                        ['gold', 'ruby', 'sapphire'].includes(attr.rarity)
+                                    card.attributes.some((attr) =>
+                                        ['gold', 'ruby', 'sapphire'].includes(
+                                            attr.rarity
+                                        )
                                     );
                                 return (
                                     <div
@@ -250,16 +266,20 @@ export const Packs = () => {
                                         left: '0',
                                         width: '100%',
                                         height: '100%',
-                                        transition: 'all 750ms cubic-bezier(0.4, 0, 0.2, 1)',
-                                        transform: isPackDisappearing ? 'scale(0.1)' : 'scale(1)',
+                                        transition:
+                                            'all 750ms cubic-bezier(0.4, 0, 0.2, 1)',
+                                        transform: isPackDisappearing
+                                            ? 'scale(0.1)'
+                                            : 'scale(1)',
                                         opacity: isPackDisappearing ? '0' : '1',
-                                        zIndex: isPackDisappearing ? 0 : 2,
+                                        zIndex: isPackDisappearing ? 0 : 2
                                     }}
                                 >
                                     <img
                                         src={
-                                            PackTypes.find((p) => p.id === selectedPack)?.image ||
-                                            DEFAULT_AVATAR
+                                            PackTypes.find(
+                                                (p) => p.id === selectedPack
+                                            )?.image || DEFAULT_AVATAR
                                         }
                                         alt={`${selectedPack} Pack`}
                                         className="w-full h-full object-contain"
@@ -275,13 +295,20 @@ export const Packs = () => {
                                         <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full blur-3xl animate-pulse opacity-50" />
                                     </div>
                                     <img
-                                        src={revealedCards[currentCardIndex]?.image}
-                                        alt={revealedCards[currentCardIndex]?.name}
+                                        src={
+                                            revealedCards[currentCardIndex]
+                                                ?.image
+                                        }
+                                        alt={
+                                            revealedCards[currentCardIndex]
+                                                ?.name
+                                        }
                                         className="w-full h-full object-contain rounded-lg"
                                     />
                                     {revealedCards.length > 1 && (
                                         <div className="absolute top-4 right-4 bg-black/70 rounded-full px-3 py-1 text-white">
-                                            {currentCardIndex + 1} / {revealedCards.length}
+                                            {currentCardIndex + 1} /{' '}
+                                            {revealedCards.length}
                                         </div>
                                     )}
                                 </div>
@@ -294,7 +321,9 @@ export const Packs = () => {
                                 className="mt-8 w-64 h-12 bg-zinc-900 bg-opacity-20 backdrop-blur-xl border-white/10 hover:bg-white/10 rounded-xl"
                                 style={{ zIndex: 60 }}
                             >
-                                {currentCardIndex < revealedCards.length - 1 ? 'Next Card' : 'Done'}
+                                {currentCardIndex < revealedCards.length - 1
+                                    ? 'Next Card'
+                                    : 'Done'}
                             </Button>
                         )}
                     </div>

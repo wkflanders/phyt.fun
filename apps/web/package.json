@@ -12,10 +12,10 @@
         "clean": "rm -rf .next .turbo node_modules"
     },
     "dependencies": {
-        "@phyt/eslint": "workspace:*",
-        "@phyt/contracts": "workspace:*",
-        "@phyt/types": "workspace:*",
         "@hookform/resolvers": "^3.10.0",
+        "@phyt/contracts": "workspace:*",
+        "@phyt/eslint": "workspace:*",
+        "@phyt/types": "workspace:*",
         "@privy-io/react-auth": "^2.7.2",
         "@privy-io/wagmi": "^1.0.3",
         "@radix-ui/react-dialog": "^1.1.6",

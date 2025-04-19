@@ -1,8 +1,17 @@
-// apps/web/src/components/Feed/Feed.tsx
 'use client';
 
 import React, { useState } from 'react';
-import { Heart, MessageCircle, Share2, MoreHorizontal, Timer, Navigation, Ruler, ArrowDown, TrendingUp } from 'lucide-react';
+import {
+    Heart,
+    MessageCircle,
+    Share2,
+    MoreHorizontal,
+    Timer,
+    Navigation,
+    Ruler,
+    ArrowDown,
+    TrendingUp
+} from 'lucide-react';
 import Image from 'next/image';
 import { useGetPosts, useDeletePost } from '@/hooks/use-posts';
 import { useToggleReaction } from '@/hooks/use-reactions';
@@ -12,7 +21,8 @@ import { formatDistanceToNow } from 'date-fns';
 
 type PostFilter = 'all' | 'following' | 'trending';
 
-const DEFAULT_AVATAR = 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut';
+const DEFAULT_AVATAR =
+    'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut';
 
 // Format time in mm:ss or hh:mm:ss
 const formatTime = (seconds: number): string => {
@@ -53,10 +63,9 @@ interface TabProps {
 const Tab = ({ label, isActive, onClick, icon }: TabProps) => (
     <button
         onClick={onClick}
-        className={`flex items-center gap-2 px-6 pb-2 text-2xl transition-colors duration-200 ${isActive
-            ? 'text-white'
-            : 'text-text-dim hover:text-text'
-            }`}
+        className={`flex items-center gap-2 px-6 pb-2 text-2xl transition-colors duration-200 ${
+            isActive ? 'text-white' : 'text-text-dim hover:text-text'
+        }`}
     >
         {icon}
         {label}
@@ -81,7 +90,7 @@ const RunMap: React.FC<RunMapProps> = ({ gpsRouteData, distanceInMeters }) => {
 
     // Parse GPS route data if provided
     const coordinates = gpsRouteData
-        ? JSON.parse(gpsRouteData) as Array<[number, number]>
+        ? (JSON.parse(gpsRouteData) as Array<[number, number]>)
         : defaultCoordinates;
 
     const padding = 20;
@@ -102,19 +111,36 @@ const RunMap: React.FC<RunMapProps> = ({ gpsRouteData, distanceInMeters }) => {
 
     const transformedPath = coordinates.map(([x, y]) => [
         padding + ((x - minX) * scale || 0),
-        padding + ((y - minY) * scale || 0),
+        padding + ((y - minY) * scale || 0)
     ]);
 
     const pathLengthInMiles = distanceInMeters / 1609.34;
-    const pixelsPerMile = Math.sqrt(
-        Math.pow(transformedPath[transformedPath.length - 1][0] - transformedPath[0][0], 2) +
-        Math.pow(transformedPath[transformedPath.length - 1][1] - transformedPath[0][1], 2)
-    ) / (pathLengthInMiles || 1);
+    const pixelsPerMile =
+        Math.sqrt(
+            Math.pow(
+                transformedPath[transformedPath.length - 1][0] -
+                    transformedPath[0][0],
+                2
+            ) +
+                Math.pow(
+                    transformedPath[transformedPath.length - 1][1] -
+                        transformedPath[0][1],
+                    2
+                )
+        ) / (pathLengthInMiles || 1);
 
     return (
         <div className="w-full p-4 mb-4 backdrop-blur-md rounded-xl">
-            <svg className="w-full aspect-[2/1]" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet">
-                <g className="grid-lines" stroke="rgba(59, 130, 246, 0.4)" strokeWidth="0.7">
+            <svg
+                className="w-full aspect-[2/1]"
+                viewBox="0 0 400 200"
+                preserveAspectRatio="xMidYMid meet"
+            >
+                <g
+                    className="grid-lines"
+                    stroke="rgba(59, 130, 246, 0.4)"
+                    strokeWidth="0.7"
+                >
                     {[...Array(Math.floor(height / 20))].map((_, i) => (
                         <line
                             key={`h${i}`}
@@ -138,10 +164,37 @@ const RunMap: React.FC<RunMapProps> = ({ gpsRouteData, distanceInMeters }) => {
                 </g>
 
                 <g transform={`translate(${padding}, ${height + 15})`}>
-                    <line x1="0" y1="0" x2={pixelsPerMile} y2="0" stroke="#d1d1d1" strokeWidth="2" />
-                    <line x1="0" y1="-3" x2="0" y2="3" stroke="#d1d1d1" strokeWidth="2" />
-                    <line x1={pixelsPerMile} y1="-3" x2={pixelsPerMile} y2="3" stroke="#d1d1d1" strokeWidth="2" />
-                    <text x={pixelsPerMile / 2} y="15" textAnchor="middle" fill="#d1d1d1" className="text-xs">
+                    <line
+                        x1="0"
+                        y1="0"
+                        x2={pixelsPerMile}
+                        y2="0"
+                        stroke="#d1d1d1"
+                        strokeWidth="2"
+                    />
+                    <line
+                        x1="0"
+                        y1="-3"
+                        x2="0"
+                        y2="3"
+                        stroke="#d1d1d1"
+                        strokeWidth="2"
+                    />
+                    <line
+                        x1={pixelsPerMile}
+                        y1="-3"
+                        x2={pixelsPerMile}
+                        y2="3"
+                        stroke="#d1d1d1"
+                        strokeWidth="2"
+                    />
+                    <text
+                        x={pixelsPerMile / 2}
+                        y="15"
+                        textAnchor="middle"
+                        fill="#d1d1d1"
+                        className="text-xs"
+                    >
                         1 mile
                     </text>
                 </g>
@@ -161,7 +214,13 @@ const RunMap: React.FC<RunMapProps> = ({ gpsRouteData, distanceInMeters }) => {
                         cx={x}
                         cy={y}
                         r={i === 0 || i === transformedPath.length - 1 ? 4 : 2}
-                        fill={i === 0 ? '#0EF9FE' : i === transformedPath.length - 1 ? '#0EF9FE' : '#0EF9FE'}
+                        fill={
+                            i === 0
+                                ? '#0EF9FE'
+                                : i === transformedPath.length - 1
+                                  ? '#0EF9FE'
+                                  : '#0EF9FE'
+                        }
                     />
                 ))}
             </svg>
@@ -175,7 +234,11 @@ interface MetricWidgetProps {
     value: string;
 }
 
-const MetricWidget: React.FC<MetricWidgetProps> = ({ icon: Icon, label, value }) => (
+const MetricWidget: React.FC<MetricWidgetProps> = ({
+    icon: Icon,
+    label,
+    value
+}) => (
     <div className="flex flex-col items-center p-3 backdrop-blur-md">
         <Icon size={20} className="mb-1 text-primary-shade" />
         <span className="text-sm text-text-dim">{label}</span>
@@ -220,13 +283,6 @@ export const Feed: React.FC = () => {
     const toggleReaction = useToggleReaction();
     const deletePost = useDeletePost();
 
-    const handleLike = (postId: number) => {
-        toggleReaction.mutate({
-            post_id: postId,
-            type: 'like'
-        });
-    };
-
     return (
         <div className="w-full">
             <div className="flex items-center">
@@ -261,7 +317,10 @@ export const Feed: React.FC = () => {
                 </div>
             ) : data?.posts.length === 0 ? (
                 <div className="p-6 text-center text-text-dim">
-                    No posts found. {activeTab === 'following' ? 'Try following some runners!' : ''}
+                    No posts found.{' '}
+                    {activeTab === 'following'
+                        ? 'Try following some runners!'
+                        : ''}
                 </div>
             ) : (
                 data?.posts.map((postData) => {
@@ -270,16 +329,25 @@ export const Feed: React.FC = () => {
                     const run = postData.run;
                     const stats = postData.stats;
 
-                    const timeAgo = formatDistanceToNow(new Date(post.created_at), { addSuffix: true });
+                    const timeAgo = formatDistanceToNow(
+                        new Date(post.created_at),
+                        { addSuffix: true }
+                    );
 
                     return (
-                        <div key={post.id} className="overflow-hidden transition-colors border-b cursor-pointer border-white/10 hover:bg-black/10 duration-400">
+                        <div
+                            key={post.id}
+                            className="overflow-hidden transition-colors border-b cursor-pointer border-white/10 hover:bg-black/10 duration-400"
+                        >
                             <div className="p-6">
                                 {/* Post header */}
                                 <div className="flex items-center justify-between mb-4">
                                     <div className="flex items-center gap-5">
                                         <Image
-                                            src={user.avatar_url || DEFAULT_AVATAR}
+                                            src={
+                                                user.avatar_url ||
+                                                DEFAULT_AVATAR
+                                            }
                                             alt={user.username}
                                             width={40}
                                             height={40}
@@ -291,9 +359,13 @@ export const Feed: React.FC = () => {
                                                     {user.username}
                                                 </h3>
                                                 <div className="w-px h-6 mx-4 bg-white/20"></div>
-                                                <p className="text-text-dim">RUNNER</p>
+                                                <p className="text-text-dim">
+                                                    RUNNER
+                                                </p>
                                             </div>
-                                            <p className="text-sm text-text-dim">{timeAgo}</p>
+                                            <p className="text-sm text-text-dim">
+                                                {timeAgo}
+                                            </p>
                                         </div>
                                     </div>
                                     <button className="p-2 transition-colors rounded-full text-text-dim hover:text-text hover:bg-white/5">
@@ -353,19 +425,21 @@ export const Feed: React.FC = () => {
             {/* Pagination */}
             {data?.pagination && data.pagination.totalPages > 1 && (
                 <div className="flex justify-center mt-6 gap-2">
-                    {Array.from({ length: data.pagination.totalPages }).map((_, i) => (
-                        <button
-                            key={i}
-                            className={cn(
-                                "w-8 h-8 rounded-full flex items-center justify-center",
-                                data?.pagination?.page === i + 1
-                                    ? "bg-primary text-black"
-                                    : "bg-gray-800 text-white hover:bg-gray-700"
-                            )}
-                        >
-                            {i + 1}
-                        </button>
-                    ))}
+                    {Array.from({ length: data.pagination.totalPages }).map(
+                        (_, i) => (
+                            <button
+                                key={i}
+                                className={cn(
+                                    'w-8 h-8 rounded-full flex items-center justify-center',
+                                    data?.pagination?.page === i + 1
+                                        ? 'bg-primary text-black'
+                                        : 'bg-gray-800 text-white hover:bg-gray-700'
+                                )}
+                            >
+                                {i + 1}
+                            </button>
+                        )
+                    )}
                 </div>
             )}
         </div>

@@ -62,7 +62,7 @@ const AdminDashboard = () => {
     );
 
     const filteredRuns = pendingRuns.filter((run) =>
-        run.username.toLowerCase().includes(searchTerm.toLowerCase())
+        run.runner.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -249,7 +249,7 @@ const AdminDashboard = () => {
                                         filteredRuns.map((run) => (
                                             <TableRow key={run.run.id}>
                                                 <TableCell className="text-phyt_text">
-                                                    {run.username}
+                                                    {run.runner}
                                                 </TableCell>
                                                 <TableCell className="text-phyt_text">
                                                     {(
