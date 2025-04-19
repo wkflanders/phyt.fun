@@ -56,12 +56,13 @@
             ]
         },
         "type-check": {
-            "dependsOn": ["^type-check"],
-            "outputs": []
+            "dependsOn": ["^type-check"]
         },
         "lint": {
-            "dependsOn": ["type-check", "^lint"],
-            "outputs": []
+            "dependsOn": ["type-check", "^lint"]
+        },
+        "lint:fix": {
+            "dependsOn": ["type-check", "^lint:fix"]
         },
         "dev": {
             "cache": false,
