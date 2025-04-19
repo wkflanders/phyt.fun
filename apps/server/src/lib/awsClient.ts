@@ -7,17 +7,19 @@ import { CardRarity, TokenURIMetadata } from '@phyt/types';
 import { config } from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
 
+import { env } from '@/env.js';
+
 config();
 
-if (!process.env.AWS_ACCESS_KEY || !process.env.AWS_SECRET_ACCESS_KEY) {
+if (!env.AWS_ACCESS_KEY || !env.AWS_SECRET_ACCESS_KEY) {
     throw new Error('AWS credentials not found in environment variables');
 }
 
 const s3Client = new S3Client({
-    region: process.env.AWS_REGION ?? 'us-east-1',
+    region: env.AWS_REGION,
     credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+        accessKeyId: env.AWS_ACCESS_KEY,
+        secretAccessKey: env.AWS_SECRET_ACCESS_KEY
     }
 });
 
@@ -26,16 +28,10 @@ export const s3Service = {
         tokenId: number,
         metadata: TokenURIMetadata
     ): Promise<void> => {
-        if (!process.env.AWS_METADATA_BUCKET) {
-            throw new Error(
-                'AWS_METADATA_BUCKET not found in environment variables'
-            );
-        }
-
         try {
             await s3Client.send(
                 new PutObjectCommand({
-                    Bucket: process.env.AWS_METADATA_BUCKET,
+                    Bucket: env.AWS_METADATA_BUCKET,
                     Key: tokenId.toString(),
                     Body: JSON.stringify(metadata),
                     ContentType: 'application/json'
@@ -48,7 +44,7 @@ export const s3Service = {
     },
 
     getMetadata: async (tokenId: number): Promise<TokenURIMetadata> => {
-        if (!process.env.AWS_METADATA_BUCKET) {
+        if (!env.AWS_METADATA_BUCKET) {
             throw new Error(
                 'AWS_METADATA_BUCKET not found in environment variables'
             );
@@ -57,7 +53,7 @@ export const s3Service = {
         try {
             const response = await s3Client.send(
                 new GetObjectCommand({
-                    Bucket: process.env.AWS_METADATA_BUCKET,
+                    Bucket: env.AWS_METADATA_BUCKET,
                     Key: tokenId.toString()
                 })
             );
@@ -77,12 +73,7 @@ export const s3Service = {
     },
 
     uploadAvatar: async (file: Buffer): Promise<string> => {
-        const bucketName = process.env.AWS_AVATAR_URL_BUCKET;
-        if (!bucketName) {
-            throw new Error(
-                'AWS_AVATAR_URL_BUCKET not found in environment variables'
-            );
-        }
+        const bucketName = env.AWS_AVATAR_URL_BUCKET;
 
         const fileKey = `${uuidv4()}.png`;
 
@@ -104,12 +95,7 @@ export const s3Service = {
     },
 
     generateAvatarUrl: (fileKey: string): string => {
-        const baseUrl = process.env.AWS_CLOUDFRONT_AVATAR_URL;
-        if (!baseUrl) {
-            throw new Error(
-                'AWS_CLOUDFRONT_AVATAR_URL not found in environment variables'
-            );
-        }
+        const baseUrl = env.AWS_CLOUDFRONT_AVATAR_URL;
 
         return `${baseUrl}/${fileKey}`;
     }

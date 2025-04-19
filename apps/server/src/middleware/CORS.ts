@@ -1,12 +1,11 @@
+import { env } from '@/env.js';
+
 export const corsOptions = {
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     origin: (
         origin: string | undefined,
         callback: (err: Error | null, allow?: boolean) => void
     ) => {
-        const allowedOrigins = [
-            process.env.FRONTEND_URL ?? 'http://localhost:3000'
-        ];
+        const allowedOrigins = [env.FRONTEND_URL ?? 'http://localhost:3000'];
         // Allow requests with no origin (like mobile apps)
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);

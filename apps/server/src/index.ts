@@ -5,6 +5,7 @@ import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 
+import { env } from './env.js';
 import { corsOptions } from './middleware/CORS.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { requestIdMiddleware, logFormat } from './middleware/logging.js';
@@ -19,9 +20,7 @@ config();
 console.log('Starting server initialization...');
 
 const app = express();
-const port = process.env.SERVER_PORT
-    ? parseInt(process.env.SERVER_PORT, 10)
-    : 4000;
+const port = env.SERVER_PORT ?? 4000;
 
 app.use(helmet());
 

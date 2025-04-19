@@ -1,6 +1,7 @@
 import { HttpError } from '@phyt/types';
 import { Request, Response, NextFunction } from 'express';
 
+import { env } from '@/env.js';
 import { privy } from '@/lib/privyClient.js';
 
 export const validateAuth = async (
@@ -22,7 +23,7 @@ export const validateAuth = async (
         // Verify and type the token claims
         const claims: { userId?: string } = await privy.verifyAuthToken(
             token,
-            process.env.PRIVY_VERIFICATION_KEY
+            env.PRIVY_VERIFICATION_KEY
         );
 
         if (!claims.userId) {

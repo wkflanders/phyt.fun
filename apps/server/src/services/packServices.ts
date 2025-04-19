@@ -15,6 +15,7 @@ import {
 } from '@phyt/types';
 import { decodeEventLog, parseEther, formatEther, Abi } from 'viem';
 
+import { env } from '@/env.js';
 import {
     getMerkleRoot,
     getMerkleProofForWallet
@@ -23,12 +24,8 @@ import { walletClient, publicClient, account } from '@/lib/viemClient.js';
 
 import { metadataService } from './metadataServices.js';
 
-if (!process.env.MINTER_ADDRESS || !process.env.PHYT_CARDS_ADDRESS) {
-    throw new Error('Missing contract addresses in environment variables');
-}
-
-const MINTER = process.env.MINTER_ADDRESS as `0x${string}`;
-const PHYT_CARDS = process.env.PHYT_CARDS_ADDRESS as `0x${string}`;
+const MINTER = env.MINTER_ADDRESS as `0x${string}`;
+const PHYT_CARDS = env.PHYT_CARDS_ADDRESS as `0x${string}`;
 
 // Define a custom type guard that checks if a decoded log is a MintEvent.
 function isMintEvent(event: unknown): event is MintEvent {

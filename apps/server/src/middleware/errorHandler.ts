@@ -1,6 +1,8 @@
 import { HttpError } from '@phyt/types';
 import { Request, Response, NextFunction } from 'express';
 
+import { env } from '@/env.js';
+
 export const errorHandler = (
     err: Error,
     req: Request,
@@ -44,7 +46,7 @@ export const errorHandler = (
     // Default error handler
     res.status(500).json({
         error:
-            process.env.NODE_ENV === 'production'
+            env.NODE_ENV === 'production'
                 ? 'Internal server error'
                 : err.message,
         requestId: req.headers['x-request-id']
