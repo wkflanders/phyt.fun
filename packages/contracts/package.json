@@ -14,7 +14,7 @@
     "scripts": {
         "build": "forge build && tsx script/export-abis.ts && tsc -p tsconfig.json",
         "export-abis": "tsx script/export-abis.ts",
-        "clean": "rm -rf dist .turbo node_modules ./src/*.json ./src/index.ts ./out"
+        "clean": "rm -rf dist .turbo node_modules ./src/*.json ./out"
     },
     "devDependencies": {
         "@phyt/tsconfig": "workspace:*",
