@@ -1,6 +1,11 @@
-import type { NextConfig } from 'next';
+import { fileURLToPath } from 'url';
+import createJiti from 'jiti';
+const jiti = createJiti(fileURLToPath(import.meta.url));
 
-const nextConfig: NextConfig = {
+jiti('./src/env.ts');
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
     eslint: {
         ignoreDuringBuilds: true
     },
