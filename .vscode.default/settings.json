@@ -5,12 +5,12 @@
 
     // *** Key Setting: Working Directories ***
     // Explicitly list packages/apps that have their own eslint config or specific linting context.
-    // "eslint.workingDirectories": [
-    //     { "directory": "./apps/web", "changeProcessCWD": true },
-    //     { "directory": "./apps/server", "changeProcessCWD": true }
-    // { "directory": "packages/database", "changeProcessCWD": true },
-    // { "directory": "packages/types", "changeProcessCWD": true }
-    // ],
+    "eslint.workingDirectories": [
+        { "directory": "./apps/web", "changeProcessCWD": true },
+        { "directory": "./apps/server", "changeProcessCWD": true },
+        { "directory": "./packages/database", "changeProcessCWD": true },
+        { "directory": "./packages/types", "changeProcessCWD": true }
+    ],
 
     // Enable background linting
     "eslint.lintTask.enable": true,
@@ -62,7 +62,9 @@
     "editor.formatOnPaste": false,
     "prettier.useEditorConfig": false,
     "prettier.useTabs": false,
-    "editor.detectIndentation": false
+    "editor.detectIndentation": false,
+    "eslint.codeActionsOnSave.rules": null,
+    "eslint.useESLintClass": false
 
     // For pnpm: tsdk path is also usually resolved correctly. Add if needed.
     // "typescript.tsdk": "node_modules/typescript/lib"
