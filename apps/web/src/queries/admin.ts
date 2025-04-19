@@ -1,6 +1,5 @@
-import { PendingRunner, PendingRun, ApiError } from '@phyt/types';
-
 import { env } from '@/env';
+import { PendingRunner, PendingRun, ApiError } from '@phyt/types';
 
 const API_URL: string = env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api';
 

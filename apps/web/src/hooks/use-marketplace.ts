@@ -1,3 +1,4 @@
+import { env } from '@/env';
 import {
     MarketListing,
     Order,
@@ -9,8 +10,6 @@ import {
 import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAccount } from 'wagmi';
-
-import { env } from '@/env';
 
 import { useExchange } from './use-exchange';
 import { useToast } from './use-toast';

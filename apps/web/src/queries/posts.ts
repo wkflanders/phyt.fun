@@ -1,6 +1,5 @@
-import { ApiError, PostQueryParams, PostResponse, Post } from '@phyt/types';
-
 import { env } from '@/env';
+import { ApiError, PostQueryParams, PostResponse, Post } from '@phyt/types';
 
 const API_URL: string = env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api';
 

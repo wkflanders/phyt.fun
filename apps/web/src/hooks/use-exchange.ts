@@ -1,10 +1,10 @@
+import { env } from '@/env';
 import { ExchangeAbi } from '@phyt/contracts';
 import { Order } from '@phyt/types';
 import { keccak256, encodeAbiParameters, concat } from 'viem';
 import { usePublicClient, useWalletClient, useAccount } from 'wagmi';
 import { writeContract, simulateContract } from 'wagmi/actions';
 
-import { env } from '@/env';
 import { config } from '@/lib/wagmi';
 
 import type { AbiParameter } from 'viem';

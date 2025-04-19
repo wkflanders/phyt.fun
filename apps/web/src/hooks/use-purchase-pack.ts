@@ -1,3 +1,4 @@
+import { env } from '@/env';
 import { MinterAbi } from '@phyt/contracts';
 import {
     PackPurchaseInput,
@@ -9,7 +10,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { simulateContract, writeContract } from 'wagmi/actions';
 
-import { env } from '@/env';
 import { config } from '@/lib/wagmi';
 import { notifyServerPackTxn, fetchPackDetails } from '@/queries/packs';
 

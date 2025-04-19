@@ -1,3 +1,4 @@
+import { env } from '@/env';
 import {
     ApiError,
     Reaction,
@@ -5,8 +6,6 @@ import {
     ReactionToggleRequest,
     ReactionToggleResponse
 } from '@phyt/types';
-
-import { env } from '@/env';
 
 const API_URL: string = env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api';
 
