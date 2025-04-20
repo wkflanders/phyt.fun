@@ -1,4 +1,5 @@
 import { nextConfig } from '@phyt/eslint';
+import next from 'next';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -8,10 +9,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default [
     ...nextConfig,
     {
-        // make the TypeScript plugin aware of the monorepo tsconfig
         languageOptions: {
             parserOptions: {
-                project: path.resolve(__dirname, '../../tsconfig.eslint.json')
+                // use root ESLint tsconfig for workspace-wide resolution
+                project: [path.resolve(__dirname, 'tsconfig.json')],
+                tsconfigRootDir: path.resolve(__dirname)
             }
         }
     }

@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { serverConfig } from '@phyt/eslint';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 /** @type {import("eslint").Linter.Config} */
 export default [
     ...serverConfig,
