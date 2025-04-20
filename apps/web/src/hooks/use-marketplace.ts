@@ -87,8 +87,17 @@ export const useOpenBids = (cardId: number) => {
                     }
                 }
             );
-            if (!res.ok) throw new Error('Failed to fetch open bids');
-            return res.json();
+            if (!res.ok) {
+                const errorData = (await res.json()) as unknown;
+                const message =
+                    typeof errorData === 'object' &&
+                    errorData &&
+                    'message' in errorData
+                        ? (errorData as { message: string }).message
+                        : 'Failed to fetch open bids';
+                throw new Error(message);
+            }
+            return (await res.json()) as Order[];
         }
     });
 };
@@ -115,8 +124,17 @@ export const useUserBids = (userId: string) => {
                     }
                 }
             );
-            if (!res.ok) throw new Error('Failed to fetch user bids');
-            return res.json();
+            if (!res.ok) {
+                const errorData = (await res.json()) as unknown;
+                const message =
+                    typeof errorData === 'object' &&
+                    errorData &&
+                    'message' in errorData
+                        ? (errorData as { message: string }).message
+                        : 'Failed to fetch user bids';
+                throw new Error(message);
+            }
+            return (await res.json()) as Order[];
         },
         enabled: !!userId
     });
@@ -153,8 +171,17 @@ export const useAcceptOpenBid = () => {
                     body: JSON.stringify({ transactionHash })
                 }
             );
-            if (!res.ok) throw new Error('Failed to accept bid');
-            return res.json();
+            if (!res.ok) {
+                const errorData = (await res.json()) as unknown;
+                const message =
+                    typeof errorData === 'object' &&
+                    errorData &&
+                    'message' in errorData
+                        ? (errorData as { message: string }).message
+                        : 'Failed to accept bid';
+                throw new Error(message);
+            }
+            return (await res.json()) as { success: boolean };
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['listings'] });
@@ -224,24 +251,30 @@ export function useCreateListing(user: User) {
                         },
                         user: user
                     },
-                    (_key, value) =>
+                    (_key: string, value: unknown): unknown =>
                         typeof value === 'bigint' ? value.toString() : value
                 )
             });
             if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.message ?? 'Failed to create listing');
+                const errorData = (await response.json()) as unknown;
+                const message =
+                    typeof errorData === 'object' &&
+                    errorData &&
+                    'message' in errorData
+                        ? (errorData as { message: string }).message
+                        : 'Failed to create listing';
+                throw new Error(message);
             }
-
-            return response.json();
+            return (await response.json()) as MarketListing;
         },
         onMutate: async (newListing) => {
             await queryClient.cancelQueries({ queryKey: ['listings'] });
             const previousListings = queryClient.getQueryData(['listings']);
 
-            queryClient.setQueryData(['listings'], (old: any) =>
-                Array.isArray(old) ? [...old, newListing] : [newListing]
-            );
+            queryClient.setQueryData(['listings'], (old: unknown) => {
+                const arr = Array.isArray(old) ? (old as MarketListing[]) : [];
+                return [...arr, newListing];
+            });
 
             return { previousListings };
         },
@@ -388,11 +421,17 @@ export function usePlaceBid() {
             });
 
             if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.message ?? 'Failed to place bid');
+                const errorData = (await response.json()) as unknown;
+                const message =
+                    typeof errorData === 'object' &&
+                    errorData &&
+                    'message' in errorData
+                        ? (errorData as { message: string }).message
+                        : 'Failed to place bid';
+                throw new Error(message);
             }
 
-            return response.json();
+            return (await response.json()) as Order;
         },
         onError: (error: Error) => {
             toast({

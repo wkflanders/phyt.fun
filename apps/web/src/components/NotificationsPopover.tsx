@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
+/* WIP COMING BACK TO THIS ONCE NOTIFICATIONS BACKEND BUILT */
 'use client';
 import { Bell, Loader2 } from 'lucide-react';
 import React from 'react';

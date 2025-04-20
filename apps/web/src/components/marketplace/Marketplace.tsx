@@ -67,7 +67,7 @@ const Marketplace = () => {
             onError: (error) => {
                 toast({
                     title: 'Error',
-                    description: error.message ?? 'Failed to purchase',
+                    description: error.message || 'Failed to purchase',
                     variant: 'destructive'
                 });
             }

@@ -142,26 +142,30 @@ const RunMap: React.FC<RunMapProps> = ({ gpsRouteData, distanceInMeters }) => {
                     stroke="rgba(59, 130, 246, 0.4)"
                     strokeWidth="0.7"
                 >
-                    {[...Array(Math.floor(height / 20))].map((_, i) => (
-                        <line
-                            key={`h${String(i)}`}
-                            x1="0"
-                            y1={i * 20}
-                            x2={width}
-                            y2={i * 20}
-                            strokeDasharray="2,2"
-                        />
-                    ))}
-                    {[...Array(Math.floor(width / 20))].map((_, i) => (
-                        <line
-                            key={`v${String(i)}`}
-                            x1={i * 20}
-                            y1="0"
-                            x2={i * 20}
-                            y2={height}
-                            strokeDasharray="2,2"
-                        />
-                    ))}
+                    {Array.from({ length: Math.floor(height / 20) }).map(
+                        (_, i) => (
+                            <line
+                                key={`h${String(i)}`}
+                                x1="0"
+                                y1={i * 20}
+                                x2={width}
+                                y2={i * 20}
+                                strokeDasharray="2,2"
+                            />
+                        )
+                    )}
+                    {Array.from({ length: Math.floor(width / 20) }).map(
+                        (_, i) => (
+                            <line
+                                key={`v${String(i)}`}
+                                x1={i * 20}
+                                y1="0"
+                                x2={i * 20}
+                                y2={height}
+                                strokeDasharray="2,2"
+                            />
+                        )
+                    )}
                 </g>
 
                 <g
@@ -418,7 +422,7 @@ export const Feed: React.FC = () => {
                                     </button> */}
                                     <button className="flex items-center gap-2 p-2 transition-colors rounded-full text-text-dim hover:text-primary-shade hover:bg-primary-faded">
                                         <MessageCircle size={20} />
-                                        <span>{stats.comments ?? 0}</span>
+                                        <span>{stats.comments || 0}</span>
                                     </button>
                                     <button className="flex items-center gap-2 p-2 transition-colors rounded-full text-text-dim hover:text-emerald-500 hover:bg-emerald-500/5">
                                         <Share2 size={20} />

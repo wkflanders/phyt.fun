@@ -100,9 +100,10 @@ export function useCreatePost() {
             queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.all });
         },
         onError: (error: ApiError) => {
+            console.error(error.message);
             toast({
                 title: 'Error',
-                description: error.error || 'Failed to create post',
+                description: 'Failed to create post',
                 variant: 'destructive'
             });
         }
@@ -135,9 +136,10 @@ export function useUpdatePostStatus() {
             });
         },
         onError: (error: ApiError) => {
+            console.error(error.message);
             toast({
                 title: 'Error',
-                description: error.error || 'Failed to update post',
+                description: 'Failed to update post',
                 variant: 'destructive'
             });
         }
@@ -170,9 +172,10 @@ export function useDeletePost() {
             });
         },
         onError: (error: ApiError) => {
+            console.error(error.message);
             toast({
                 title: 'Error',
-                description: error.error || 'Failed to delete post',
+                description: 'Failed to delete post',
                 variant: 'destructive'
             });
         }

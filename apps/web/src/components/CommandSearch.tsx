@@ -35,7 +35,7 @@ export function CommandSearch() {
         window.removeEventListener('keydown', handleKeyDown);
     };
 
-    const handleKeyDown = (e: any) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Escape') handleCloseSearch();
     };
 

@@ -133,9 +133,10 @@ export function useCreateComment() {
             });
         },
         onError: (error: ApiError) => {
+            console.error(error.message);
             toast({
                 title: 'Error',
-                description: error.error || 'Failed to add comment',
+                description: 'Failed to add comment',
                 variant: 'destructive'
             });
         }
@@ -167,9 +168,10 @@ export function useUpdateComment() {
             });
         },
         onError: (error: ApiError) => {
+            console.error(error.message);
             toast({
                 title: 'Error',
-                description: error.error || 'Failed to update comment',
+                description: 'Failed to update comment',
                 variant: 'destructive'
             });
         }
@@ -204,9 +206,10 @@ export function useDeleteComment() {
             });
         },
         onError: (error: ApiError) => {
+            console.error(error.message);
             toast({
                 title: 'Error',
-                description: error.error || 'Failed to delete comment',
+                description: 'Failed to delete comment',
                 variant: 'destructive'
             });
         }

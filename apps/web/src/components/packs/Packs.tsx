@@ -46,10 +46,13 @@ export const Packs = () => {
         'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut';
 
     // Check if the current card is special (gold, ruby, sapphire)
-    const currentCard = revealedCards[currentCardIndex];
-    const isSpecial = currentCard?.attributes.some((attr) =>
-        ['gold', 'ruby', 'sapphire'].includes(attr.rarity)
-    );
+    let isSpecial = false;
+    if (revealedCards.length > 0) {
+        const card = revealedCards[currentCardIndex];
+        isSpecial = card.attributes.some((attr) =>
+            ['gold', 'ruby', 'sapphire'].includes(attr.rarity)
+        );
+    }
 
     const handlePurchase = (packType: string, price: string) => {
         if (!ready || !address || !user?.id) {
@@ -104,7 +107,16 @@ export const Packs = () => {
                 },
                 onError: (error: any) => {
                     setLoadingPackId(null);
-                    if (error.message.includes('User rejected the request')) {
+                    if (
+                        typeof error === 'object' &&
+                        error !== null &&
+                        'message' in error &&
+                        typeof (error as { message: unknown }).message ===
+                            'string' &&
+                        (error as { message: string }).message.includes(
+                            'User rejected the request'
+                        )
+                    ) {
                         toast({
                             title: 'Transaction cancelled',
                             variant: 'destructive'
@@ -113,7 +125,14 @@ export const Packs = () => {
                     }
                     toast({
                         title: 'Error',
-                        description: error.message ?? 'Failed to purchase pack',
+                        description:
+                            typeof error === 'object' &&
+                            error !== null &&
+                            'message' in error &&
+                            typeof (error as { message: unknown }).message ===
+                                'string'
+                                ? (error as { message: string }).message
+                                : 'Failed to purchase pack',
                         variant: 'destructive'
                     });
                 },
@@ -204,7 +223,7 @@ export const Packs = () => {
                                             handlePurchase(pack.id, pack.price);
                                         }}
                                         disabled={
-                                            isPending ?? loadingPackId !== null
+                                            isPending || loadingPackId !== null
                                         }
                                         className="px-24 py-6 bg-transparent backdrop-blur-xl border-white/10 hover:bg-white/10 rounded-xl"
                                     >

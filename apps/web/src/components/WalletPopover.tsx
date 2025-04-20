@@ -74,10 +74,14 @@ export const WalletPopover: React.FC = () => {
         setIsProcessing(true);
         try {
             await fundWallet(addr);
-        } catch (error: any) {
+        } catch (error) {
+            const message =
+                error && typeof error === 'object' && 'message' in error
+                    ? String((error as { message?: unknown }).message)
+                    : 'Failed to fund wallet';
             toast({
                 title: 'Error',
-                description: error.message ?? 'Failed to fund wallet',
+                description: message,
                 variant: 'destructive'
             });
         } finally {

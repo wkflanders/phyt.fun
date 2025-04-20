@@ -72,7 +72,7 @@ export const ListingModal = ({
         .sort((a, b) => b.price - a.price);
 
     const sortedHighestListings = [...cardListings].sort((a, b) =>
-        Number(BigInt(b.listing.price ?? 0) - BigInt(a.listing.price ?? 0))
+        Number(BigInt(b.listing.price || 0) - BigInt(a.listing.price || 0))
     );
     const highestBid =
         sortedHighestListings.length > 0

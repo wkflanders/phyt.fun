@@ -28,10 +28,10 @@ export default function ProfilePage() {
             (card) =>
                 card.metadata.runner_name
                     .toLowerCase()
-                    .includes(searchTerm.toLowerCase()) ??
+                    .includes(searchTerm.toLowerCase()) ||
                 card.metadata.season
                     .toLowerCase()
-                    .includes(searchTerm.toLowerCase()) ??
+                    .includes(searchTerm.toLowerCase()) ||
                 card.metadata.token_id
                     .toString()
                     .includes(searchTerm.toLowerCase())

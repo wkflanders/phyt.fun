@@ -58,7 +58,7 @@ const AdminDashboard = () => {
 
     const filteredRunners = pendingRunners.filter(
         (runner) =>
-            runner.username.toLowerCase().includes(searchTerm.toLowerCase()) ??
+            runner.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
             runner.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
 

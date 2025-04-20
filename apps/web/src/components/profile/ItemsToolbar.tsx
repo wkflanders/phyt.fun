@@ -35,7 +35,7 @@ export const ItemsToolbar: React.FC<ItemsToolbarProps> = ({
                     <Button
                         variant="outline"
                         className="justify-start gap-2 text-text hover:text-text hover:bg-black/20"
-                        onClick={() => onLevelUp?.(null as any)}
+                        onClick={() => onLevelUp}
                     >
                         <ArrowUpCircle className="h-4 w-4" />
                         Level Up
@@ -43,7 +43,7 @@ export const ItemsToolbar: React.FC<ItemsToolbarProps> = ({
                     <Button
                         variant="outline"
                         className="justify-start gap-2 text-red-400 hover:text-red-400 hover:bg-red-400/10"
-                        onClick={() => onBurn?.(null as any)}
+                        onClick={() => onBurn}
                     >
                         <Flame className="h-4 w-4" />
                         Burn
