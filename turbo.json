@@ -44,29 +44,23 @@
             ]
         },
         "@phyt/eslint#build": {
-            "outputs": ["dist/**"],
-            "cache": false
-        },
-        "@phyt/database#build": {
-            "outputs": []
+            "outputs": ["dist/**"]
         },
         "@phyt/types#build": {
-            "outputs": [],
-            "cache": false
+            "dependsOn": ["@phyt/eslint#build"],
+            "outputs": ["dist/**"]
+        },
+        "@phyt/database#build": {
+            "dependsOn": ["@phyt/types#build"],
+            "outputs": ["dist/**"]
         },
         "@phyt/server#build": {
-            "dependsOn": [
-                "@phyt/database#build",
-                "@phyt/types#build",
-                "@phyt/contracts#build"
-            ]
+            "dependsOn": ["@phyt/database#build", "@phyt/contracts#build"],
+            "outputs": ["dist/**"]
         },
         "@phyt/web#build": {
-            "dependsOn": [
-                "@phyt/database#build",
-                "@phyt/server#build",
-                "@phyt/types#build"
-            ]
+            "dependsOn": ["@phyt/database#build", "@phyt/server#build"],
+            "outputs": [".next/**"]
         },
         "type-check": {
             "dependsOn": ["^type-check"]
