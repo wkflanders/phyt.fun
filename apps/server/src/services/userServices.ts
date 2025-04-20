@@ -233,7 +233,7 @@ export const userService = {
                 .getUserByEmail(userData.email)
                 .catch((error: unknown) => {
                     if (error instanceof NotFoundError) return null;
-                    throw error;
+                    throw error as DatabaseError;
                 });
 
             if (existingEmail) {
@@ -245,7 +245,7 @@ export const userService = {
                 .getUserByUsername(userData.username)
                 .catch((error: unknown) => {
                     if (error instanceof NotFoundError) return null;
-                    throw error;
+                    throw error as DatabaseError;
                 });
 
             if (existingUsername) {
