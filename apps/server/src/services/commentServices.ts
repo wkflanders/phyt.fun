@@ -15,8 +15,8 @@ import {
     CommentCreateRequest,
     CommentQueryParams,
     CommentResponse,
-    HttpError,
-    CommentService
+    CommentService,
+    DatabaseError
 } from '@phyt/types';
 
 export const commentService: CommentService = {
@@ -69,7 +69,7 @@ export const commentService: CommentService = {
             return comment;
         } catch (error) {
             console.error('Error with createComment ', error);
-            throw new HttpError('Error with creating a new comment');
+            throw new DatabaseError('Error with creating a new comment');
         }
     },
 
@@ -118,7 +118,7 @@ export const commentService: CommentService = {
             };
         } catch (error) {
             console.error('Error with getPostComments ', error);
-            throw new HttpError('Failed to get post comments');
+            throw new DatabaseError('Failed to get post comments');
         }
     },
 
@@ -163,7 +163,7 @@ export const commentService: CommentService = {
             };
         } catch (error) {
             console.error('Error with getCommentReplies ', error);
-            throw new HttpError('Failed to get comment replies');
+            throw new DatabaseError('Failed to get comment replies');
         }
     },
 
@@ -186,7 +186,7 @@ export const commentService: CommentService = {
             return commentResults[0];
         } catch (error) {
             console.error('Error with updateComment ', error);
-            throw new HttpError('Failed to update comment');
+            throw new DatabaseError('Failed to update comment');
         }
     },
 
@@ -205,7 +205,7 @@ export const commentService: CommentService = {
             return deletedCommentResults[0];
         } catch (error) {
             console.error('Error with deleteComment ', error);
-            throw new HttpError('Failed to delete comment');
+            throw new DatabaseError('Failed to delete comment');
         }
     },
 
@@ -235,7 +235,7 @@ export const commentService: CommentService = {
             return commentsResults[0];
         } catch (error) {
             console.error('Error with getCommentById ', error);
-            throw new HttpError('Failed to get comment');
+            throw new DatabaseError('Failed to get comment');
         }
     }
 };

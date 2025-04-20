@@ -33,8 +33,7 @@ import {
     NotFoundError,
     MarketplaceError,
     BidStatusListed,
-    BidStatusOpen,
-    HttpError
+    BidStatusOpen
 } from '@phyt/types';
 
 // helper to convert BigInt fields to string for JSONB
@@ -56,7 +55,7 @@ function serializeOrder(order: Order): Record<string, unknown> {
 function deserializeOrder(raw: Record<string, unknown>): Order {
     return {
         trader: raw.trader as `0x${string}`,
-        side: raw.side as 0 | 1,
+        side: raw.side as 'buy' | 'sell',
         collection: raw.collection as `0x${string}`,
         token_id: BigInt(String(raw.token_id)),
         payment_token: raw.payment_token as `0x${string}`,
@@ -133,7 +132,6 @@ export const marketplaceService = {
 
             // Apply sorting
             const sortedQuery =
-                // eslint-disable-next-line no-nested-ternary
                 filters?.sort === 'price_asc'
                     ? query.orderBy(asc(listings.price))
                     : filters?.sort === 'price_desc'
@@ -322,7 +320,7 @@ export const marketplaceService = {
                     );
 
                 if (!listingResults.length) {
-                    throw new Error('Listing not found or not active');
+                    throw new NotFoundError('Listing not found or not active');
                 }
 
                 const [updatedListing] = await tx
@@ -510,13 +508,12 @@ export const marketplaceService = {
             }));
         } catch (error) {
             console.error('Error in getAllUserBids:', error);
-            throw new HttpError('Failed to fetch user bids');
+            throw new MarketplaceError('Failed to fetch user bids');
         }
     },
 
     acceptOpenBid: async ({
         bid_id,
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         transaction_hash
     }: AcceptOpenBidProps): Promise<OpenBid> => {
         try {
@@ -533,7 +530,7 @@ export const marketplaceService = {
                     );
 
                 if (!bidResults.length) {
-                    throw new Error('Open bid not found or not active');
+                    throw new NotFoundError('Open bid not found or not active');
                 }
 
                 const bid = bidResults[0];
@@ -582,8 +579,8 @@ export const marketplaceService = {
                 };
             });
         } catch (error) {
-            console.error('Database error in acceptOpenBid:', error);
-            throw new DatabaseError('Failed to accept open bid');
+            console.error('Error in acceptOpenBid:', error);
+            throw new MarketplaceError('Failed to accept open bid');
         }
     }
 };

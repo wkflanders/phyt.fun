@@ -18,8 +18,7 @@ import {
     Post,
     PostQueryParams,
     PostUpdateRequest,
-    PostResponse,
-    HttpError
+    PostResponse
 } from '@phyt/types';
 
 import { calculateTrendingScore } from '@/lib/utils.js';
@@ -63,7 +62,7 @@ export const postService = {
             return post;
         } catch (error) {
             console.error('Error with createPost: ', error);
-            throw new HttpError('Failed to create post');
+            throw new DatabaseError('Failed to create post');
         }
     },
 
@@ -225,7 +224,7 @@ export const postService = {
             };
         } catch (error) {
             console.error('Error with getPosts: ', error);
-            throw new HttpError('Failed to get posts');
+            throw new DatabaseError('Failed to get posts');
         }
     },
 
@@ -283,7 +282,7 @@ export const postService = {
             return postResponses;
         } catch (error) {
             console.error('Error with getUserPosts: ', error);
-            throw new HttpError('Failed to get user posts');
+            throw new DatabaseError('Failed to get user posts');
         }
     },
 
@@ -345,7 +344,7 @@ export const postService = {
             return postResponses;
         } catch (error) {
             console.error('Error with getUserPosts: ', error);
-            throw new HttpError('Failed to get user posts');
+            throw new DatabaseError('Failed to get user posts');
         }
     },
 
@@ -369,7 +368,7 @@ export const postService = {
             return postResults[0];
         } catch (error) {
             console.error('Error with updatePostStatus: ', error);
-            throw new HttpError('Failed to update post status');
+            throw new DatabaseError('Failed to update post status');
         }
     },
 
@@ -390,7 +389,7 @@ export const postService = {
             return postResults[0];
         } catch (error) {
             console.error('Error with deletePost: ', error);
-            throw new HttpError('Failed to delete post');
+            throw new DatabaseError('Failed to delete post');
         }
     }
 };

@@ -256,8 +256,8 @@ export interface LineupSubmissionResponse {
 }
 
 export interface CompetitionLineupRequestBody {
-    userId: number;
-    cardIds: number[];
+    user_id: number;
+    card_ids: number[];
 }
 
 export interface Runner {
@@ -350,13 +350,6 @@ export interface PackPurchase {
     updated_at: Date;
 }
 
-export interface PackPurchaseCardId {
-    _order: number;
-    _parent_id: number;
-    id: string;
-    card_id: number | null;
-}
-
 export interface UserDeviceAuthorization {
     id: number;
     updated_at: Date;
@@ -380,12 +373,6 @@ export interface PaginationParams {
     orderBy?: string;
     orderDir?: 'asc' | 'desc';
 }
-
-// export interface ApiError extends Error {
-//     error: string;
-//     status: number;
-// }
-
 export class ApiError extends Error {
     public readonly statusCode: number;
     public readonly originalError?: unknown;
@@ -442,6 +429,15 @@ export class AuthenticationError extends Error {
     statusCode: number;
     constructor(message: string) {
         super(message);
+        this.name = 'AuthenticationError';
+        this.statusCode = 401;
+    }
+}
+
+export class PermissionError extends Error {
+    statusCode: number;
+    constructor(message: string) {
+        super(message);
         this.name = 'ForbiddenError';
         this.statusCode = 403;
     }
@@ -450,7 +446,7 @@ export class AuthenticationError extends Error {
 export class PackPurchaseError extends Error {
     statusCode: number;
 
-    constructor(message: string, statusCode = 551) {
+    constructor(message: string, statusCode = 500) {
         super(message);
         this.statusCode = statusCode;
         this.name = 'PackPurchaseError';
@@ -460,23 +456,12 @@ export class PackPurchaseError extends Error {
 export class MarketplaceError extends Error {
     statusCode: number;
 
-    constructor(message: string, statusCode = 571) {
+    constructor(message: string, statusCode = 500) {
         super(message);
         this.statusCode = statusCode;
         this.name = 'MarketplaceError';
     }
 }
-
-export class HttpError extends Error {
-    statusCode: number;
-
-    constructor(message: string, statusCode = 500) {
-        super(message);
-        this.statusCode = statusCode;
-        this.name = 'HttpError';
-    }
-}
-
 export interface MintConfigResponse {
     mintConfigId: string;
     packPrice: string;
@@ -538,7 +523,7 @@ export type Side = 'buy' | 'sell';
 
 export interface Order {
     trader: `0x${string}`;
-    side: 0 | 1; // 0 for buy (bid), 1 for sell (ask)
+    side: Side;
     collection: `0x${string}`;
     token_id: bigint;
     payment_token: `0x${string}`;
@@ -605,9 +590,9 @@ export interface GetListingProps {
 export interface Bid {
     id: number;
     bidder_id: number;
-    card_id: number;
     bid_type: BidType;
     bid_amount: string;
+    card_id: number;
     signature: string;
     order_hash: string;
     order_data: Order;
@@ -835,7 +820,8 @@ export interface CommentCreateRequest {
 }
 
 export interface CommentUpdateRequest {
-    commentId: number;
+    privy_id: string;
+    comment_id: number;
     content: string;
 }
 

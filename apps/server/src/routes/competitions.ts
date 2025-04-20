@@ -1,8 +1,8 @@
 import {
-    HttpError,
     CompetitionLineupRequestBody,
     LineupSubmissionResponse,
-    Competition
+    Competition,
+    ValidationError
 } from '@phyt/types';
 import express, { Router, Request, Response } from 'express';
 
@@ -45,7 +45,7 @@ router.get(
     ) => {
         const competitionId = parseInt(req.params.id);
         if (isNaN(competitionId)) {
-            throw new HttpError('Invalid competition ID', 400);
+            throw new ValidationError('Invalid competition ID');
         }
 
         const competition =
@@ -66,20 +66,20 @@ router.post(
         res: Response<LineupSubmissionResponse>
     ) => {
         const competitionId = parseInt(req.params.id);
-        const { userId, cardIds } = req.body;
+        const { user_id, card_ids } = req.body;
 
         if (isNaN(competitionId)) {
-            throw new HttpError('Invalid competition ID', 400);
+            throw new ValidationError('Invalid competition ID');
         }
 
-        if (!Array.isArray(cardIds) || cardIds.length === 0) {
-            throw new HttpError('Invalid competition ID', 400);
+        if (!Array.isArray(card_ids) || card_ids.length === 0) {
+            throw new ValidationError('Invalid competition ID');
         }
 
         const result = await competitionService.submitLineup(
             competitionId,
-            userId,
-            cardIds
+            user_id,
+            card_ids
         );
         res.status(200).json(result);
     }

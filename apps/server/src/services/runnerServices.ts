@@ -10,8 +10,8 @@ import {
     users
 } from '@phyt/database';
 import {
-    HttpError,
     NotFoundError,
+    DatabaseError,
     RunnerProfile,
     RunnerActivity,
     RunnerPoolStatus,
@@ -130,7 +130,7 @@ export const runnerService = {
                         };
                     } catch (err) {
                         console.error('Error with activitiesWithDetails ', err);
-                        throw new HttpError('Error processing run');
+                        throw new DatabaseError('Error processing run');
                     }
                 })
             );
@@ -141,7 +141,7 @@ export const runnerService = {
             );
         } catch (err) {
             console.error('Error with getRecentActivities ', err);
-            throw new HttpError('Failed to fetch recent activities');
+            throw new DatabaseError('Failed to fetch recent activities');
         }
     },
 
@@ -187,7 +187,7 @@ export const runnerService = {
             }));
         } catch (error) {
             console.error(`Error with getRunnerActivities `, error);
-            throw new HttpError(
+            throw new DatabaseError(
                 `Failed to fetch activities for runner ${String(runnerId)}`
             );
         }
@@ -268,7 +268,7 @@ export const runnerService = {
             return await query.orderBy(isDesc ? desc(sortColumn) : sortColumn);
         } catch (error) {
             console.error('Error with getAllRunners ', error);
-            throw new HttpError('Failed to get runners');
+            throw new DatabaseError('Failed to get runners');
         }
     },
 
@@ -309,7 +309,7 @@ export const runnerService = {
             return runnerResults[0];
         } catch (error: unknown) {
             console.error('Error with getRunnerByPrivyId ', error);
-            throw new HttpError('Failed to get runner');
+            throw new DatabaseError('Failed to get runner');
         }
     },
 
@@ -343,7 +343,7 @@ export const runnerService = {
             return runnerResults[0];
         } catch (error: unknown) {
             console.error('Error with getRunnerById ', error);
-            throw new HttpError('Failed to get runner');
+            throw new DatabaseError('Failed to get runner');
         }
     },
 
@@ -377,7 +377,7 @@ export const runnerService = {
             };
         } catch (error) {
             console.error('Error with getRunnerStatusByPrivyId ', error);
-            throw new HttpError('Failed to get runner status');
+            throw new DatabaseError('Failed to get runner status');
         }
     }
 };

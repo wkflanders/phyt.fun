@@ -12,8 +12,8 @@ import {
 } from '@phyt/database';
 import {
     NotFoundError,
+    DatabaseError,
     Competition,
-    HttpError,
     LineupSubmissionResponse
 } from '@phyt/types';
 
@@ -67,7 +67,7 @@ export const competitionService = {
             }));
         } catch (error) {
             console.error('Error with getCompetitions ', error);
-            throw new HttpError('Failed to get competitions');
+            throw new DatabaseError('Failed to get competitions');
         }
     },
 
@@ -95,7 +95,7 @@ export const competitionService = {
             };
         } catch (error) {
             console.error('Error with getCompetitionById ', error);
-            throw new HttpError('Failed to get competition');
+            throw new DatabaseError('Failed to get competition');
         }
     },
 
@@ -200,7 +200,7 @@ export const competitionService = {
             });
         } catch (error) {
             console.error('Error with submitLineup ', error);
-            throw new HttpError('Failed to submit lineup');
+            throw new DatabaseError('Failed to submit lineup');
         }
     }
 };

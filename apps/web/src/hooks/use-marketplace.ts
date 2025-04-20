@@ -1,12 +1,5 @@
 import { env } from '@/env';
-import {
-    MarketListing,
-    Order,
-    User,
-    Runner,
-    Listing,
-    ApiError
-} from '@phyt/types';
+import { MarketListing, Order, User, Listing } from '@phyt/types';
 import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAccount } from 'wagmi';
@@ -316,7 +309,7 @@ export function usePurchaseListing() {
             // Convert the listing data into the Order format
             const sellOrder: Order = {
                 trader: listing.order_data.trader,
-                side: 1, // 1 for sell
+                side: 'sell', // 1 for sell
                 collection: listing.order_data.collection,
                 token_id: BigInt(listing.order_data.token_id),
                 payment_token: listing.order_data.payment_token,

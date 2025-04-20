@@ -149,14 +149,14 @@ export function useUpdateComment() {
     const { getAccessToken } = usePrivy();
 
     return useMutation<Comment, ApiError, CommentUpdateRequest>({
-        mutationFn: async (commentData) => {
+        mutationFn: async (updateCommentData) => {
             const token = await getAccessToken();
             if (!token) {
                 throw new AuthenticationError(
                     'No token available. Is user logged in with privy?'
                 );
             }
-            return updateComment(commentData, token);
+            return updateComment(updateCommentData, token);
         },
         onSuccess: (_, variables) => {
             toast({
@@ -164,7 +164,7 @@ export function useUpdateComment() {
                 description: 'Comment updated successfully'
             });
             queryClient.invalidateQueries({
-                queryKey: COMMENT_QUERY_KEYS.detail(variables.commentId)
+                queryKey: COMMENT_QUERY_KEYS.detail(variables.comment_id)
             });
         },
         onError: (error: ApiError) => {

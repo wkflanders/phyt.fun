@@ -1,4 +1,9 @@
-import { CommentQueryParams, CommentResponse } from '@phyt/types';
+import {
+    CommentQueryParams,
+    CommentResponse,
+    CommentCreateRequest,
+    CommentUpdateRequest
+} from '@phyt/types';
 
 import { api } from '@/lib/api';
 
@@ -58,11 +63,7 @@ export async function fetchComment(
 
 // Function to create a comment or reply
 export async function createComment(
-    commentData: {
-        post_id: number;
-        content: string;
-        parent_comment_id?: number;
-    },
+    commentData: CommentCreateRequest,
     token: string
 ): Promise<Comment> {
     const response = await api.post<Comment>('/comments', commentData, {
@@ -73,10 +74,7 @@ export async function createComment(
 
 // Function to update a comment
 export async function updateComment(
-    updateCommentData: {
-        commentId: number;
-        content: string;
-    },
+    updateCommentData: CommentUpdateRequest,
     token: string
 ): Promise<Comment> {
     const response = await api.patch<Comment>('/comments', updateCommentData, {

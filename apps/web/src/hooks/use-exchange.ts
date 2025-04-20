@@ -96,7 +96,7 @@ export function useExchange() {
 
         const order: Order = {
             trader: address,
-            side: 1, // sell
+            side: 'sell', // sell
             collection: env.NEXT_PUBLIC_PHYT_CARDS_ADDRESS as `0x${string}`,
             token_id: BigInt(tokenId),
             payment_token: '0x0000000000000000000000000000000000000000', // ETH
@@ -139,7 +139,7 @@ export function useExchange() {
 
         const order: Order = {
             trader: address,
-            side: 0, // buy
+            side: 'buy', // buy
             collection: env.NEXT_PUBLIC_PHYT_CARDS_ADDRESS as `0x${string}`,
             token_id: BigInt(cardId),
             payment_token: '0x0000000000000000000000000000000000000000', // ETH

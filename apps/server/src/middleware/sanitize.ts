@@ -12,7 +12,6 @@ export const sanitizeInputs = (
     req: Request,
     res: Response,
     next: NextFunction
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 ) => {
     if (req.body) {
         sanitizeRequestObject(req.body);
@@ -38,7 +37,6 @@ function sanitizeRequestObject<T extends SanitizableObject>(obj: T): T {
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;') as T[Extract<keyof T, string>];
         } else if (Array.isArray(obj[key])) {
-            // Handle arrays
             const arr = obj[key];
             arr.forEach((item, index) => {
                 if (typeof item === 'string') {

@@ -4,7 +4,6 @@ export const responseTimeMonitor = (
     req: Request,
     res: Response,
     next: NextFunction
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 ) => {
     const start = process.hrtime();
     res.on('finish', () => {

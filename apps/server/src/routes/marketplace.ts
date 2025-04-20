@@ -1,5 +1,4 @@
 import {
-    HttpError,
     CreateListingRequestBody,
     ListedBidRequestBody,
     OrderBook,
@@ -8,7 +7,8 @@ import {
     MarketListing,
     OpenBid,
     Listing,
-    ListingBid
+    ListingBid,
+    ValidationError
 } from '@phyt/types';
 import express, { Request, Router, Response } from 'express';
 
@@ -81,9 +81,9 @@ router.post(
         req: Request<Record<string, never>, Listing, CreateListingRequestBody>,
         res: Response<Listing>
     ) => {
-        if (!req.auth) {
-            throw new HttpError('Authentication data missing', 401);
-        }
+        // if (!req.auth) {
+        //     throw new HttpError('Authentication data missing', 401);
+        // }
         const { card_id, price, signature, order_hash, order_data, user } =
             req.body;
         const listing = await marketplaceService.createListing({
@@ -107,9 +107,9 @@ router.post(
         req: Request<Record<string, never>, ListingBid, ListedBidRequestBody>,
         res: Response<ListingBid>
     ) => {
-        if (!req.auth) {
-            throw new HttpError('Authentication data missing', 401);
-        }
+        // if (!req.auth) {
+        //     throw new HttpError('Authentication data missing', 401);
+        // }
         const {
             listing_id,
             bid_amount,
@@ -141,9 +141,9 @@ router.post(
         req: Request<Record<string, never>, OpenBid, OpenBidRequestBody>,
         res: Response<OpenBid>
     ) => {
-        if (!req.auth) {
-            throw new HttpError('Authentication data missing', 401);
-        }
+        // if (!req.auth) {
+        //     throw new HttpError('Authentication data missing', 401);
+        // }
         const {
             card_id,
             bid_amount,
@@ -178,7 +178,7 @@ router.get(
     ) => {
         const { cardId } = req.params;
         if (isNaN(parseInt(cardId))) {
-            throw new HttpError('Invalid card ID', 400);
+            throw new ValidationError('Invalid card ID');
         }
 
         const bids = await marketplaceService.getOpenBidsForCard(

@@ -12,7 +12,7 @@ import {
     ManagerStanding,
     RunnerLeaderboard,
     ManagerLeaderboard,
-    HttpError,
+    DatabaseError,
     NotFoundError
 } from '@phyt/types';
 import { subDays } from 'date-fns';
@@ -83,7 +83,7 @@ export const leaderboardService = {
             };
         } catch (error) {
             console.error('Error with getRunnerStanding ', error);
-            throw new HttpError('Error getting runner standings');
+            throw new DatabaseError('Error getting runner standings');
         }
     },
 
@@ -143,7 +143,7 @@ export const leaderboardService = {
             };
         } catch (error) {
             console.error('Error with getManagerStanding ', error);
-            throw new HttpError('Error getting manager standings');
+            throw new DatabaseError('Error getting manager standings');
         }
     },
 
@@ -214,7 +214,7 @@ export const leaderboardService = {
             };
         } catch (error) {
             console.error('Error with getRunnerLeaderboard ', error);
-            throw new HttpError('Failed to get runner leaderboard');
+            throw new DatabaseError('Failed to get runner leaderboard');
         }
     },
 
@@ -283,7 +283,7 @@ export const leaderboardService = {
             };
         } catch (error) {
             console.error('Error with getManagerLeaderboard ', error);
-            throw new HttpError('Failed to get manager leaderboard');
+            throw new DatabaseError('Failed to get manager leaderboard');
         }
     }
 

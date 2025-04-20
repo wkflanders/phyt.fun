@@ -7,7 +7,6 @@ import {
     RarityMultipliers,
     TokenURIMetadata,
     Runner,
-    HttpError,
     NotFoundError,
     DatabaseError
 } from '@phyt/types';
@@ -47,7 +46,7 @@ export const metadataService = {
             return allRunners[randomIndex];
         } catch (err: unknown) {
             console.error('Error with selectRandomRunner', err);
-            throw new HttpError('Error with selecting a random runner');
+            throw new DatabaseError('Error with selecting a random runner');
         }
     },
 
@@ -100,7 +99,7 @@ export const metadataService = {
             return metadata;
         } catch (err: unknown) {
             console.error('Error with generateMetadata ', err);
-            throw new HttpError('Failed to generate metadata');
+            throw new DatabaseError('Failed to generate metadata');
         }
     },
 
@@ -133,7 +132,7 @@ export const metadataService = {
             return metadata;
         } catch (err: unknown) {
             console.error('Error with generateMetadataWithRarity ', err);
-            throw new HttpError('Failed to generate metadata with rarity');
+            throw new DatabaseError('Failed to generate metadata with rarity');
         }
     },
 
@@ -142,7 +141,7 @@ export const metadataService = {
             return await s3Service.getMetadata(tokenId);
         } catch (err: unknown) {
             console.error('Error with getMetadata', err);
-            throw new HttpError('Failed to get metadata for token');
+            throw new DatabaseError('Failed to get metadata for token');
         }
     },
 
@@ -160,7 +159,7 @@ export const metadataService = {
             return await Promise.all(metadataPromises);
         } catch (err: unknown) {
             console.error('Error with generatePackMetadata', err);
-            throw new HttpError('Error with generating pack metadata');
+            throw new DatabaseError('Error with generating pack metadata');
         }
     }
 };
