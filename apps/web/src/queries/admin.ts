@@ -1,7 +1,6 @@
-import { env } from '@/env';
-import { PendingRunner, PendingRun, ApiError } from '@phyt/types';
+import { PendingRunner, PendingRun } from '@phyt/types';
 
-const API_URL: string = env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api';
+import { api } from '@/lib/api';
 
 export const PENDING_RUNNERS_QUERY_KEY = 'pendingRunners';
 export const PENDING_RUNS_QUERY_KEY = 'pendingRuns';
@@ -9,90 +8,42 @@ export const PENDING_RUNS_QUERY_KEY = 'pendingRuns';
 export const getPendingRunners = async (
     token: string
 ): Promise<PendingRunner[]> => {
-    const response = await fetch(`${API_URL}/admin/pending-runners`, {
-        method: 'GET',
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
+    const response = await api.get<PendingRunner[]>('/admin/pending-runners', {
+        headers: { Authorization: `Bearer ${token}` }
     });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw {
-            error: error.error ?? 'Failed to fetch pending runners',
-            status: response.status
-        } as ApiError;
-    }
-
-    return response.json();
+    return response.data;
 };
 
 export const getPendingRuns = async (token: string): Promise<PendingRun[]> => {
-    const response = await fetch(`${API_URL}/admin/pending-runs`, {
-        method: 'GET',
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
+    const response = await api.get<PendingRun[]>('/admin/pending-runs', {
+        headers: { Authorization: `Bearer ${token}` }
     });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw {
-            error: error.error ?? 'Failed to fetch pending runs',
-            status: response.status
-        } as ApiError;
-    }
-
-    return response.json();
+    return response.data;
 };
 
-export const approveRunner = async (runnerId: number, token: string) => {
-    const response = await fetch(
-        `${API_URL}/admin/runners/${String(runnerId)}/approve`,
+export const approveRunner = async (
+    runnerId: number,
+    token: string
+): Promise<{ success: boolean }> => {
+    const response = await api.post<{ success: boolean }>(
+        `/admin/runners/${String(runnerId)}/approve`,
         {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
+            headers: { Authorization: `Bearer ${token}` }
         }
     );
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw {
-            error: error.error ?? 'Failed to approve runner',
-            status: response.status
-        } as ApiError;
-    }
-
-    return response.json();
+    return response.data;
 };
 
 export const updateRunVerification = async (
     runId: number,
     status: 'verified' | 'flagged',
     token: string
-) => {
-    const response = await fetch(
-        `${API_URL}/admin/runs/${String(runId)}/verify`,
+): Promise<{ success: boolean }> => {
+    const response = await api.patch<{ success: boolean }>(
+        `/admin/runs/${String(runId)}/verify`,
         {
-            method: 'PATCH',
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ status })
+            headers: { Authorization: `Bearer ${token}` }
         }
     );
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw {
-            error: error.error ?? 'Failed to update run verification',
-            status: response.status
-        } as ApiError;
-    }
-
-    return response.json();
+    return response.data;
 };

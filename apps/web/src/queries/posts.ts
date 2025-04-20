@@ -1,7 +1,6 @@
-import { env } from '@/env';
-import { ApiError, PostQueryParams, PostResponse, Post } from '@phyt/types';
+import { PostQueryParams, PostResponse, Post } from '@phyt/types';
 
-const API_URL: string = env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api';
+import { api } from '@/lib/api';
 
 export const POST_QUERY_KEYS = {
     all: ['posts'] as const,
@@ -15,37 +14,14 @@ export const POST_QUERY_KEYS = {
 };
 
 export async function fetchPosts(
-    params: PostQueryParams = {},
+    { page = 1, limit = 10, filter = 'all' }: PostQueryParams = {},
     token: string
 ): Promise<PostResponse> {
-    const { page = 1, limit = 10, filter = 'all' } = params;
-
-    const searchParams = new URLSearchParams();
-    searchParams.append('page', page.toString());
-    searchParams.append('limit', limit.toString());
-    if (filter !== 'all') {
-        searchParams.append('filter', filter);
-    }
-
-    const response = await fetch(
-        `${API_URL}/posts?${searchParams.toString()}`,
-        {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        }
-    );
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw {
-            error: error.error ?? 'Failed to fetch posts',
-            status: response.status
-        } as ApiError;
-    }
-
-    return response.json();
+    const response = await api.get<PostResponse>('/posts', {
+        params: { page, limit, filter },
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
 }
 
 // Function to fetch a specific post by ID
@@ -53,55 +29,26 @@ export async function fetchPostById(
     postId: number,
     token: string
 ): Promise<Post> {
-    const response = await fetch(`${API_URL}/posts/${String(postId)}`, {
-        method: 'GET',
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
+    const response = await api.get<Post>(`/posts/${String(postId)}`, {
+        headers: { Authorization: `Bearer ${token}` }
     });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw {
-            error: error.error ?? 'Failed to fetch post',
-            status: response.status
-        } as ApiError;
-    }
-
-    return response.json();
+    return response.data;
 }
 
 // Function to fetch posts by a specific user
 export async function fetchUserPosts(
     userId: number,
-    params: { page?: number; limit?: number } = {},
+    { page = 1, limit = 10 }: PostQueryParams = {},
     token: string
 ): Promise<PostResponse> {
-    const { page = 1, limit = 10 } = params;
-
-    const searchParams = new URLSearchParams();
-    searchParams.append('page', page.toString());
-    searchParams.append('limit', limit.toString());
-
-    const response = await fetch(
-        `${API_URL}/posts/user/${String(userId)}?${searchParams.toString()}`,
+    const response = await api.get<PostResponse>(
+        `/posts/user/${String(userId)}`,
         {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
+            params: { page, limit },
+            headers: { Authorization: `Bearer ${token}` }
         }
     );
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw {
-            error: error.error ?? 'Failed to user posts',
-            status: response.status
-        } as ApiError;
-    }
-
-    return response.json();
+    return response.data;
 }
 
 // Function to create a new post
@@ -109,70 +56,31 @@ export async function createPost(
     postData: { run_id: number; content?: string },
     token: string
 ): Promise<Post> {
-    const response = await fetch(`${API_URL}/posts`, {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(postData)
+    const response = await api.post<Post>(`/posts`, postData, {
+        headers: { Authorization: `Bearer ${token}` }
     });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw {
-            error: error.error ?? 'Failed to create post',
-            status: response.status
-        } as ApiError;
-    }
-
-    return response.json();
+    return response.data;
 }
 
 // Function to update a post's status
 export async function updatePostStatus(
-    {
-        postId,
-        status
-    }: { postId: number; status: 'visible' | 'hidden' | 'deleted' },
+    updatePostData: {
+        postId: number;
+        status: 'visible' | 'hidden' | 'deleted';
+    },
     token: string
 ): Promise<Post> {
-    const response = await fetch(`${API_URL}/posts/${String(postId)}`, {
-        method: 'PATCH',
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status })
+    const { postId, status } = updatePostData;
+    const response = await api.patch<Post>(`/posts/${String(postId)}`, status, {
+        headers: { Authorization: `Bearer ${token}` }
     });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw {
-            error: error.error ?? 'Failed to update post status',
-            status: response.status
-        } as ApiError;
-    }
-
-    return response.json();
+    return response.data;
 }
 
 // Function to delete a post
 export async function deletePost(postId: number, token: string): Promise<Post> {
-    const response = await fetch(`${API_URL}/posts/${String(postId)}`, {
-        method: 'DELETE',
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
+    const response = await api.delete<Post>(`/posts/${String(postId)}`, {
+        headers: { Authorization: `Bearer ${token}` }
     });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw {
-            error: error.error ?? 'Failed to delete post',
-            status: response.status
-        } as ApiError;
-    }
-
-    return response.json();
+    return response.data;
 }

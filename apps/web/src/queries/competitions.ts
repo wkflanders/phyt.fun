@@ -1,28 +1,15 @@
-import { env } from '@/env';
-import { Competition, ApiError } from '@phyt/types';
+import { Competition } from '@phyt/types';
 
-const API_URL: string = env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api';
+import { api } from '@/lib/api';
 
 export const COMPETITIONS_QUERY_KEY = 'competitions';
 export const getCompetitionsQueryKey = () => [COMPETITIONS_QUERY_KEY];
 
 export async function getCompetitions(token: string): Promise<Competition[]> {
-    const response = await fetch(`${API_URL}/competitions`, {
-        method: 'GET',
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
+    const response = await api.get<Competition[]>('/competitions`', {
+        headers: { Authorization: `Bearer ${token}` }
     });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw {
-            error: error.error ?? 'Failed to fetch competition',
-            status: response.status
-        } as ApiError;
-    }
-
-    return response.json();
+    return response.data;
 }
 
 export async function getMajorCompetitions(

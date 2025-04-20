@@ -1,7 +1,6 @@
-import { env } from '@/env';
-import { ApiError, CommentQueryParams, CommentResponse } from '@phyt/types';
+import { CommentQueryParams, CommentResponse } from '@phyt/types';
 
-const API_URL: string = env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api';
+import { api } from '@/lib/api';
 
 export const COMMENT_QUERY_KEYS = {
     all: ['comments'] as const,
@@ -14,69 +13,36 @@ export const COMMENT_QUERY_KEYS = {
         ['commentReplies', commentId, params] as const
 };
 
+// Function to fetch comments for a post
 export async function fetchPostComments(
     postId: number,
-    params: CommentQueryParams = {},
+    { page = 1, limit = 20, parent_only = false }: CommentQueryParams = {},
     token: string
 ): Promise<CommentResponse> {
-    const { page = 1, limit = 20, parent_only = false } = params;
-
-    const searchParams = new URLSearchParams();
-    searchParams.append('page', page.toString());
-    searchParams.append('limit', limit.toString());
-    searchParams.append('parent_only', parent_only.toString());
-    const response = await fetch(
-        `${API_URL}/comments/post/${String(postId)}?${searchParams.toString()}`,
+    const response = await api.get<CommentResponse>(
+        `/comments/post/${String(postId)}`,
         {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
+            params: { page, limit, parent_only },
+            headers: { Authorization: `Bearer ${token}` }
         }
     );
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw {
-            error: error.error ?? 'Failed to fetch comments',
-            status: response.status
-        } as ApiError;
-    }
-
-    return response.json();
+    return response.data;
 }
 
 // Function to fetch replies to a comment
 export async function fetchCommentReplies(
     commentId: number,
-    params: CommentQueryParams = {},
+    { page = 1, limit = 20 }: CommentQueryParams = {},
     token: string
 ): Promise<CommentResponse> {
-    const { page = 1, limit = 20 } = params;
-
-    const searchParams = new URLSearchParams();
-    searchParams.append('page', page.toString());
-    searchParams.append('limit', limit.toString());
-
-    const response = await fetch(
-        `${API_URL}/comments/replies/${String(commentId)}?${searchParams.toString()}`,
+    const response = await api.get<CommentResponse>(
+        `/comments/replies/${String(commentId)}`,
         {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
+            params: { page, limit },
+            headers: { Authorization: `Bearer ${token}` }
         }
     );
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw {
-            error: error.error ?? 'Failed to fetch comment replies',
-            status: response.status
-        } as ApiError;
-    }
-
-    return response.json();
+    return response.data;
 }
 
 // Function to fetch a single comment by ID
@@ -84,22 +50,10 @@ export async function fetchComment(
     commentId: number,
     token: string
 ): Promise<Comment> {
-    const response = await fetch(`${API_URL}/comments/${String(commentId)}`, {
-        method: 'GET',
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
+    const response = await api.get<Comment>(`/comments/${String(commentId)}`, {
+        headers: { Authorization: `Bearer ${token}` }
     });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw {
-            error: error.error ?? 'Failed to fetch comment',
-            status: response.status
-        } as ApiError;
-    }
-
-    return response.json();
+    return response.data;
 }
 
 // Function to create a comment or reply
@@ -111,55 +65,24 @@ export async function createComment(
     },
     token: string
 ): Promise<Comment> {
-    const response = await fetch(`${API_URL}/comments`, {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(commentData)
+    const response = await api.post<Comment>('/comments', commentData, {
+        headers: { Authorization: `Bearer ${token}` }
     });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw {
-            error: error.error ?? 'Failed to create comment',
-            status: response.status
-        } as ApiError;
-    }
-
-    return response.json();
+    return response.data;
 }
 
 // Function to update a comment
 export async function updateComment(
-    {
-        commentId,
-        content
-    }: {
+    updateCommentData: {
         commentId: number;
         content: string;
     },
     token: string
 ): Promise<Comment> {
-    const response = await fetch(`${API_URL}/comments/${String(commentId)}`, {
-        method: 'PATCH',
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ content })
+    const response = await api.patch<Comment>('/comments', updateCommentData, {
+        headers: { Authorization: `Bearer ${token}` }
     });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw {
-            error: error.error ?? 'Failed to update comment',
-            status: response.status
-        } as ApiError;
-    }
-
-    return response.json();
+    return response.data;
 }
 
 // Function to delete a comment
@@ -167,21 +90,11 @@ export async function deleteComment(
     commentId: number,
     token: string
 ): Promise<Comment> {
-    const response = await fetch(`${API_URL}/comments/${String(commentId)}`, {
-        method: 'DELETE',
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
+    const response = await api.delete<Comment>(
+        `/comments/${String(commentId)}`,
+        {
+            headers: { Authorization: `Bearer ${token}` }
         }
-    });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw {
-            error: error.error ?? 'Failed to delete comment',
-            status: response.status
-        } as ApiError;
-    }
-
-    return response.json();
+    );
+    return response.data;
 }

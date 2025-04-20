@@ -381,9 +381,22 @@ export interface PaginationParams {
     orderDir?: 'asc' | 'desc';
 }
 
-export interface ApiError extends Error {
-    error: string;
-    status: number;
+// export interface ApiError extends Error {
+//     error: string;
+//     status: number;
+// }
+
+export class ApiError extends Error {
+    public readonly statusCode: number;
+    public readonly originalError?: unknown;
+
+    constructor(message: string, statusCode = 503, originalError?: unknown) {
+        super(message);
+        Object.setPrototypeOf(this, ApiError.prototype);
+        this.name = 'ApiError';
+        this.statusCode = statusCode;
+        this.originalError = originalError;
+    }
 }
 
 export class DatabaseError extends Error {
@@ -412,7 +425,7 @@ export class DuplicateError extends Error {
     constructor(message: string) {
         super(message);
         this.name = 'DuplicateError';
-        this.statusCode = 409;
+        this.statusCode = 422;
     }
 }
 
