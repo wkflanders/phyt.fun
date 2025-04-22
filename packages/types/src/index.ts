@@ -39,24 +39,6 @@ export interface AdminService {
     ) => Promise<Run>;
 }
 
-export interface CommentService {
-    createComment(request: CommentCreateRequest): Promise<Comment>;
-    getPostComments(
-        post_id: number,
-        params: CommentQueryParams
-    ): Promise<CommentResponse>;
-    getCommentReplies(
-        comment_id: number,
-        params: CommentQueryParams
-    ): Promise<CommentResponse>;
-    updateComment(
-        comment_id: number,
-        data: { content: string }
-    ): Promise<Comment>;
-    deleteComment(comment_id: number): Promise<Comment>;
-    getCommentById(commentId: number): Promise<Comment>;
-}
-
 export const PackTypes = [
     {
         id: 'scrawny',
@@ -810,19 +792,6 @@ export interface Comment {
     parent_comment_id: number | null;
     updated_at: Date;
     created_at: Date;
-}
-
-export interface CommentCreateRequest {
-    user_id: number;
-    post_id: number;
-    content: string;
-    parent_comment_id?: number;
-}
-
-export interface CommentUpdateRequest {
-    privy_id: string;
-    comment_id: number;
-    content: string;
 }
 
 export interface CommentQueryParams {
