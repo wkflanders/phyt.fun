@@ -142,18 +142,23 @@ export const updatePostSchema = z.object({
 });
 
 export const createCommentSchema = z.object({
-    post_id: z.number({ required_error: 'Post ID is required' }),
+    user_id: z.number({ required_error: 'User id is required' }),
+    post_id: z.number({ required_error: 'Post id is required' }),
     content: z
         .string({ required_error: 'Comment content is required' })
         .min(1, 'Comment cannot be empty'),
-    parent_comment_id: z.number().optional()
+    parent_comment_id: z.number().optional().nullable().default(null)
 });
+export type CommentCreateRequest = z.infer<typeof createCommentSchema>;
 
 export const updateCommentSchema = z.object({
+    comment_id: z.number({ required_error: 'Comment id is required' }),
     content: z
         .string({ required_error: 'Comment content is required' })
         .min(1, 'Comment cannot be empty')
 });
+
+export type CommentUpdateRequest = z.infer<typeof updateCommentSchema>;
 
 export const createReactionSchema = z
     .object({
