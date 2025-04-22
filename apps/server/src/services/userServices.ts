@@ -21,6 +21,7 @@ import {
 } from '@phyt/types';
 
 import { s3Service } from '@/lib/awsClient.js';
+import { userRepository } from '@/repositories/userRepository.js';
 
 const DEFAULT_AVATAR =
     'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut';
@@ -31,39 +32,13 @@ export const userService = {
         checkStatus = false
     ): Promise<UserWithStatus | User> => {
         if (!privyId) throw new ValidationError('Privy ID is required');
-
         try {
-            if (checkStatus) {
-                const userResults = await db
-                    .select()
-                    .from(users)
-                    .where(eq(users.privy_id, privyId))
-                    .limit(1);
-
-                if (userResults.length === 0)
-                    throw new NotFoundError('User not found');
-                const user = userResults[0];
-
-                const [runner] = await db
-                    .select()
-                    .from(runners)
-                    .where(eq(runners.user_id, user.id));
-
-                return {
-                    ...user,
-                    status: runner.status
-                };
-            } else {
-                const userResults = await db
-                    .select()
-                    .from(users)
-                    .where(eq(users.privy_id, privyId))
-                    .limit(1);
-
-                if (userResults.length === 0)
-                    throw new NotFoundError('User not found');
-                return userResults[0];
-            }
+            const users = await userRepository.findByPrivyId(privyId);
+            if (users.length === 0) throw new NotFoundError('User not found');
+            const user = users[0];
+            if (!checkStatus) return user;
+            const status = await runRepository.getStatusByUserId(user.id);
+            return { ...user, status };
         } catch (error) {
             console.error('Error with getUserByPrivyId: ', error);
             throw new DatabaseError('Failed to fetch user by Privy ID');
@@ -73,17 +48,11 @@ export const userService = {
     getUserByWalletAddress: async (walletAddress: string): Promise<User> => {
         if (!walletAddress)
             throw new ValidationError('Wallet address is required');
-
         try {
-            const userResults = await db
-                .select()
-                .from(users)
-                .where(eq(users.wallet_address, walletAddress))
-                .limit(1);
-
-            if (userResults.length === 0)
-                throw new NotFoundError('User not found');
-            return userResults[0];
+            const users =
+                await userRepository.findByWalletAddress(walletAddress);
+            if (users.length === 0) throw new NotFoundError('User not found');
+            return users[0];
         } catch (error) {
             console.error('Error with getUserByWalletAddress: ', error);
             throw new DatabaseError('Failed to fetch user by wallet address');

@@ -12,6 +12,7 @@ import {
 } from '@phyt/types';
 
 import { s3Service } from '@/lib/awsClient.js';
+import { metadataRepository } from '@/repositories/metadataRepository.js';
 
 export const metadataService = {
     generateRarity: (): CardRarity => {
@@ -36,7 +37,7 @@ export const metadataService = {
     },
     selectRandomRunner: async (): Promise<Runner> => {
         try {
-            const allRunners = await db.select().from(runners).execute();
+            const allRunners = await metadataRepository.findAllRunners();
 
             if (allRunners.length === 0) {
                 throw new NotFoundError('No runners found');
@@ -56,15 +57,7 @@ export const metadataService = {
 
     getRunnerName: async (runnerUserId: number): Promise<string> => {
         try {
-            const user = await db
-                .select({
-                    username: users.username
-                })
-                .from(users)
-                .where(eq(users.id, runnerUserId))
-                .execute();
-
-            return user[0].username;
+            return await metadataRepository.findUsernameByUserId(runnerUserId);
         } catch (err: unknown) {
             console.error('Error with getRunnerName ', err);
             throw new DatabaseError('Failed to fetch runner name');

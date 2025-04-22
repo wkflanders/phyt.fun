@@ -1,3 +1,4 @@
+import type { RequestHandler } from 'express';
 import type { Address } from 'viem';
 
 export type CardRarity =
@@ -39,22 +40,109 @@ export interface AdminService {
     ) => Promise<Run>;
 }
 
+export interface PostController {
+    getPosts: RequestHandler<
+        Record<string, never>,
+        PostResponse[],
+        Record<string, never>,
+        PostQueryParams
+    >;
+
+    getPostById: RequestHandler<{ id: string }, PostResponse>;
+
+    getUserPostsById: RequestHandler<
+        { userId: string },
+        PostResponse[],
+        Record<string, never>,
+        PostQueryParams
+    >;
+
+    updatePostStatus: RequestHandler<>;
+
+    deletePost: RequestHandler<>;
+}
+
+export interface CommentController {
+    createComment: [
+        RequestHandler<{}, any, z.infer<typeof createCommentSchema>>,
+        RequestHandler<Record<string, never>, Comment, CommentCreateRequest>
+    ];
+
+    getPostComments: RequestHandler<
+        { post_id: string },
+        CommentResponse,
+        unknown,
+        CommentQueryParams
+    >;
+
+    getCommentById: RequestHandler<{ id: string }, Comment>;
+
+    getCommentReplies: RequestHandler<
+        { comment_id: string },
+        CommentResponse,
+        unknown,
+        CommentQueryParams
+    >;
+
+    updateComment: RequestHandler<
+        { id: string },
+        Comment,
+        { content: string }
+    >[];
+
+    deleteComment: RequestHandler<{ id: string }, Comment>;
+}
+
 export interface CommentService {
     createComment(request: CommentCreateRequest): Promise<Comment>;
+
     getPostComments(
         post_id: number,
         params: CommentQueryParams
     ): Promise<CommentResponse>;
+
     getCommentReplies(
         comment_id: number,
         params: CommentQueryParams
     ): Promise<CommentResponse>;
-    updateComment(
-        comment_id: number,
-        data: { content: string }
-    ): Promise<Comment>;
+
+    updateComment(request: CommentUpdateRequest): Promise<Comment>;
+
     deleteComment(comment_id: number): Promise<Comment>;
-    getCommentById(commentId: number): Promise<Comment>;
+
+    getCommentById(comment_id: number): Promise<Comment>;
+}
+
+export interface CommentRepository {
+    create(data: CommentCreateRequest): Promise<Comment>;
+
+    findById(id: number): Promise<Comment | null>;
+
+    listForPost(
+        post_id: number,
+        params: CommentQueryParams
+    ): Promise<{
+        rows: {
+            comment: Comment;
+            user: Pick<User, 'username' | 'avatar_url'>;
+        }[];
+        total: number;
+    }>;
+
+    listReplies(
+        comment_id: number,
+        params: CommentQueryParams
+    ): Promise<{
+        rows: {
+            comment: Comment;
+            user: Pick<User, 'username' | 'avatar_url'>;
+        }[];
+        total: number;
+    }>;
+
+    update(request: CommentUpdateRequest): Promise<Comment>;
+
+    remove(id: number): Promise<Comment>;
 }
 
 export const PackTypes = [
@@ -820,7 +908,6 @@ export interface CommentCreateRequest {
 }
 
 export interface CommentUpdateRequest {
-    privy_id: string;
     comment_id: number;
     content: string;
 }

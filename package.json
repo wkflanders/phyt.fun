@@ -24,7 +24,10 @@
         "db:reset": "pnpm --filter @phyt/database run db:reset"
     },
     "devDependencies": {
+        "@types/express": "^5.0.1",
+        "@types/express-serve-static-core": "^5.0.6",
         "@types/node": "^22.14.0",
+        "@types/qs": "^6.9.18",
         "eslint": "^9.24.0",
         "prettier": "^3.5.3",
         "tsup": "^8.4.0",

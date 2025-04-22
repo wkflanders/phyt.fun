@@ -1,114 +1,37 @@
-import {
-    db,
-    eq,
-    and,
-    desc,
-    isNull,
-    count,
-    comments,
-    posts,
-    users
-} from '@phyt/database';
-import {
-    NotFoundError,
-    Comment,
-    CommentCreateRequest,
-    CommentQueryParams,
-    CommentResponse,
-    CommentService,
-    DatabaseError
-} from '@phyt/types';
+import { NotFoundError, CommentService, DatabaseError } from '@phyt/types';
+
+import { commentRepository } from '@/repositories/commentRepository.js';
 
 export const commentService: CommentService = {
-    createComment: async ({
-        user_id,
-        post_id,
-        content,
-        parent_comment_id
-    }: CommentCreateRequest): Promise<Comment> => {
+    createComment: async (createCommentData) => {
+        const { user_id, post_id, content, parent_comment_id } =
+            createCommentData;
         try {
-            // First, verify the post exists
-            const post = await db
-                .select()
-                .from(posts)
-                .where(and(eq(posts.id, post_id), eq(posts.status, 'visible')))
-                .limit(1);
-
-            if (!post.length) {
-                throw new NotFoundError(
-                    `Post with ID ${String(post_id)} not found or is not visible`
-                );
-            }
-
-            // If there's a parent comment, verify it exists
-            if (parent_comment_id) {
-                const parentComment = await db
-                    .select()
-                    .from(comments)
-                    .where(eq(comments.id, parent_comment_id))
-                    .limit(1);
-
-                if (!parentComment.length) {
-                    throw new NotFoundError(
-                        `Parent comment with ID ${String(parent_comment_id)} not found`
-                    );
-                }
-            }
-
-            // Create the comment
-            const [comment] = await db
-                .insert(comments)
-                .values({
-                    post_id: post_id,
-                    user_id: user_id,
-                    content,
-                    parent_comment_id: parent_comment_id ?? null
-                })
-                .returning();
-
-            return comment;
+            return await commentRepository.create({
+                user_id,
+                post_id,
+                content,
+                parent_comment_id: parent_comment_id ?? undefined
+            });
         } catch (error) {
             console.error('Error with createComment ', error);
             throw new DatabaseError('Error with creating a new comment');
         }
     },
 
-    getPostComments: async (
-        post_id: number,
-        { page = 1, limit = 20, parent_only = false }: CommentQueryParams
-    ): Promise<CommentResponse> => {
-        // updated return type
+    getPostComments: async (post_id, params = {}) => {
+        const { page = 1, limit = 20, parent_only = false } = params;
         try {
-            const offset = (page - 1) * limit;
-            const baseCondition = eq(comments.post_id, post_id);
-            const whereConditions = parent_only
-                ? and(baseCondition, isNull(comments.parent_comment_id))
-                : baseCondition;
-
-            const results = await db
-                .select({
-                    comment: comments,
-                    user: {
-                        username: users.username,
-                        avatar_url: users.avatar_url
-                    }
-                })
-                .from(comments)
-                .innerJoin(users, eq(comments.user_id, users.id))
-                .where(whereConditions)
-                .orderBy(desc(comments.created_at))
-                .limit(limit)
-                .offset(offset);
-
-            const countResults = await db
-                .select({ value: count() })
-                .from(comments)
-                .where(whereConditions);
-
-            const total = Number(countResults[0]?.value ?? 0);
-
+            const { rows, total } = await commentRepository.listForPost(
+                post_id,
+                {
+                    page,
+                    limit,
+                    parent_only
+                }
+            );
             return {
-                comments: results,
+                comments: rows,
                 pagination: {
                     page,
                     limit,
@@ -122,38 +45,18 @@ export const commentService: CommentService = {
         }
     },
 
-    getCommentReplies: async (
-        comment_id: number,
-        { page = 1, limit = 20 }: CommentQueryParams
-    ): Promise<CommentResponse> => {
+    getCommentReplies: async (comment_id, params) => {
+        const { page = 1, limit = 20 } = params;
         try {
-            const offset = (page - 1) * limit;
-
-            const results = await db
-                .select({
-                    comment: comments,
-                    user: {
-                        username: users.username,
-                        avatar_url: users.avatar_url
-                    }
-                })
-                .from(comments)
-                .innerJoin(users, eq(comments.user_id, users.id))
-                .where(eq(comments.parent_comment_id, comment_id))
-                .orderBy(desc(comments.created_at))
-                .limit(limit)
-                .offset(offset);
-
-            // Get total count for pagination
-            const countResults = await db
-                .select({ value: count() })
-                .from(comments)
-                .where(eq(comments.parent_comment_id, comment_id));
-
-            const total = Number(countResults[0]?.value ?? 0);
-
+            const { rows, total } = await commentRepository.listReplies(
+                comment_id,
+                {
+                    page,
+                    limit
+                }
+            );
             return {
-                comments: results,
+                comments: rows,
                 pagination: {
                     page,
                     limit,
@@ -167,72 +70,46 @@ export const commentService: CommentService = {
         }
     },
 
-    updateComment: async (
-        comment_id: number,
-        { content }: { content: string }
-    ): Promise<Comment> => {
+    updateComment: async ({ comment_id, content }) => {
         try {
-            const commentResults = await db
-                .update(comments)
-                .set({ content, updated_at: new Date() })
-                .where(eq(comments.id, comment_id))
-                .returning();
-
-            if (commentResults.length === 0) {
-                throw new NotFoundError(
-                    `Comment with ID ${String(comment_id)} not found`
-                );
-            }
-            return commentResults[0];
+            const updated = await commentRepository.update({
+                comment_id,
+                content
+            });
+            // if (updated == null) {
+            //     throw new NotFoundError(
+            //         `Comment ${String(comment_id)} not found`
+            //     );
+            // }
+            return updated;
         } catch (error) {
             console.error('Error with updateComment ', error);
             throw new DatabaseError('Failed to update comment');
         }
     },
 
-    deleteComment: async (comment_id: number): Promise<Comment> => {
+    deleteComment: async (comment_id) => {
         try {
-            const deletedCommentResults = await db
-                .delete(comments)
-                .where(eq(comments.id, comment_id))
-                .returning();
-
-            if (deletedCommentResults.length === 0) {
-                throw new NotFoundError(
-                    `Comment with ID ${String(comment_id)} not found`
-                );
-            }
-            return deletedCommentResults[0];
+            const deleted = await commentRepository.remove(comment_id);
+            // if (!deleted)
+            //     throw new NotFoundError(
+            //         `Comment ${String(comment_id)} not found`
+            //     );
+            return deleted;
         } catch (error) {
             console.error('Error with deleteComment ', error);
             throw new DatabaseError('Failed to delete comment');
         }
     },
 
-    getCommentById: async (commentId: number): Promise<Comment> => {
+    getCommentById: async (comment_id) => {
         try {
-            const commentsResults = await db
-                .select({
-                    id: comments.id,
-                    post_id: comments.post_id,
-                    user_id: comments.user_id,
-                    content: comments.content,
-                    parent_comment_id: comments.parent_comment_id,
-                    updated_at: comments.updated_at,
-                    created_at: comments.created_at
-                })
-                .from(comments)
-                .innerJoin(users, eq(comments.user_id, users.id))
-                .where(eq(comments.id, commentId))
-                .limit(1);
-
-            if (commentsResults.length === 0) {
+            const comment = await commentRepository.findById(comment_id);
+            if (!comment)
                 throw new NotFoundError(
-                    `Comment with ID ${String(commentId)} not found`
+                    `Comment ${String(comment_id)} not found`
                 );
-            }
-
-            return commentsResults[0];
+            return comment;
         } catch (error) {
             console.error('Error with getCommentById ', error);
             throw new DatabaseError('Failed to get comment');
