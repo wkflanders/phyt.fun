@@ -807,6 +807,18 @@ export interface CommentPagination {
     totalPages: number;
 }
 
+export interface CommentCreateRequest {
+    user_id: number;
+    post_id: number;
+    content: string;
+    parent_comment_id: number | null;
+}
+
+export interface CommentUpdateRequest {
+    content: string;
+    comment_id: number;
+}
+
 export interface CommentResponse {
     comments: {
         comment: Comment;
