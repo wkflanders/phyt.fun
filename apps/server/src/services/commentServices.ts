@@ -1,17 +1,14 @@
 import {
     CommentResponse,
     Comment,
+    CommentCreateRequest,
+    CommentUpdateRequest,
     CommentQueryParams,
     NotFoundError,
     ValidationError
 } from '@phyt/types';
 
-import { CommentRepository } from '@/repositories/commentRepository.js';
-
-import type {
-    CommentCreateRequest,
-    CommentUpdateRequest
-} from '@/lib/validation.js';
+import type { CommentRepository } from '@/repositories/commentRepository.js';
 
 export type CommentService = ReturnType<typeof makeCommentService>;
 
