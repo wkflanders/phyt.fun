@@ -12,6 +12,7 @@ import {
     Comment,
     CommentQueryParams,
     CommentResponse,
+    DatabaseError,
     NotFoundError
 } from '@phyt/types';
 
@@ -110,8 +111,8 @@ export const makeCommentRepository = (): CommentRepository => {
                 .where(eq(comments.id, comment_id))
                 .returning();
             if (!row)
-                throw new NotFoundError(
-                    `Comment ${String(comment_id)} not found`
+                throw new DatabaseError(
+                    `Error with comment ${String(comment_id)}`
                 );
             return row;
         },
@@ -123,7 +124,7 @@ export const makeCommentRepository = (): CommentRepository => {
                 .returning();
             if (!row)
                 throw new NotFoundError(
-                    `Comment ${String(comment_id)} not found`
+                    `Error with comment ${String(comment_id)}`
                 );
             return row;
         }
