@@ -33,7 +33,7 @@ export interface CommentRepository {
     remove(comment_id: number): Promise<Comment>;
 }
 
-export const makeCommentRepository = (): CommentRepository => {
+export const makeCommentRepository = () => {
     const commentRepository: CommentRepository = {
         create: async (comment_data) => {
             const [row] = await db
