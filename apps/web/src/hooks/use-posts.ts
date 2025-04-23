@@ -2,8 +2,8 @@ import {
     ApiError,
     AuthenticationError,
     PostQueryParams,
-    PostUpdateRequest,
-    PostCreateRequest,
+    UpdatePostRequest,
+    CreatePostRequest,
     PostResponse,
     Post
 } from '@phyt/types';
@@ -82,7 +82,7 @@ export function useCreatePost() {
     const { toast } = useToast();
     const { getAccessToken } = usePrivy();
 
-    return useMutation<Post, ApiError, PostCreateRequest>({
+    return useMutation<Post, ApiError, CreatePostRequest>({
         mutationFn: async (postData) => {
             const token = await getAccessToken();
             if (!token) {
@@ -115,7 +115,7 @@ export function useUpdatePostStatus() {
     const { toast } = useToast();
     const { getAccessToken } = usePrivy();
 
-    return useMutation<Post, ApiError, PostUpdateRequest>({
+    return useMutation<Post, ApiError, UpdatePostRequest>({
         mutationFn: async (updatePostData) => {
             const token = await getAccessToken();
             if (!token) {

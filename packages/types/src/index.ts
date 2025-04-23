@@ -740,14 +740,15 @@ export interface Post {
     created_at: Date;
 }
 
-export interface PostUpdateRequest {
-    postId: number;
+export interface UpdatePostRequest {
+    post_id: number;
     status: PostStatus;
 }
 
-export interface PostCreateRequest {
+export interface CreatePostRequest {
+    user_id: number;
     run_id: number;
-    content?: string;
+    content: string | null;
 }
 
 export interface PostResponse {

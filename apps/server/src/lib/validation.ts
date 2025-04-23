@@ -133,8 +133,9 @@ export const workoutSchema = z.object({
 });
 
 export const createPostSchema = z.object({
+    user_id: z.number({ required_error: 'User id is required' }),
     run_id: z.number({ required_error: 'Run ID is required' }),
-    content: z.string().optional()
+    content: z.string().optional().nullable().default(null)
 });
 
 export const updatePostSchema = z.object({
