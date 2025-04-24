@@ -1,3 +1,4 @@
+import { UUIDv7 } from '@phyt/types';
 import express, { Router, Request, Response } from 'express';
 
 import { validateAuth } from '@/middleware/auth.js';
@@ -47,7 +48,7 @@ router.get('/runner/:id', async (req: Request, res: Response) => {
         res.status(200).json(runnerStanding);
     } else {
         const runnerStanding = await leaderboardService.getRunnerStanding(
-            Number(id),
+            id,
             false,
             { timeFrame: timeFrame as 'weekly' | 'monthly' | 'allTime' }
         );
@@ -69,7 +70,7 @@ router.get('/manager/:id', async (req: Request, res: Response) => {
         res.status(200).json(managerStanding);
     } else {
         const managerStanding = await leaderboardService.getManagerStanding(
-            Number(id),
+            id,
             false,
             { timeFrame: timeFrame as 'weekly' | 'monthly' | 'allTime' }
         );

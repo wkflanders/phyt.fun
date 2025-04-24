@@ -1,4 +1,5 @@
 import {
+    UUIDv7,
     ValidationError,
     ReactionToggleResponse,
     ReactionToggleRequest,
@@ -61,12 +62,12 @@ router.post(
 router.get(
     '/:post_id',
     async (
-        req: Request<{ post_id: number }, ReactionCount>,
+        req: Request<{ post_id: UUIDv7 }, ReactionCount>,
         res: Response<ReactionCount>
     ) => {
         const post_id = req.params.post_id;
 
-        if (isNaN(post_id)) {
+        if (!post_id) {
             throw new ValidationError('Invalid post ID');
         }
 
@@ -79,11 +80,11 @@ router.get(
 router.get(
     '/:comment_id',
     async (
-        req: Request<{ comment_id: number }, ReactionCount>,
+        req: Request<{ comment_id: UUIDv7 }, ReactionCount>,
         res: Response<ReactionCount>
     ) => {
         const comment_id = req.params.comment_id;
-        if (isNaN(comment_id)) {
+        if (!comment_id) {
             throw new ValidationError('Invalid comment ID');
         }
 
@@ -96,18 +97,18 @@ router.get(
 router.get(
     '/:user_id/:post_id',
     async (
-        req: Request<{ user_id: number; post_id: number }, Reaction[]>,
+        req: Request<{ user_id: UUIDv7; post_id: UUIDv7 }, Reaction[]>,
         res: Response<Reaction[]>
     ) => {
         const post_id = req.params.post_id;
 
-        if (isNaN(post_id)) {
+        if (!post_id) {
             throw new ValidationError('Invalid post ID');
         }
 
         const user_id = req.params.user_id;
 
-        if (isNaN(user_id)) {
+        if (!user_id) {
             throw new ValidationError('Invalid user ID');
         }
 
@@ -124,16 +125,16 @@ router.get(
 router.get(
     '/:user_id/:comment_id',
     async (
-        req: Request<{ user_id: number; comment_id: number }, Reaction[]>,
+        req: Request<{ user_id: UUIDv7; comment_id: UUIDv7 }, Reaction[]>,
         res: Response<Reaction[]>
     ) => {
         const { user_id, comment_id } = req.params;
 
-        if (isNaN(user_id)) {
+        if (!user_id) {
             throw new ValidationError('Missing valid user Id');
         }
 
-        if (isNaN(comment_id)) {
+        if (!comment_id) {
             throw new ValidationError('Missing valid comment Id');
         }
 

@@ -10,6 +10,7 @@ import {
     users
 } from '@phyt/database';
 import {
+    UUIDv7,
     NotFoundError,
     DatabaseError,
     RunnerProfile,
@@ -146,7 +147,7 @@ export const runnerService = {
     },
 
     getRunnerActivities: async (
-        runnerId: number
+        runnerId: UUIDv7
     ): Promise<RunnerActivity[]> => {
         try {
             const runner = await db
@@ -180,6 +181,8 @@ export const runnerService = {
 
             return activities.map((activity) => ({
                 ...activity,
+                id: activity.id as UUIDv7,
+                runner_id: activity.runner_id as UUIDv7,
                 completed_at: activity.completed_at.toISOString(),
                 time_ago: formatDistanceToNow(new Date(activity.completed_at), {
                     addSuffix: true
@@ -265,7 +268,14 @@ export const runnerService = {
 
             // Apply sorting
             const sortColumn = sortColumnMap[validSortBy];
-            return await query.orderBy(isDesc ? desc(sortColumn) : sortColumn);
+            const results = await query.orderBy(
+                isDesc ? desc(sortColumn) : sortColumn
+            );
+            return results.map((runner) => ({
+                ...runner,
+                id: runner.id as UUIDv7,
+                user_id: runner.user_id as UUIDv7
+            }));
         } catch (error) {
             console.error('Error with getAllRunners ', error);
             throw new DatabaseError('Failed to get runners');
@@ -306,14 +316,18 @@ export const runnerService = {
             if (!runnerResults.length) {
                 throw new NotFoundError('Runner not found');
             }
-            return runnerResults[0];
+            return {
+                ...runnerResults[0],
+                id: runnerResults[0].id as UUIDv7,
+                user_id: runnerResults[0].user_id as UUIDv7
+            };
         } catch (error: unknown) {
             console.error('Error with getRunnerByPrivyId ', error);
             throw new DatabaseError('Failed to get runner');
         }
     },
 
-    getRunnerById: async (runnerId: number): Promise<RunnerProfile> => {
+    getRunnerById: async (runnerId: UUIDv7): Promise<RunnerProfile> => {
         try {
             const runnerResults = await db
                 .select({
@@ -340,7 +354,11 @@ export const runnerService = {
                 throw new NotFoundError('Runner not found');
             }
 
-            return runnerResults[0];
+            return {
+                ...runnerResults[0],
+                id: runnerResults[0].id as UUIDv7,
+                user_id: runnerResults[0].user_id as UUIDv7
+            };
         } catch (error: unknown) {
             console.error('Error with getRunnerById ', error);
             throw new DatabaseError('Failed to get runner');

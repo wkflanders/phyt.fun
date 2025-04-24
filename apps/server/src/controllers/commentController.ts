@@ -3,7 +3,8 @@ import {
     CommentResponse,
     Comment,
     CommentCreateRequest,
-    CommentUpdateRequest
+    CommentUpdateRequest,
+    UUIDv7
 } from '@phyt/types';
 
 import { createCommentSchema, updateCommentSchema } from '@/lib/validation.js';
@@ -18,7 +19,7 @@ export const makeCommentController = (svc: CommentService) => ({
         validateAuth,
         async (
             req: Request<
-                { post_id: string },
+                { post_id: UUIDv7 },
                 CommentResponse,
                 Record<string, never>,
                 CommentQueryParams
@@ -26,7 +27,7 @@ export const makeCommentController = (svc: CommentService) => ({
             res: Response<CommentResponse>
         ) => {
             const { page = 1, limit = 20, parent_only = true } = req.query;
-            const data = await svc.getPostComments(Number(req.params.post_id), {
+            const data = await svc.getPostComments(req.params.post_id, {
                 page: Number(page),
                 limit: Number(limit),
                 parent_only: Boolean(parent_only)
@@ -39,7 +40,7 @@ export const makeCommentController = (svc: CommentService) => ({
         validateAuth,
         async (
             req: Request<
-                { comment_id: string },
+                { comment_id: UUIDv7 },
                 CommentResponse,
                 Record<string, never>,
                 CommentQueryParams
@@ -47,13 +48,10 @@ export const makeCommentController = (svc: CommentService) => ({
             res: Response<CommentResponse>
         ) => {
             const { page = 1, limit = 20 } = req.query;
-            const data = await svc.getCommentReplies(
-                Number(req.params.comment_id),
-                {
-                    page: Number(page),
-                    limit: Number(limit)
-                }
-            );
+            const data = await svc.getCommentReplies(req.params.comment_id, {
+                page: Number(page),
+                limit: Number(limit)
+            });
             res.status(200).json(data);
         }
     ] as RequestHandler[],
@@ -61,10 +59,10 @@ export const makeCommentController = (svc: CommentService) => ({
     getCommentById: [
         validateAuth,
         async (
-            req: Request<Record<string, never>, Comment>,
+            req: Request<{ commentId: UUIDv7 }, Comment>,
             res: Response<Comment>
         ) => {
-            const comment = await svc.getCommentById(Number(req.params.id));
+            const comment = await svc.getCommentById(req.params.commentId);
             res.status(200).json(comment);
         }
     ] as RequestHandler[],
@@ -86,11 +84,11 @@ export const makeCommentController = (svc: CommentService) => ({
         validateAuth,
         validateSchema(updateCommentSchema),
         async (
-            req: Request<{ comment_id: string }, Comment, { content: string }>,
+            req: Request<{ comment_id: UUIDv7 }, Comment, { content: string }>,
             res: Response<Comment>
         ) => {
             const content = req.body.content;
-            const comment_id = Number(req.params.comment_id);
+            const comment_id = req.params.comment_id;
             const comment_data: CommentUpdateRequest = { comment_id, content };
 
             const comment = await svc.updateComment(comment_data);
@@ -101,12 +99,10 @@ export const makeCommentController = (svc: CommentService) => ({
     deleteComment: [
         validateAuth,
         async (
-            req: Request<{ comment_id: string }, Comment>,
+            req: Request<{ comment_id: UUIDv7 }, Comment>,
             res: Response<Comment>
         ) => {
-            const deleted = await svc.deleteComment(
-                Number(req.params.comment_id)
-            );
+            const deleted = await svc.deleteComment(req.params.comment_id);
             res.json(deleted);
         }
     ] as RequestHandler[]

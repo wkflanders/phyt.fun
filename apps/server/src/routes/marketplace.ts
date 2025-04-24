@@ -1,4 +1,5 @@
 import {
+    UUIDv7,
     CreateListingRequestBody,
     ListedBidRequestBody,
     OrderBook,
@@ -173,7 +174,7 @@ router.post(
 router.get(
     '/cards/:cardId/open-bids',
     async (
-        req: Request<{ cardId: string }, OrderBook>,
+        req: Request<{ cardId: UUIDv7 }, OrderBook>,
         res: Response<OrderBook>
     ) => {
         const { cardId } = req.params;
@@ -181,9 +182,7 @@ router.get(
             throw new ValidationError('Invalid card ID');
         }
 
-        const bids = await marketplaceService.getOpenBidsForCard(
-            parseInt(cardId)
-        );
+        const bids = await marketplaceService.getOpenBidsForCard(cardId);
         res.status(200).json(bids);
     }
 );
@@ -192,11 +191,11 @@ router.get(
 router.get(
     '/users/:userId/bids',
     async (
-        req: Request<{ userId: string }, UserBids[]>,
+        req: Request<{ userId: UUIDv7 }, UserBids[]>,
         res: Response<UserBids[]>
     ) => {
         const { userId } = req.params;
-        const bids = await marketplaceService.getAllUserBids(parseInt(userId));
+        const bids = await marketplaceService.getAllUserBids(userId);
         res.status(200).json(bids);
     }
 );
@@ -205,14 +204,14 @@ router.get(
 router.post(
     '/open-bid/:bidId/accept',
     async (
-        req: Request<{ bidId: string }, OpenBid, { transaction_hash: string }>,
+        req: Request<{ bidId: UUIDv7 }, OpenBid, { transaction_hash: string }>,
         res: Response<OpenBid>
     ) => {
         const { bidId } = req.params;
         const { transaction_hash } = req.body;
 
         const result = await marketplaceService.acceptOpenBid({
-            bid_id: parseInt(bidId),
+            bid_id: bidId,
             transaction_hash
         });
 

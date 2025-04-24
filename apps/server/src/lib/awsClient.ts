@@ -3,7 +3,7 @@ import {
     PutObjectCommand,
     GetObjectCommand
 } from '@aws-sdk/client-s3';
-import { CardRarity, TokenURIMetadata } from '@phyt/types';
+import { CardRarity, TokenURIMetadata, UUIDv7 } from '@phyt/types';
 import { config } from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -68,7 +68,7 @@ export const s3Service = {
         }
     },
 
-    getImageUrl: (runnerId: number, rarity: CardRarity): string => {
+    getImageUrl: (runnerId: UUIDv7, rarity: CardRarity): string => {
         return `https://d5mhfgomyfg7p.cloudfront.net/runners/${String(runnerId)}/${String(rarity)}.png`;
     },
 

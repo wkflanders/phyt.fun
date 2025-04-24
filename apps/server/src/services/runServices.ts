@@ -8,6 +8,7 @@ import {
     withTransaction
 } from '@phyt/database';
 import {
+    UUIDv7,
     NotFoundError,
     RunnerApplicationStatus,
     Run,
@@ -98,7 +99,7 @@ export const runService = {
         }
     },
 
-    getRunById: async (runId: number): Promise<Run> => {
+    getRunById: async (runId: UUIDv7): Promise<Run> => {
         try {
             const runResults = await db
                 .select()
@@ -114,6 +115,8 @@ export const runService = {
 
             return {
                 ...run,
+                id: run.id as UUIDv7,
+                runner_id: run.runner_id as UUIDv7,
                 raw_data_json: run.raw_data_json as Record<
                     string,
                     unknown
@@ -125,7 +128,7 @@ export const runService = {
         }
     },
 
-    getRunnerRuns: async (runnerId: number): Promise<Run[]> => {
+    getRunnerRuns: async (runnerId: UUIDv7): Promise<Run[]> => {
         try {
             const runResults = await db
                 .select()
@@ -135,6 +138,8 @@ export const runService = {
 
             return runResults.map((run) => ({
                 ...run,
+                id: run.id as UUIDv7,
+                runner_id: run.runner_id as UUIDv7,
                 raw_data_json: run.raw_data_json as Record<
                     string,
                     unknown
@@ -182,6 +187,8 @@ export const runService = {
 
                 return {
                     ...insertedRun,
+                    id: insertedRun.id as UUIDv7,
+                    runner_id: insertedRun.runner_id as UUIDv7,
                     raw_data_json: insertedRun.raw_data_json as Record<
                         string,
                         unknown
@@ -206,7 +213,7 @@ export const runService = {
                 // 1. Get user and runner records
                 const runner = await runnerService.getRunnerByPrivyId(privyId);
 
-                // 2. Insert all runs
+                // 2. Insert all
                 const runsToInsert = workouts.map((workout) => ({
                     runner_id: runner.id,
                     start_time: new Date(workout.start_time),
@@ -234,6 +241,8 @@ export const runService = {
 
                 return insertedRuns.map((run) => ({
                     ...run,
+                    id: run.id as UUIDv7,
+                    runner_id: run.runner_id as UUIDv7,
                     raw_data_json: run.raw_data_json as Record<
                         string,
                         unknown
@@ -250,7 +259,7 @@ export const runService = {
         runId,
         status
     }: {
-        runId: number;
+        runId: string;
         status: RunVerificationStatus;
     }): Promise<Run> => {
         try {
@@ -273,6 +282,8 @@ export const runService = {
 
             return {
                 ...runResults[0],
+                id: runResults[0].id as UUIDv7,
+                runner_id: runResults[0].runner_id as UUIDv7,
                 raw_data_json: runResults[0].raw_data_json as Record<
                     string,
                     unknown
@@ -284,7 +295,7 @@ export const runService = {
         }
     },
 
-    deleteRun: async (runId: number): Promise<Run> => {
+    deleteRun: async (runId: UUIDv7): Promise<Run> => {
         try {
             const runResults = await db
                 .delete(runs)
@@ -299,6 +310,8 @@ export const runService = {
 
             return {
                 ...runResults[0],
+                id: runResults[0].id as UUIDv7,
+                runner_id: runResults[0].runner_id as UUIDv7,
                 raw_data_json: runResults[0].raw_data_json as Record<
                     string,
                     unknown
@@ -310,7 +323,7 @@ export const runService = {
         }
     },
 
-    markRunAsPosted: async (runId: number): Promise<Run> => {
+    markRunAsPosted: async (runId: string): Promise<Run> => {
         try {
             const runResults = await db
                 .update(runs)
@@ -327,6 +340,8 @@ export const runService = {
 
             return {
                 ...runResults[0],
+                id: runResults[0].id as UUIDv7,
+                runner_id: runResults[0].runner_id as UUIDv7,
                 raw_data_json: runResults[0].raw_data_json as Record<
                     string,
                     unknown
@@ -338,7 +353,7 @@ export const runService = {
         }
     },
 
-    updateRunnerStats: async (runnerId: number): Promise<void> => {
+    updateRunnerStats: async (runnerId: string): Promise<void> => {
         try {
             const runnerRuns = await db
                 .select()

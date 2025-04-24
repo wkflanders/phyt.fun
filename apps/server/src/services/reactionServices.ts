@@ -1,13 +1,6 @@
+import { db, eq, and, count, reactions, posts, comments } from '@phyt/database';
 import {
-    db,
-    eq,
-    and,
-    count,
-    reactions,
-    posts,
-    comments,
-} from '@phyt/database';
-import {
+    UUIDv7,
     NotFoundError,
     DatabaseError,
     ReactionToggleRequest,
@@ -99,7 +92,7 @@ export const reactionService = {
         }
     },
 
-    getPostReactions: async (post_id: number): Promise<ReactionCount> => {
+    getPostReactions: async (post_id: UUIDv7): Promise<ReactionCount> => {
         try {
             const reactionCounts = await db
                 .select({
@@ -123,7 +116,7 @@ export const reactionService = {
         }
     },
 
-    getCommentReactions: async (comment_id: number): Promise<ReactionCount> => {
+    getCommentReactions: async (comment_id: UUIDv7): Promise<ReactionCount> => {
         try {
             const reactionCounts = await db
                 .select({
@@ -147,7 +140,10 @@ export const reactionService = {
         }
     },
 
-    getUserPostReactions: async (user_id: number, post_id: number): Promise<Reaction[]> => {
+    getUserPostReactions: async (
+        user_id: UUIDv7,
+        post_id: UUIDv7
+    ): Promise<Reaction[]> => {
         try {
             const userReactions = await db
                 .select()
@@ -166,7 +162,10 @@ export const reactionService = {
         }
     },
 
-    getUserCommentReactions: async (user_id: number, comment_id: number): Promise<Reaction[]> => {
+    getUserCommentReactions: async (
+        user_id: UUIDv7,
+        comment_id: UUIDv7
+    ): Promise<Reaction[]> => {
         try {
             const userReactions = await db
                 .select()

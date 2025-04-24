@@ -8,6 +8,7 @@ import {
     gte
 } from '@phyt/database';
 import {
+    UUIDv7,
     RunnerStanding,
     ManagerStanding,
     RunnerLeaderboard,
@@ -28,7 +29,7 @@ interface LeaderboardParams {
 
 export const leaderboardService = {
     getRunnerStanding: async (
-        id: string | number,
+        id: UUIDv7 | string,
         privy: boolean,
         { timeFrame = 'weekly' }: Pick<LeaderboardParams, 'timeFrame'> = {}
     ): Promise<RunnerStanding> => {
@@ -52,9 +53,9 @@ export const leaderboardService = {
 
             let runner;
             if (privy) {
-                runner = await runnerService.getRunnerByPrivyId(id as string);
+                runner = await runnerService.getRunnerByPrivyId(id);
             } else {
-                runner = await runnerService.getRunnerById(id as number);
+                runner = await runnerService.getRunnerById(id as UUIDv7);
             }
 
             const leaderboardResults = await db
@@ -88,7 +89,7 @@ export const leaderboardService = {
     },
 
     getManagerStanding: async (
-        id: string | number,
+        id: string | UUIDv7,
         privy: boolean,
         { timeFrame = 'weekly' }: Pick<LeaderboardParams, 'timeFrame'> = {}
     ): Promise<ManagerStanding> => {
@@ -112,9 +113,9 @@ export const leaderboardService = {
 
             let user;
             if (privy) {
-                user = await userService.getUserByPrivyId(id as string);
+                user = await userService.getUserByPrivyId(id);
             } else {
-                user = await userService.getUserById(id as number);
+                user = await userService.getUserById(id as UUIDv7);
             }
 
             const leaderboardResults = await db
@@ -183,7 +184,7 @@ export const leaderboardService = {
             const results = await Promise.all(
                 leaderboardEntries.map(async (entry) => {
                     const runner = await runnerService.getRunnerById(
-                        entry.runner_id
+                        entry.runner_id as UUIDv7
                     );
 
                     return {
@@ -253,7 +254,9 @@ export const leaderboardService = {
 
             const results = await Promise.all(
                 leaderboardEntries.map(async (entry) => {
-                    const user = await userService.getUserById(entry.user_id);
+                    const user = await userService.getUserById(
+                        entry.user_id as UUIDv7
+                    );
 
                     return {
                         id: user.id,

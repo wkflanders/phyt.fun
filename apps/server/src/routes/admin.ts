@@ -1,4 +1,5 @@
 import {
+    UUIDv7,
     Run,
     DatabaseError,
     NotFoundError,
@@ -31,27 +32,30 @@ router.get('/pending-runs', async (req: Request, res: Response) => {
 });
 
 // Approve runner
-router.post('/runners/:id/approve', async (req: Request, res: Response) => {
-    const userId = parseInt(req.params.id);
-    if (isNaN(userId)) {
-        throw new ValidationError('Invalid user ID');
-    }
+router.post(
+    '/runners/:id/approve',
+    async (req: Request<{ id: UUIDv7 }>, res: Response) => {
+        const userId = req.params.id;
+        if (!userId) {
+            throw new ValidationError('Invalid user ID');
+        }
 
-    const updatedUser = await adminService.approveRunner(userId);
-    res.status(200).json(updatedUser);
-});
+        const updatedUser = await adminService.approveRunner(userId);
+        res.status(200).json(updatedUser);
+    }
+);
 
 // Update run verification status
 router.patch(
     '/runs/:id/verify',
     async (
-        req: Request<{ id: string }, Run, VerifyRunStatus>,
+        req: Request<{ id: UUIDv7 }, Run, VerifyRunStatus>,
         res: Response
     ) => {
-        const runId = parseInt(req.params.id, 10);
+        const runId = req.params.id;
         const { status } = req.body;
 
-        if (isNaN(runId)) {
+        if (!runId) {
             throw new ValidationError('Invalid run ID');
         }
 

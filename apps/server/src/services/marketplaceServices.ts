@@ -16,6 +16,7 @@ import {
     users
 } from '@phyt/database';
 import {
+    UUIDv7,
     DatabaseError,
     GetListingProps,
     CreateListingProps,
@@ -143,6 +144,12 @@ export const marketplaceService = {
                 ...item,
                 listing: {
                     ...item.listing,
+                    id: item.listing.id as UUIDv7,
+                    buyer_id: item.listing.buyer_id as UUIDv7 | null,
+                    seller_id: item.listing.seller_id as UUIDv7,
+                    card_id: item.listing.card_id as UUIDv7,
+                    highest_bidder_id: item.listing
+                        .highest_bidder_id as UUIDv7 | null,
                     highest_bid:
                         item.listing.highest_bid !== null
                             ? String(item.listing.highest_bid)
@@ -150,6 +157,21 @@ export const marketplaceService = {
                     order_data: deserializeOrder(
                         item.listing.order_data as Record<string, unknown>
                     )
+                },
+                seller: {
+                    ...item.seller,
+                    id: item.seller.id as UUIDv7
+                },
+                card: {
+                    ...item.card,
+                    id: item.card.id as UUIDv7,
+                    owner_id: item.card.owner_id as UUIDv7,
+                    pack_purchase_id: item.card
+                        .pack_purchase_id as UUIDv7 | null
+                },
+                metadata: {
+                    ...item.metadata,
+                    runner_id: item.metadata.runner_id as UUIDv7
                 }
             }));
         } catch (error) {
@@ -200,6 +222,11 @@ export const marketplaceService = {
             const result = insertResult[0];
             return {
                 ...result,
+                id: result.id as UUIDv7,
+                card_id: result.card_id as UUIDv7,
+                seller_id: result.seller_id as UUIDv7,
+                buyer_id: result.buyer_id as UUIDv7 | null,
+                highest_bidder_id: result.highest_bidder_id as UUIDv7 | null,
                 highest_bid:
                     result.highest_bid !== null
                         ? String(result.highest_bid)
@@ -288,9 +315,12 @@ export const marketplaceService = {
 
                 return {
                     ...bid,
+                    id: bid.id as UUIDv7,
                     bid_type: 'listing' as const,
                     bid_status: bid.status as BidStatusListed | 'withdrawn',
-                    listing_id: bid.listing_id ?? listing_id,
+                    listing_id: (bid.listing_id ?? listing_id) as UUIDv7,
+                    bidder_id: bid.bidder_id as UUIDv7,
+                    card_id: bid.card_id as UUIDv7,
                     order_data: deserializeOrder(
                         bid.order_data as Record<string, unknown>
                     )
@@ -343,7 +373,19 @@ export const marketplaceService = {
 
                 return {
                     ...updatedListing,
-                    order_data: updatedListing.order_data as Order
+                    id: updatedListing.id as UUIDv7,
+                    buyer_id: updatedListing.buyer_id as UUIDv7 | null,
+                    seller_id: updatedListing.seller_id as UUIDv7,
+                    card_id: updatedListing.card_id as UUIDv7,
+                    highest_bidder_id:
+                        updatedListing.highest_bidder_id as UUIDv7 | null,
+                    highest_bid:
+                        updatedListing.highest_bid !== null
+                            ? String(updatedListing.highest_bid)
+                            : null,
+                    order_data: deserializeOrder(
+                        updatedListing.order_data as Record<string, unknown>
+                    )
                 };
             });
         } catch (error) {
@@ -414,8 +456,11 @@ export const marketplaceService = {
 
             return {
                 ...bid,
+                id: bid.id as UUIDv7,
+                bidder_id: bid.bidder_id as UUIDv7,
                 bid_type: 'open' as const,
                 bid_status: bid.status as BidStatusOpen | 'withdrawn',
+                card_id: bid.card_id as UUIDv7,
                 listing_id: null,
                 order_data: deserializeOrder(
                     bid.order_data as Record<string, unknown>
@@ -427,7 +472,7 @@ export const marketplaceService = {
         }
     },
 
-    getOpenBidsForCard: async (cardId: number): Promise<OrderBook> => {
+    getOpenBidsForCard: async (cardId: UUIDv7): Promise<OrderBook> => {
         try {
             const bidsData = await db
                 .select({
@@ -449,11 +494,18 @@ export const marketplaceService = {
             return {
                 bid: bidsData.map((item) => ({
                     ...item.bid,
+                    id: item.bid.id as UUIDv7,
+                    listing_id: item.bid.listing_id as UUIDv7 | null,
+                    card_id: item.bid.card_id as UUIDv7,
+                    bidder_id: item.bid.bidder_id as UUIDv7,
                     order_data: deserializeOrder(
                         item.bid.order_data as Record<string, unknown>
                     )
                 })),
-                bidder: bidsData.map((item) => item.bidder)
+                bidder: bidsData.map((item) => ({
+                    ...item.bidder,
+                    id: item.bidder.id as UUIDv7
+                }))
             };
         } catch (error) {
             console.error('Error in getOpenBidsForCard:', error);
@@ -461,7 +513,7 @@ export const marketplaceService = {
         }
     },
 
-    getAllUserBids: async (userId: number): Promise<UserBids[]> => {
+    getAllUserBids: async (userId: UUIDv7): Promise<UserBids[]> => {
         try {
             const results = await db
                 .select({
@@ -501,9 +553,34 @@ export const marketplaceService = {
                 ...result,
                 bid: {
                     ...result.bid,
+                    id: result.bid.id as UUIDv7,
+                    listing_id: result.bid.listing_id as UUIDv7 | null,
+                    card_id: result.bid.card_id as UUIDv7,
+                    bidder_id: result.bid.bidder_id as UUIDv7,
                     order_data: deserializeOrder(
                         result.bid.order_data as Record<string, unknown>
                     )
+                },
+                card: {
+                    ...result.card,
+                    id: result.card.id as UUIDv7,
+                    owner_id: result.card.owner_id as UUIDv7,
+                    pack_purchase_id: result.card
+                        .pack_purchase_id as UUIDv7 | null
+                },
+                metadata: {
+                    ...result.metadata,
+                    runner_id: result.metadata.runner_id as UUIDv7
+                },
+                listing: result.listing
+                    ? {
+                          ...result.listing,
+                          id: result.listing.id as UUIDv7
+                      }
+                    : null,
+                owner: {
+                    ...result.owner,
+                    id: result.owner.id as UUIDv7
                 }
             }));
         } catch (error) {
@@ -568,11 +645,14 @@ export const marketplaceService = {
                 const updatedBid = updatedBidResults[0];
                 return {
                     ...updatedBid,
+                    id: updatedBid.id as UUIDv7,
+                    card_id: updatedBid.card_id as UUIDv7,
+                    bidder_id: updatedBid.bidder_id as UUIDv7,
                     bid_type: 'open' as const,
                     bid_status: updatedBid.status as
                         | BidStatusOpen
                         | 'withdrawn',
-                    listing_id: updatedBid.listing_id,
+                    listing_id: updatedBid.listing_id as UUIDv7 | null,
                     order_data: deserializeOrder(
                         updatedBid.order_data as Record<string, unknown>
                     )

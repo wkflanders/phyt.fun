@@ -1,4 +1,5 @@
 import {
+    UUIDv7,
     ValidationError,
     RunnerProfile,
     RunnerQueryParams,
@@ -54,11 +55,11 @@ router.get(
 router.get(
     '/runner/:id',
     async (
-        req: Request<{ id: number }, RunnerProfile, undefined>,
+        req: Request<{ id: UUIDv7 }, RunnerProfile, undefined>,
         res: Response<RunnerProfile>
     ) => {
         const runnerId = req.params.id;
-        if (isNaN(runnerId)) {
+        if (!runnerId) {
             throw new ValidationError('Invalid runner id');
         }
 
@@ -88,11 +89,11 @@ router.get(
 router.get(
     '/activities/:id',
     async (
-        req: Request<{ id: number }, RunnerActivity[]>,
+        req: Request<{ id: UUIDv7 }, RunnerActivity[]>,
         res: Response<RunnerActivity[]>
     ) => {
         const runnerId = req.params.id;
-        if (isNaN(runnerId)) {
+        if (!runnerId) {
             throw new ValidationError('Invalid runner id');
         }
 

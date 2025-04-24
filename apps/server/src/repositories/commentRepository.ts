@@ -9,6 +9,7 @@ import {
     count
 } from '@phyt/database';
 import {
+    UUIDv7,
     Comment,
     CommentQueryParams,
     CommentResponse,
@@ -20,17 +21,17 @@ export interface CommentRepository {
     create(
         comment_data: Omit<Comment, 'id' | 'created_at' | 'updated_at'>
     ): Promise<Comment>;
-    findById(comment_id: number): Promise<Comment | null>;
+    findById(comment_id: UUIDv7): Promise<Comment | null>;
     listForPost(
-        post_id: number,
+        post_id: UUIDv7,
         params: CommentQueryParams
     ): Promise<CommentResponse>;
     listReplies(
-        parent_comment_id: number,
+        parent_comment_id: UUIDv7,
         params: CommentQueryParams
     ): Promise<CommentResponse>;
-    update(comment_id: number, content: string): Promise<Comment>;
-    remove(comment_id: number): Promise<Comment>;
+    update(comment_id: UUIDv7, content: string): Promise<Comment>;
+    remove(comment_id: UUIDv7): Promise<Comment>;
 }
 
 export const makeCommentRepository = () => {
@@ -40,7 +41,13 @@ export const makeCommentRepository = () => {
                 .insert(comments)
                 .values(comment_data)
                 .returning();
-            return row;
+            return {
+                ...row,
+                id: row.id as UUIDv7,
+                user_id: row.user_id as UUIDv7,
+                post_id: row.post_id as UUIDv7,
+                parent_comment_id: row.parent_comment_id as UUIDv7 | null
+            };
         },
 
         findById: async (comment_id) => {
@@ -49,7 +56,13 @@ export const makeCommentRepository = () => {
                 .from(comments)
                 .where(eq(comments.id, comment_id))
                 .limit(1);
-            return row ?? null;
+            return {
+                ...row,
+                id: row.id as UUIDv7,
+                user_id: row.user_id as UUIDv7,
+                post_id: row.post_id as UUIDv7,
+                parent_comment_id: row.parent_comment_id as UUIDv7 | null
+            };
         },
 
         listForPost: async (
@@ -87,7 +100,20 @@ export const makeCommentRepository = () => {
             );
 
             return {
-                comments: rows,
+                comments: rows.map(({ comment, user }) => ({
+                    comment: {
+                        ...comment,
+                        id: comment.id as UUIDv7,
+                        user_id: comment.user_id as UUIDv7,
+                        post_id: comment.post_id as UUIDv7,
+                        parent_comment_id:
+                            comment.parent_comment_id as UUIDv7 | null
+                    },
+                    user: {
+                        username: user.username,
+                        avatar_url: user.avatar_url
+                    }
+                })),
                 pagination: {
                     page,
                     limit,
@@ -110,11 +136,13 @@ export const makeCommentRepository = () => {
                 .set({ content, updated_at: new Date() })
                 .where(eq(comments.id, comment_id))
                 .returning();
-            if (!row)
-                throw new DatabaseError(
-                    `Error with comment ${String(comment_id)}`
-                );
-            return row;
+            return {
+                ...row,
+                id: row.id as UUIDv7,
+                user_id: row.user_id as UUIDv7,
+                post_id: row.post_id as UUIDv7,
+                parent_comment_id: row.parent_comment_id as UUIDv7 | null
+            };
         },
 
         remove: async (comment_id) => {
@@ -126,7 +154,13 @@ export const makeCommentRepository = () => {
                 throw new NotFoundError(
                     `Error with comment ${String(comment_id)}`
                 );
-            return row;
+            return {
+                ...row,
+                id: row.id as UUIDv7,
+                user_id: row.user_id as UUIDv7,
+                post_id: row.post_id as UUIDv7,
+                parent_comment_id: row.parent_comment_id as UUIDv7 | null
+            };
         }
     };
 

@@ -2,6 +2,7 @@ import { randomInt } from 'node:crypto';
 
 import { db, eq, runners, users } from '@phyt/database';
 import {
+    UUIDv7,
     CardRarity,
     RarityWeights,
     RarityMultipliers,
@@ -43,7 +44,12 @@ export const metadataService = {
             }
 
             const randomIndex = randomInt(allRunners.length);
-            return allRunners[randomIndex];
+            const runner = allRunners[randomIndex];
+            return {
+                ...runner,
+                id: runner.id as UUIDv7,
+                user_id: runner.user_id as UUIDv7
+            };
         } catch (err: unknown) {
             console.error('Error with selectRandomRunner', err);
             throw new DatabaseError('Error with selecting a random runner');
@@ -54,7 +60,7 @@ export const metadataService = {
         return RarityMultipliers[rarity];
     },
 
-    getRunnerName: async (runnerUserId: number): Promise<string> => {
+    getRunnerName: async (runnerUserId: UUIDv7): Promise<string> => {
         try {
             const user = await db
                 .select({

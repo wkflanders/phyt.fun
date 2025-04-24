@@ -1,5 +1,6 @@
 import { db, eq, users, runs, runners } from '@phyt/database';
 import {
+    UUIDv7,
     DatabaseError,
     NotFoundError,
     Runner,
@@ -23,7 +24,11 @@ export const adminService: AdminService = {
                 .select()
                 .from(runners)
                 .where(eq(runners.status, 'pending'));
-            return pendingRunners;
+            return pendingRunners.map((runner) => ({
+                ...runner,
+                id: runner.id as UUIDv7,
+                user_id: runner.user_id as UUIDv7
+            }));
         } catch (error: unknown) {
             rethrowAsDatabaseError('Failed to get pending runners', error);
         }
@@ -44,6 +49,8 @@ export const adminService: AdminService = {
             const pendingRuns: PendingRun[] = results.map((item) => ({
                 run: {
                     ...item.run,
+                    id: item.run.id as UUIDv7,
+                    runner_id: item.run.runner_id as UUIDv7,
                     // Handle raw_data_json properly based on its actual type
                     raw_data_json: item.run.raw_data_json
                         ? ((typeof item.run.raw_data_json === 'string'
@@ -68,7 +75,7 @@ export const adminService: AdminService = {
         }
     },
 
-    approveRunner: async (userId: number): Promise<User> => {
+    approveRunner: async (userId: UUIDv7): Promise<User> => {
         try {
             const results = await db.transaction(async (tx) => {
                 // Update user role and get user data in one operation
@@ -98,7 +105,10 @@ export const adminService: AdminService = {
                 return userResults;
             });
 
-            return results[0];
+            return {
+                ...results[0],
+                id: results[0].id as UUIDv7
+            };
         } catch (error: unknown) {
             if (error instanceof Error) {
                 console.error(
@@ -113,7 +123,7 @@ export const adminService: AdminService = {
     },
 
     updateRunVerification: async (
-        runId: number,
+        runId: UUIDv7,
         status: 'verified' | 'flagged'
     ): Promise<Run> => {
         try {
@@ -133,6 +143,8 @@ export const adminService: AdminService = {
             const run = updatedRunResults[0];
             return {
                 ...run,
+                id: run.id as UUIDv7,
+                runner_id: run.runner_id as UUIDv7,
                 // Handle raw_data_json properly based on its actual type
                 raw_data_json: run.raw_data_json
                     ? ((typeof run.raw_data_json === 'string'

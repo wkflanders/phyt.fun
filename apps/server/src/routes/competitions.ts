@@ -1,4 +1,5 @@
 import {
+    UUIDv7,
     CompetitionLineupRequestBody,
     LineupSubmissionResponse,
     Competition,
@@ -43,11 +44,7 @@ router.get(
         req: Request<Record<string, never>, Competition, { id: string }>,
         res: Response<Competition>
     ) => {
-        const competitionId = parseInt(req.params.id);
-        if (isNaN(competitionId)) {
-            throw new ValidationError('Invalid competition ID');
-        }
-
+        const competitionId = req.params.id;
         const competition =
             await competitionService.getCompetitionById(competitionId);
         res.status(200).json(competition);
@@ -59,18 +56,14 @@ router.post(
     '/:id/lineup',
     async (
         req: Request<
-            { id: string },
+            { id: UUIDv7 },
             LineupSubmissionResponse,
             CompetitionLineupRequestBody
         >,
         res: Response<LineupSubmissionResponse>
     ) => {
-        const competitionId = parseInt(req.params.id);
+        const competitionId = req.params.id;
         const { user_id, card_ids } = req.body;
-
-        if (isNaN(competitionId)) {
-            throw new ValidationError('Invalid competition ID');
-        }
 
         if (!Array.isArray(card_ids) || card_ids.length === 0) {
             throw new ValidationError('Invalid competition ID');

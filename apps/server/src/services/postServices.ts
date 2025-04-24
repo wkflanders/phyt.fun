@@ -13,11 +13,12 @@ import {
     follows
 } from '@phyt/database';
 import {
+    UUIDv7,
     NotFoundError,
     DatabaseError,
     Post,
     PostQueryParams,
-    PostUpdateRequest,
+    UpdatePostRequest,
     PostResponse
 } from '@phyt/types';
 
@@ -25,7 +26,7 @@ import { calculateTrendingScore } from '@/lib/utils.js';
 import { userService } from '@/services/userServices.js';
 
 export const postService = {
-    createPost: async (runId: number): Promise<Post> => {
+    createPost: async (runId: UUIDv7): Promise<Post> => {
         try {
             const run = await db
                 .select()
@@ -59,14 +60,19 @@ export const postService = {
                 })
                 .returning();
 
-            return post;
+            return {
+                ...post,
+                id: post.id as UUIDv7,
+                user_id: post.user_id as UUIDv7,
+                run_id: post.run_id as UUIDv7
+            };
         } catch (error) {
             console.error('Error with createPost: ', error);
             throw new DatabaseError('Failed to create post');
         }
     },
 
-    getPostById: async (postId: number): Promise<PostResponse> => {
+    getPostById: async (postId: UUIDv7): Promise<PostResponse> => {
         try {
             const query = db
                 .select({
@@ -106,7 +112,17 @@ export const postService = {
                 );
             }
             return {
-                posts: [post[0]],
+                posts: [
+                    {
+                        ...post[0],
+                        post: {
+                            ...post[0].post,
+                            id: post[0].post.id as UUIDv7,
+                            user_id: post[0].post.user_id as UUIDv7,
+                            run_id: post[0].post.run_id as UUIDv7
+                        }
+                    }
+                ],
                 pagination: {
                     page: 1,
                     limit: 1,
@@ -188,7 +204,7 @@ export const postService = {
                 const trendingResults = await Promise.all(
                     allPosts.map(async (post) => {
                         const trendingScore = await calculateTrendingScore(
-                            post.post.id,
+                            post.post.id as UUIDv7,
                             1
                         );
                         return { post, trendingScore };
@@ -221,7 +237,7 @@ export const postService = {
                     totalPages,
                     nextPage
                 }
-            };
+            } as PostResponse;
         } catch (error) {
             console.error('Error with getPosts: ', error);
             throw new DatabaseError('Failed to get posts');
@@ -229,7 +245,7 @@ export const postService = {
     },
 
     getUserPostsById: async (
-        userId: number,
+        userId: UUIDv7,
         { page = 1, limit = 10 }: { page?: number; limit?: number } = {}
     ): Promise<PostResponse[]> => {
         try {
@@ -274,7 +290,17 @@ export const postService = {
 
             const postResponses: PostResponse[] = queryResults.map((result) => {
                 return {
-                    posts: [result],
+                    posts: [
+                        {
+                            ...result,
+                            post: {
+                                ...result.post,
+                                id: result.post.id as UUIDv7,
+                                user_id: result.post.user_id as UUIDv7,
+                                run_id: result.post.run_id as UUIDv7
+                            }
+                        }
+                    ],
                     pagination: undefined
                 };
             });
@@ -334,12 +360,22 @@ export const postService = {
                 .limit(limit)
                 .offset(offset);
 
-            const postResponses: PostResponse[] = queryResults.map((result) => {
-                return {
-                    posts: [result],
+            const postResponses: PostResponse[] = queryResults.map(
+                (result) => ({
+                    posts: [
+                        {
+                            ...result,
+                            post: {
+                                ...result.post,
+                                id: result.post.id as UUIDv7,
+                                user_id: result.post.user_id as UUIDv7,
+                                run_id: result.post.run_id as UUIDv7
+                            }
+                        }
+                    ],
                     pagination: undefined
-                };
-            });
+                })
+            );
 
             return postResponses;
         } catch (error) {
@@ -349,30 +385,35 @@ export const postService = {
     },
 
     updatePostStatus: async ({
-        postId,
+        post_id,
         status
-    }: PostUpdateRequest): Promise<Post> => {
+    }: UpdatePostRequest): Promise<Post> => {
         try {
             const postResults = await db
                 .update(posts)
                 .set({ status })
-                .where(eq(posts.id, postId))
+                .where(eq(posts.id, post_id))
                 .returning();
 
             if (!postResults.length) {
                 throw new NotFoundError(
-                    `Post with ID ${String(postId)} not found`
+                    `Post with ID ${String(post_id)} not found`
                 );
             }
 
-            return postResults[0];
+            return {
+                ...postResults[0],
+                id: postResults[0].id as UUIDv7,
+                user_id: postResults[0].user_id as UUIDv7,
+                run_id: postResults[0].run_id as UUIDv7
+            };
         } catch (error) {
             console.error('Error with updatePostStatus: ', error);
             throw new DatabaseError('Failed to update post status');
         }
     },
 
-    deletePost: async (postId: number): Promise<Post> => {
+    deletePost: async (postId: UUIDv7): Promise<Post> => {
         try {
             // This will cascade delete due to foreign key constraints
             const postResults = await db
@@ -386,7 +427,12 @@ export const postService = {
                 );
             }
 
-            return postResults[0];
+            return {
+                ...postResults[0],
+                id: postResults[0].id as UUIDv7,
+                user_id: postResults[0].user_id as UUIDv7,
+                run_id: postResults[0].run_id as UUIDv7
+            };
         } catch (error) {
             console.error('Error with deletePost: ', error);
             throw new DatabaseError('Failed to delete post');

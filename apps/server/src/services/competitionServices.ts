@@ -11,6 +11,7 @@ import {
     cards
 } from '@phyt/database';
 import {
+    UUIDv7,
     NotFoundError,
     DatabaseError,
     Competition,
@@ -59,6 +60,7 @@ export const competitionService = {
 
             return results.map((result) => ({
                 ...result,
+                id: result.id as UUIDv7,
                 start_time: new Date(result.start_time).toISOString(),
                 end_time: new Date(result.end_time).toISOString(),
                 updated_at: new Date(result.updated_at),
@@ -71,7 +73,7 @@ export const competitionService = {
         }
     },
 
-    getCompetitionById: async (competitionId: number): Promise<Competition> => {
+    getCompetitionById: async (competitionId: UUIDv7): Promise<Competition> => {
         try {
             const competitionResults = await db
                 .select()
@@ -87,6 +89,7 @@ export const competitionService = {
 
             return {
                 ...competition,
+                id: competition.id as UUIDv7,
                 start_time: new Date(competition.start_time).toISOString(),
                 end_time: new Date(competition.end_time).toISOString(),
                 updated_at: new Date(competition.updated_at),
@@ -100,9 +103,9 @@ export const competitionService = {
     },
 
     submitLineup: async (
-        competitionId: number,
-        userId: number,
-        cardIds: number[]
+        competitionId: UUIDv7,
+        userId: UUIDv7,
+        cardIds: UUIDv7[]
     ): Promise<LineupSubmissionResponse> => {
         try {
             return await db.transaction(async (tx) => {
@@ -195,7 +198,7 @@ export const competitionService = {
                 return {
                     success: true,
                     message: 'Lineup submitted successfully',
-                    lineup_id: lineup.id
+                    lineup_id: lineup.id as UUIDv7
                 };
             });
         } catch (error) {

@@ -10,6 +10,7 @@ import {
     runners
 } from '@phyt/database';
 import {
+    UUIDv7,
     DatabaseError,
     NotFoundError,
     DuplicateError,
@@ -51,6 +52,7 @@ export const userService = {
 
                 return {
                     ...user,
+                    id: user.id as UUIDv7,
                     status: runner.status
                 };
             } else {
@@ -62,7 +64,11 @@ export const userService = {
 
                 if (userResults.length === 0)
                     throw new NotFoundError('User not found');
-                return userResults[0];
+
+                return {
+                    ...userResults[0],
+                    id: userResults[0].id as UUIDv7
+                };
             }
         } catch (error) {
             console.error('Error with getUserByPrivyId: ', error);
@@ -83,14 +89,18 @@ export const userService = {
 
             if (userResults.length === 0)
                 throw new NotFoundError('User not found');
-            return userResults[0];
+
+            return {
+                ...userResults[0],
+                id: userResults[0].id as UUIDv7
+            };
         } catch (error) {
             console.error('Error with getUserByWalletAddress: ', error);
             throw new DatabaseError('Failed to fetch user by wallet address');
         }
     },
 
-    getUserById: async (id: number): Promise<User> => {
+    getUserById: async (id: UUIDv7): Promise<User> => {
         if (!id) throw new ValidationError('User id is required');
 
         try {
@@ -102,7 +112,11 @@ export const userService = {
 
             if (userResults.length === 0)
                 throw new NotFoundError('User not found');
-            return userResults[0];
+
+            return {
+                ...userResults[0],
+                id: userResults[0].id as UUIDv7
+            };
         } catch (error) {
             console.error('Error with getUserById: ', error);
             throw new DatabaseError('Failed to fetch user by ID');
@@ -121,7 +135,11 @@ export const userService = {
 
             if (userResults.length === 0)
                 throw new NotFoundError('User not found');
-            return userResults[0];
+
+            return {
+                ...userResults[0],
+                id: userResults[0].id as UUIDv7
+            };
         } catch (error) {
             console.error('Error with getUserByEmail: ', error);
             throw new DatabaseError('Failed to fetch user by email');
@@ -140,7 +158,11 @@ export const userService = {
 
             if (userResults.length === 0)
                 throw new NotFoundError('User not found');
-            return userResults[0];
+
+            return {
+                ...userResults[0],
+                id: userResults[0].id as UUIDv7
+            };
         } catch (error) {
             console.error('Error with getUserByUsername: ', error);
             throw new DatabaseError('Failed to fetch user by username');
@@ -174,7 +196,15 @@ export const userService = {
                 )
                 .orderBy(desc(transactions.created_at));
 
-            return userTransactions;
+            return userTransactions.map((tx) => ({
+                ...tx,
+                id: tx.id as UUIDv7,
+                from_user_id: tx.from_user_id as UUIDv7 | null,
+                to_user_id: tx.to_user_id as UUIDv7 | null,
+                card_id: tx.card_id as UUIDv7 | null,
+                competition_id: tx.competition_id as UUIDv7 | null,
+                pack_purchases_id: tx.pack_purchases_id as UUIDv7 | null
+            }));
         } catch (error) {
             console.error('Error with getTransactionsByPrivyId: ', error);
             throw new DatabaseError('Failed to fetch user transactions');
@@ -204,8 +234,12 @@ export const userService = {
 
             return userCards.map(({ cards, card_metadata }) => ({
                 ...cards,
+                id: cards.id as UUIDv7,
+                owner_id: cards.owner_id as UUIDv7,
+                pack_purchase_id: cards.pack_purchase_id as UUIDv7,
                 metadata: {
-                    ...card_metadata
+                    ...card_metadata,
+                    runner_id: card_metadata.runner_id as UUIDv7
                 }
             }));
         } catch (error) {
@@ -275,7 +309,10 @@ export const userService = {
                 })
                 .returning();
 
-            return newUser;
+            return {
+                ...newUser,
+                id: newUser.id as UUIDv7
+            };
         } catch (error) {
             console.error('Error with createUser: ', error);
             throw new DatabaseError('Failed to create user');

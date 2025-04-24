@@ -1,5 +1,6 @@
 // src/routes/runs.ts
 import {
+    UUIDv7,
     NotFoundError,
     RunnerApplicationStatus,
     Run,
@@ -60,10 +61,10 @@ router.post(
 // Get all runs by a runner
 router.get(
     '/:runnerId',
-    async (req: Request<{ runnerId: number }, Run[]>, res: Response<Run[]>) => {
+    async (req: Request<{ runnerId: UUIDv7 }, Run[]>, res: Response<Run[]>) => {
         const runnerId = req.params.runnerId;
 
-        if (isNaN(runnerId)) {
+        if (!runnerId) {
             throw new NotFoundError('Invalid runner Id');
         }
 
@@ -75,10 +76,10 @@ router.get(
 // Get a single run by Id
 router.get(
     '/:runId',
-    async (req: Request<{ runId: number }, Run>, res: Response<Run>) => {
+    async (req: Request<{ runId: UUIDv7 }, Run>, res: Response<Run>) => {
         const runId = req.params.runId;
 
-        if (isNaN(runId)) {
+        if (!runId) {
             throw new NotFoundError('Invalid run Id');
         }
 
@@ -152,10 +153,10 @@ router.post(
 router.post(
     '/:runId/post',
     validateSchema(createPostSchema),
-    async (req: Request<{ runId: string }, Post>, res: Response<Post>) => {
-        const runId = parseInt(req.params.runId);
+    async (req: Request<{ runId: UUIDv7 }, Post>, res: Response<Post>) => {
+        const runId = req.params.runId;
 
-        if (isNaN(runId)) {
+        if (!runId) {
             throw new NotFoundError('Invalid run Id');
         }
 
@@ -176,12 +177,12 @@ router.patch(
         })
     ),
     async (
-        req: Request<{ runId: string }, Run, { status: RunVerificationStatus }>,
+        req: Request<{ runId: UUIDv7 }, Run, { status: RunVerificationStatus }>,
         res: Response<Run>
     ) => {
-        const runId = parseInt(req.params.runId);
+        const runId = req.params.runId;
 
-        if (isNaN(runId)) {
+        if (!runId) {
             throw new NotFoundError('Invalid run Id');
         }
 
@@ -203,10 +204,10 @@ router.patch(
 // Delete a run
 router.delete(
     '/:runId',
-    async (req: Request<{ runId: string }, Run>, res: Response<Run>) => {
-        const runId = parseInt(req.params.runId);
+    async (req: Request<{ runId: UUIDv7 }, Run>, res: Response<Run>) => {
+        const runId = req.params.runId;
 
-        if (isNaN(runId)) {
+        if (!runId) {
             throw new NotFoundError('Invalid run Id');
         }
 

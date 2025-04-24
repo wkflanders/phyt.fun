@@ -2,7 +2,7 @@ import { db, eq, users, runners } from '@phyt/database';
 
 type UserRole = 'runner' | 'admin';
 
-async function updateUserRole(userId: number, role: UserRole) {
+async function updateUserRole(userId: string, role: UserRole) {
     try {
         // Update user role
         const results = await db
@@ -12,7 +12,7 @@ async function updateUserRole(userId: number, role: UserRole) {
             .returning();
 
         if (!results.length) {
-            throw new Error(`No user found with ID ${String(userId)}`);
+            throw new Error(`No user found with ID ${userId}`);
         }
 
         const updatedUser = results[0];
@@ -66,10 +66,10 @@ async function main() {
         process.exit(1);
     }
 
-    const userId = parseInt(process.argv[2]);
+    const userId = process.argv[2];
     const role = process.argv[3].toLowerCase();
 
-    if (isNaN(userId)) {
+    if (!userId) {
         console.error('Please provide a valid numeric user ID');
         process.exit(1);
     }

@@ -7,6 +7,7 @@ import {
     comments,
     reactions
 } from '@phyt/database';
+import { UUIDv7 } from '@phyt/types';
 
 export const toStringValue = (value: unknown): string | undefined => {
     if (value == null) return undefined;
@@ -18,7 +19,7 @@ export const toStringValue = (value: unknown): string | undefined => {
 };
 
 export const calculateTrendingScore = async (
-    postId: number,
+    postId: UUIDv7,
     daysAgo: number
 ): Promise<number> => {
     const cutoffDate = new Date();

@@ -4,7 +4,8 @@ import {
     PostResponse,
     ValidationError,
     PostQueryParams,
-    PostStatus
+    PostStatus,
+    UUIDv7
 } from '@phyt/types';
 import express, { Request, Response, Router } from 'express';
 
@@ -50,11 +51,11 @@ router.get(
 router.get(
     '/:id',
     async (
-        req: Request<{ id: string }, PostResponse>,
+        req: Request<{ id: UUIDv7 }, PostResponse>,
         res: Response<PostResponse>
     ) => {
-        const postId = parseInt(req.params.id);
-        if (isNaN(postId)) {
+        const postId = req.params.id;
+        if (!postId) {
             throw new NotFoundError('No valid post id');
         }
 
@@ -68,7 +69,7 @@ router.get(
     '/user/:userId',
     async (
         req: Request<
-            { userId: number },
+            { userId: UUIDv7 },
             PostResponse[],
             Record<string, never>,
             PostQueryParams
@@ -76,7 +77,7 @@ router.get(
         res: Response<PostResponse[]>
     ) => {
         const userId = req.params.userId;
-        if (isNaN(userId)) {
+        if (!userId) {
             throw new ValidationError('No valid user Id');
         }
 
@@ -94,7 +95,7 @@ router.post(
     '/',
     validateSchema(createPostSchema),
     async (
-        req: Request<Record<string, never>, Post, { runId: number }>,
+        req: Request<Record<string, never>, Post, { runId: UUIDv7 }>,
         res: Response<Post>
     ) => {
         const { runId } = req.body;
@@ -109,34 +110,37 @@ router.patch(
     '/:id',
     validateSchema(updatePostSchema),
     async (
-        req: Request<{ id: string }, Post, { status: PostStatus }>,
+        req: Request<{ id: UUIDv7 }, Post, { status: PostStatus }>,
         res: Response<Post>
     ) => {
-        const postId = parseInt(req.params.id);
-        if (isNaN(postId)) {
+        const post_id = req.params.id;
+        if (!post_id) {
             throw new ValidationError('Invalid post Id');
         }
 
         const { status } = req.body;
 
         // TODO: Add authorization check - user can only update their own posts
-        const post = await postService.updatePostStatus({ postId, status });
+        const post = await postService.updatePostStatus({ post_id, status });
 
         res.status(200).json(post);
     }
 );
 
 // Delete a post
-router.delete('/:id', async (req, res) => {
-    const postId = parseInt(req.params.id);
-    if (isNaN(postId)) {
-        throw new ValidationError('Invalid post ID');
+router.delete(
+    '/:id',
+    async (req: Request<{ id: UUIDv7 }, Post>, res: Response<Post>) => {
+        const postId = req.params.id;
+        if (!postId) {
+            throw new ValidationError('Invalid post ID');
+        }
+
+        // TODO: Add authorization check - user can only delete their own posts
+        const deletedPost = await postService.deletePost(postId);
+
+        res.status(200).json(deletedPost);
     }
-
-    // TODO: Add authorization check - user can only delete their own posts
-    const deletedPost = await postService.deletePost(postId);
-
-    res.status(200).json(deletedPost);
-});
+);
 
 export { router as postsRouter };

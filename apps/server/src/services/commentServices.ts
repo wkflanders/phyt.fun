@@ -1,4 +1,5 @@
 import {
+    UUIDv7,
     CommentResponse,
     Comment,
     CommentCreateRequest,
@@ -22,20 +23,20 @@ export const makeCommentService = (repo: CommentRepository) => {
     };
 
     const getPostComments = (
-        post_id: number,
+        post_id: UUIDv7,
         params: CommentQueryParams
     ): Promise<CommentResponse> => {
         return repo.listForPost(post_id, params);
     };
 
     const getCommentReplies = (
-        comment_id: number,
+        comment_id: UUIDv7,
         params: CommentQueryParams
     ): Promise<CommentResponse> => {
         return repo.listReplies(comment_id, params);
     };
 
-    const getCommentById = async (comment_id: number) => {
+    const getCommentById = async (comment_id: UUIDv7) => {
         const comment = await repo.findById(comment_id);
         if (!comment)
             throw new NotFoundError(`Comment ${String(comment_id)} not found`);
@@ -47,7 +48,7 @@ export const makeCommentService = (repo: CommentRepository) => {
         return repo.update(comment_id, content);
     };
 
-    const deleteComment = (comment_id: number) => {
+    const deleteComment = (comment_id: UUIDv7) => {
         return repo.remove(comment_id);
     };
 
