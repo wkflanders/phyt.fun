@@ -1,5 +1,3 @@
-import type { Address } from 'viem';
-
 export type UUIDv7 = string & { __uuidv7: true };
 export type CardRarity =
     | 'bronze'
@@ -13,8 +11,8 @@ export type RunVerificationStatus = 'pending' | 'verified' | 'flagged';
 export type RunnerApplicationStatus =
     | 'pending'
     | 'success'
-    | 'already_runner'
-    | 'already_submitted'
+    | 'alreadyRunner'
+    | 'alreadySubmitted'
     | 'failed';
 export type RunnerStatus = 'pending' | 'active' | 'inactive';
 export type TransactionType =
@@ -110,14 +108,14 @@ export interface User {
     email: string;
     username: string;
     role: UserRole;
-    privy_id: string;
-    avatar_url: string;
-    wallet_address: string;
-    phytness_points: number | null;
-    twitter_handle: string | null;
-    strava_handle: string | null;
-    created_at: Date;
-    updated_at: Date;
+    privyId: string;
+    avatarUrl: string;
+    walletAddress: string;
+    phytnessPoints: number | null;
+    twitterHandle: string | null;
+    stravaHandle: string | null;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface UserWithStatus extends User {
@@ -127,8 +125,8 @@ export interface UserWithStatus extends User {
 export interface CreateUserFormData extends FormData {
     email: string;
     username: string;
-    privy_id: string;
-    wallet_address: `0x${string}`;
+    privyId: string;
+    walletAddress: `0x${string}`;
 }
 
 export interface CreateUserInput {
@@ -137,24 +135,24 @@ export interface CreateUserInput {
 
 export interface Run {
     id: UUIDv7;
-    runner_id: UUIDv7;
-    start_time: Date;
-    end_time: Date;
-    duration_seconds: number;
-    distance_m: number;
-    average_pace_sec: number | null;
-    calories_burned: number | null;
-    step_count: number | null;
-    elevation_gain_m: number | null;
-    average_heart_rate: number | null;
-    max_heart_rate: number | null;
-    device_id: string | null;
-    gps_route_data: string | null;
-    is_posted: boolean | null;
-    verification_status: RunVerificationStatus;
-    raw_data_json: Record<string, unknown> | null;
-    created_at: Date;
-    updated_at: Date;
+    runnerId: UUIDv7;
+    startTime: Date;
+    endTime: Date;
+    durationSeconds: number;
+    distance: number;
+    averagePaceSec: number | null;
+    caloriesBurned: number | null;
+    stepCount: number | null;
+    elevationGain: number | null;
+    averageHeartRate: number | null;
+    maxHeartRate: number | null;
+    deviceId: string | null;
+    gpsRouteData: string | null;
+    isPosted: boolean | null;
+    verificationStatus: RunVerificationStatus;
+    rawDataJson: Record<string, unknown> | null;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface PendingRun {
@@ -169,8 +167,8 @@ export interface TokenURIMetadata {
     description: string;
     image: string;
     attributes: {
-        runner_id: UUIDv7;
-        runner_name: string;
+        runnerId: UUIDv7;
+        runnerName: string;
         rarity: CardRarity;
         multiplier: number;
         season: SeasonCollection;
@@ -179,24 +177,24 @@ export interface TokenURIMetadata {
 
 export interface Card {
     id: UUIDv7;
-    owner_id: UUIDv7;
-    pack_purchase_id: UUIDv7 | null;
-    token_id: number;
-    is_burned: boolean;
-    acquisition_type: AcquisitionType;
-    updated_at: Date;
-    created_at: Date;
+    ownerId: UUIDv7;
+    packPurchaseId: UUIDv7 | null;
+    tokenId: number;
+    isBurned: boolean;
+    acquisitionType: AcquisitionType;
+    updatedAt: Date;
+    createdAt: Date;
 }
 
-export interface CardMetadata extends Pick<Card, 'token_id'> {
-    token_id: number;
-    runner_id: UUIDv7;
-    runner_name: string;
+export interface CardMetadata extends Pick<Card, 'tokenId'> {
+    tokenId: number;
+    runnerId: UUIDv7;
+    runnerName: string;
     rarity: CardRarity;
-    image_url: string;
+    imageUrl: string;
     multiplier: number;
     season: SeasonCollection;
-    created_at: Date;
+    createdAt: Date;
 }
 
 export interface CardWithMetadata extends Card {
@@ -205,69 +203,69 @@ export interface CardWithMetadata extends Card {
 
 export interface Competition {
     id: UUIDv7;
-    event_name: string;
-    start_time: string;
-    end_time: string;
+    eventName: string;
+    startTime: string;
+    endTime: string;
     jackpot: string;
-    distance_m: number | null;
-    event_type: string | null;
-    created_at: Date;
-    updated_at: Date;
+    distance: number | null;
+    eventType: string | null;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface Lineup {
     id: UUIDv7;
-    competition_id: UUIDv7;
-    manager_id: UUIDv7;
-    created_at: Date;
-    updated_at: Date;
+    competitionId: UUIDv7;
+    managerId: UUIDv7;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface LineupCard {
     id: UUIDv7;
-    updated_at: Date;
-    created_at: Date;
-    lineup_id: UUIDv7;
-    card_id: UUIDv7;
+    updatedAt: Date;
+    createdAt: Date;
+    lineupId: UUIDv7;
+    cardId: UUIDv7;
     position: number;
 }
 
 export interface LineupSubmissionResponse {
     success: boolean;
     message: string;
-    lineup_id: UUIDv7;
+    lineupId: UUIDv7;
 }
 
 export interface CompetitionLineupRequestBody {
-    user_id: UUIDv7;
-    card_ids: UUIDv7[];
+    userId: UUIDv7;
+    cardIds: UUIDv7[];
 }
 
 export interface Runner {
     id: UUIDv7;
-    user_id: UUIDv7;
-    average_pace: number | null;
-    total_distance_m: number;
-    total_runs: number;
-    best_mile_time: number | null;
+    userId: UUIDv7;
+    averagePace: number | null;
+    totalDistance: number;
+    totalRuns: number;
+    bestMileTime: number | null;
     status: RunnerStatus;
-    is_pooled: boolean;
-    runner_wallet: string;
-    created_at: Date;
-    updated_at: Date;
+    isPooled: boolean;
+    runnerWallet: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface RunnerProfile extends Runner {
     username: string;
-    avatar_url: string;
+    avatarUrl: string;
 }
 
 export type RunnerSortFields =
-    | 'total_distance_m'
-    | 'average_pace'
-    | 'total_runs'
-    | 'best_mile_time'
-    | 'created_at'
+    | 'totalDistance'
+    | 'averagePace'
+    | 'totalRuns'
+    | 'bestMileTime'
+    | 'createdAt'
     | 'username';
 
 export type RunnerSortOrder = 'asc' | 'desc';
@@ -282,67 +280,67 @@ export interface PendingRunner {
     id: UUIDv7;
     username: string;
     email: string;
-    created_at: Date;
+    createdAt: Date;
     role: string;
-    privy_id: string;
-    wallet_address?: string;
-    avatar_url?: string;
+    privyId: string;
+    walletAddress: string;
+    avatarUrl: string;
 }
 
 export interface RunnerResult {
     id: UUIDv7;
-    updated_at: Date;
-    created_at: Date;
-    competition_id: UUIDv7;
-    runner_id: UUIDv7;
-    session_id: UUIDv7;
-    best_time_sec: number;
+    updatedAt: Date;
+    createdAt: Date;
+    competitionId: UUIDv7;
+    runnerId: UUIDv7;
+    sessionId: UUIDv7;
+    bestTimeSec: number;
     ranking: number | null;
 }
 
 export interface GamblerResult {
     id: UUIDv7;
-    updated_at: Date;
-    created_at: Date;
-    lineup_id: UUIDv7;
-    total_score: number;
-    final_placement: number | null;
-    reward_amount_phyt: number | null;
+    updatedAt: Date;
+    createdAt: Date;
+    lineupId: UUIDv7;
+    totalScore: number;
+    finalPlacement: number | null;
+    rewardAmountPhyt: number | null;
 }
 
 export interface Transaction {
     id: UUIDv7;
-    from_user_id: UUIDv7 | null;
-    to_user_id: UUIDv7 | null;
-    card_id: UUIDv7 | null;
-    competition_id: UUIDv7 | null;
+    fromUserId: UUIDv7 | null;
+    toUserId: UUIDv7 | null;
+    cardId: UUIDv7 | null;
+    competitionId: UUIDv7 | null;
     price: string | null;
-    transaction_type: TransactionType;
-    pack_purchases_id: UUIDv7 | null;
+    transactionType: TransactionType;
+    packPurchasesId: UUIDv7 | null;
     hash: string | null;
-    created_at: Date;
-    updated_at: Date;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface PackPurchase {
     id: UUIDv7;
-    buyer_id: UUIDv7;
-    purchase_price: string;
-    pack_type: PackType;
-    created_at: Date;
-    updated_at: Date;
+    buyerId: UUIDv7;
+    purchasePrice: string;
+    packType: PackType;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface UserDeviceAuthorization {
     id: UUIDv7;
-    updated_at: Date;
-    created_at: Date;
-    user_id: UUIDv7;
-    device_type: string;
-    access_token: string | null;
-    refresh_token: string | null;
+    updatedAt: Date;
+    createdAt: Date;
+    userId: UUIDv7;
+    deviceType: string;
+    accessToken: string | null;
+    refreshToken: string | null;
     scopes: string | null;
-    last_synced_at: string | null;
+    lastSyncedAt: string | null;
 }
 
 export interface PaginationParams {
@@ -424,7 +422,6 @@ export class PermissionError extends Error {
 
 export class PackPurchaseError extends Error {
     statusCode: number;
-
     constructor(message: string, statusCode = 500) {
         super(message);
         this.statusCode = statusCode;
@@ -434,7 +431,6 @@ export class PackPurchaseError extends Error {
 
 export class MarketplaceError extends Error {
     statusCode: number;
-
     constructor(message: string, statusCode = 500) {
         super(message);
         this.statusCode = statusCode;
@@ -473,21 +469,6 @@ export interface PackPurchaseResponse {
     cardsMetadata: TokenURIMetadata[];
 }
 
-export interface ContractConfig {
-    address: Address;
-    abi: unknown;
-}
-
-export class ContractError extends Error {
-    constructor(
-        message: string,
-        public readonly code?: number
-    ) {
-        super(message);
-        this.name = 'ContractError';
-    }
-}
-
 export interface MintEvent {
     eventName: 'Mint';
     args: {
@@ -506,11 +487,11 @@ export interface Order {
     trader: `0x${string}`;
     side: Side;
     collection: `0x${string}`;
-    token_id: bigint;
-    payment_token: `0x${string}`;
+    tokenId: bigint;
+    paymentToken: `0x${string}`;
     price: bigint; // For sell orders: take price, For buy orders: bid price
-    expiration_time: bigint;
-    merkle_root: `0x${string}`;
+    expirationTime: bigint;
+    merkleRoot: `0x${string}`;
     salt: bigint;
 }
 
@@ -526,39 +507,39 @@ export interface OrderBookEntry {
 
 export interface Listing {
     id: UUIDv7;
-    buyer_id: UUIDv7 | null;
-    seller_id: UUIDv7;
-    card_id: UUIDv7;
+    buyerId: UUIDv7 | null;
+    sellerId: UUIDv7;
+    cardId: UUIDv7;
     price: string; // Take price
-    highest_bid: string | null; // Current highest bid
-    highest_bidder_id: UUIDv7 | null;
-    expiration_time: Date;
+    highestBid: string | null; // Current highest bid
+    highestBidderId: UUIDv7 | null;
+    expirationTime: Date;
     signature: string;
-    order_hash: string;
-    order_data: Order;
-    transaction_hash: string;
+    orderHash: string;
+    orderData: Order;
+    transactionHash: string;
     status: string;
-    created_at: Date;
-    updated_at: Date;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface CreateListingRequestBody {
     user: User;
-    card_id: UUIDv7;
+    cardId: UUIDv7;
     price: string;
     signature: string;
-    order_hash: string;
-    order_data: Order;
+    orderHash: string;
+    orderData: Order;
 }
 
 export interface CreateListingProps {
-    card_id: UUIDv7;
-    seller_id: UUIDv7;
+    cardId: UUIDv7;
+    sellerId: UUIDv7;
     price: string;
     signature: string;
-    order_hash: string;
-    order_data: Order;
-    expiration_time: string;
+    orderHash: string;
+    orderData: Order;
+    expirationTime: string;
 }
 
 export interface GetListingProps {
@@ -570,68 +551,68 @@ export interface GetListingProps {
 
 export interface Bid {
     id: UUIDv7;
-    bidder_id: UUIDv7;
-    bid_type: BidType;
-    bid_amount: string;
-    card_id: UUIDv7;
+    bidderId: UUIDv7;
+    bidType: BidType;
+    bidAmount: string;
+    cardId: UUIDv7;
     signature: string;
-    order_hash: string;
-    order_data: Order;
+    orderHash: string;
+    orderData: Order;
     status: BidStatus;
-    expiration_time: Date;
-    accepted_at: Date | null;
-    updated_at?: Date;
-    created_at?: Date;
+    expirationTime: Date;
+    acceptedAt: Date | null;
+    updatedAt: Date;
+    createdAt: Date;
     listing_id?: UUIDv7 | null;
 }
 
 export interface ListingBid extends Bid {
-    bid_type: 'listing';
-    bid_status: BidStatusListed | 'withdrawn';
-    listing_id: UUIDv7;
+    bidType: 'listing';
+    bidStatus: BidStatusListed | 'withdrawn';
+    listingId: UUIDv7;
 }
 
 export interface OpenBid extends Bid {
-    bid_type: 'open';
-    bid_status: BidStatusOpen | 'withdrawn';
+    bidType: 'open';
+    bidStatus: BidStatusOpen | 'withdrawn';
 }
 
 export interface BaseBidProps {
-    bidder_id: UUIDv7;
-    bid_amount: string;
+    bidderId: UUIDv7;
+    bidAmount: string;
     signature: string;
-    order_hash: string;
-    order_data: Order;
+    orderHash: string;
+    orderData: Order;
 }
 
 export interface CreateListingBidProps extends BaseBidProps {
-    bid_type: 'listing';
-    listing_id: UUIDv7;
+    bidType: 'listing';
+    listingId: UUIDv7;
 }
 
 export interface CreateOpenBidProps extends BaseBidProps {
-    bid_type: 'open';
-    card_id: UUIDv7;
-    expiration_time: Date;
+    bidType: 'open';
+    cardId: UUIDv7;
+    expirationTime: Date;
 }
 
 export interface ListedBidRequestBody {
-    listing_id: UUIDv7;
-    bid_amount: string;
+    listingId: UUIDv7;
+    bidAmount: string;
     signature: string;
-    order_hash: string;
-    order_data: Order;
+    orderHash: string;
+    orderData: Order;
     user: User;
 }
 
 export interface OpenBidRequestBody {
-    card_id: UUIDv7;
-    bid_amount: string;
+    cardId: UUIDv7;
+    bidAmount: string;
     signature: string;
-    order_hash: string;
-    order_data: Order;
+    orderHash: string;
+    orderData: Order;
     user: User;
-    expiration_time: Date;
+    expirationTime: Date;
 }
 
 export interface UserBids {
@@ -641,60 +622,60 @@ export interface UserBids {
     listing: {
         id: UUIDv7;
         price: string;
-        expiration_time: Date;
+        expirationTime: Date;
     } | null;
     owner: {
         id: UUIDv7;
-        wallet_address: string;
+        walletAddress: string;
         username: string;
-        avatar_url: string;
+        avatarUrl: string;
     };
 }
 
 export interface AcceptOpenBidProps {
-    bid_id: UUIDv7;
-    transaction_hash: string;
+    bidId: UUIDv7;
+    transactionHash: string;
 }
 
 export interface CompletePurchaseProps {
-    listing_id: UUIDv7;
-    buyer_id: UUIDv7;
-    transaction_hash: string;
+    listingId: UUIDv7;
+    buyerId: UUIDv7;
+    transactionHash: string;
 }
 
 export interface RunnerListing extends Listing {
     metadata: {
-        runner_id: UUIDv7;
-        runner_name: string;
-        runner_avatar?: string;
+        runnerId: UUIDv7;
+        runnerName: string;
+        runnerAvatar: string;
         rarity: CardRarity;
         multiplier: number;
-        image_url: string;
+        imageUrl: string;
     };
     order: {
-        trader_id: UUIDv7;
+        traderId: UUIDv7;
         side: number;
         collection: string;
-        token_id: number;
-        payment_token: string;
+        tokenId: number;
+        paymentToken: string;
         price: string;
-        expiration_time: number;
+        expirationTime: number;
         salt: string;
     };
 }
 export interface Offer {
     id: UUIDv7;
-    buyer_id: UUIDv7;
-    card_id: UUIDv7;
+    buyerId: UUIDv7;
+    cardId: UUIDv7;
     price: string;
-    payment_token: string;
-    expiration_time: Date;
+    paymentToken: string;
+    expirationTime: Date;
     active: boolean;
     signature: string;
     salt: string;
-    created_at: Date;
-    updated_at: Date;
-    buyer: `0x${string}`;
+    createdAt: Date;
+    updatedAt: Date;
+    buyerAddress: `0x${string}`;
     card: Card;
 }
 
@@ -707,18 +688,18 @@ export interface MarketListing {
 
 export interface RunnerActivity {
     id: UUIDv7;
-    runner_id: UUIDv7;
+    runnerId: UUIDv7;
     username: string;
-    avatar_url: string;
-    distance_m: number;
-    completed_at: string;
-    is_pooled: boolean;
-    time_ago: string;
+    avatarUrl: string;
+    distance: number;
+    completedAt: string;
+    isPooled: boolean;
+    timeAgo: string;
 }
 
 export interface RunnerPoolStatus {
     status: RunnerStatus;
-    is_pooled: boolean;
+    isPooled: boolean;
 }
 
 export type PostFilter = 'all' | 'following' | 'trending';
@@ -732,21 +713,21 @@ export interface PostQueryParams {
 
 export interface Post {
     id: UUIDv7;
-    user_id: UUIDv7;
-    run_id: UUIDv7;
+    userId: UUIDv7;
+    runId: UUIDv7;
     status: PostStatus;
-    updated_at: Date;
-    created_at: Date;
+    updatedAt: Date;
+    createdAt: Date;
 }
 
 export interface UpdatePostRequest {
-    post_id: UUIDv7;
+    postId: UUIDv7;
     status: PostStatus;
 }
 
 export interface CreatePostRequest {
-    user_id: UUIDv7;
-    run_id: UUIDv7;
+    userId: UUIDv7;
+    runId: UUIDv7;
     content: string | null;
 }
 
@@ -755,18 +736,18 @@ export interface PostResponse {
         post: Post;
         user: {
             username: string;
-            avatar_url: string | null;
+            avatarUrl: string | null;
             role: 'admin' | 'user' | 'runner';
-            is_pooled: boolean;
+            isPooled: boolean;
         };
         run: {
-            distance_m: number;
-            duration_seconds: number;
-            average_pace_sec: null | number;
-            elevation_gain_m: null | number;
-            gps_route_data: string | null;
-            start_time: Date;
-            end_time: Date;
+            distance: number;
+            durationSeconds: number;
+            averagePaceSec: null | number;
+            elevationGain: null | number;
+            gpsRouteData: string | null;
+            startTime: Date;
+            endTime: Date;
         };
         stats: {
             comments: number;
@@ -786,18 +767,18 @@ export interface PostPagination {
 
 export interface Comment {
     id: UUIDv7;
-    post_id: UUIDv7;
-    user_id: UUIDv7;
+    postId: UUIDv7;
+    userId: UUIDv7;
     content: string;
-    parent_comment_id: UUIDv7 | null;
-    updated_at: Date;
-    created_at: Date;
+    parentCommentId: UUIDv7 | null;
+    updatedAt: Date;
+    createdAt: Date;
 }
 
 export interface CommentQueryParams {
     page?: number;
     limit?: number;
-    parent_only?: boolean;
+    parentOnly?: boolean;
 }
 
 export interface CommentPagination {
@@ -808,23 +789,24 @@ export interface CommentPagination {
 }
 
 export interface CommentCreateRequest {
-    user_id: UUIDv7;
-    post_id: UUIDv7;
+    userId: UUIDv7;
+    postId: UUIDv7;
     content: string;
-    parent_comment_id: UUIDv7 | null;
+    parentCommentId: UUIDv7 | null;
 }
 
 export interface CommentUpdateRequest {
     content: string;
-    comment_id: UUIDv7;
+    commentId: UUIDv7;
 }
 
+// Come back to this
 export interface CommentResponse {
     comments: {
         comment: Comment;
         user: {
             username: string;
-            avatar_url: string | null;
+            avatarUrl: string | null;
         };
     }[];
     pagination?: CommentPagination;
@@ -837,9 +819,9 @@ export type ReactionCount = Record<Reaction, number>;
 export type ReactionAction = 'added' | 'removed';
 
 export interface ReactionToggleRequest {
-    user_id: UUIDv7;
-    post_id: UUIDv7;
-    comment_id: UUIDv7;
+    userId: UUIDv7;
+    postId: UUIDv7;
+    commentId: UUIDv7;
     type: Reaction;
 }
 
@@ -859,16 +841,16 @@ export interface RunnerStanding {
     id: UUIDv7;
     runner: RunnerProfile;
     ranking: number;
-    updated_at: Date;
-    created_at: Date;
+    updatedAt: Date;
+    createdAt: Date;
 }
 
 export interface ManagerStanding {
     id: UUIDv7;
     user: User;
     ranking: number;
-    updated_at: Date;
-    created_at: Date;
+    updatedAt: Date;
+    createdAt: Date;
 }
 
 export interface RunnerLeaderboard {
