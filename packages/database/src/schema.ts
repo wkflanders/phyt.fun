@@ -2,7 +2,6 @@ import {
     pgTable,
     index,
     uniqueIndex,
-    serial,
     timestamp,
     varchar,
     foreignKey,
@@ -10,10 +9,13 @@ import {
     jsonb,
     boolean,
     pgEnum,
+    text,
+    serial,
     // bigint
     doublePrecision,
     decimal
 } from 'drizzle-orm/pg-core';
+import { v7 as uuid } from 'uuid';
 
 export const ethValuePrecision = 78;
 
@@ -117,7 +119,9 @@ export const enum_seasons = pgEnum('enum_seasons', ['season_0']);
 export const users = pgTable(
     'users',
     {
-        id: serial('id').primaryKey(),
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
         updated_at: timestamp('updated_at', { precision: 3 })
             .defaultNow()
             .notNull(),
@@ -150,8 +154,10 @@ export const users = pgTable(
 export const runners = pgTable(
     'runners',
     {
-        id: serial('id').primaryKey(),
-        user_id: integer('user_id')
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
+        user_id: text('user_id')
             .notNull()
             .references(() => users.id, { onDelete: 'restrict' }),
         average_pace: doublePrecision('average_pace'),
@@ -183,8 +189,10 @@ export const runners = pgTable(
 export const runs = pgTable(
     'runs',
     {
-        id: serial('id').primaryKey(),
-        runner_id: integer('runner_id')
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
+        runner_id: text('runner_id')
             .notNull()
             .references(() => runners.id, { onDelete: 'set null' }),
         start_time: timestamp('start_time', { precision: 3 }).notNull(),
@@ -223,8 +231,10 @@ export const runs = pgTable(
 export const pack_purchases = pgTable(
     'pack_purchases',
     {
-        id: serial('id').primaryKey(),
-        buyer_id: integer('buyer_id')
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
+        buyer_id: text('buyer_id')
             .notNull()
             .references(() => users.id, { onDelete: 'set null' }),
         purchase_price: decimal('purchase_price', {
@@ -249,11 +259,13 @@ export const pack_purchases = pgTable(
 export const cards = pgTable(
     'cards',
     {
-        id: serial('id').primaryKey(),
-        owner_id: integer('owner_id')
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
+        owner_id: text('owner_id')
             .notNull()
             .references(() => users.id, { onDelete: 'set null' }),
-        pack_purchase_id: integer('pack_purchase_id').references(
+        pack_purchase_id: text('pack_purchase_id').references(
             () => pack_purchases.id,
             { onDelete: 'set null' }
         ),
@@ -280,10 +292,10 @@ export const cards = pgTable(
 export const card_metadata = pgTable(
     'card_metadata',
     {
-        token_id: integer('token_id')
+        token_id: serial('token_id')
             .primaryKey()
             .references(() => cards.token_id, { onDelete: 'cascade' }),
-        runner_id: integer('runner_id')
+        runner_id: text('runner_id')
             .notNull()
             .references(() => runners.id, { onDelete: 'restrict' }),
         runner_name: varchar('runner_name').notNull(),
@@ -305,7 +317,9 @@ export const card_metadata = pgTable(
 export const competitions = pgTable(
     'competitions',
     {
-        id: serial('id').primaryKey(),
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
         event_name: varchar('event_name').notNull(),
         start_time: timestamp('start_time', { precision: 3 }).notNull(),
         end_time: timestamp('end_time', { precision: 3 }).notNull(),
@@ -331,11 +345,13 @@ export const competitions = pgTable(
 export const lineups = pgTable(
     'lineups',
     {
-        id: serial('id').primaryKey(),
-        competition_id: integer('competition_id')
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
+        competition_id: text('competition_id')
             .notNull()
             .references(() => competitions.id, { onDelete: 'set null' }),
-        manager_id: integer('manager_id')
+        manager_id: text('manager_id')
             .notNull()
             .references(() => users.id, { onDelete: 'set null' }),
         updated_at: timestamp('updated_at', { precision: 3 })
@@ -356,11 +372,13 @@ export const lineups = pgTable(
 export const lineup_cards = pgTable(
     'lineup_cards',
     {
-        id: serial('id').primaryKey(),
-        lineup_id: integer('lineup_id')
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
+        lineup_id: text('lineup_id')
             .notNull()
             .references(() => lineups.id, { onDelete: 'set null' }),
-        card_id: integer('card_id')
+        card_id: text('card_id')
             .notNull()
             .references(() => cards.id, { onDelete: 'set null' }),
         position: integer('position').notNull(),
@@ -382,14 +400,16 @@ export const lineup_cards = pgTable(
 export const runner_results = pgTable(
     'runner_results',
     {
-        id: serial('id').primaryKey(),
-        competition_id: integer('competition_id')
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
+        competition_id: text('competition_id')
             .notNull()
             .references(() => competitions.id, { onDelete: 'set null' }),
-        runner_id: integer('runner_id')
+        runner_id: text('runner_id')
             .notNull()
             .references(() => runners.id, { onDelete: 'set null' }),
-        session_id: integer('session_id')
+        session_id: text('session_id')
             .notNull()
             .references(() => runs.id, { onDelete: 'set null' }),
         best_time_sec: doublePrecision('best_time_sec').notNull(),
@@ -413,8 +433,10 @@ export const runner_results = pgTable(
 export const manager_results = pgTable(
     'manager_results',
     {
-        id: serial('id').primaryKey(),
-        lineup_id: integer('lineup_id')
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
+        lineup_id: text('lineup_id')
             .notNull()
             .references(() => lineups.id, { onDelete: 'set null' }),
         total_score: doublePrecision('total_score').notNull(),
@@ -437,14 +459,16 @@ export const manager_results = pgTable(
 export const listings = pgTable(
     'listings',
     {
-        id: serial('id').primaryKey(),
-        buyer_id: integer('buyer_id').references(() => users.id, {
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
+        buyer_id: text('buyer_id').references(() => users.id, {
             onDelete: 'set null'
         }),
-        seller_id: integer('seller_id')
+        seller_id: text('seller_id')
             .notNull()
             .references(() => users.id, { onDelete: 'set null' }),
-        card_id: integer('card_id')
+        card_id: text('card_id')
             .notNull()
             .references(() => cards.id, { onDelete: 'set null' }),
         price: decimal('price', {
@@ -455,7 +479,7 @@ export const listings = pgTable(
             precision: ethValuePrecision,
             scale: 0
         }),
-        highest_bidder_id: integer('highest_bidder_id').references(
+        highest_bidder_id: text('highest_bidder_id').references(
             () => users.id,
             {
                 onDelete: 'set null'
@@ -489,14 +513,16 @@ export const listings = pgTable(
 export const bids = pgTable(
     'bids',
     {
-        id: serial('id').primaryKey(),
-        listing_id: integer('listing_id').references(() => listings.id, {
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
+        listing_id: text('listing_id').references(() => listings.id, {
             onDelete: 'set null'
         }),
-        card_id: integer('card_id')
+        card_id: text('card_id')
             .notNull()
             .references(() => cards.id, { onDelete: 'set null' }),
-        bidder_id: integer('bidder_id')
+        bidder_id: text('bidder_id')
             .notNull()
             .references(() => users.id, { onDelete: 'set null' }),
         price: decimal('price', {
@@ -537,24 +563,26 @@ export const bids = pgTable(
 export const transactions = pgTable(
     'transactions',
     {
-        id: serial('id').primaryKey(),
-        from_user_id: integer('from_user_id').references(() => users.id, {
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
+        from_user_id: text('from_user_id').references(() => users.id, {
             onDelete: 'set null'
         }),
-        to_user_id: integer('to_user_id').references(() => users.id, {
+        to_user_id: text('to_user_id').references(() => users.id, {
             onDelete: 'set null'
         }),
-        card_id: integer('card_id').references(() => cards.id, {
+        card_id: text('card_id').references(() => cards.id, {
             onDelete: 'set null'
         }),
-        competition_id: integer('competition_id').references(
+        competition_id: text('competition_id').references(
             () => competitions.id,
             { onDelete: 'set null' }
         ),
         price: decimal('price', { precision: ethValuePrecision, scale: 0 }),
         transaction_type:
             enum_transactions_transaction_type('transaction_type').notNull(),
-        pack_purchases_id: integer('pack_purchases_id').references(
+        pack_purchases_id: text('pack_purchases_id').references(
             () => pack_purchases.id,
             { onDelete: 'set null' }
         ),
@@ -580,8 +608,10 @@ export const transactions = pgTable(
 export const user_device_authorizations = pgTable(
     'user_device_authorizations',
     {
-        id: serial('id').primaryKey(),
-        user_id: integer('user_id')
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
+        user_id: text('user_id')
             .notNull()
             .references(() => users.id, { onDelete: 'set null' }),
         device_type: varchar('device_type').notNull(),
@@ -606,11 +636,13 @@ export const user_device_authorizations = pgTable(
 export const posts = pgTable(
     'posts',
     {
-        id: serial('id').primaryKey(),
-        user_id: integer('user_id')
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
+        user_id: text('user_id')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
-        run_id: integer('run_id')
+        run_id: text('run_id')
             .notNull()
             .references(() => runs.id, { onDelete: 'cascade' }),
         status: enum_posts_status('status').default('visible').notNull(),
@@ -633,15 +665,17 @@ export const posts = pgTable(
 export const comments = pgTable(
     'comments',
     {
-        id: serial('id').primaryKey(),
-        post_id: integer('post_id')
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
+        post_id: text('post_id')
             .notNull()
             .references(() => posts.id, { onDelete: 'cascade' }),
-        user_id: integer('user_id')
+        user_id: text('user_id')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
         content: varchar('content').notNull(),
-        parent_comment_id: integer('parent_comment_id'),
+        parent_comment_id: text('parent_comment_id'),
         updated_at: timestamp('updated_at', { precision: 3 })
             .defaultNow()
             .notNull(),
@@ -665,14 +699,16 @@ export const comments = pgTable(
 export const reactions = pgTable(
     'reactions',
     {
-        id: serial('id').primaryKey(),
-        user_id: integer('user_id')
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
+        user_id: text('user_id')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
-        post_id: integer('post_id').references(() => posts.id, {
+        post_id: text('post_id').references(() => posts.id, {
             onDelete: 'cascade'
         }),
-        comment_id: integer('comment_id').references(() => comments.id, {
+        comment_id: text('comment_id').references(() => comments.id, {
             onDelete: 'cascade'
         }),
         type: enum_reaction_type('type').notNull(),
@@ -700,11 +736,13 @@ export const reactions = pgTable(
 export const follows = pgTable(
     'follows',
     {
-        id: serial('id').primaryKey(),
-        follower_id: integer('follower_id')
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
+        follower_id: text('follower_id')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
-        follow_target_id: integer('follow_target_id')
+        follow_target_id: text('follow_target_id')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
         created_at: timestamp('created_at', { precision: 3 })
@@ -724,11 +762,13 @@ export const follows = pgTable(
 export const profile_views = pgTable(
     'profile_views',
     {
-        id: serial('id').primaryKey(),
-        profile_id: integer('profile_id')
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
+        profile_id: text('profile_id')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
-        viewer_id: integer('viewer_id').references(() => users.id, {
+        viewer_id: text('viewer_id').references(() => users.id, {
             onDelete: 'set null'
         }),
         ip_address: varchar('ip_address'),
@@ -749,20 +789,22 @@ export const profile_views = pgTable(
 export const reports = pgTable(
     'reports',
     {
-        id: serial('id').primaryKey(),
-        reporter_id: integer('reporter_id')
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
+        reporter_id: text('reporter_id')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
-        post_id: integer('post_id').references(() => posts.id, {
+        post_id: text('post_id').references(() => posts.id, {
             onDelete: 'cascade'
         }),
-        comment_id: integer('comment_id').references(() => comments.id, {
+        comment_id: text('comment_id').references(() => comments.id, {
             onDelete: 'cascade'
         }),
         reason: enum_report_reason('reason').notNull(),
         details: varchar('details'),
         status: enum_report_status('status').default('pending'),
-        reviewed_by: integer('reviewed_by').references(() => users.id, {
+        reviewed_by: text('reviewed_by').references(() => users.id, {
             onDelete: 'set null'
         }),
         reviewed_at: timestamp('reviewed_at', { precision: 3 }),
@@ -781,8 +823,10 @@ export const reports = pgTable(
 export const runner_leaderboard = pgTable(
     'runner_leaderboard',
     {
-        id: serial('id').primaryKey(),
-        runner_id: integer('runner_id')
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
+        runner_id: text('runner_id')
             .notNull()
             .references(() => runners.id, { onDelete: 'cascade' }),
         ranking: integer('ranking').notNull(),
@@ -802,8 +846,10 @@ export const runner_leaderboard = pgTable(
 export const manager_leaderboard = pgTable(
     'manager_leaderboard',
     {
-        id: serial('id').primaryKey(),
-        user_id: integer('user_id')
+        id: text('id')
+            .$defaultFn(() => uuid())
+            .primaryKey(),
+        user_id: text('user_id')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
         ranking: integer('ranking').notNull(),
