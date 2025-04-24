@@ -1,4 +1,4 @@
-import { PendingRunner, PendingRun } from '@phyt/types';
+import { UUIDv7, PendingRunner, PendingRun } from '@phyt/types';
 
 import { api } from '@/lib/api';
 
@@ -22,7 +22,7 @@ export const getPendingRuns = async (token: string): Promise<PendingRun[]> => {
 };
 
 export const approveRunner = async (
-    runnerId: number,
+    runnerId: UUIDv7,
     token: string
 ): Promise<{ success: boolean }> => {
     const response = await api.post<{ success: boolean }>(
@@ -35,12 +35,13 @@ export const approveRunner = async (
 };
 
 export const updateRunVerification = async (
-    runId: number,
+    runId: UUIDv7,
     status: 'verified' | 'flagged',
     token: string
 ): Promise<{ success: boolean }> => {
     const response = await api.patch<{ success: boolean }>(
         `/admin/runs/${String(runId)}/verify`,
+        status,
         {
             headers: { Authorization: `Bearer ${token}` }
         }

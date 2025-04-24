@@ -1,4 +1,5 @@
 import {
+    UUIDv7,
     RunnerLeaderboard,
     LeaderboardQueryParams,
     ManagerLeaderboard,
@@ -25,7 +26,7 @@ export async function getManagerLeaderboard(
 }
 
 export async function getManagerStanding(
-    id: string | number,
+    id: UUIDv7 | string,
     { page = 1, limit = 20, timeFrame = 'weekly' }: LeaderboardQueryParams = {},
     token: string
 ): Promise<ManagerStanding> {
@@ -51,7 +52,7 @@ export async function getRunnerLeaderboard(
 }
 
 export async function getRunnerStanding(
-    id: string | number,
+    id: UUIDv7 | string,
     { page = 1, limit = 20, timeFrame = 'weekly' }: LeaderboardQueryParams = {},
     token: string
 ): Promise<RunnerStanding> {

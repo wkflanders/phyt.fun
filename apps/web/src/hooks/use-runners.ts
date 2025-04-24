@@ -1,4 +1,9 @@
-import { AuthenticationError, RunnerProfile, ApiError } from '@phyt/types';
+import {
+    UUIDv7,
+    AuthenticationError,
+    RunnerProfile,
+    ApiError
+} from '@phyt/types';
 import { usePrivy } from '@privy-io/react-auth';
 import { useQuery } from '@tanstack/react-query';
 
@@ -28,7 +33,7 @@ export function useGetRunners(search?: string) {
     });
 }
 
-export function useGetRunner(id: number) {
+export function useGetRunner(id: UUIDv7) {
     const { getAccessToken } = usePrivy();
 
     return useQuery<RunnerProfile, ApiError>({

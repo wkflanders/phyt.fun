@@ -1,4 +1,5 @@
 import {
+    UUIDv7,
     CommentQueryParams,
     CommentResponse,
     CommentCreateRequest,
@@ -10,17 +11,17 @@ import { api } from '@/lib/api';
 export const COMMENT_QUERY_KEYS = {
     all: ['comments'] as const,
     lists: () => [...COMMENT_QUERY_KEYS.all, 'list'] as const,
-    detail: (commentId: number) =>
+    detail: (commentId: UUIDv7) =>
         [...COMMENT_QUERY_KEYS.all, commentId] as const,
-    postComments: (postId: number, params?: CommentQueryParams) =>
+    postComments: (postId: UUIDv7, params?: CommentQueryParams) =>
         ['postComments', postId, params] as const,
-    replies: (commentId: number, params?: { page?: number; limit?: number }) =>
+    replies: (commentId: UUIDv7, params?: { page?: number; limit?: number }) =>
         ['commentReplies', commentId, params] as const
 };
 
 // Function to fetch comments for a post
 export async function fetchPostComments(
-    postId: number,
+    postId: UUIDv7,
     { page = 1, limit = 20, parent_only = false }: CommentQueryParams = {},
     token: string
 ): Promise<CommentResponse> {
@@ -36,7 +37,7 @@ export async function fetchPostComments(
 
 // Function to fetch replies to a comment
 export async function fetchCommentReplies(
-    commentId: number,
+    commentId: UUIDv7,
     { page = 1, limit = 20 }: CommentQueryParams = {},
     token: string
 ): Promise<CommentResponse> {
@@ -52,7 +53,7 @@ export async function fetchCommentReplies(
 
 // Function to fetch a single comment by ID
 export async function fetchComment(
-    commentId: number,
+    commentId: UUIDv7,
     token: string
 ): Promise<Comment> {
     const response = await api.get<Comment>(`/comments/${String(commentId)}`, {
@@ -85,7 +86,7 @@ export async function updateComment(
 
 // Function to delete a comment
 export async function deleteComment(
-    commentId: number,
+    commentId: UUIDv7,
     token: string
 ): Promise<Comment> {
     const response = await api.delete<Comment>(

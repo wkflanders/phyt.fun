@@ -1,4 +1,5 @@
 import {
+    UUIDv7,
     ApiError,
     AuthenticationError,
     CommentQueryParams,
@@ -23,7 +24,7 @@ import { POST_QUERY_KEYS } from '@/queries/posts';
 import { useToast } from './use-toast';
 
 export function usePostComments(
-    postId: number,
+    postId: UUIDv7,
     params: CommentQueryParams = {}
 ) {
     const { page = 1, limit = 20, parent_only = false } = params;
@@ -53,7 +54,7 @@ export function usePostComments(
 }
 
 export function useCommentReplies(
-    commentId: number,
+    commentId: UUIDv7,
     params: CommentQueryParams = {}
 ) {
     const { page = 1, limit = 20 } = params;
@@ -75,7 +76,7 @@ export function useCommentReplies(
     });
 }
 
-export function useComment(commentId: number) {
+export function useComment(commentId: UUIDv7) {
     const { getAccessToken } = usePrivy();
 
     return useQuery<Comment, ApiError>({
@@ -183,7 +184,7 @@ export function useDeleteComment() {
     const { toast } = useToast();
     const { getAccessToken } = usePrivy();
 
-    return useMutation<Comment, ApiError, number>({
+    return useMutation<Comment, ApiError, UUIDv7>({
         mutationFn: async (commentId) => {
             const token = await getAccessToken();
             if (!token) {

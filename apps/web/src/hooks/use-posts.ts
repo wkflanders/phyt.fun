@@ -1,4 +1,5 @@
 import {
+    UUIDv7,
     ApiError,
     AuthenticationError,
     PostQueryParams,
@@ -32,7 +33,7 @@ export function useGetPosts(params: PostQueryParams = {}) {
             const token = await getAccessToken();
             if (!token) {
                 throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
+                    'No token available. Is user logged in?'
                 );
             }
             return fetchPosts({ page, limit, filter }, token);
@@ -40,7 +41,7 @@ export function useGetPosts(params: PostQueryParams = {}) {
     });
 }
 
-export function useGetPost(postId: number) {
+export function useGetPost(postId: UUIDv7) {
     const { getAccessToken } = usePrivy();
 
     return useQuery<Post, ApiError>({
@@ -49,7 +50,7 @@ export function useGetPost(postId: number) {
             const token = await getAccessToken();
             if (!token) {
                 throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
+                    'No token available. Is user logged in?'
                 );
             }
             return fetchPostById(postId, token);
@@ -58,7 +59,7 @@ export function useGetPost(postId: number) {
     });
 }
 
-export function useUserPosts(userId: number, params: PostQueryParams = {}) {
+export function useUserPosts(userId: UUIDv7, params: PostQueryParams = {}) {
     const { page = 1, limit = 10 } = params;
     const { getAccessToken } = usePrivy();
 
@@ -68,7 +69,7 @@ export function useUserPosts(userId: number, params: PostQueryParams = {}) {
             const token = await getAccessToken();
             if (!token) {
                 throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
+                    'No token available. Is user logged in?'
                 );
             }
             return fetchUserPosts(userId, { page, limit }, token);
@@ -87,7 +88,7 @@ export function useCreatePost() {
             const token = await getAccessToken();
             if (!token) {
                 throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
+                    'No token available. Is user logged in?'
                 );
             }
             return createPost(postData, token);
@@ -120,7 +121,7 @@ export function useUpdatePostStatus() {
             const token = await getAccessToken();
             if (!token) {
                 throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
+                    'No token available. Is user logged in?'
                 );
             }
             return updatePostStatus(updatePostData, token);
@@ -132,7 +133,7 @@ export function useUpdatePostStatus() {
             });
             queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.all });
             queryClient.invalidateQueries({
-                queryKey: POST_QUERY_KEYS.detail(variables.postId)
+                queryKey: POST_QUERY_KEYS.detail(variables.post_id)
             });
         },
         onError: (error: ApiError) => {
@@ -151,12 +152,12 @@ export function useDeletePost() {
     const { toast } = useToast();
     const { getAccessToken } = usePrivy();
 
-    return useMutation<Post, ApiError, number>({
+    return useMutation<Post, ApiError, UUIDv7>({
         mutationFn: async (postId) => {
             const token = await getAccessToken();
             if (!token) {
                 throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
+                    'No token available. Is user logged in?'
                 );
             }
             return deletePost(postId, token);

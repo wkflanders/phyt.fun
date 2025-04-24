@@ -1,4 +1,5 @@
 import {
+    UUIDv7,
     LeaderboardQueryParams,
     RunnerLeaderboard,
     ManagerLeaderboard,
@@ -60,7 +61,7 @@ export function useGetManagerLeaderboard(params: LeaderboardQueryParams) {
 }
 
 export function useGetManagerStanding(
-    id: string | number,
+    id: UUIDv7 | string,
     params: LeaderboardQueryParams
 ) {
     const { getAccessToken } = usePrivy();
@@ -86,7 +87,7 @@ export function useGetManagerStanding(
 }
 
 export function useGetRunnerStanding(
-    id: string | number,
+    id: UUIDv7 | string,
     params: LeaderboardQueryParams
 ) {
     const { getAccessToken } = usePrivy();

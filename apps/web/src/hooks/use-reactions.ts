@@ -1,4 +1,5 @@
 import {
+    UUIDv7,
     ApiError,
     Reaction,
     ReactionCount,
@@ -19,7 +20,7 @@ import {
     REACTION_QUERY_KEYS
 } from '@/queries/reactions';
 
-export function usePostReactions(postId: number) {
+export function usePostReactions(postId: UUIDv7) {
     const { getAccessToken } = usePrivy();
 
     return useQuery<ReactionCount, ApiError>({
@@ -37,7 +38,7 @@ export function usePostReactions(postId: number) {
     });
 }
 
-export function useCommentReactions(commentId: number) {
+export function useCommentReactions(commentId: UUIDv7) {
     const { getAccessToken } = usePrivy();
 
     return useQuery<ReactionCount, ApiError>({
@@ -55,7 +56,7 @@ export function useCommentReactions(commentId: number) {
     });
 }
 
-export function useUserPostReactions(postId: number) {
+export function useUserPostReactions(postId: UUIDv7) {
     const { getAccessToken } = usePrivy();
 
     return useQuery<Reaction[], ApiError>({
@@ -73,7 +74,7 @@ export function useUserPostReactions(postId: number) {
     });
 }
 
-export function useUserCommentReactions(commentId: number) {
+export function useUserCommentReactions(commentId: UUIDv7) {
     const { getAccessToken } = usePrivy();
 
     return useQuery<Reaction[], ApiError>({

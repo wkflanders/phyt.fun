@@ -1,5 +1,5 @@
 import { env } from '@/env';
-import { MarketListing, Order, User, Listing } from '@phyt/types';
+import { UUIDv7, MarketListing, Order, User, Listing } from '@phyt/types';
 import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAccount } from 'wagmi';
@@ -198,7 +198,7 @@ export function useCreateListing(user: User) {
             takePrice,
             expiration // added parameter
         }: {
-            cardId: number;
+            cardId: UUIDv7;
             tokenId: number;
             takePrice: bigint;
             expiration: string; // e.g. an ISO string or UNIX timestamp string
@@ -378,8 +378,8 @@ export function usePlaceBid() {
             cardId,
             bidAmount
         }: {
-            listingId: number;
-            cardId: number;
+            listingId: UUIDv7;
+            cardId: UUIDv7;
             bidAmount: bigint;
         }) => {
             const token = await getAccessToken();

@@ -1,6 +1,6 @@
 import { env } from '@/env';
 import { ExchangeAbi } from '@phyt/contracts';
-import { Order } from '@phyt/types';
+import { UUIDv7, Order } from '@phyt/types';
 import { keccak256, encodeAbiParameters, concat } from 'viem';
 import { usePublicClient, useWalletClient, useAccount } from 'wagmi';
 import { writeContract, simulateContract } from 'wagmi/actions';
@@ -129,8 +129,8 @@ export function useExchange() {
         cardId,
         bidAmount
     }: {
-        listingId: number;
-        cardId: number;
+        listingId: UUIDv7;
+        cardId: UUIDv7;
         bidAmount: bigint;
     }) => {
         if (!walletClient || !address) {

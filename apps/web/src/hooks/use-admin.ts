@@ -1,4 +1,4 @@
-import { AuthenticationError } from '@phyt/types';
+import { UUIDv7, AuthenticationError } from '@phyt/types';
 import { usePrivy } from '@privy-io/react-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -51,7 +51,7 @@ export function useApproveRunner() {
     const { getAccessToken } = usePrivy();
 
     return useMutation({
-        mutationFn: async (runnerId: number) => {
+        mutationFn: async (runnerId: UUIDv7) => {
             const token = await getAccessToken();
             if (!token) {
                 throw new AuthenticationError(
@@ -89,7 +89,7 @@ export function useUpdateRunVerification() {
             runId,
             status
         }: {
-            runId: number;
+            runId: UUIDv7;
             status: 'verified' | 'flagged';
         }) => {
             const token = await getAccessToken();
