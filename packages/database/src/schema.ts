@@ -19,7 +19,7 @@ import { v7 as uuid } from 'uuid';
 
 export const ethValuePrecision = 78;
 
-export const enum_cards_rarity = pgEnum('enum_cards_rarity', [
+export const enumCardsRarity = pgEnum('enumCardsRarity', [
     'bronze',
     'silver',
     'gold',
@@ -28,19 +28,20 @@ export const enum_cards_rarity = pgEnum('enum_cards_rarity', [
     'opal'
 ]);
 
-export const enum_acquisition_type = pgEnum('enum_acquisition_type', [
+export const enumAcquisitionType = pgEnum('enumAcquisitionType', [
     'mint',
     'transfer',
     'marketplace'
 ]);
 
-export const enum_runs_verification_status = pgEnum(
-    'enum_runs_verification_status',
-    ['pending', 'verified', 'flagged']
-);
+export const enumRunsVerificationStatus = pgEnum('enumRunsVerificationStatus', [
+    'pending',
+    'verified',
+    'flagged'
+]);
 
-export const enum_transactions_transaction_type = pgEnum(
-    'enum_transactions_transaction_type',
+export const enumTransactionsTransactionType = pgEnum(
+    'enumTransactionsTransactionType',
     [
         'packPurchase',
         'marketplaceSale',
@@ -50,9 +51,9 @@ export const enum_transactions_transaction_type = pgEnum(
     ]
 );
 
-export const enum_bid_type = pgEnum('enum_bid_type', ['listing', 'open']);
+export const enumBidType = pgEnum('enumBidType', ['listing', 'open']);
 
-export const enum_bid_status = pgEnum('enum_bid_status', [
+export const enumBidStatus = pgEnum('enumBidStatus', [
     'active',
     'filled',
     'topbid',
@@ -60,7 +61,7 @@ export const enum_bid_status = pgEnum('enum_bid_status', [
     'withdrawn'
 ]);
 
-export const enum_listing_status = pgEnum('enum_listing_status', [
+export const enumListingStatus = pgEnum('enumListingStatus', [
     'active',
     'expiring',
     'starting',
@@ -69,51 +70,51 @@ export const enum_listing_status = pgEnum('enum_listing_status', [
     'fulfilled'
 ]);
 
-export const enum_users_role = pgEnum('enum_users_role', [
+export const enumUsersRole = pgEnum('enumUsersRole', [
     'admin',
     'user',
     'runner'
 ]);
-export const enum_runner_status = pgEnum('enum_runner_status', [
+export const enumRunnerStatus = pgEnum('enumRunnerStatus', [
     'pending',
     'active',
     'inactive'
 ]);
 
-export const enum_posts_status = pgEnum('enum_posts_status', [
+export const enumPostsStatus = pgEnum('enumPostsStatus', [
     'visible',
     'hidden',
     'deleted'
 ]);
 
-export const enum_reaction_type = pgEnum('enum_reaction_type', [
+export const enumReactionType = pgEnum('enumReactionType', [
     'like',
     'funny',
     'insightful',
     'fire'
 ]);
 
-export const enum_report_status = pgEnum('enum_report_status', [
+export const enumReportStatus = pgEnum('enumReportStatus', [
     'pending',
     'reviewed',
     'dismissed'
 ]);
 
-export const enum_report_reason = pgEnum('enum_report_reason', [
+export const enumReportReason = pgEnum('enumReportReason', [
     'spam',
     'harassment',
     'inappropriate',
     'other'
 ]);
 
-export const enum_pack_type = pgEnum('enum_pack_type', [
+export const enumPackType = pgEnum('enumPackType', [
     'scrawny',
     'toned',
     'swole',
     'phyt'
 ]);
 
-export const enum_seasons = pgEnum('enum_seasons', ['season_0']);
+export const enumSeasons = pgEnum('enumSeasons', ['season_0']);
 
 // Tables
 export const users = pgTable(
@@ -122,32 +123,32 @@ export const users = pgTable(
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        updated_at: timestamp('updated_at', { precision: 3 })
+        updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull(),
-        created_at: timestamp('created_at', { precision: 3 })
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull(),
         email: varchar('email').notNull(),
         username: varchar('username').notNull(),
-        role: enum_users_role('role').default('user').notNull(),
-        privy_id: varchar('privy_id').notNull(),
-        wallet_address: varchar('wallet_address').unique().notNull(),
-        twitter_handle: varchar('twitter_handle'),
-        strava_handle: varchar('strava_handle'),
-        avatar_url: varchar('avatar_url')
+        role: enumUsersRole('role').default('user').notNull(),
+        privyId: varchar('privyId').notNull(),
+        walletAddress: varchar('walletAddress').unique().notNull(),
+        twitterHandle: varchar('twitterHandle'),
+        stravaHandle: varchar('stravaHandle'),
+        avatarUrl: varchar('avatarUrl')
             .default(
                 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut'
             )
             .notNull(),
-        phytness_points: integer('phytness_points').default(0)
+        phytnessPoints: integer('phytnessPoints').default(0)
     },
     (table) => [
-        uniqueIndex('users_email_idx').on(table.email),
-        uniqueIndex('users_username_idx').on(table.username),
-        uniqueIndex('users_wallet_address_idx').on(table.wallet_address),
-        index('users_created_at_idx').on(table.created_at),
-        index('users_updated_at_idx').on(table.updated_at)
+        uniqueIndex('usersEmailIdx').on(table.email),
+        uniqueIndex('usersUsernameIdx').on(table.username),
+        uniqueIndex('usersWalletAddressIdx').on(table.walletAddress),
+        index('usersCreatedAtIdx').on(table.createdAt),
+        index('usersUpdatedAtIdx').on(table.updatedAt)
     ]
 );
 
@@ -157,32 +158,30 @@ export const runners = pgTable(
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        user_id: text('user_id')
+        userId: text('userId')
             .notNull()
             .references(() => users.id, { onDelete: 'restrict' }),
-        average_pace: doublePrecision('average_pace'),
-        total_distance_m: doublePrecision('total_distance_m')
-            .default(0)
-            .notNull(),
-        total_runs: integer('total_runs').default(0).notNull(),
-        best_mile_time: doublePrecision('best_mile_time'),
-        status: enum_runner_status('status').default('pending').notNull(),
-        is_pooled: boolean('is_pooled').default(false).notNull(),
-        runner_wallet: varchar('runner_wallet')
-            .references(() => users.wallet_address)
+        averagePace: doublePrecision('averagePace'),
+        totalDistance: doublePrecision('totalDistance').default(0).notNull(),
+        totalRuns: integer('totalRuns').default(0).notNull(),
+        bestMileTime: doublePrecision('bestMileTime'),
+        status: enumRunnerStatus('status').default('pending').notNull(),
+        isPooled: boolean('isPooled').default(false).notNull(),
+        runnerWallet: varchar('runnerWallet')
+            .references(() => users.walletAddress)
             .unique()
             .notNull(),
-        updated_at: timestamp('updated_at', { precision: 3 })
+        updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull(),
-        created_at: timestamp('created_at', { precision: 3 })
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
-        uniqueIndex('runners_user_idx').on(table.user_id),
-        index('runners_created_at_idx').on(table.created_at),
-        index('runners_updated_at_idx').on(table.updated_at)
+        uniqueIndex('runnersUserIdx').on(table.userId),
+        index('runnersCreatedAtIdx').on(table.createdAt),
+        index('runnersUpdatedAtIdx').on(table.updatedAt)
     ]
 );
 
@@ -192,67 +191,65 @@ export const runs = pgTable(
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        runner_id: text('runner_id')
+        runnerId: text('runnerId')
             .notNull()
             .references(() => runners.id, { onDelete: 'set null' }),
-        start_time: timestamp('start_time', { precision: 3 }).notNull(),
-        end_time: timestamp('end_time', { precision: 3 }).notNull(),
-        duration_seconds: integer('duration_seconds').notNull(),
-        distance_m: doublePrecision('distance_m').notNull(),
-        average_pace_sec: doublePrecision('average_pace_sec'),
-        calories_burned: integer('calories_burned'),
-        step_count: integer('step_count'),
-        elevation_gain_m: doublePrecision('elevation_gain_m'),
-        average_heart_rate: integer('average_heart_rate'),
-        max_heart_rate: integer('max_heart_rate'),
-        device_id: varchar('device_id'),
-        gps_route_data: varchar('gps_route_data'),
-        is_posted: boolean('is_posted').default(false),
-        verification_status: enum_runs_verification_status(
-            'verification_status'
-        )
+        startTime: timestamp('startTime', { precision: 3 }).notNull(),
+        endTime: timestamp('endTime', { precision: 3 }).notNull(),
+        durationSeconds: integer('durationSeconds').notNull(),
+        distance: doublePrecision('distance').notNull(),
+        averagePaceSec: doublePrecision('averagePaceSec'),
+        caloriesBurned: integer('caloriesBurned'),
+        stepCount: integer('stepCount'),
+        elevationGain: doublePrecision('elevationGain'),
+        averageHeartRate: integer('averageHeartRate'),
+        maxHeartRate: integer('maxHeartRate'),
+        deviceId: varchar('deviceId'),
+        gpsRouteData: varchar('gpsRouteData'),
+        isPosted: boolean('isPosted').default(false),
+        verificationStatus: enumRunsVerificationStatus('verificationSatus')
             .default('pending')
             .notNull(),
-        raw_data_json: jsonb('raw_data_json'),
-        updated_at: timestamp('updated_at', { precision: 3 })
+        rawDataJson: jsonb('rawDataJson'),
+        updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull(),
-        created_at: timestamp('created_at', { precision: 3 })
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
-        index('runs_runner_idx').on(table.runner_id),
-        index('runs_created_at_idx').on(table.created_at),
-        index('runs_updated_at_idx').on(table.updated_at)
+        index('runsRunnerIdx').on(table.runnerId),
+        index('runsCreatedAtIdx').on(table.createdAt),
+        index('runsUpdatedAtIdx').on(table.updatedAt)
     ]
 );
 
-export const pack_purchases = pgTable(
-    'pack_purchases',
+export const packPurchases = pgTable(
+    'packPurchases',
     {
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        buyer_id: text('buyer_id')
+        buyerId: text('buyerId')
             .notNull()
             .references(() => users.id, { onDelete: 'set null' }),
-        purchase_price: decimal('purchase_price', {
+        purchasePrice: decimal('purchasePrice', {
             precision: ethValuePrecision,
             scale: 0
         }).notNull(),
-        pack_type: enum_pack_type('pack_type').notNull(),
-        updated_at: timestamp('updated_at', { precision: 3 })
+        packType: enumPackType('packType').notNull(),
+        updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull(),
-        created_at: timestamp('created_at', { precision: 3 })
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
-        index('pack_purchases_buyer_idx').on(table.buyer_id),
-        index('pack_purchases_created_at_idx').on(table.created_at),
-        index('pack_purchases_updated_at_idx').on(table.updated_at)
+        index('packPurchasesBuyerIdx').on(table.buyerId),
+        index('packPurchasesCreatedAtIdx').on(table.createdAt),
+        index('packPurchasesUpdatedAtIdx').on(table.updatedAt)
     ]
 );
 
@@ -262,55 +259,55 @@ export const cards = pgTable(
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        owner_id: text('owner_id')
+        ownerId: text('ownerId')
             .notNull()
             .references(() => users.id, { onDelete: 'set null' }),
-        pack_purchase_id: text('pack_purchase_id').references(
-            () => pack_purchases.id,
+        packPurchaseId: text('pack_purchase_id').references(
+            () => packPurchases.id,
             { onDelete: 'set null' }
         ),
-        token_id: integer('token_id').notNull().unique(),
-        acquisition_type: enum_acquisition_type('acquisition_type')
+        tokenId: integer('tokenId').notNull().unique(),
+        acquisitionType: enumAcquisitionType('acquisitionType')
             .notNull()
             .default('mint'),
-        is_burned: boolean('is_burned').notNull().default(false),
-        updated_at: timestamp('updated_at', { precision: 3 })
+        isBurned: boolean('isBurned').notNull().default(false),
+        updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull(),
-        created_at: timestamp('created_at', { precision: 3 })
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
-        index('idx_cards_owner_id').on(table.owner_id),
-        index('idx_cards_pack_purchase_id').on(table.pack_purchase_id),
-        index('idx_cards_created_at').on(table.created_at),
-        index('idx_cards_updated_at').on(table.updated_at)
+        index('cardsOwnerIdx').on(table.ownerId),
+        index('cardsPackPurchaseIdx').on(table.packPurchaseId),
+        index('cardsCreatedAtIdx').on(table.createdAt),
+        index('cardsUpdatedAtIdx').on(table.updatedAt)
     ]
 );
 
-export const card_metadata = pgTable(
-    'card_metadata',
+export const cardMetadata = pgTable(
+    'cardMetadata',
     {
-        token_id: serial('token_id')
+        tokenId: serial('tokenId')
             .primaryKey()
-            .references(() => cards.token_id, { onDelete: 'cascade' }),
-        runner_id: text('runner_id')
+            .references(() => cards.tokenId, { onDelete: 'cascade' }),
+        runnerId: text('runnerId')
             .notNull()
             .references(() => runners.id, { onDelete: 'restrict' }),
         runner_name: varchar('runner_name').notNull(),
-        rarity: enum_cards_rarity('rarity').notNull(),
+        rarity: enumCardsRarity('rarity').notNull(),
         multiplier: doublePrecision('multiplier').notNull(),
-        season: enum_seasons('seasons').notNull(),
-        image_url: varchar('image_url').notNull(),
-        created_at: timestamp('created_at', { precision: 3 })
+        season: enumSeasons('seasons').notNull(),
+        imageUrl: varchar('imageUrl').notNull(),
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
-        uniqueIndex('idx_cards_token_id').on(table.token_id),
-        index('idx_card_metadata_runner_id').on(table.runner_id),
-        index('idx_card_metadata_created_at').on(table.created_at)
+        uniqueIndex('cardsTokenIdx').on(table.tokenId),
+        index('cardMetadataRunnerIdx').on(table.runnerId),
+        index('cardMetadataCreatedAtIdx').on(table.createdAt)
     ]
 );
 
@@ -320,25 +317,25 @@ export const competitions = pgTable(
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        event_name: varchar('event_name').notNull(),
-        start_time: timestamp('start_time', { precision: 3 }).notNull(),
-        end_time: timestamp('end_time', { precision: 3 }).notNull(),
-        distance_m: doublePrecision('distance_m'),
-        event_type: varchar('event_type'),
+        eventName: varchar('eventName').notNull(),
+        startTime: timestamp('startTime', { precision: 3 }).notNull(),
+        endTime: timestamp('endTime', { precision: 3 }).notNull(),
+        distance: doublePrecision('distance'),
+        eventType: varchar('eventType'),
         jackpot: decimal('jackpot', {
             precision: ethValuePrecision,
             scale: 0
         }).default('0'), // Default as string '0'
-        updated_at: timestamp('updated_at', { precision: 3 })
+        updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull(),
-        created_at: timestamp('created_at', { precision: 3 })
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
-        index('competitions_created_at_idx').on(table.created_at),
-        index('competitions_updated_at_idx').on(table.updated_at)
+        index('competitionsCreatedAtIdx').on(table.createdAt),
+        index('competitionsUpdatedAtIdx').on(table.updatedAt)
     ]
 );
 
@@ -348,111 +345,111 @@ export const lineups = pgTable(
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        competition_id: text('competition_id')
+        competitionId: text('competitionId')
             .notNull()
             .references(() => competitions.id, { onDelete: 'set null' }),
-        manager_id: text('manager_id')
+        managerId: text('managerId')
             .notNull()
             .references(() => users.id, { onDelete: 'set null' }),
-        updated_at: timestamp('updated_at', { precision: 3 })
+        updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull(),
-        created_at: timestamp('created_at', { precision: 3 })
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
-        index('lineups_competition_idx').on(table.competition_id),
-        index('lineups_manager_idx').on(table.manager_id),
-        index('lineups_created_at_idx').on(table.created_at),
-        index('lineups_updated_at_idx').on(table.updated_at)
+        index('lineupsCompetitionIdx').on(table.competitionId),
+        index('lineupsManagerIdx').on(table.managerId),
+        index('lineupsCreated_atIdx').on(table.createdAt),
+        index('lineupsUpdated_atIdx').on(table.updatedAt)
     ]
 );
 
-export const lineup_cards = pgTable(
-    'lineup_cards',
+export const lineupCards = pgTable(
+    'lineupCards',
     {
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        lineup_id: text('lineup_id')
+        lineupId: text('lineupId')
             .notNull()
             .references(() => lineups.id, { onDelete: 'set null' }),
-        card_id: text('card_id')
+        cardId: text('cardId')
             .notNull()
             .references(() => cards.id, { onDelete: 'set null' }),
         position: integer('position').notNull(),
-        updated_at: timestamp('updated_at', { precision: 3 })
+        updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull(),
-        created_at: timestamp('created_at', { precision: 3 })
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
-        index('lineup_cards_lineup_idx').on(table.lineup_id),
-        index('lineup_cards_card_idx').on(table.card_id),
-        index('lineup_cards_created_at_idx').on(table.created_at),
-        index('lineup_cards_updated_at_idx').on(table.updated_at)
+        index('lineupCardsLineupIdx').on(table.lineupId),
+        index('lineupCardsCardIdx').on(table.cardId),
+        index('lineupCardsCreatedAtIdx').on(table.createdAt),
+        index('lineupCardsUpdatedAtIdx').on(table.updatedAt)
     ]
 );
 
-export const runner_results = pgTable(
-    'runner_results',
+export const runnerResults = pgTable(
+    'runnerResults',
     {
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        competition_id: text('competition_id')
+        competitionId: text('competitionId')
             .notNull()
             .references(() => competitions.id, { onDelete: 'set null' }),
-        runner_id: text('runner_id')
+        runnerId: text('runnerId')
             .notNull()
             .references(() => runners.id, { onDelete: 'set null' }),
-        session_id: text('session_id')
+        sessionId: text('sessionId')
             .notNull()
             .references(() => runs.id, { onDelete: 'set null' }),
-        best_time_sec: doublePrecision('best_time_sec').notNull(),
+        bestTimeSec: doublePrecision('bestTimeSec').notNull(),
         ranking: integer('ranking'),
-        updated_at: timestamp('updated_at', { precision: 3 })
+        updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull(),
-        created_at: timestamp('created_at', { precision: 3 })
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
-        index('runner_results_competition_idx').on(table.competition_id),
-        index('runner_results_runner_idx').on(table.runner_id),
-        index('runner_results_session_idx').on(table.session_id),
-        index('runner_results_created_at_idx').on(table.created_at),
-        index('runner_results_updated_at_idx').on(table.updated_at)
+        index('runnerResultsCompetitionIdx').on(table.competitionId),
+        index('runnerResultsRunnerIdx').on(table.runnerId),
+        index('runnerResultsSessionIdx').on(table.sessionId),
+        index('runnerResultsCreated_atIdx').on(table.createdAt),
+        index('runnerResultsUpdated_atIdx').on(table.updatedAt)
     ]
 );
 
-export const manager_results = pgTable(
-    'manager_results',
+export const managerResults = pgTable(
+    'managerResults',
     {
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        lineup_id: text('lineup_id')
+        lineupId: text('lineupId')
             .notNull()
             .references(() => lineups.id, { onDelete: 'set null' }),
-        total_score: doublePrecision('total_score').notNull(),
-        final_placement: integer('final_placement'),
-        reward_amount_phyt: doublePrecision('reward_amount_phyt'),
-        updated_at: timestamp('updated_at', { precision: 3 })
+        totalScore: doublePrecision('totalScore').notNull(),
+        finalPlacement: integer('finalPlacement'),
+        rewardAmountPhyt: doublePrecision('rewardAmountPhyt'),
+        updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull(),
-        created_at: timestamp('created_at', { precision: 3 })
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
-        index('manager_results_lineup_idx').on(table.lineup_id),
-        index('manager_results_created_at_idx').on(table.created_at),
-        index('manager_results_updated_at_idx').on(table.updated_at)
+        index('managerResultsLineupIdx').on(table.lineupId),
+        index('managerResultsCreatedAtIdx').on(table.createdAt),
+        index('managerResultsUpdatedAtIdx').on(table.updatedAt)
     ]
 );
 
@@ -462,51 +459,48 @@ export const listings = pgTable(
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        buyer_id: text('buyer_id').references(() => users.id, {
+        buyerId: text('buyerId').references(() => users.id, {
             onDelete: 'set null'
         }),
-        seller_id: text('seller_id')
+        sellerId: text('sellerId')
             .notNull()
             .references(() => users.id, { onDelete: 'set null' }),
-        card_id: text('card_id')
+        cardId: text('cardId')
             .notNull()
             .references(() => cards.id, { onDelete: 'set null' }),
         price: decimal('price', {
             precision: ethValuePrecision,
             scale: 0
         }).notNull(),
-        highest_bid: decimal('highest_bid', {
+        highestBid: decimal('highestBid', {
             precision: ethValuePrecision,
             scale: 0
         }),
-        highest_bidder_id: text('highest_bidder_id').references(
-            () => users.id,
-            {
-                onDelete: 'set null'
-            }
-        ),
-        expiration_time: timestamp('expiration_time', {
+        highestBidderId: text('highestBidderId').references(() => users.id, {
+            onDelete: 'set null'
+        }),
+        expiration_time: timestamp('expirationTime', {
             precision: 3
         }).notNull(),
         signature: varchar('signature').notNull(),
-        order_hash: varchar('order_hash').notNull().unique(),
-        order_data: jsonb('order_data').notNull(),
-        transaction_hash: varchar('transaction_hash', { length: 66 }).notNull(),
-        status: enum_listing_status('status').notNull().default('active'),
-        created_at: timestamp('created_at', { precision: 3 })
+        orderHash: varchar('orderHash').notNull().unique(),
+        orderData: jsonb('orderData').notNull(),
+        transactionHash: varchar('transactionHash', { length: 66 }).notNull(),
+        status: enumListingStatus('status').notNull().default('active'),
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull(),
-        updated_at: timestamp('updated_at', { precision: 3 })
+        updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
-        index('listings_card_idx').on(table.card_id),
-        index('listings_seller_idx').on(table.seller_id),
-        index('listings_buyer_idx').on(table.buyer_id),
-        index('listings_status_idx').on(table.status),
-        index('listings_created_at_idx').on(table.created_at),
-        index('listings_updated_at_idx').on(table.updated_at)
+        index('listingsCardIdx').on(table.cardId),
+        index('listingsSellerIdx').on(table.sellerId),
+        index('listingsBuyerIdx').on(table.buyerId),
+        index('listingsStatusIdx').on(table.status),
+        index('listingsCreatedAtIdx').on(table.createdAt),
+        index('listingsUpdatedAtIdx').on(table.updatedAt)
     ]
 );
 
@@ -516,47 +510,47 @@ export const bids = pgTable(
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        listing_id: text('listing_id').references(() => listings.id, {
+        listingId: text('listingId').references(() => listings.id, {
             onDelete: 'set null'
         }),
-        card_id: text('card_id')
+        cardId: text('cardId')
             .notNull()
             .references(() => cards.id, { onDelete: 'set null' }),
-        bidder_id: text('bidder_id')
+        bidderId: text('bidderId')
             .notNull()
             .references(() => users.id, { onDelete: 'set null' }),
         price: decimal('price', {
             precision: ethValuePrecision,
             scale: 0
         }).notNull(),
-        bid_amount: decimal('bid_amount', {
+        bidAmount: decimal('bidAmount', {
             precision: ethValuePrecision,
             scale: 0
         }).notNull(),
         signature: varchar('signature').notNull(),
-        order_hash: varchar('order_hash').notNull().unique(),
-        order_data: jsonb('order_data').notNull(),
-        bid_type: enum_bid_type('bid_type').default('listing').notNull(),
-        status: enum_bid_status('status').default('active').notNull(),
-        expiration_time: timestamp('expiration_time', {
+        orderHash: varchar('orderHash').notNull().unique(),
+        orderData: jsonb('orderData').notNull(),
+        bidType: enumBidType('bidType').default('listing').notNull(),
+        status: enumBidStatus('status').default('active').notNull(),
+        expirationTime: timestamp('expirationTime', {
             precision: 3
         }).notNull(),
-        accepted_at: timestamp('accepted_at', { precision: 3 }),
-        updated_at: timestamp('updated_at', { precision: 3 })
+        acceptedAt: timestamp('acceptedAt', { precision: 3 }),
+        updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull(),
-        created_at: timestamp('created_at', { precision: 3 })
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
-        index('bids_listing_idx').on(table.listing_id),
-        index('bids_card_idx').on(table.card_id),
-        index('bids_bidder_idx').on(table.bidder_id),
-        index('bids_status_idx').on(table.status),
-        index('bids_type_idx').on(table.bid_type),
-        index('bids_created_at_idx').on(table.created_at),
-        index('bids_updated_at_idx').on(table.updated_at)
+        index('bidsListingIdx').on(table.listingId),
+        index('bidsCardIdx').on(table.cardId),
+        index('bidsBidderIdx').on(table.bidderId),
+        index('bidsStatusIdx').on(table.status),
+        index('bidsTypeIdx').on(table.bidType),
+        index('bidsCreatedAtIdx').on(table.createdAt),
+        index('bidsUpdatedAtIdx').on(table.updatedAt)
     ]
 );
 
@@ -566,70 +560,69 @@ export const transactions = pgTable(
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        from_user_id: text('from_user_id').references(() => users.id, {
+        fromUserId: text('fromUserId').references(() => users.id, {
             onDelete: 'set null'
         }),
-        to_user_id: text('to_user_id').references(() => users.id, {
+        toUserId: text('toUserId').references(() => users.id, {
             onDelete: 'set null'
         }),
-        card_id: text('card_id').references(() => cards.id, {
+        cardId: text('cardId').references(() => cards.id, {
             onDelete: 'set null'
         }),
-        competition_id: text('competition_id').references(
-            () => competitions.id,
-            { onDelete: 'set null' }
-        ),
+        competitionId: text('competitionId').references(() => competitions.id, {
+            onDelete: 'set null'
+        }),
         price: decimal('price', { precision: ethValuePrecision, scale: 0 }),
-        transaction_type:
-            enum_transactions_transaction_type('transaction_type').notNull(),
-        pack_purchases_id: text('pack_purchases_id').references(
-            () => pack_purchases.id,
+        transactionType:
+            enumTransactionsTransactionType('transactionType').notNull(),
+        packPurchasesId: text('packPurchasesId').references(
+            () => packPurchases.id,
             { onDelete: 'set null' }
         ),
         hash: varchar('hash', { length: 66 }), // 0x + 64 characters for hash
-        updated_at: timestamp('updated_at', { precision: 3 })
+        updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull(),
-        created_at: timestamp('created_at', { precision: 3 })
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
-        index('transactions_from_user_idx').on(table.from_user_id),
-        index('transactions_to_user_idx').on(table.to_user_id),
-        index('transactions_card_idx').on(table.card_id),
-        index('transactions_competition_idx').on(table.competition_id),
-        index('transactions_hash_idx').on(table.hash),
-        index('transactions_created_at_idx').on(table.created_at),
-        index('transactions_updated_at_idx').on(table.updated_at)
+        index('transactionsFromUserIdx').on(table.fromUserId),
+        index('transactionsToUserIdx').on(table.toUserId),
+        index('transactionsCardIdx').on(table.cardId),
+        index('transactionsCompetitionIdx').on(table.competitionId),
+        index('transactionsHashIdx').on(table.hash),
+        index('transactionsCreatedAtIdx').on(table.createdAt),
+        index('transactionsUpdatedAtIdx').on(table.updatedAt)
     ]
 );
 
-export const user_device_authorizations = pgTable(
-    'user_device_authorizations',
+export const userDeviceAuthorizations = pgTable(
+    'userDeviceAuthorizations',
     {
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        user_id: text('user_id')
+        userId: text('userId')
             .notNull()
             .references(() => users.id, { onDelete: 'set null' }),
-        device_type: varchar('device_type').notNull(),
-        access_token: varchar('access_token'),
-        refresh_token: varchar('refresh_token'),
+        deviceType: varchar('deviceType').notNull(),
+        accessToken: varchar('accessToken'),
+        refreshToken: varchar('refreshToken'),
         scopes: varchar('scopes'),
-        last_synced_at: timestamp('last_synced_at', { precision: 3 }),
-        updated_at: timestamp('updated_at', { precision: 3 })
+        lastSyncedAt: timestamp('last_syncedAt', { precision: 3 }),
+        updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull(),
-        created_at: timestamp('created_at', { precision: 3 })
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
-        index('user_device_authorizations_user_idx').on(table.user_id),
-        index('user_device_authorizations_created_at_idx').on(table.created_at),
-        index('user_device_authorizations_updated_at_idx').on(table.updated_at)
+        index('userDeviceAuthorizationsUserIdx').on(table.userId),
+        index('userDeviceAuthorizationsCreatedAtIdx').on(table.createdAt),
+        index('userDeviceAuthorizationsUpdatedAtIdx').on(table.updatedAt)
     ]
 );
 
@@ -639,25 +632,25 @@ export const posts = pgTable(
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        user_id: text('user_id')
+        userId: text('userId')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
-        run_id: text('run_id')
+        runId: text('runId')
             .notNull()
             .references(() => runs.id, { onDelete: 'cascade' }),
-        status: enum_posts_status('status').default('visible').notNull(),
-        updated_at: timestamp('updated_at', { precision: 3 })
+        status: enumPostsStatus('status').default('visible').notNull(),
+        updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull(),
-        created_at: timestamp('created_at', { precision: 3 })
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
-        index('posts_user_idx').on(table.user_id),
-        index('posts_run_idx').on(table.run_id),
-        index('posts_created_at_idx').on(table.created_at),
-        index('posts_updated_at_idx').on(table.updated_at)
+        index('postsUserIdx').on(table.userId),
+        index('postsRunIdx').on(table.runId),
+        index('postsCreatedAtIdx').on(table.createdAt),
+        index('postsUpdatedAtIdx').on(table.updatedAt)
     ]
 );
 
@@ -668,31 +661,31 @@ export const comments = pgTable(
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        post_id: text('post_id')
+        postId: text('postId')
             .notNull()
             .references(() => posts.id, { onDelete: 'cascade' }),
-        user_id: text('user_id')
+        userId: text('userId')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
         content: varchar('content').notNull(),
-        parent_comment_id: text('parent_comment_id'),
-        updated_at: timestamp('updated_at', { precision: 3 })
+        parentCommentId: text('parentCommentId'),
+        updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull(),
-        created_at: timestamp('created_at', { precision: 3 })
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
         // Self-referencing FK:
         foreignKey({
-            columns: [table.parent_comment_id],
+            columns: [table.parentCommentId],
             foreignColumns: [table.id]
         }),
-        index('comments_post_idx').on(table.post_id),
-        index('comments_user_idx').on(table.user_id),
-        index('comments_parent_idx').on(table.parent_comment_id),
-        index('comments_created_at_idx').on(table.created_at)
+        index('commentsPostIdx').on(table.postId),
+        index('commentsUserIdx').on(table.userId),
+        index('commentsParentIdx').on(table.parentCommentId),
+        index('commentsCreatedAtIdx').on(table.createdAt)
     ]
 );
 
@@ -702,32 +695,32 @@ export const reactions = pgTable(
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        user_id: text('user_id')
+        userId: text('userId')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
-        post_id: text('post_id').references(() => posts.id, {
+        postId: text('postId').references(() => posts.id, {
             onDelete: 'cascade'
         }),
-        comment_id: text('comment_id').references(() => comments.id, {
+        commentId: text('commentId').references(() => comments.id, {
             onDelete: 'cascade'
         }),
-        type: enum_reaction_type('type').notNull(),
-        created_at: timestamp('created_at', { precision: 3 })
+        type: enumReactionType('type').notNull(),
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
-        index('reactions_post_idx').on(table.post_id),
-        index('reactions_comment_idx').on(table.comment_id),
-        index('reactions_user_idx').on(table.user_id),
-        uniqueIndex('reactions_post_unique_idx').on(
-            table.user_id,
-            table.post_id,
+        index('reactionsPostIdx').on(table.postId),
+        index('reactionsCommentIdx').on(table.commentId),
+        index('reactionsUserIdx').on(table.userId),
+        uniqueIndex('reactionsPostUniqueIdx').on(
+            table.userId,
+            table.postId,
             table.type
         ),
-        uniqueIndex('reactions_comment_unique_idx').on(
-            table.user_id,
-            table.comment_id,
+        uniqueIndex('reactionsCommentUniqueIdx').on(
+            table.userId,
+            table.commentId,
             table.type
         )
     ]
@@ -739,50 +732,47 @@ export const follows = pgTable(
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        follower_id: text('follower_id')
+        followerId: text('followerId')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
-        follow_target_id: text('follow_target_id')
+        followTargetId: text('followTargetId')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
-        created_at: timestamp('created_at', { precision: 3 })
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
-        index('follows_follower_idx').on(table.follower_id),
-        index('follows_following_idx').on(table.follow_target_id),
-        uniqueIndex('follows_unique_idx').on(
-            table.follower_id,
-            table.follow_target_id
+        index('followsFollowerIdx').on(table.followerId),
+        index('followsFollowingIdx').on(table.followTargetId),
+        uniqueIndex('followsUniqueIdx').on(
+            table.followerId,
+            table.followTargetId
         )
     ]
 );
 
 export const profile_views = pgTable(
-    'profile_views',
+    'profileViews',
     {
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        profile_id: text('profile_id')
+        profileId: text('profileId')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
-        viewer_id: text('viewer_id').references(() => users.id, {
+        viewerId: text('viewerId').references(() => users.id, {
             onDelete: 'set null'
         }),
-        ip_address: varchar('ip_address'),
-        created_at: timestamp('created_at', { precision: 3 })
+        ipAddress: varchar('ipAddress'),
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
-        index('profile_views_profile_idx').on(table.profile_id),
-        index('profile_views_created_at_idx').on(table.created_at),
-        index('profile_views_ip_recent_idx').on(
-            table.ip_address,
-            table.created_at
-        )
+        index('profileViewsProfileIdx').on(table.profileId),
+        index('profileViewsCreatedAtIdx').on(table.createdAt),
+        index('profileViewsIpRecentIdx').on(table.ipAddress, table.createdAt)
     ]
 );
 
@@ -792,76 +782,76 @@ export const reports = pgTable(
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        reporter_id: text('reporter_id')
+        reporterId: text('reporterId')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
-        post_id: text('post_id').references(() => posts.id, {
+        postId: text('postId').references(() => posts.id, {
             onDelete: 'cascade'
         }),
-        comment_id: text('comment_id').references(() => comments.id, {
+        commentId: text('commentId').references(() => comments.id, {
             onDelete: 'cascade'
         }),
-        reason: enum_report_reason('reason').notNull(),
+        reason: enumReportReason('reason').notNull(),
         details: varchar('details'),
-        status: enum_report_status('status').default('pending'),
-        reviewed_by: text('reviewed_by').references(() => users.id, {
+        status: enumReportStatus('status').default('pending'),
+        reviewedBy: text('reviewedBy').references(() => users.id, {
             onDelete: 'set null'
         }),
-        reviewed_at: timestamp('reviewed_at', { precision: 3 }),
-        created_at: timestamp('created_at', { precision: 3 })
+        reviewedAt: timestamp('reviewedAt', { precision: 3 }),
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
-        index('reports_reporter_idx').on(table.reporter_id),
-        index('reports_post_idx').on(table.post_id),
-        index('reports_comment_idx').on(table.comment_id),
-        index('reports_status_idx').on(table.status)
+        index('reportsReporterIdx').on(table.reporterId),
+        index('reportsPostIdx').on(table.postId),
+        index('reportsCommentIdx').on(table.commentId),
+        index('reportsStatusIdx').on(table.status)
     ]
 );
 
-export const runner_leaderboard = pgTable(
-    'runner_leaderboard',
+export const runnerLeaderboard = pgTable(
+    'runnerLeaderboard',
     {
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        runner_id: text('runner_id')
+        runnerId: text('runnerId')
             .notNull()
             .references(() => runners.id, { onDelete: 'cascade' }),
         ranking: integer('ranking').notNull(),
-        updated_at: timestamp('updated_at', { precision: 3 })
+        updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull(),
-        created_at: timestamp('created_at', { precision: 3 })
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
-        uniqueIndex('runner_leaderboard_runner_idx').on(table.runner_id),
-        index('runner_leaderboard_ranking_idx').on(table.ranking)
+        uniqueIndex('runnerLeaderboardRunnerIdx').on(table.runnerId),
+        index('runnerLeaderboardRankingIdx').on(table.ranking)
     ]
 );
 
-export const manager_leaderboard = pgTable(
-    'manager_leaderboard',
+export const managerLeaderboard = pgTable(
+    'managerLeaderboard',
     {
         id: text('id')
             .$defaultFn(() => uuid())
             .primaryKey(),
-        user_id: text('user_id')
+        userId: text('userId')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
         ranking: integer('ranking').notNull(),
-        updated_at: timestamp('updated_at', { precision: 3 })
+        updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull(),
-        created_at: timestamp('created_at', { precision: 3 })
+        createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull()
     },
     (table) => [
-        uniqueIndex('manager_leaderboard_user_idx').on(table.user_id),
-        index('manager_leaderboard_ranking_idx').on(table.ranking)
+        uniqueIndex('managerLeaderboardUserIdx').on(table.userId),
+        index('managerLeaderboardRankingIdx').on(table.ranking)
     ]
 );

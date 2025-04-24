@@ -5,131 +5,128 @@ import {
     runs,
     runners,
     cards,
-    card_metadata,
+    cardMetadata,
     competitions,
     lineups,
-    lineup_cards,
-    runner_results,
-    manager_results,
-    pack_purchases,
+    lineupCards,
+    runnerResults,
+    managerResults,
+    packPurchases,
     listings,
-    user_device_authorizations
+    userDeviceAuthorizations
 } from './schema.js';
 
 export const usersRelations = relations(users, ({ many }) => ({
     runners: many(runners),
     cards: many(cards, { relationName: 'owner' }),
     lineups: many(lineups),
-    deviceAuths: many(user_device_authorizations)
+    deviceAuths: many(userDeviceAuthorizations)
 }));
 
 export const runnersRelations = relations(runners, ({ one, many }) => ({
     user: one(users, {
-        fields: [runners.user_id],
+        fields: [runners.userId],
         references: [users.id]
     }),
     runs: many(runs),
-    cards: many(card_metadata), // Changed from cards to card_metadata
-    runnerResults: many(runner_results)
+    cards: many(cardMetadata), // Changed from cards to card_metadata
+    runnerResults: many(runnerResults)
 }));
 
 export const cardsRelations = relations(cards, ({ one, many }) => ({
     owner: one(users, {
-        fields: [cards.owner_id], // Changed from current_owner_id to owner_id
+        fields: [cards.ownerId], // Changed from current_owner_id to owner_id
         references: [users.id]
     }),
-    metadata: one(card_metadata, {
+    metadata: one(cardMetadata, {
         fields: [cards.id],
-        references: [card_metadata.token_id]
+        references: [cardMetadata.tokenId]
     }),
-    packPurchase: one(pack_purchases, {
-        fields: [cards.pack_purchase_id],
-        references: [pack_purchases.id]
+    packPurchase: one(packPurchases, {
+        fields: [cards.packPurchaseId],
+        references: [packPurchases.id]
     }),
-    lineupCards: many(lineup_cards)
+    lineupCards: many(lineupCards)
 }));
 
-export const cardMetadataRelations = relations(card_metadata, ({ one }) => ({
+export const cardMetadataRelations = relations(cardMetadata, ({ one }) => ({
     card: one(cards, {
-        fields: [card_metadata.token_id],
+        fields: [cardMetadata.tokenId],
         references: [cards.id]
     }),
     runner: one(runners, {
-        fields: [card_metadata.runner_id],
+        fields: [cardMetadata.runnerId],
         references: [runners.id]
     })
 }));
 
 export const competitionsRelations = relations(competitions, ({ many }) => ({
     lineups: many(lineups),
-    runnerResults: many(runner_results)
+    runnerResults: many(runnerResults)
 }));
 
 export const lineupsRelations = relations(lineups, ({ one, many }) => ({
     competition: one(competitions, {
-        fields: [lineups.competition_id],
+        fields: [lineups.competitionId],
         references: [competitions.id]
     }),
     manager: one(users, {
-        fields: [lineups.manager_id],
+        fields: [lineups.managerId],
         references: [users.id]
     }),
-    lineupCards: many(lineup_cards),
-    managerResults: many(manager_results)
+    lineupCards: many(lineupCards),
+    managerResults: many(managerResults)
 }));
 
-export const lineupCardsRelations = relations(lineup_cards, ({ one }) => ({
+export const lineupCardsRelations = relations(lineupCards, ({ one }) => ({
     lineup: one(lineups, {
-        fields: [lineup_cards.lineup_id],
+        fields: [lineupCards.lineupId],
         references: [lineups.id]
     }),
     card: one(cards, {
-        fields: [lineup_cards.card_id],
+        fields: [lineupCards.cardId],
         references: [cards.id]
     })
 }));
 
-export const runnerResultsRelations = relations(runner_results, ({ one }) => ({
+export const runnerResultsRelations = relations(runnerResults, ({ one }) => ({
     competition: one(competitions, {
-        fields: [runner_results.competition_id],
+        fields: [runnerResults.competitionId],
         references: [competitions.id]
     }),
     runner: one(runners, {
-        fields: [runner_results.runner_id],
+        fields: [runnerResults.runnerId],
         references: [runners.id]
     }),
     session: one(runs, {
-        fields: [runner_results.session_id],
+        fields: [runnerResults.sessionId],
         references: [runs.id]
     })
 }));
 
-export const managerResultsRelations = relations(
-    manager_results,
-    ({ one }) => ({
-        lineup: one(lineups, {
-            fields: [manager_results.lineup_id],
-            references: [lineups.id]
-        })
+export const managerResultsRelations = relations(managerResults, ({ one }) => ({
+    lineup: one(lineups, {
+        fields: [managerResults.lineupId],
+        references: [lineups.id]
     })
-);
+}));
 
 export const listingsRelations = relations(listings, ({ one }) => ({
     card: one(cards, {
-        fields: [listings.card_id],
+        fields: [listings.cardId],
         references: [cards.id]
     }),
     seller: one(users, {
-        fields: [listings.seller_id],
+        fields: [listings.sellerId],
         references: [users.id]
     })
 }));
 
 export const userDeviceAuthorizationsRelations = relations(
-    user_device_authorizations,
+    userDeviceAuthorizations,
     ({ one }) => ({
         user: one(users, {
-            fields: [user_device_authorizations.user_id],
+            fields: [userDeviceAuthorizations.userId],
             references: [users.id]
         })
     })

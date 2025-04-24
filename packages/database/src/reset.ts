@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 
-import { db } from './drizzle.js';
+import { db } from './drizzle.ts';
 
 async function reset() {
     console.warn('⏳ Resetting database...');
