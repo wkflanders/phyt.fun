@@ -1,5 +1,6 @@
 import type { Address } from 'viem';
 
+export type UUIDv7 = string & { __uuidv7: true };
 export type CardRarity =
     | 'bronze'
     | 'silver'
@@ -32,9 +33,9 @@ export type PackType = 'scrawny' | 'toned' | 'swole' | 'phyt';
 export interface AdminService {
     getPendingRunners: () => Promise<Runner[]>;
     getPendingRuns: () => Promise<PendingRun[]>;
-    approveRunner: (userId: number) => Promise<User>;
+    approveRunner: (user_id: UUIDv7) => Promise<User>;
     updateRunVerification: (
-        runId: number,
+        runId: UUIDv7,
         status: 'verified' | 'flagged'
     ) => Promise<Run>;
 }
@@ -105,7 +106,7 @@ export const RarityMultipliers: Record<CardRarity, number> = {
 };
 
 export interface User {
-    id: number;
+    id: UUIDv7;
     email: string;
     username: string;
     role: UserRole;
@@ -135,8 +136,8 @@ export interface CreateUserInput {
 }
 
 export interface Run {
-    id: number;
-    runner_id: number;
+    id: UUIDv7;
+    runner_id: UUIDv7;
     start_time: Date;
     end_time: Date;
     duration_seconds: number;
@@ -168,7 +169,7 @@ export interface TokenURIMetadata {
     description: string;
     image: string;
     attributes: {
-        runner_id: number;
+        runner_id: UUIDv7;
         runner_name: string;
         rarity: CardRarity;
         multiplier: number;
@@ -177,9 +178,9 @@ export interface TokenURIMetadata {
 }
 
 export interface Card {
-    id: number;
-    owner_id: number;
-    pack_purchase_id: number | null;
+    id: UUIDv7;
+    owner_id: UUIDv7;
+    pack_purchase_id: UUIDv7 | null;
     token_id: number;
     is_burned: boolean;
     acquisition_type: AcquisitionType;
@@ -189,7 +190,7 @@ export interface Card {
 
 export interface CardMetadata extends Pick<Card, 'token_id'> {
     token_id: number;
-    runner_id: number;
+    runner_id: UUIDv7;
     runner_name: string;
     rarity: CardRarity;
     image_url: string;
@@ -203,7 +204,7 @@ export interface CardWithMetadata extends Card {
 }
 
 export interface Competition {
-    id: number;
+    id: UUIDv7;
     event_name: string;
     start_time: string;
     end_time: string;
@@ -215,36 +216,36 @@ export interface Competition {
 }
 
 export interface Lineup {
-    id: number;
-    competition_id: number;
-    manager_id: number;
+    id: UUIDv7;
+    competition_id: UUIDv7;
+    manager_id: UUIDv7;
     created_at: Date;
     updated_at: Date;
 }
 
 export interface LineupCard {
-    id: number;
+    id: UUIDv7;
     updated_at: Date;
     created_at: Date;
-    lineup_id: number;
-    card_id: number;
+    lineup_id: UUIDv7;
+    card_id: UUIDv7;
     position: number;
 }
 
 export interface LineupSubmissionResponse {
     success: boolean;
     message: string;
-    lineup_id: number;
+    lineup_id: UUIDv7;
 }
 
 export interface CompetitionLineupRequestBody {
-    user_id: number;
-    card_ids: number[];
+    user_id: UUIDv7;
+    card_ids: UUIDv7[];
 }
 
 export interface Runner {
-    id: number;
-    user_id: number;
+    id: UUIDv7;
+    user_id: UUIDv7;
     average_pace: number | null;
     total_distance_m: number;
     total_runs: number;
@@ -278,7 +279,7 @@ export interface RunnerQueryParams {
 }
 
 export interface PendingRunner {
-    id: number;
+    id: UUIDv7;
     username: string;
     email: string;
     created_at: Date;
@@ -289,43 +290,43 @@ export interface PendingRunner {
 }
 
 export interface RunnerResult {
-    id: number;
+    id: UUIDv7;
     updated_at: Date;
     created_at: Date;
-    competition_id: number;
-    runner_id: number;
-    session_id: number;
+    competition_id: UUIDv7;
+    runner_id: UUIDv7;
+    session_id: UUIDv7;
     best_time_sec: number;
     ranking: number | null;
 }
 
 export interface GamblerResult {
-    id: number;
+    id: UUIDv7;
     updated_at: Date;
     created_at: Date;
-    lineup_id: number;
+    lineup_id: UUIDv7;
     total_score: number;
     final_placement: number | null;
     reward_amount_phyt: number | null;
 }
 
 export interface Transaction {
-    id: number;
-    from_user_id: number | null;
-    to_user_id: number | null;
-    card_id: number | null;
-    competition_id: number | null;
+    id: UUIDv7;
+    from_user_id: UUIDv7 | null;
+    to_user_id: UUIDv7 | null;
+    card_id: UUIDv7 | null;
+    competition_id: UUIDv7 | null;
     price: string | null;
     transaction_type: TransactionType;
-    pack_purchases_id: number | null;
+    pack_purchases_id: UUIDv7 | null;
     hash: string | null;
     created_at: Date;
     updated_at: Date;
 }
 
 export interface PackPurchase {
-    id: number;
-    buyer_id: number;
+    id: UUIDv7;
+    buyer_id: UUIDv7;
     purchase_price: string;
     pack_type: PackType;
     created_at: Date;
@@ -333,20 +334,15 @@ export interface PackPurchase {
 }
 
 export interface UserDeviceAuthorization {
-    id: number;
+    id: UUIDv7;
     updated_at: Date;
     created_at: Date;
-    user_id: number;
+    user_id: UUIDv7;
     device_type: string;
     access_token: string | null;
     refresh_token: string | null;
     scopes: string | null;
     last_synced_at: string | null;
-}
-
-export interface SessionCookie {
-    value: string;
-    userId: string;
 }
 
 export interface PaginationParams {
@@ -355,6 +351,7 @@ export interface PaginationParams {
     orderBy?: string;
     orderDir?: 'asc' | 'desc';
 }
+
 export class ApiError extends Error {
     public readonly statusCode: number;
     public readonly originalError?: unknown;
@@ -451,6 +448,7 @@ export interface MintConfigResponse {
     packType: string;
 }
 
+// Come back to this
 export interface PackDetails {
     mintConfigId: string;
     packPrice: string;
@@ -458,13 +456,14 @@ export interface PackDetails {
 }
 
 export interface PackPurchaseInput {
-    buyerId: number;
+    buyerId: UUIDv7;
     buyerAddress: `0x${string}`;
     packType: PackType;
 }
 
+// Come back to this
 export interface PackPurchaseNotif {
-    buyerId: number;
+    buyerId: UUIDv7;
     hash: `0x${string}`;
     packPrice: string;
     packType: PackType;
@@ -526,13 +525,13 @@ export interface OrderBookEntry {
 }
 
 export interface Listing {
-    id: number;
-    buyer_id: number | null;
-    seller_id: number;
-    card_id: number;
+    id: UUIDv7;
+    buyer_id: UUIDv7 | null;
+    seller_id: UUIDv7;
+    card_id: UUIDv7;
     price: string; // Take price
     highest_bid: string | null; // Current highest bid
-    highest_bidder_id: number | null;
+    highest_bidder_id: UUIDv7 | null;
     expiration_time: Date;
     signature: string;
     order_hash: string;
@@ -545,7 +544,7 @@ export interface Listing {
 
 export interface CreateListingRequestBody {
     user: User;
-    card_id: number;
+    card_id: UUIDv7;
     price: string;
     signature: string;
     order_hash: string;
@@ -553,8 +552,8 @@ export interface CreateListingRequestBody {
 }
 
 export interface CreateListingProps {
-    card_id: number;
-    seller_id: number;
+    card_id: UUIDv7;
+    seller_id: UUIDv7;
     price: string;
     signature: string;
     order_hash: string;
@@ -570,11 +569,11 @@ export interface GetListingProps {
 }
 
 export interface Bid {
-    id: number;
-    bidder_id: number;
+    id: UUIDv7;
+    bidder_id: UUIDv7;
     bid_type: BidType;
     bid_amount: string;
-    card_id: number;
+    card_id: UUIDv7;
     signature: string;
     order_hash: string;
     order_data: Order;
@@ -583,13 +582,13 @@ export interface Bid {
     accepted_at: Date | null;
     updated_at?: Date;
     created_at?: Date;
-    listing_id?: number | null;
+    listing_id?: UUIDv7 | null;
 }
 
 export interface ListingBid extends Bid {
     bid_type: 'listing';
     bid_status: BidStatusListed | 'withdrawn';
-    listing_id: number;
+    listing_id: UUIDv7;
 }
 
 export interface OpenBid extends Bid {
@@ -598,7 +597,7 @@ export interface OpenBid extends Bid {
 }
 
 export interface BaseBidProps {
-    bidder_id: number;
+    bidder_id: UUIDv7;
     bid_amount: string;
     signature: string;
     order_hash: string;
@@ -607,17 +606,17 @@ export interface BaseBidProps {
 
 export interface CreateListingBidProps extends BaseBidProps {
     bid_type: 'listing';
-    listing_id: number;
+    listing_id: UUIDv7;
 }
 
 export interface CreateOpenBidProps extends BaseBidProps {
     bid_type: 'open';
-    card_id: number;
+    card_id: UUIDv7;
     expiration_time: Date;
 }
 
 export interface ListedBidRequestBody {
-    listing_id: number;
+    listing_id: UUIDv7;
     bid_amount: string;
     signature: string;
     order_hash: string;
@@ -626,7 +625,7 @@ export interface ListedBidRequestBody {
 }
 
 export interface OpenBidRequestBody {
-    card_id: number;
+    card_id: UUIDv7;
     bid_amount: string;
     signature: string;
     order_hash: string;
@@ -640,12 +639,12 @@ export interface UserBids {
     card: Card;
     metadata: CardMetadata;
     listing: {
-        id: number;
+        id: UUIDv7;
         price: string;
         expiration_time: Date;
     } | null;
     owner: {
-        id: number;
+        id: UUIDv7;
         wallet_address: string;
         username: string;
         avatar_url: string;
@@ -653,19 +652,19 @@ export interface UserBids {
 }
 
 export interface AcceptOpenBidProps {
-    bid_id: number;
+    bid_id: UUIDv7;
     transaction_hash: string;
 }
 
 export interface CompletePurchaseProps {
-    listing_id: number;
-    buyer_id: number;
+    listing_id: UUIDv7;
+    buyer_id: UUIDv7;
     transaction_hash: string;
 }
 
 export interface RunnerListing extends Listing {
     metadata: {
-        runner_id: number;
+        runner_id: UUIDv7;
         runner_name: string;
         runner_avatar?: string;
         rarity: CardRarity;
@@ -673,7 +672,7 @@ export interface RunnerListing extends Listing {
         image_url: string;
     };
     order: {
-        trader: string;
+        trader_id: UUIDv7;
         side: number;
         collection: string;
         token_id: number;
@@ -684,9 +683,9 @@ export interface RunnerListing extends Listing {
     };
 }
 export interface Offer {
-    id: number;
-    buyer_id: number;
-    card_id: number;
+    id: UUIDv7;
+    buyer_id: UUIDv7;
+    card_id: UUIDv7;
     price: string;
     payment_token: string;
     expiration_time: Date;
@@ -707,8 +706,8 @@ export interface MarketListing {
 }
 
 export interface RunnerActivity {
-    id: number;
-    runner_id: number;
+    id: UUIDv7;
+    runner_id: UUIDv7;
     username: string;
     avatar_url: string;
     distance_m: number;
@@ -732,22 +731,22 @@ export interface PostQueryParams {
 }
 
 export interface Post {
-    id: number;
-    user_id: number;
-    run_id: number;
+    id: UUIDv7;
+    user_id: UUIDv7;
+    run_id: UUIDv7;
     status: PostStatus;
     updated_at: Date;
     created_at: Date;
 }
 
 export interface UpdatePostRequest {
-    post_id: number;
+    post_id: UUIDv7;
     status: PostStatus;
 }
 
 export interface CreatePostRequest {
-    user_id: number;
-    run_id: number;
+    user_id: UUIDv7;
+    run_id: UUIDv7;
     content: string | null;
 }
 
@@ -786,11 +785,11 @@ export interface PostPagination {
 }
 
 export interface Comment {
-    id: number;
-    post_id: number;
-    user_id: number;
+    id: UUIDv7;
+    post_id: UUIDv7;
+    user_id: UUIDv7;
     content: string;
-    parent_comment_id: number | null;
+    parent_comment_id: UUIDv7 | null;
     updated_at: Date;
     created_at: Date;
 }
@@ -809,15 +808,15 @@ export interface CommentPagination {
 }
 
 export interface CommentCreateRequest {
-    user_id: number;
-    post_id: number;
+    user_id: UUIDv7;
+    post_id: UUIDv7;
     content: string;
-    parent_comment_id: number | null;
+    parent_comment_id: UUIDv7 | null;
 }
 
 export interface CommentUpdateRequest {
     content: string;
-    comment_id: number;
+    comment_id: UUIDv7;
 }
 
 export interface CommentResponse {
@@ -838,9 +837,9 @@ export type ReactionCount = Record<Reaction, number>;
 export type ReactionAction = 'added' | 'removed';
 
 export interface ReactionToggleRequest {
-    user_id: number;
-    post_id: number;
-    comment_id: number;
+    user_id: UUIDv7;
+    post_id: UUIDv7;
+    comment_id: UUIDv7;
     type: Reaction;
 }
 
@@ -857,7 +856,7 @@ export interface LeaderboardPagination {
 }
 
 export interface RunnerStanding {
-    id: number;
+    id: UUIDv7;
     runner: RunnerProfile;
     ranking: number;
     updated_at: Date;
@@ -865,7 +864,7 @@ export interface RunnerStanding {
 }
 
 export interface ManagerStanding {
-    id: number;
+    id: UUIDv7;
     user: User;
     ranking: number;
     updated_at: Date;
