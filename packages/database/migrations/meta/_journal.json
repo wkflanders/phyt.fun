@@ -78,6 +78,13 @@
       "when": 1743592581778,
       "tag": "0010_puzzling_morlocks",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1745512806043,
+      "tag": "0011_short_eternals",
+      "breakpoints": true
     }
   ]
 }
