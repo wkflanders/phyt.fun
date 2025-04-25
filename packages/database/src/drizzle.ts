@@ -2,8 +2,8 @@ import { config } from 'dotenv';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import pkg from 'pg';
 
-import { env } from './env.ts';
-import * as schema from './schema.ts';
+import { env } from './env.js';
+import * as schema from './schema.js';
 
 config({ path: '.env' });
 

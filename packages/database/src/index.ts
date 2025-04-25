@@ -1,7 +1,7 @@
-export * from './schema.ts';
-export * from './relations.ts';
-export * from './drizzle.ts';
-export * from './transactions.ts';
+export * from './schema.js';
+export * from './relations.js';
+export * from './drizzle.js';
+export * from './transactions.js';
 export {
     eq,
     and,
