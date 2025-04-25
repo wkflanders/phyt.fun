@@ -18,63 +18,60 @@ import { calculateTrendingScore } from '@/lib/utils.js';
 import type { UUIDv7, Post, PostQueryParams, PostResponse } from '@phyt/types';
 
 export interface PostRepository {
-    create(user_id: UUIDv7, run_id: UUIDv7): Promise<Post>;
-    updateStatus(post_id: UUIDv7, status: Post['status']): Promise<Post>;
-    delete(post_id: UUIDv7): Promise<Post>;
-    getByUserId(
-        user_id: UUIDv7,
-        params: PostQueryParams
-    ): Promise<PostResponse>;
-    getById(post_id: UUIDv7): Promise<PostResponse>;
-    list(user_id: UUIDv7, params: PostQueryParams): Promise<PostResponse>;
+    create(userId: UUIDv7, runId: UUIDv7): Promise<Post>;
+    updateStatus(postId: UUIDv7, status: Post['status']): Promise<Post>;
+    delete(postId: UUIDv7): Promise<Post>;
+    getByUserId(userId: UUIDv7, params: PostQueryParams): Promise<PostResponse>;
+    getById(postId: UUIDv7): Promise<PostResponse>;
+    list(userId: UUIDv7, params: PostQueryParams): Promise<PostResponse>;
 }
 
 export const makePostRepository = () => {
     const postRepository: PostRepository = {
-        create: async (user_id, run_id) => {
+        create: async (userId, runId) => {
             const [post] = await db
                 .insert(posts)
-                .values({ user_id: user_id, run_id: run_id })
+                .values({ userId: userId, runId: runId })
                 .returning();
-            // Cast id, user_id, and run_id to UUIDv7
+            // Cast id, userId, and runId to UUIDv7
             return {
                 ...post,
                 id: post.id as UUIDv7,
-                user_id: post.user_id as UUIDv7,
-                run_id: post.run_id as UUIDv7
+                userId: post.userId as UUIDv7,
+                runId: post.runId as UUIDv7
             };
         },
 
-        updateStatus: async (post_id, status) => {
+        updateStatus: async (postId, status) => {
             const [updated] = await db
                 .update(posts)
-                .set({ status, updated_at: new Date() })
-                .where(eq(posts.id, post_id))
+                .set({ status, updatedAt: new Date() })
+                .where(eq(posts.id, postId))
                 .returning();
-            // Cast id, user_id, and run_id to UUIDv7
+            // Cast id, userId, and runId to UUIDv7
             return {
                 ...updated,
                 id: updated.id as UUIDv7,
-                user_id: updated.user_id as UUIDv7,
-                run_id: updated.run_id as UUIDv7
+                userId: updated.userId as UUIDv7,
+                runId: updated.runId as UUIDv7
             };
         },
 
-        delete: async (post_id) => {
+        delete: async (postId) => {
             const [deleted] = await db
                 .delete(posts)
-                .where(eq(posts.id, post_id))
+                .where(eq(posts.id, postId))
                 .returning();
-            // Cast id, user_id, and run_id to UUIDv7
+            // Cast id, userId, and runId to UUIDv7
             return {
                 ...deleted,
                 id: deleted.id as UUIDv7,
-                user_id: deleted.user_id as UUIDv7,
-                run_id: deleted.run_id as UUIDv7
+                userId: deleted.userId as UUIDv7,
+                runId: deleted.runId as UUIDv7
             };
         },
 
-        getByUserId: async (user_id, params) => {
+        getByUserId: async (userId, params) => {
             const { page = 1, limit = 10 } = params;
             const offset = (page - 1) * limit;
             const rows = await db
@@ -82,18 +79,18 @@ export const makePostRepository = () => {
                     post: posts,
                     user: {
                         username: users.username,
-                        avatar_url: users.avatar_url,
+                        avatarUrl: users.avatarUrl,
                         role: users.role,
-                        is_pooled: runners.is_pooled
+                        isPooled: runners.isPooled
                     },
                     run: {
-                        distance_m: runs.distance_m,
-                        duration_seconds: runs.duration_seconds,
-                        average_pace_sec: runs.average_pace_sec,
-                        gps_route_data: runs.gps_route_data,
-                        elevation_gain_m: runs.elevation_gain_m,
-                        start_time: runs.start_time,
-                        end_time: runs.end_time
+                        distance: runs.distance,
+                        durationSeconds: runs.durationSeconds,
+                        averagePaceSec: runs.averagePaceSec,
+                        gpsRouteData: runs.gpsRouteData,
+                        elevationGain: runs.elevationGain,
+                        startTime: runs.startTime,
+                        endTime: runs.endTime
                     },
                     stats: {
                         comments: countFn(comments.id).as('comments'),
@@ -101,23 +98,23 @@ export const makePostRepository = () => {
                     }
                 })
                 .from(posts)
-                .innerJoin(users, eq(posts.user_id, users.id))
-                .innerJoin(runners, eq(posts.user_id, runners.user_id))
-                .innerJoin(runs, eq(posts.run_id, runs.id))
-                .leftJoin(comments, eq(comments.post_id, posts.id))
-                .leftJoin(reactions, eq(reactions.post_id, posts.id))
+                .innerJoin(users, eq(posts.userId, users.id))
+                .innerJoin(runners, eq(posts.userId, runners.userId))
+                .innerJoin(runs, eq(posts.runId, runs.id))
+                .leftJoin(comments, eq(comments.postId, posts.id))
+                .leftJoin(reactions, eq(reactions.postId, posts.id))
                 .where(
-                    and(eq(posts.user_id, user_id), eq(posts.status, 'visible'))
+                    and(eq(posts.userId, userId), eq(posts.status, 'visible'))
                 )
                 .groupBy(posts.id, users.id, runs.id, runners.id)
-                .orderBy(desc(posts.created_at))
+                .orderBy(desc(posts.createdAt))
                 .limit(limit)
                 .offset(offset);
 
             const [{ value: total }] = await db
                 .select({ value: countFn() })
                 .from(posts)
-                .where(eq(posts.user_id, user_id));
+                .where(eq(posts.userId, userId));
 
             return {
                 posts: rows.map((row) => ({
@@ -125,12 +122,12 @@ export const makePostRepository = () => {
                     post: {
                         ...row.post,
                         id: row.post.id as UUIDv7,
-                        user_id: row.post.user_id as UUIDv7,
-                        run_id: row.post.run_id as UUIDv7
+                        userId: row.post.userId as UUIDv7,
+                        runId: row.post.runId as UUIDv7
                     },
                     user: {
                         ...row.user,
-                        avatar_url: row.user.avatar_url
+                        avatarUrl: row.user.avatarUrl
                     }
                 })),
                 pagination: {
@@ -142,24 +139,24 @@ export const makePostRepository = () => {
             };
         },
 
-        getById: async (post_id) => {
+        getById: async (postId) => {
             const [result] = await db
                 .select({
                     post: posts,
                     user: {
                         username: users.username,
-                        avatar_url: users.avatar_url,
+                        avatarUrl: users.avatarUrl,
                         role: users.role,
-                        is_pooled: runners.is_pooled
+                        isPooled: runners.isPooled
                     },
                     run: {
-                        distance_m: runs.distance_m,
-                        duration_seconds: runs.duration_seconds,
-                        average_pace_sec: runs.average_pace_sec,
-                        gps_route_data: runs.gps_route_data,
-                        elevation_gain_m: runs.elevation_gain_m,
-                        start_time: runs.start_time,
-                        end_time: runs.end_time
+                        distance: runs.distance,
+                        durationSeconds: runs.durationSeconds,
+                        averagePaceSec: runs.averagePaceSec,
+                        gpsRouteData: runs.gpsRouteData,
+                        elevationGain: runs.elevationGain,
+                        startTime: runs.startTime,
+                        endTime: runs.endTime
                     },
                     stats: {
                         comments: countFn(comments.id).as('comments'),
@@ -167,17 +164,17 @@ export const makePostRepository = () => {
                     }
                 })
                 .from(posts)
-                .innerJoin(users, eq(posts.user_id, users.id))
-                .innerJoin(runners, eq(posts.user_id, runners.user_id))
-                .innerJoin(runs, eq(posts.run_id, runs.id))
-                .leftJoin(comments, eq(comments.post_id, posts.id))
-                .leftJoin(reactions, eq(reactions.post_id, posts.id))
-                .where(eq(posts.id, post_id))
+                .innerJoin(users, eq(posts.userId, users.id))
+                .innerJoin(runners, eq(posts.userId, runners.userId))
+                .innerJoin(runs, eq(posts.runId, runs.id))
+                .leftJoin(comments, eq(comments.postId, posts.id))
+                .leftJoin(reactions, eq(reactions.postId, posts.id))
+                .where(eq(posts.id, postId))
                 .groupBy(posts.id, users.id, runs.id, runners.id)
                 .limit(1);
 
             if (!result) {
-                throw new Error(`Post with ID ${String(post_id)} not found`);
+                throw new Error(`Post with ID ${String(postId)} not found`);
             }
             return {
                 posts: [
@@ -186,19 +183,19 @@ export const makePostRepository = () => {
                         post: {
                             ...result.post,
                             id: result.post.id as UUIDv7,
-                            user_id: result.post.user_id as UUIDv7,
-                            run_id: result.post.run_id as UUIDv7
+                            userId: result.post.userId as UUIDv7,
+                            runId: result.post.runId as UUIDv7
                         },
                         user: {
                             ...result.user,
-                            avatar_url: result.user.avatar_url
+                            avatarUrl: result.user.avatarUrl
                         }
                     }
                 ]
             };
         },
 
-        list: async (user_id, params): Promise<PostResponse> => {
+        list: async (userId, params): Promise<PostResponse> => {
             const { page = 1, limit = 10, filter } = params;
             const offset = (page - 1) * limit;
             // Base query: join posts → users, runs, runners; aggregate comment/reaction counts :contentReference[oaicite:0]{index=0}&#8203;:contentReference[oaicite:1]{index=1}
@@ -207,18 +204,18 @@ export const makePostRepository = () => {
                     post: posts,
                     user: {
                         username: users.username,
-                        avatar_url: users.avatar_url,
+                        avatarUrl: users.avatarUrl,
                         role: users.role,
-                        is_pooled: runners.is_pooled
+                        isPooled: runners.isPooled
                     },
                     run: {
-                        distance_m: runs.distance_m,
-                        duration_seconds: runs.duration_seconds,
-                        average_pace_sec: runs.average_pace_sec,
-                        gps_route_data: runs.gps_route_data,
-                        elevation_gain_m: runs.elevation_gain_m,
-                        start_time: runs.start_time,
-                        end_time: runs.end_time
+                        distance: runs.distance,
+                        durationSeconds: runs.durationSeconds,
+                        averagePaceSec: runs.averagePaceSec,
+                        gpsRouteData: runs.gpsRouteData,
+                        elevationGain: runs.elevationGain,
+                        startTime: runs.startTime,
+                        endTime: runs.endTime
                     },
                     stats: {
                         comments: countFn(comments.id).as('comments'),
@@ -226,11 +223,11 @@ export const makePostRepository = () => {
                     }
                 })
                 .from(posts)
-                .innerJoin(users, eq(posts.user_id, users.id))
-                .innerJoin(runs, eq(posts.run_id, runs.id))
-                .innerJoin(runners, eq(posts.user_id, runners.user_id))
-                .leftJoin(comments, eq(comments.post_id, posts.id))
-                .leftJoin(reactions, eq(reactions.post_id, posts.id))
+                .innerJoin(users, eq(posts.userId, users.id))
+                .innerJoin(runs, eq(posts.runId, runs.id))
+                .innerJoin(runners, eq(posts.userId, runners.userId))
+                .leftJoin(comments, eq(comments.postId, posts.id))
+                .leftJoin(reactions, eq(reactions.postId, posts.id))
                 .where(eq(posts.status, 'visible'))
                 .groupBy(posts.id, users.id, runs.id, runners.id);
 
@@ -239,16 +236,16 @@ export const makePostRepository = () => {
             // Apply “following” filter :contentReference[oaicite:2]{index=2}&#8203;:contentReference[oaicite:3]{index=3}
             if (filter === 'following') {
                 const following = await db
-                    .select({ id: follows.follow_target_id })
+                    .select({ id: follows.followTargetId })
                     .from(follows)
-                    .where(eq(follows.follower_id, user_id));
+                    .where(eq(follows.followerId, userId));
                 const ids = following.map((row) => row.id);
                 allPosts = allPosts
-                    .filter((p) => ids.includes(p.post.user_id))
+                    .filter((p) => ids.includes(p.post.userId))
                     .sort(
                         (a, b) =>
-                            b.post.created_at.getTime() -
-                            a.post.created_at.getTime()
+                            b.post.createdAt.getTime() -
+                            a.post.createdAt.getTime()
                     );
             }
             // Apply “trending” filter :contentReference[oaicite:4]{index=4}&#8203;:contentReference[oaicite:5]{index=5}
@@ -270,8 +267,7 @@ export const makePostRepository = () => {
             else {
                 allPosts.sort(
                     (a, b) =>
-                        b.post.created_at.getTime() -
-                        a.post.created_at.getTime()
+                        b.post.createdAt.getTime() - a.post.createdAt.getTime()
                 );
             }
             const total = allPosts.length;
@@ -285,12 +281,12 @@ export const makePostRepository = () => {
                     post: {
                         ...row.post,
                         id: row.post.id as UUIDv7,
-                        user_id: row.post.user_id as UUIDv7,
-                        run_id: row.post.run_id as UUIDv7
+                        userId: row.post.userId as UUIDv7,
+                        runId: row.post.runId as UUIDv7
                     },
                     user: {
                         ...row.user,
-                        avatar_url: row.user.avatar_url
+                        avatarUrl: row.user.avatarUrl
                     }
                 })),
                 pagination: { page, limit, total, totalPages, nextPage }

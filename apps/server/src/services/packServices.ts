@@ -1,9 +1,9 @@
 import { MinterAbi } from '@phyt/contracts';
 import {
     db,
-    pack_purchases,
+    packPurchases,
     cards,
-    card_metadata,
+    cardMetadata,
     transactions
 } from '@phyt/database';
 import {
@@ -218,11 +218,11 @@ export const packService = {
 
             return await db.transaction(async (tx) => {
                 const [packPurchase] = await tx
-                    .insert(pack_purchases)
+                    .insert(packPurchases)
                     .values({
-                        buyer_id: buyerId,
-                        purchase_price: formatEther(BigInt(packPrice)),
-                        pack_type: packType
+                        buyerId: buyerId,
+                        purchasePrice: formatEther(BigInt(packPrice)),
+                        packType: packType
                     })
                     .returning();
 
@@ -236,10 +236,10 @@ export const packService = {
                     const [card] = await tx
                         .insert(cards)
                         .values({
-                            owner_id: buyerId,
-                            pack_purchase_id: packPurchase.id,
-                            token_id: tokenId,
-                            acquisition_type: 'mint'
+                            ownerId: buyerId,
+                            packPurchaseId: packPurchase.id,
+                            tokenId: tokenId,
+                            acquisitionType: 'mint'
                         })
                         .returning();
 
@@ -252,23 +252,23 @@ export const packService = {
                         );
                     cardsMetadata.push(metadata);
 
-                    await tx.insert(card_metadata).values({
-                        token_id: tokenId,
-                        runner_id: metadata.attributes[0].runner_id,
-                        runner_name: metadata.attributes[0].runner_name,
+                    await tx.insert(cardMetadata).values({
+                        tokenId: tokenId,
+                        runnerId: metadata.attributes[0].runnerId,
+                        runnerName: metadata.attributes[0].runnerName,
                         rarity: metadata.attributes[0].rarity,
                         multiplier: metadata.attributes[0].multiplier,
-                        image_url: metadata.image,
+                        imageUrl: metadata.image,
                         season: metadata.attributes[0].season
                     });
 
                     await tx.insert(transactions).values({
-                        from_user_id: buyerId,
-                        to_user_id: null,
-                        card_id: card.id,
-                        transaction_type: 'packPurchase',
+                        fromUserId: buyerId,
+                        toUserId: null,
+                        cardId: card.id,
+                        transactionType: 'packPurchase',
                         price: formatEther(BigInt(packPrice)),
-                        pack_purchases_id: packPurchase.id,
+                        packPurchaseId: packPurchase.id,
                         hash
                     });
                 }

@@ -31,8 +31,8 @@ export const calculateTrendingScore = async (
         .from(reactions)
         .where(
             and(
-                eq(reactions.post_id, postId),
-                gt(reactions.created_at, cutoffDate)
+                eq(reactions.postId, postId),
+                gt(reactions.createdAt, cutoffDate)
             )
         );
     const reactionResult = reactionRows[0] as { count: number };
@@ -42,10 +42,7 @@ export const calculateTrendingScore = async (
         .select({ count: countFn() })
         .from(comments)
         .where(
-            and(
-                eq(comments.post_id, postId),
-                gt(comments.created_at, cutoffDate)
-            )
+            and(eq(comments.postId, postId), gt(comments.createdAt, cutoffDate))
         );
     const commentResult = commentRows[0] as { count: number };
 

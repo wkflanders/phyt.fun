@@ -41,10 +41,10 @@ export const runService = {
                         return 'success';
                     }
                     return 'pending';
-                } else if (status === 'already_runner') {
-                    return 'already_runner';
+                } else if (status === 'alreadyRunner') {
+                    return 'alreadyRunner';
                 } else {
-                    return 'already_submitted';
+                    return 'alreadySubmitted';
                 }
             });
         } catch (error) {
@@ -61,7 +61,7 @@ export const runService = {
                 const userResults = await db
                     .select()
                     .from(users)
-                    .where(eq(users.privy_id, privyId));
+                    .where(eq(users.privyId, privyId));
 
                 if (!userResults.length) {
                     throw new NotFoundError('User not found');
@@ -72,22 +72,22 @@ export const runService = {
                 const [runner] = await db
                     .select()
                     .from(runners)
-                    .where(eq(runners.user_id, user.id));
+                    .where(eq(runners.userId, user.id));
 
                 if (runner.status === 'pending') {
-                    return 'already_submitted';
+                    return 'alreadySubmitted';
                 } else if (runner.status === 'active') {
-                    return 'already_runner';
+                    return 'alreadyRunner';
                 } else {
                     await db.insert(runners).values({
-                        user_id: user.id,
-                        average_pace: null,
-                        total_distance_m: 0,
-                        total_runs: 0,
-                        best_mile_time: null,
+                        userId: user.id,
+                        averagePace: null,
+                        totalDistance: 0,
+                        totalRuns: 0,
+                        bestMileTime: null,
                         status: 'pending' as const,
-                        is_pooled: false,
-                        runner_wallet: user.wallet_address
+                        isPooled: false,
+                        runnerWallet: user.walletAddress
                     });
 
                     return 'pending';
@@ -116,11 +116,8 @@ export const runService = {
             return {
                 ...run,
                 id: run.id as UUIDv7,
-                runner_id: run.runner_id as UUIDv7,
-                raw_data_json: run.raw_data_json as Record<
-                    string,
-                    unknown
-                > | null
+                runnerId: run.runnerId as UUIDv7,
+                rawDataJson: run.rawDataJson as Record<string, unknown> | null
             };
         } catch (error) {
             console.error('Error getting run by id:', error);
@@ -133,17 +130,14 @@ export const runService = {
             const runResults = await db
                 .select()
                 .from(runs)
-                .where(eq(runs.runner_id, runnerId))
-                .orderBy(runs.created_at);
+                .where(eq(runs.runnerId, runnerId))
+                .orderBy(runs.createdAt);
 
             return runResults.map((run) => ({
                 ...run,
                 id: run.id as UUIDv7,
-                runner_id: run.runner_id as UUIDv7,
-                raw_data_json: run.raw_data_json as Record<
-                    string,
-                    unknown
-                > | null
+                runnerId: run.runnerId as UUIDv7,
+                rawDataJson: run.rawDataJson as Record<string, unknown> | null
             }));
         } catch (error) {
             console.error('Error with getRunnerRuns: ', error);
@@ -165,21 +159,21 @@ export const runService = {
                 const [insertedRun] = await db
                     .insert(runs)
                     .values({
-                        runner_id: runner.id,
-                        start_time: new Date(workout.start_time),
-                        end_time: new Date(workout.end_time),
-                        duration_seconds: workout.duration_seconds,
-                        distance_m: workout.distance_m,
-                        average_pace_sec: workout.average_pace_sec ?? null,
-                        calories_burned: workout.calories_burned ?? null,
-                        step_count: workout.step_count ?? null,
-                        elevation_gain_m: workout.elevation_gain_m ?? null,
-                        average_heart_rate: workout.average_heart_rate ?? null,
-                        max_heart_rate: workout.max_heart_rate ?? null,
-                        device_id: workout.device_id ?? null,
-                        gps_route_data: workout.gps_route_data ?? null,
-                        verification_status: 'pending' as const,
-                        raw_data_json: workout
+                        runnerId: runner.id,
+                        startTime: new Date(workout.startTime),
+                        endTime: new Date(workout.endTime),
+                        durationSeconds: workout.durationSeconds,
+                        distance: workout.distance,
+                        averagePaceSec: workout.averagePaceSec ?? null,
+                        caloriesBurned: workout.caloriesBurned ?? null,
+                        stepCount: workout.stepCount ?? null,
+                        elevationGain: workout.elevationGain ?? null,
+                        averageHeartRate: workout.averageHeartRate ?? null,
+                        maxHeartRate: workout.maxHeartRate ?? null,
+                        deviceId: workout.deviceId ?? null,
+                        gpsRouteData: workout.gpsRouteData ?? null,
+                        verificationStatus: 'pending' as const,
+                        rawDataJson: workout
                     })
                     .returning();
 
@@ -188,8 +182,8 @@ export const runService = {
                 return {
                     ...insertedRun,
                     id: insertedRun.id as UUIDv7,
-                    runner_id: insertedRun.runner_id as UUIDv7,
-                    raw_data_json: insertedRun.raw_data_json as Record<
+                    runnerId: insertedRun.runnerId as UUIDv7,
+                    rawDataJson: insertedRun.rawDataJson as Record<
                         string,
                         unknown
                     > | null
@@ -215,21 +209,21 @@ export const runService = {
 
                 // 2. Insert all
                 const runsToInsert = workouts.map((workout) => ({
-                    runner_id: runner.id,
-                    start_time: new Date(workout.start_time),
-                    end_time: new Date(workout.end_time),
-                    duration_seconds: workout.duration_seconds,
-                    distance_m: workout.distance_m,
-                    average_pace_sec: workout.average_pace_sec ?? null,
-                    calories_burned: workout.calories_burned ?? null,
-                    step_count: workout.step_count ?? null,
-                    elevation_gain_m: workout.elevation_gain_m ?? null,
-                    average_heart_rate: workout.average_heart_rate ?? null,
-                    max_heart_rate: workout.max_heart_rate ?? null,
-                    device_id: workout.device_id ?? null,
-                    gps_route_data: workout.gps_route_data ?? null,
-                    verification_status: 'pending' as const,
-                    raw_data_json: workout
+                    runnerId: runner.id,
+                    startTime: new Date(workout.startTime),
+                    endTime: new Date(workout.endTime),
+                    durationSeconds: workout.durationSeconds,
+                    distance: workout.distance,
+                    averagePaceSec: workout.averagePaceSec ?? null,
+                    caloriesBurned: workout.caloriesBurned ?? null,
+                    stepCount: workout.stepCount ?? null,
+                    elevationGain: workout.elevationGain ?? null,
+                    averageHeartRate: workout.averageHeartRate ?? null,
+                    maxHeartRate: workout.maxHeartRate ?? null,
+                    deviceId: workout.deviceId ?? null,
+                    gpsRouteData: workout.gpsRouteData ?? null,
+                    verificationStatus: 'pending' as const,
+                    rawDataJson: workout
                 }));
 
                 const insertedRuns = await db
@@ -242,8 +236,8 @@ export const runService = {
                 return insertedRuns.map((run) => ({
                     ...run,
                     id: run.id as UUIDv7,
-                    runner_id: run.runner_id as UUIDv7,
-                    raw_data_json: run.raw_data_json as Record<
+                    runnerId: run.runnerId as UUIDv7,
+                    rawDataJson: run.rawDataJson as Record<
                         string,
                         unknown
                     > | null
@@ -266,8 +260,8 @@ export const runService = {
             const runResults = await db
                 .update(runs)
                 .set({
-                    verification_status: status,
-                    updated_at: new Date()
+                    verificationStatus: status,
+                    updatedAt: new Date()
                 })
                 .where(eq(runs.id, runId))
                 .returning();
@@ -277,14 +271,14 @@ export const runService = {
             }
 
             if (status === 'verified') {
-                await runService.updateRunnerStats(runResults[0].runner_id);
+                await runService.updateRunnerStats(runResults[0].runnerId);
             }
 
             return {
                 ...runResults[0],
                 id: runResults[0].id as UUIDv7,
-                runner_id: runResults[0].runner_id as UUIDv7,
-                raw_data_json: runResults[0].raw_data_json as Record<
+                runnerId: runResults[0].runnerId as UUIDv7,
+                rawDataJson: runResults[0].rawDataJson as Record<
                     string,
                     unknown
                 > | null
@@ -306,13 +300,13 @@ export const runService = {
                 throw new NotFoundError('Run not found');
             }
 
-            await runService.updateRunnerStats(runResults[0].runner_id);
+            await runService.updateRunnerStats(runResults[0].runnerId);
 
             return {
                 ...runResults[0],
                 id: runResults[0].id as UUIDv7,
-                runner_id: runResults[0].runner_id as UUIDv7,
-                raw_data_json: runResults[0].raw_data_json as Record<
+                runnerId: runResults[0].runnerId as UUIDv7,
+                rawDataJson: runResults[0].rawDataJson as Record<
                     string,
                     unknown
                 > | null
@@ -328,8 +322,8 @@ export const runService = {
             const runResults = await db
                 .update(runs)
                 .set({
-                    is_posted: true,
-                    updated_at: new Date()
+                    isPosted: true,
+                    updatedAt: new Date()
                 })
                 .where(eq(runs.id, runId))
                 .returning();
@@ -341,8 +335,8 @@ export const runService = {
             return {
                 ...runResults[0],
                 id: runResults[0].id as UUIDv7,
-                runner_id: runResults[0].runner_id as UUIDv7,
-                raw_data_json: runResults[0].raw_data_json as Record<
+                runnerId: runResults[0].runnerId as UUIDv7,
+                rawDataJson: runResults[0].rawDataJson as Record<
                     string,
                     unknown
                 > | null
@@ -360,19 +354,19 @@ export const runService = {
                 .from(runs)
                 .where(
                     and(
-                        eq(runs.runner_id, runnerId),
-                        eq(runs.verification_status, 'verified')
+                        eq(runs.runnerId, runnerId),
+                        eq(runs.verificationStatus, 'verified')
                     )
                 );
 
             if (runnerRuns.length === 0) return;
 
             const totalDistance = runnerRuns.reduce(
-                (sum, run) => sum + run.distance_m,
+                (sum, run) => sum + run.distance,
                 0
             );
             const totalPace = runnerRuns.reduce(
-                (sum, run) => sum + (run.average_pace_sec ?? 0),
+                (sum, run) => sum + (run.averagePaceSec ?? 0),
                 0
             );
             const averagePace = totalPace / runnerRuns.length;
@@ -380,10 +374,10 @@ export const runService = {
             await db
                 .update(runners)
                 .set({
-                    total_distance_m: totalDistance,
-                    average_pace: averagePace,
-                    total_runs: runnerRuns.length,
-                    updated_at: new Date()
+                    totalDistance: totalDistance,
+                    averagePace: averagePace,
+                    totalRuns: runnerRuns.length,
+                    updatedAt: new Date()
                 })
                 .where(eq(runners.id, runnerId));
         } catch (error) {

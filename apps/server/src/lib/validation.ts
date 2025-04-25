@@ -16,10 +16,10 @@ export const createUserSchema = z.object({
             /^[a-zA-Z0-9_-]+$/,
             'Username can only contain letters, numbers, underscores, and hyphens'
         ),
-    privy_id: z.string({
+    privyId: z.string({
         required_error: 'Privy ID is required'
     }),
-    wallet_address: z
+    walletAddress: z
         .string({
             required_error: 'Wallet address is required'
         })
@@ -36,24 +36,24 @@ export const purchasePackSchema = z.object({
 });
 
 export const listingSchema = z.object({
-    card_id: z.number({ required_error: 'Card ID is required' }),
+    cardId: z.number({ required_error: 'Card ID is required' }),
     price: z.string({ required_error: 'Price is required' }),
     signature: z.string({ required_error: 'Signature is required' }),
-    order_hash: z.string({ required_error: 'Order hash is required' }),
-    order_data: z.object(
+    orderHash: z.string({ required_error: 'Order hash is required' }),
+    orderData: z.object(
         {
             trader: z.string({ required_error: 'Trader is required' }),
             side: z.number({ required_error: 'Side is required' }),
             collection: z.string({ required_error: 'Collection is required' }),
-            token_id: z.string({ required_error: 'Token ID is required' }),
-            payment_token: z.string({
+            tokenId: z.string({ required_error: 'Token ID is required' }),
+            paymentToken: z.string({
                 required_error: 'Payment token is required'
             }),
             price: z.string({ required_error: 'Order price is required' }),
-            expiration_time: z.string({
+            expirationTime: z.string({
                 required_error: 'Expiration time is required'
             }),
-            merkle_root: z.string({
+            merkleRoot: z.string({
                 required_error: 'Merkle root is required'
             }),
             salt: z.string({ required_error: 'Salt is required' })
@@ -72,15 +72,15 @@ export const bidSchema = z.object({
             trader: z.string({ required_error: 'Trader is required' }),
             side: z.number({ required_error: 'Side is required' }),
             collection: z.string({ required_error: 'Collection is required' }),
-            token_id: z.string({ required_error: 'Token ID is required' }),
-            payment_token: z.string({
+            tokenId: z.string({ required_error: 'Token ID is required' }),
+            paymentToken: z.string({
                 required_error: 'Payment token is required'
             }),
             price: z.string({ required_error: 'Order price is required' }),
-            expiration_time: z.string({
+            expirationTime: z.string({
                 required_error: 'Expiration time is required'
             }),
-            merkle_root: z.string({
+            merkleRoot: z.string({
                 required_error: 'Merkle root is required'
             }),
             salt: z.string({ required_error: 'Salt is required' })
@@ -99,15 +99,15 @@ export const openBidSchema = z.object({
             trader: z.string({ required_error: 'Trader is required' }),
             side: z.number({ required_error: 'Side is required' }),
             collection: z.string({ required_error: 'Collection is required' }),
-            token_id: z.string({ required_error: 'Token ID is required' }),
-            payment_token: z.string({
+            tokenId: z.string({ required_error: 'Token ID is required' }),
+            paymentToken: z.string({
                 required_error: 'Payment token is required'
             }),
             price: z.string({ required_error: 'Order price is required' }),
-            expiration_time: z.string({
+            expirationTime: z.string({
                 required_error: 'Expiration time is required'
             }),
-            merkle_root: z.string({
+            merkleRoot: z.string({
                 required_error: 'Merkle root is required'
             }),
             salt: z.string({ required_error: 'Salt is required' })
@@ -118,23 +118,23 @@ export const openBidSchema = z.object({
 });
 
 export const workoutSchema = z.object({
-    start_time: z.string().datetime(),
-    end_time: z.string().datetime(),
-    duration_seconds: z.number(),
-    distance_m: z.number(),
-    average_pace_sec: z.number().optional().nullable(),
-    calories_burned: z.number().optional().nullable(),
-    step_count: z.number().optional().nullable(),
-    elevation_gain_m: z.number().optional().nullable(),
-    average_heart_rate: z.number().optional().nullable(),
-    max_heart_rate: z.number().optional().nullable(),
-    device_id: z.string().optional().nullable(),
-    gps_route_data: z.string().optional().nullable()
+    startTime: z.string().datetime(),
+    endTime: z.string().datetime(),
+    durationSeconds: z.number(),
+    distance: z.number(),
+    averagePaceSec: z.number().optional().nullable(),
+    caloriesBurned: z.number().optional().nullable(),
+    stepCount: z.number().optional().nullable(),
+    elevationGain: z.number().optional().nullable(),
+    averageHeartRate: z.number().optional().nullable(),
+    maxHeartRate: z.number().optional().nullable(),
+    deviceId: z.string().optional().nullable(),
+    gpsRouteData: z.string().optional().nullable()
 });
 
 export const createPostSchema = z.object({
-    user_id: z.number({ required_error: 'User id is required' }),
-    run_id: z.number({ required_error: 'Run ID is required' }),
+    userId: z.number({ required_error: 'User id is required' }),
+    runId: z.number({ required_error: 'Run ID is required' }),
     content: z.string().optional().nullable().default(null)
 });
 
@@ -143,16 +143,16 @@ export const updatePostSchema = z.object({
 });
 
 export const createCommentSchema = z.object({
-    user_id: z.number({ required_error: 'User id is required' }),
-    post_id: z.number({ required_error: 'Post id is required' }),
+    userId: z.number({ required_error: 'User id is required' }),
+    postId: z.number({ required_error: 'Post id is required' }),
     content: z
         .string({ required_error: 'Comment content is required' })
         .min(1, 'Comment cannot be empty'),
-    parent_comment_id: z.number().optional().nullable().default(null)
+    parentCommentId: z.number().optional().nullable().default(null)
 });
 
 export const updateCommentSchema = z.object({
-    comment_id: z.number({ required_error: 'Comment id is required' }),
+    commentId: z.number({ required_error: 'Comment id is required' }),
     content: z
         .string({ required_error: 'Comment content is required' })
         .min(1, 'Comment cannot be empty')
@@ -160,12 +160,12 @@ export const updateCommentSchema = z.object({
 
 export const createReactionSchema = z
     .object({
-        post_id: z.number().optional(),
-        comment_id: z.number().optional(),
+        postId: z.number().optional(),
+        commentId: z.number().optional(),
         type: z.enum(['like', 'funny', 'insightful', 'fire'], {
             required_error: 'Reaction type is required'
         })
     })
-    .refine((data) => data.post_id ?? data.comment_id, {
+    .refine((data) => data.postId ?? data.commentId, {
         message: 'Either post_id or comment_id is required'
     });

@@ -27,7 +27,7 @@ export const adminService: AdminService = {
             return pendingRunners.map((runner) => ({
                 ...runner,
                 id: runner.id as UUIDv7,
-                user_id: runner.user_id as UUIDv7
+                userId: runner.userId as UUIDv7
             }));
         } catch (error: unknown) {
             rethrowAsDatabaseError('Failed to get pending runners', error);
@@ -42,20 +42,20 @@ export const adminService: AdminService = {
                     runner: users.username
                 })
                 .from(runs)
-                .innerJoin(runners, eq(runs.runner_id, runners.id))
-                .innerJoin(users, eq(runners.user_id, users.id))
-                .where(eq(runs.verification_status, 'pending'));
+                .innerJoin(runners, eq(runs.runnerId, runners.id))
+                .innerJoin(users, eq(runners.userId, users.id))
+                .where(eq(runs.verificationStatus, 'pending'));
 
             const pendingRuns: PendingRun[] = results.map((item) => ({
                 run: {
                     ...item.run,
                     id: item.run.id as UUIDv7,
-                    runner_id: item.run.runner_id as UUIDv7,
-                    // Handle raw_data_json properly based on its actual type
-                    raw_data_json: item.run.raw_data_json
-                        ? ((typeof item.run.raw_data_json === 'string'
-                              ? JSON.parse(item.run.raw_data_json)
-                              : item.run.raw_data_json) as Record<
+                    runnerId: item.run.runnerId as UUIDv7,
+                    // Handle rawDataJson properly based on its actual type
+                    rawDataJson: item.run.rawDataJson
+                        ? ((typeof item.run.rawDataJson === 'string'
+                              ? JSON.parse(item.run.rawDataJson)
+                              : item.run.rawDataJson) as Record<
                               string,
                               unknown
                           >)
@@ -93,12 +93,12 @@ export const adminService: AdminService = {
                 const user = userResults[0];
 
                 await tx.insert(runners).values({
-                    user_id: userId,
-                    runner_wallet: user.wallet_address,
-                    average_pace: null,
-                    total_distance_m: 0,
-                    total_runs: 0,
-                    best_mile_time: null,
+                    userId: userId,
+                    runnerWallet: user.walletAddress,
+                    averagePace: null,
+                    totalDistance: 0,
+                    totalRuns: 0,
+                    bestMileTime: null,
                     status: 'active'
                 });
 
@@ -130,8 +130,8 @@ export const adminService: AdminService = {
             const updatedRunResults = await db
                 .update(runs)
                 .set({
-                    verification_status: status,
-                    updated_at: new Date()
+                    verificationStatus: status,
+                    updatedAt: new Date()
                 })
                 .where(eq(runs.id, runId))
                 .returning();
@@ -144,12 +144,12 @@ export const adminService: AdminService = {
             return {
                 ...run,
                 id: run.id as UUIDv7,
-                runner_id: run.runner_id as UUIDv7,
-                // Handle raw_data_json properly based on its actual type
-                raw_data_json: run.raw_data_json
-                    ? ((typeof run.raw_data_json === 'string'
-                          ? JSON.parse(run.raw_data_json)
-                          : run.raw_data_json) as Record<string, unknown>)
+                runnerId: run.runnerId as UUIDv7,
+                // Handle rawDataJson properly based on its actual type
+                rawDataJson: run.rawDataJson
+                    ? ((typeof run.rawDataJson === 'string'
+                          ? JSON.parse(run.rawDataJson)
+                          : run.rawDataJson) as Record<string, unknown>)
                     : null
             };
         } catch (error: unknown) {

@@ -15,41 +15,41 @@ export type CommentService = ReturnType<typeof makeCommentService>;
 
 export const makeCommentService = (repo: CommentRepository) => {
     const createComment = async (
-        comment_data: CommentCreateRequest
+        commentData: CommentCreateRequest
     ): Promise<Comment> => {
-        if (!comment_data.content.trim())
+        if (!commentData.content.trim())
             throw new ValidationError('Cannot be empty comment');
-        return repo.create(comment_data);
+        return repo.create(commentData);
     };
 
     const getPostComments = (
-        post_id: UUIDv7,
+        postId: UUIDv7,
         params: CommentQueryParams
     ): Promise<CommentResponse> => {
-        return repo.listForPost(post_id, params);
+        return repo.listForPost(postId, params);
     };
 
     const getCommentReplies = (
-        comment_id: UUIDv7,
+        commentId: UUIDv7,
         params: CommentQueryParams
     ): Promise<CommentResponse> => {
-        return repo.listReplies(comment_id, params);
+        return repo.listReplies(commentId, params);
     };
 
-    const getCommentById = async (comment_id: UUIDv7) => {
-        const comment = await repo.findById(comment_id);
+    const getCommentById = async (commentId: UUIDv7) => {
+        const comment = await repo.findById(commentId);
         if (!comment)
-            throw new NotFoundError(`Comment ${String(comment_id)} not found`);
+            throw new NotFoundError(`Comment ${String(commentId)} not found`);
         return comment;
     };
 
-    const updateComment = (comment_data: CommentUpdateRequest) => {
-        const { comment_id, content } = comment_data;
-        return repo.update(comment_id, content);
+    const updateComment = (commentData: CommentUpdateRequest) => {
+        const { commentId, content } = commentData;
+        return repo.update(commentId, content);
     };
 
-    const deleteComment = (comment_id: UUIDv7) => {
-        return repo.remove(comment_id);
+    const deleteComment = (commentId: UUIDv7) => {
+        return repo.remove(commentId);
     };
 
     return Object.freeze({

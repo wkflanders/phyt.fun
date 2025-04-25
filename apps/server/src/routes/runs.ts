@@ -48,11 +48,11 @@ router.post(
             case 'success':
                 res.status(200).json('success');
                 break;
-            case 'already_runner':
-                res.status(200).json('already_runner');
+            case 'alreadyRunner':
+                res.status(200).json('alreadyRunner');
                 break;
             default:
-                res.status(200).json('already_submitted');
+                res.status(200).json('alreadySubmitted');
                 break;
         }
     }

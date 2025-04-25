@@ -42,7 +42,7 @@ export const postService = {
             const runner = await db
                 .select()
                 .from(runners)
-                .where(eq(runners.id, run[0].runner_id))
+                .where(eq(runners.id, run[0].runnerId))
                 .limit(1);
             if (!runner.length) {
                 throw new NotFoundError(
@@ -50,21 +50,21 @@ export const postService = {
                 );
             }
 
-            const userId = runner[0].user_id;
+            const userId = runner[0].userId;
 
             const [post] = await db
                 .insert(posts)
                 .values({
-                    user_id: userId,
-                    run_id: runId
+                    userId: userId,
+                    runId: runId
                 })
                 .returning();
 
             return {
                 ...post,
                 id: post.id as UUIDv7,
-                user_id: post.user_id as UUIDv7,
-                run_id: post.run_id as UUIDv7
+                userId: post.userId as UUIDv7,
+                runId: post.runId as UUIDv7
             };
         } catch (error) {
             console.error('Error with createPost: ', error);
@@ -79,18 +79,18 @@ export const postService = {
                     post: posts,
                     user: {
                         username: users.username,
-                        avatar_url: users.avatar_url,
+                        avatarUrl: users.avatarUrl,
                         role: users.role,
-                        is_pooled: runners.is_pooled
+                        isPooled: runners.isPooled
                     },
                     run: {
-                        distance_m: runs.distance_m,
-                        duration_seconds: runs.duration_seconds,
-                        average_pace_sec: runs.average_pace_sec,
-                        gps_route_data: runs.gps_route_data,
-                        elevation_gain_m: runs.elevation_gain_m,
-                        start_time: runs.start_time,
-                        end_time: runs.end_time
+                        distance: runs.distance,
+                        durationSeconds: runs.durationSeconds,
+                        averagePaceSec: runs.averagePaceSec,
+                        gpsRouteData: runs.gpsRouteData,
+                        elevationGain: runs.elevationGain,
+                        startTime: runs.startTime,
+                        endTime: runs.endTime
                     },
                     stats: {
                         comments: countFn(comments.id).as('comments'),
@@ -98,10 +98,10 @@ export const postService = {
                     }
                 })
                 .from(posts)
-                .innerJoin(users, eq(posts.user_id, users.id))
-                .innerJoin(runs, eq(posts.run_id, runs.id))
-                .innerJoin(runners, eq(posts.user_id, runners.user_id))
-                .leftJoin(comments, eq(comments.post_id, posts.id))
+                .innerJoin(users, eq(posts.userId, users.id))
+                .innerJoin(runs, eq(posts.runId, runs.id))
+                .innerJoin(runners, eq(posts.userId, runners.userId))
+                .leftJoin(comments, eq(comments.postId, posts.id))
                 .where(eq(posts.id, postId))
                 .groupBy(posts.id, users.id, runs.id, runners.id);
 
@@ -118,8 +118,8 @@ export const postService = {
                         post: {
                             ...post[0].post,
                             id: post[0].post.id as UUIDv7,
-                            user_id: post[0].post.user_id as UUIDv7,
-                            run_id: post[0].post.run_id as UUIDv7
+                            userId: post[0].post.userId as UUIDv7,
+                            runId: post[0].post.runId as UUIDv7
                         }
                     }
                 ],
@@ -152,18 +152,18 @@ export const postService = {
                     post: posts,
                     user: {
                         username: users.username,
-                        avatar_url: users.avatar_url,
+                        avatarUrl: users.avatarUrl,
                         role: users.role,
-                        is_pooled: runners.is_pooled
+                        isPooled: runners.isPooled
                     },
                     run: {
-                        distance_m: runs.distance_m,
-                        duration_seconds: runs.duration_seconds,
-                        average_pace_sec: runs.average_pace_sec,
-                        gps_route_data: runs.gps_route_data,
-                        elevation_gain_m: runs.elevation_gain_m,
-                        start_time: runs.start_time,
-                        end_time: runs.end_time
+                        distance: runs.distance,
+                        durationSeconds: runs.durationSeconds,
+                        averagePaceSec: runs.averagePaceSec,
+                        gpsRouteData: runs.gpsRouteData,
+                        elevationGain: runs.elevationGain,
+                        startTime: runs.startTime,
+                        endTime: runs.endTime
                     },
                     stats: {
                         comments: countFn(comments.id).as('comments'),
@@ -171,11 +171,11 @@ export const postService = {
                     }
                 })
                 .from(posts)
-                .innerJoin(users, eq(posts.user_id, users.id))
-                .innerJoin(runs, eq(posts.run_id, runs.id))
-                .innerJoin(runners, eq(posts.user_id, runners.user_id))
-                .leftJoin(comments, eq(comments.post_id, posts.id))
-                .leftJoin(reactions, eq(reactions.post_id, posts.id))
+                .innerJoin(users, eq(posts.userId, users.id))
+                .innerJoin(runs, eq(posts.runId, runs.id))
+                .innerJoin(runners, eq(posts.userId, runners.userId))
+                .leftJoin(comments, eq(comments.postId, posts.id))
+                .leftJoin(reactions, eq(reactions.postId, posts.id))
                 .where(eq(posts.status, 'visible'))
                 .groupBy(posts.id, users.id, runs.id, runners.id);
 
@@ -183,22 +183,21 @@ export const postService = {
 
             if (filter === 'following' && userId) {
                 const followingResults = await db
-                    .select({ followingId: follows.follow_target_id })
+                    .select({ followingId: follows.followTargetId })
                     .from(follows)
-                    .where(eq(follows.follower_id, userId));
+                    .where(eq(follows.followerId, userId));
 
                 const followingIds = followingResults.map(
                     (row) => row.followingId
                 );
 
                 allPosts = allPosts.filter((post) =>
-                    followingIds.includes(post.post.user_id)
+                    followingIds.includes(post.post.userId)
                 );
 
                 allPosts.sort(
                     (a, b) =>
-                        b.post.created_at.getTime() -
-                        a.post.created_at.getTime()
+                        b.post.createdAt.getTime() - a.post.createdAt.getTime()
                 );
             } else if (filter === 'trending') {
                 const trendingResults = await Promise.all(
@@ -217,8 +216,7 @@ export const postService = {
             } else {
                 allPosts.sort(
                     (a, b) =>
-                        b.post.created_at.getTime() -
-                        a.post.created_at.getTime()
+                        b.post.createdAt.getTime() - a.post.createdAt.getTime()
                 );
             }
 
@@ -256,18 +254,18 @@ export const postService = {
                     post: posts,
                     user: {
                         username: users.username,
-                        avatar_url: users.avatar_url,
+                        avatarUrl: users.avatarUrl,
                         role: users.role,
-                        is_pooled: runners.is_pooled
+                        isPooled: runners.isPooled
                     },
                     run: {
-                        distance_m: runs.distance_m,
-                        duration_seconds: runs.duration_seconds,
-                        average_pace_sec: runs.average_pace_sec,
-                        gps_route_data: runs.gps_route_data,
-                        elevation_gain_m: runs.elevation_gain_m,
-                        start_time: runs.start_time,
-                        end_time: runs.end_time
+                        distance: runs.distance,
+                        durationSeconds: runs.durationSeconds,
+                        averagePaceSec: runs.averagePaceSec,
+                        gpsRouteData: runs.gpsRouteData,
+                        elevationGain: runs.elevationGain,
+                        startTime: runs.startTime,
+                        endTime: runs.endTime
                     },
                     stats: {
                         comments: countFn(comments.id).as('comments'),
@@ -275,16 +273,16 @@ export const postService = {
                     }
                 })
                 .from(posts)
-                .innerJoin(users, eq(posts.user_id, users.id))
-                .innerJoin(runners, eq(posts.user_id, runners.user_id))
-                .innerJoin(runs, eq(posts.run_id, runs.id))
-                .leftJoin(comments, eq(comments.post_id, posts.id))
-                .leftJoin(reactions, eq(reactions.post_id, posts.id))
+                .innerJoin(users, eq(posts.userId, users.id))
+                .innerJoin(runners, eq(posts.userId, runners.userId))
+                .innerJoin(runs, eq(posts.runId, runs.id))
+                .leftJoin(comments, eq(comments.postId, posts.id))
+                .leftJoin(reactions, eq(reactions.postId, posts.id))
                 .groupBy(posts.id, users.id, runs.id, runners.id)
                 .where(
-                    and(eq(posts.user_id, userId), eq(posts.status, 'visible'))
+                    and(eq(posts.userId, userId), eq(posts.status, 'visible'))
                 )
-                .orderBy(desc(posts.created_at))
+                .orderBy(desc(posts.createdAt))
                 .limit(limit)
                 .offset(offset);
 
@@ -296,8 +294,8 @@ export const postService = {
                             post: {
                                 ...result.post,
                                 id: result.post.id as UUIDv7,
-                                user_id: result.post.user_id as UUIDv7,
-                                run_id: result.post.run_id as UUIDv7
+                                userId: result.post.userId as UUIDv7,
+                                runId: result.post.runId as UUIDv7
                             }
                         }
                     ],
@@ -328,18 +326,18 @@ export const postService = {
                     post: posts,
                     user: {
                         username: users.username,
-                        avatar_url: users.avatar_url,
+                        avatarUrl: users.avatarUrl,
                         role: users.role,
-                        is_pooled: runners.is_pooled
+                        isPooled: runners.isPooled
                     },
                     run: {
-                        distance_m: runs.distance_m,
-                        duration_seconds: runs.duration_seconds,
-                        average_pace_sec: runs.average_pace_sec,
-                        gps_route_data: runs.gps_route_data,
-                        elevation_gain_m: runs.elevation_gain_m,
-                        start_time: runs.start_time,
-                        end_time: runs.end_time
+                        distance: runs.distance,
+                        durationSeconds: runs.durationSeconds,
+                        averagePaceSec: runs.averagePaceSec,
+                        gpsRouteData: runs.gpsRouteData,
+                        elevationGain: runs.elevationGain,
+                        startTime: runs.startTime,
+                        endTime: runs.endTime
                     },
                     stats: {
                         comments: countFn(comments.id).as('comments'),
@@ -347,16 +345,16 @@ export const postService = {
                     }
                 })
                 .from(posts)
-                .innerJoin(users, eq(posts.user_id, users.id))
-                .innerJoin(runners, eq(posts.user_id, runners.user_id))
-                .innerJoin(runs, eq(posts.run_id, runs.id))
-                .leftJoin(comments, eq(comments.post_id, posts.id))
-                .leftJoin(reactions, eq(reactions.post_id, posts.id))
+                .innerJoin(users, eq(posts.userId, users.id))
+                .innerJoin(runners, eq(posts.userId, runners.userId))
+                .innerJoin(runs, eq(posts.runId, runs.id))
+                .leftJoin(comments, eq(comments.postId, posts.id))
+                .leftJoin(reactions, eq(reactions.postId, posts.id))
                 .groupBy(posts.id, users.id, runs.id, runners.id)
                 .where(
-                    and(eq(posts.user_id, userId), eq(posts.status, 'visible'))
+                    and(eq(posts.userId, userId), eq(posts.status, 'visible'))
                 )
-                .orderBy(desc(posts.created_at))
+                .orderBy(desc(posts.createdAt))
                 .limit(limit)
                 .offset(offset);
 
@@ -368,8 +366,8 @@ export const postService = {
                             post: {
                                 ...result.post,
                                 id: result.post.id as UUIDv7,
-                                user_id: result.post.user_id as UUIDv7,
-                                run_id: result.post.run_id as UUIDv7
+                                userId: result.post.userId as UUIDv7,
+                                runId: result.post.runId as UUIDv7
                             }
                         }
                     ],
@@ -385,27 +383,27 @@ export const postService = {
     },
 
     updatePostStatus: async ({
-        post_id,
+        postId,
         status
     }: UpdatePostRequest): Promise<Post> => {
         try {
             const postResults = await db
                 .update(posts)
                 .set({ status })
-                .where(eq(posts.id, post_id))
+                .where(eq(posts.id, postId))
                 .returning();
 
             if (!postResults.length) {
                 throw new NotFoundError(
-                    `Post with ID ${String(post_id)} not found`
+                    `Post with ID ${String(postId)} not found`
                 );
             }
 
             return {
                 ...postResults[0],
                 id: postResults[0].id as UUIDv7,
-                user_id: postResults[0].user_id as UUIDv7,
-                run_id: postResults[0].run_id as UUIDv7
+                userId: postResults[0].userId as UUIDv7,
+                runId: postResults[0].runId as UUIDv7
             };
         } catch (error) {
             console.error('Error with updatePostStatus: ', error);
@@ -430,8 +428,8 @@ export const postService = {
             return {
                 ...postResults[0],
                 id: postResults[0].id as UUIDv7,
-                user_id: postResults[0].user_id as UUIDv7,
-                run_id: postResults[0].run_id as UUIDv7
+                userId: postResults[0].userId as UUIDv7,
+                runId: postResults[0].runId as UUIDv7
             };
         } catch (error) {
             console.error('Error with deletePost: ', error);

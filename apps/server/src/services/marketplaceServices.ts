@@ -12,7 +12,7 @@ import {
     listings,
     bids,
     cards,
-    card_metadata,
+    cardMetadata,
     users
 } from '@phyt/database';
 import {
@@ -43,11 +43,11 @@ function serializeOrder(order: Order): Record<string, unknown> {
         trader: order.trader,
         side: order.side,
         collection: order.collection,
-        token_id: order.token_id.toString(),
-        payment_token: order.payment_token,
+        tokenId: order.tokenId.toString(),
+        paymentToken: order.paymentToken,
         price: order.price.toString(),
-        expiration_time: order.expiration_time.toString(),
-        merkle_root: order.merkle_root,
+        expirationTime: order.expirationTime.toString(),
+        merkleRoot: order.merkleRoot,
         salt: order.salt.toString()
     };
 }
@@ -58,11 +58,11 @@ function deserializeOrder(raw: Record<string, unknown>): Order {
         trader: raw.trader as `0x${string}`,
         side: raw.side as 'buy' | 'sell',
         collection: raw.collection as `0x${string}`,
-        token_id: BigInt(String(raw.token_id)),
-        payment_token: raw.payment_token as `0x${string}`,
+        tokenId: BigInt(String(raw.tokenId)),
+        paymentToken: raw.paymentToken as `0x${string}`,
         price: BigInt(String(raw.price)),
-        expiration_time: BigInt(String(raw.expiration_time)),
-        merkle_root: raw.merkle_root as `0x${string}`,
+        expirationTime: BigInt(String(raw.expirationTime)),
+        merkleRoot: raw.merkleRoot as `0x${string}`,
         salt: BigInt(String(raw.salt))
     };
 }
@@ -72,11 +72,11 @@ export const marketplaceService = {
         filters?: GetListingProps
     ): Promise<MarketListing[]> => {
         try {
-            // Base conditions: active listings whose expiration_time is strictly after now.
+            // Base conditions: active listings whose expirationTime is strictly after now.
             // We simulate ">" by using gte with a 1ms offset.
             let conditions = and(
                 eq(listings.status, 'active'),
-                gte(listings.expiration_time, new Date(Date.now() + 1))
+                gte(listings.expirationTime, new Date(Date.now() + 1))
             );
 
             // Add price conditions if provided.
@@ -100,7 +100,7 @@ export const marketplaceService = {
                     or(
                         ...filters.rarity.map((r) =>
                             eq(
-                                card_metadata.rarity,
+                                cardMetadata.rarity,
                                 r as
                                     | 'bronze'
                                     | 'silver'
@@ -118,26 +118,26 @@ export const marketplaceService = {
             const query = db
                 .select({
                     listing: listings,
-                    metadata: card_metadata,
+                    metadata: cardMetadata,
                     seller: users,
                     card: cards
                 })
                 .from(listings)
-                .innerJoin(cards, eq(listings.card_id, cards.id))
+                .innerJoin(cards, eq(listings.cardId, cards.id))
                 .innerJoin(
-                    card_metadata,
-                    eq(cards.token_id, card_metadata.token_id)
+                    cardMetadata,
+                    eq(cards.tokenId, cardMetadata.tokenId)
                 )
-                .innerJoin(users, eq(listings.seller_id, users.id))
+                .innerJoin(users, eq(listings.sellerId, users.id))
                 .where(conditions);
 
             // Apply sorting
             const sortedQuery =
-                filters?.sort === 'price_asc'
+                filters?.sort === 'priceAsc'
                     ? query.orderBy(asc(listings.price))
-                    : filters?.sort === 'price_desc'
+                    : filters?.sort === 'priceDesc'
                       ? query.orderBy(desc(listings.price))
-                      : query.orderBy(desc(listings.created_at));
+                      : query.orderBy(desc(listings.createdAt));
 
             const result = await sortedQuery;
             return result.map((item) => ({
@@ -145,17 +145,17 @@ export const marketplaceService = {
                 listing: {
                     ...item.listing,
                     id: item.listing.id as UUIDv7,
-                    buyer_id: item.listing.buyer_id as UUIDv7 | null,
-                    seller_id: item.listing.seller_id as UUIDv7,
-                    card_id: item.listing.card_id as UUIDv7,
-                    highest_bidder_id: item.listing
-                        .highest_bidder_id as UUIDv7 | null,
-                    highest_bid:
-                        item.listing.highest_bid !== null
-                            ? String(item.listing.highest_bid)
+                    buyerId: item.listing.buyerId as UUIDv7 | null,
+                    sellerId: item.listing.sellerId as UUIDv7,
+                    cardId: item.listing.cardId as UUIDv7,
+                    highestBidderId: item.listing
+                        .highestBidderId as UUIDv7 | null,
+                    highestBid:
+                        item.listing.highestBid !== null
+                            ? String(item.listing.highestBid)
                             : null,
-                    order_data: deserializeOrder(
-                        item.listing.order_data as Record<string, unknown>
+                    orderData: deserializeOrder(
+                        item.listing.orderData as Record<string, unknown>
                     )
                 },
                 seller: {
@@ -165,13 +165,12 @@ export const marketplaceService = {
                 card: {
                     ...item.card,
                     id: item.card.id as UUIDv7,
-                    owner_id: item.card.owner_id as UUIDv7,
-                    pack_purchase_id: item.card
-                        .pack_purchase_id as UUIDv7 | null
+                    ownerId: item.card.ownerId as UUIDv7,
+                    packPurchaseId: item.card.packPurchaseId as UUIDv7 | null
                 },
                 metadata: {
                     ...item.metadata,
-                    runner_id: item.metadata.runner_id as UUIDv7
+                    runnerId: item.metadata.runnerId as UUIDv7
                 }
             }));
         } catch (error) {
@@ -181,22 +180,20 @@ export const marketplaceService = {
     },
 
     createListing: async ({
-        card_id,
-        seller_id,
+        cardId,
+        sellerId,
         price,
         signature,
-        order_data,
-        order_hash,
-        expiration_time
+        orderData,
+        orderHash,
+        expirationTime
     }: CreateListingProps): Promise<Listing> => {
         try {
             // Verify card ownership
             const cardQuery = db
                 .select()
                 .from(cards)
-                .where(
-                    and(eq(cards.id, card_id), eq(cards.owner_id, seller_id))
-                );
+                .where(and(eq(cards.id, cardId), eq(cards.ownerId, sellerId)));
 
             const cardResult = await cardQuery;
 
@@ -206,15 +203,15 @@ export const marketplaceService = {
             const insertResult = await db
                 .insert(listings)
                 .values({
-                    card_id: card_id,
-                    seller_id: seller_id,
+                    cardId: cardId,
+                    sellerId: sellerId,
                     price,
                     signature,
-                    order_hash,
-                    order_data: serializeOrder(order_data),
-                    expiration_time: new Date(expiration_time),
+                    orderHash,
+                    orderData: serializeOrder(orderData),
+                    expirationTime: new Date(expirationTime),
                     status: 'active',
-                    transaction_hash: '' // default value since listing isn't completed
+                    transactionHash: '' // default value since listing isn't completed
                 })
                 .returning();
 
@@ -223,16 +220,16 @@ export const marketplaceService = {
             return {
                 ...result,
                 id: result.id as UUIDv7,
-                card_id: result.card_id as UUIDv7,
-                seller_id: result.seller_id as UUIDv7,
-                buyer_id: result.buyer_id as UUIDv7 | null,
-                highest_bidder_id: result.highest_bidder_id as UUIDv7 | null,
-                highest_bid:
-                    result.highest_bid !== null
-                        ? String(result.highest_bid)
+                cardId: result.cardId as UUIDv7,
+                sellerId: result.sellerId as UUIDv7,
+                buyerId: result.buyerId as UUIDv7 | null,
+                highestBidderId: result.highestBidderId as UUIDv7 | null,
+                highestBid:
+                    result.highestBid !== null
+                        ? String(result.highestBid)
                         : null,
-                order_data: deserializeOrder(
-                    result.order_data as Record<string, unknown>
+                orderData: deserializeOrder(
+                    result.orderData as Record<string, unknown>
                 )
             };
         } catch (error) {
@@ -242,12 +239,12 @@ export const marketplaceService = {
     },
 
     createBid: async ({
-        listing_id,
-        bidder_id,
-        bid_amount,
+        listingId,
+        bidderId,
+        bidAmount,
         signature,
-        order_hash,
-        order_data
+        orderHash,
+        orderData
     }: CreateListingBidProps): Promise<ListingBid> => {
         try {
             return await db.transaction(async (tx) => {
@@ -256,7 +253,7 @@ export const marketplaceService = {
                     .from(listings)
                     .where(
                         and(
-                            eq(listings.id, listing_id),
+                            eq(listings.id, listingId),
                             eq(listings.status, 'active')
                         )
                     )
@@ -268,8 +265,8 @@ export const marketplaceService = {
                 const bidListing = listing[0];
 
                 if (
-                    bidListing.highest_bid &&
-                    BigInt(bid_amount) <= BigInt(bidListing.highest_bid)
+                    bidListing.highestBid &&
+                    BigInt(bidAmount) <= BigInt(bidListing.highestBid)
                 ) {
                     throw new MarketplaceError(
                         'Bid must be higher than current highest bid'
@@ -277,52 +274,52 @@ export const marketplaceService = {
                 }
 
                 if (
-                    listing[0].highest_bid &&
-                    BigInt(bid_amount) >= BigInt(bidListing.price)
+                    listing[0].highestBid &&
+                    BigInt(bidAmount) >= BigInt(bidListing.price)
                 ) {
                     await marketplaceService.completePurchase({
-                        listing_id,
-                        buyer_id: bidder_id,
-                        transaction_hash: ''
+                        listingId,
+                        buyerId: bidderId,
+                        transactionHash: ''
                     });
                 }
 
                 const [bid] = await tx
                     .insert(bids)
                     .values({
-                        listing_id: listing_id,
-                        card_id: bidListing.card_id,
-                        bidder_id: bidder_id,
+                        listingId: listingId,
+                        cardId: bidListing.cardId,
+                        bidderId: bidderId,
                         price: bidListing.price,
-                        bid_amount,
+                        bidAmount,
                         signature,
-                        order_hash: order_hash,
-                        order_data: serializeOrder(order_data),
-                        bid_type: 'listing',
+                        orderHash: orderHash,
+                        orderData: serializeOrder(orderData),
+                        bidType: 'listing',
                         status: 'active',
-                        expiration_time: bidListing.expiration_time,
-                        accepted_at: null
+                        expirationTime: bidListing.expirationTime,
+                        acceptedAt: null
                     })
                     .returning();
 
                 await tx
                     .update(listings)
                     .set({
-                        highest_bid: bid_amount,
-                        highest_bidder_id: bidder_id
+                        highestBid: bidAmount,
+                        highestBidderId: bidderId
                     })
-                    .where(eq(listings.id, listing_id));
+                    .where(eq(listings.id, listingId));
 
                 return {
                     ...bid,
                     id: bid.id as UUIDv7,
-                    bid_type: 'listing' as const,
-                    bid_status: bid.status as BidStatusListed | 'withdrawn',
-                    listing_id: (bid.listing_id ?? listing_id) as UUIDv7,
-                    bidder_id: bid.bidder_id as UUIDv7,
-                    card_id: bid.card_id as UUIDv7,
-                    order_data: deserializeOrder(
-                        bid.order_data as Record<string, unknown>
+                    bidType: 'listing' as const,
+                    bidStatus: bid.status as BidStatusListed | 'withdrawn',
+                    listingId: (bid.listingId ?? listingId) as UUIDv7,
+                    bidderId: bid.bidderId as UUIDv7,
+                    cardId: bid.cardId as UUIDv7,
+                    orderData: deserializeOrder(
+                        bid.orderData as Record<string, unknown>
                     )
                 };
             });
@@ -333,9 +330,9 @@ export const marketplaceService = {
     },
 
     completePurchase: async ({
-        listing_id,
-        buyer_id,
-        transaction_hash
+        listingId,
+        buyerId,
+        transactionHash
     }: CompletePurchaseProps): Promise<Listing> => {
         try {
             return await db.transaction(async (tx) => {
@@ -344,7 +341,7 @@ export const marketplaceService = {
                     .from(listings)
                     .where(
                         and(
-                            eq(listings.id, listing_id),
+                            eq(listings.id, listingId),
                             eq(listings.status, 'active')
                         )
                     );
@@ -357,34 +354,34 @@ export const marketplaceService = {
                     .update(listings)
                     .set({
                         status: 'active',
-                        buyer_id: buyer_id,
-                        transaction_hash: transaction_hash
+                        buyerId: buyerId,
+                        transactionHash: transactionHash
                     })
-                    .where(eq(listings.id, listing_id))
+                    .where(eq(listings.id, listingId))
                     .returning();
 
                 await tx
                     .update(cards)
                     .set({
-                        owner_id: buyer_id,
-                        acquisition_type: 'marketplace'
+                        ownerId: buyerId,
+                        acquisitionType: 'marketplace'
                     })
-                    .where(eq(cards.id, listings.card_id));
+                    .where(eq(cards.id, listings.cardId));
 
                 return {
                     ...updatedListing,
                     id: updatedListing.id as UUIDv7,
-                    buyer_id: updatedListing.buyer_id as UUIDv7 | null,
-                    seller_id: updatedListing.seller_id as UUIDv7,
-                    card_id: updatedListing.card_id as UUIDv7,
-                    highest_bidder_id:
-                        updatedListing.highest_bidder_id as UUIDv7 | null,
-                    highest_bid:
-                        updatedListing.highest_bid !== null
-                            ? String(updatedListing.highest_bid)
+                    buyerId: updatedListing.buyerId as UUIDv7 | null,
+                    sellerId: updatedListing.sellerId as UUIDv7,
+                    cardId: updatedListing.cardId as UUIDv7,
+                    highestBidderId:
+                        updatedListing.highestBidderId as UUIDv7 | null,
+                    higestBid:
+                        updatedListing.highestBid !== null
+                            ? String(updatedListing.highestBid)
                             : null,
-                    order_data: deserializeOrder(
-                        updatedListing.order_data as Record<string, unknown>
+                    orderData: deserializeOrder(
+                        updatedListing.orderData as Record<string, unknown>
                     )
                 };
             });
@@ -395,13 +392,13 @@ export const marketplaceService = {
     },
 
     createOpenBid: async ({
-        card_id,
-        bidder_id,
-        bid_amount,
+        cardId,
+        bidderId,
+        bidAmount,
         signature,
-        order_hash,
-        order_data,
-        expiration_time
+        orderHash,
+        orderData,
+        expirationTime
     }: CreateOpenBidProps): Promise<OpenBid> => {
         try {
             const cardQuery = db
@@ -415,11 +412,11 @@ export const marketplaceService = {
                 .leftJoin(
                     listings,
                     and(
-                        eq(listings.card_id, cards.id),
+                        eq(listings.cardId, cards.id),
                         eq(listings.status, 'active')
                     )
                 )
-                .where(eq(cards.id, card_id));
+                .where(eq(cards.id, cardId));
 
             const cardResult = await cardQuery;
 
@@ -434,17 +431,17 @@ export const marketplaceService = {
             const insertResult = await db
                 .insert(bids)
                 .values({
-                    card_id: card_id,
-                    bidder_id: bidder_id,
-                    price: bid_amount,
-                    bid_amount,
+                    cardId: cardId,
+                    bidderId: bidderId,
+                    price: bidAmount,
+                    bidAmount,
                     signature,
-                    order_hash: order_hash,
-                    order_data: serializeOrder(order_data),
-                    bid_type: 'open',
+                    orderHash: orderHash,
+                    orderData: serializeOrder(orderData),
+                    bidType: 'open',
                     status: 'active',
-                    expiration_time: expiration_time,
-                    accepted_at: null
+                    expirationTime: expirationTime,
+                    acceptedAt: null
                 })
                 .returning();
 
@@ -457,13 +454,13 @@ export const marketplaceService = {
             return {
                 ...bid,
                 id: bid.id as UUIDv7,
-                bidder_id: bid.bidder_id as UUIDv7,
-                bid_type: 'open' as const,
-                bid_status: bid.status as BidStatusOpen | 'withdrawn',
-                card_id: bid.card_id as UUIDv7,
+                bidderId: bid.bidderId as UUIDv7,
+                bidType: 'open' as const,
+                bidStatus: bid.status as BidStatusOpen | 'withdrawn',
+                cardId: bid.cardId as UUIDv7,
                 listing_id: null,
-                order_data: deserializeOrder(
-                    bid.order_data as Record<string, unknown>
+                orderData: deserializeOrder(
+                    bid.orderData as Record<string, unknown>
                 )
             };
         } catch (error) {
@@ -480,13 +477,13 @@ export const marketplaceService = {
                     bidder: users
                 })
                 .from(bids)
-                .innerJoin(users, eq(bids.bidder_id, users.id))
+                .innerJoin(users, eq(bids.bidderId, users.id))
                 .where(
                     and(
-                        eq(bids.card_id, cardId),
-                        eq(bids.bid_type, 'open'),
+                        eq(bids.cardId, cardId),
+                        eq(bids.bidType, 'open'),
                         eq(bids.status, 'active'),
-                        gt(bids.expiration_time, new Date())
+                        gt(bids.expirationTime, new Date())
                     )
                 )
                 .orderBy(desc(bids.price));
@@ -495,11 +492,11 @@ export const marketplaceService = {
                 bid: bidsData.map((item) => ({
                     ...item.bid,
                     id: item.bid.id as UUIDv7,
-                    listing_id: item.bid.listing_id as UUIDv7 | null,
-                    card_id: item.bid.card_id as UUIDv7,
-                    bidder_id: item.bid.bidder_id as UUIDv7,
-                    order_data: deserializeOrder(
-                        item.bid.order_data as Record<string, unknown>
+                    listingId: item.bid.listingId as UUIDv7,
+                    cardId: item.bid.cardId as UUIDv7,
+                    bidderId: item.bid.bidderId as UUIDv7,
+                    orderData: deserializeOrder(
+                        item.bid.orderData as Record<string, unknown>
                     )
                 })),
                 bidder: bidsData.map((item) => ({
@@ -519,58 +516,57 @@ export const marketplaceService = {
                 .select({
                     bid: bids,
                     card: cards,
-                    metadata: card_metadata,
+                    metadata: cardMetadata,
                     listing: {
                         id: listings.id,
                         price: listings.price,
-                        expiration_time: listings.expiration_time
+                        expirationTime: listings.expirationTime
                     },
                     owner: {
                         id: users.id,
-                        wallet_address: users.wallet_address,
+                        walletAddress: users.walletAddress,
                         username: users.username,
-                        avatar_url: users.avatar_url
+                        avatarUrl: users.avatarUrl
                     }
                 })
                 .from(bids)
-                .innerJoin(cards, eq(bids.card_id, cards.id))
-                .leftJoin(listings, eq(bids.listing_id, listings.id))
+                .innerJoin(cards, eq(bids.cardId, cards.id))
+                .leftJoin(listings, eq(bids.listingId, listings.id))
                 .innerJoin(
-                    card_metadata,
-                    eq(cards.token_id, card_metadata.token_id)
+                    cardMetadata,
+                    eq(cards.tokenId, cardMetadata.tokenId)
                 )
-                .innerJoin(users, eq(cards.owner_id, users.id))
+                .innerJoin(users, eq(cards.ownerId, users.id))
                 .where(
                     and(
-                        eq(bids.bidder_id, userId),
+                        eq(bids.bidderId, userId),
                         // eq(bids.status, 'active'),
-                        gt(bids.expiration_time, new Date())
+                        gt(bids.expirationTime, new Date())
                     )
                 )
-                .orderBy(desc(bids.created_at));
+                .orderBy(desc(bids.createdAt));
 
             return results.map((result) => ({
                 ...result,
                 bid: {
                     ...result.bid,
                     id: result.bid.id as UUIDv7,
-                    listing_id: result.bid.listing_id as UUIDv7 | null,
-                    card_id: result.bid.card_id as UUIDv7,
-                    bidder_id: result.bid.bidder_id as UUIDv7,
-                    order_data: deserializeOrder(
-                        result.bid.order_data as Record<string, unknown>
+                    listingId: result.bid.listingId as UUIDv7,
+                    cardId: result.bid.cardId as UUIDv7,
+                    bidderId: result.bid.bidderId as UUIDv7,
+                    orderData: deserializeOrder(
+                        result.bid.orderData as Record<string, unknown>
                     )
                 },
                 card: {
                     ...result.card,
                     id: result.card.id as UUIDv7,
-                    owner_id: result.card.owner_id as UUIDv7,
-                    pack_purchase_id: result.card
-                        .pack_purchase_id as UUIDv7 | null
+                    ownerId: result.card.ownerId as UUIDv7,
+                    packPurchaseId: result.card.packPurchaseId as UUIDv7 | null
                 },
                 metadata: {
                     ...result.metadata,
-                    runner_id: result.metadata.runner_id as UUIDv7
+                    runnerId: result.metadata.runnerId as UUIDv7
                 },
                 listing: result.listing
                     ? {
@@ -590,8 +586,8 @@ export const marketplaceService = {
     },
 
     acceptOpenBid: async ({
-        bid_id,
-        transaction_hash
+        bidId,
+        transactionHash
     }: AcceptOpenBidProps): Promise<OpenBid> => {
         try {
             return await db.transaction(async (tx) => {
@@ -600,9 +596,9 @@ export const marketplaceService = {
                     .from(bids)
                     .where(
                         and(
-                            eq(bids.id, bid_id),
+                            eq(bids.id, bidId),
                             eq(bids.status, 'active'),
-                            eq(bids.bid_type, 'open')
+                            eq(bids.bidType, 'open')
                         )
                     );
 
@@ -616,18 +612,18 @@ export const marketplaceService = {
                     .update(bids)
                     .set({
                         status: 'filled',
-                        accepted_at: new Date()
+                        acceptedAt: new Date()
                     })
-                    .where(eq(bids.id, bid_id))
+                    .where(eq(bids.id, bidId))
                     .returning();
 
                 await tx
                     .update(cards)
                     .set({
-                        owner_id: bid.bidder_id,
-                        acquisition_type: 'marketplace'
+                        ownerId: bid.bidderId,
+                        acquisitionType: 'marketplace'
                     })
-                    .where(eq(cards.id, bid.card_id));
+                    .where(eq(cards.id, bid.cardId));
 
                 // Cancel other open bids for this card
                 await tx
@@ -635,10 +631,10 @@ export const marketplaceService = {
                     .set({ status: 'withdrawn' })
                     .where(
                         and(
-                            eq(bids.card_id, bid.card_id),
+                            eq(bids.cardId, bid.cardId),
                             eq(bids.status, 'active'),
-                            eq(bids.bid_type, 'open'),
-                            ne(bids.id, bid_id)
+                            eq(bids.bidType, 'open'),
+                            ne(bids.id, bidId)
                         )
                     );
 
@@ -646,15 +642,13 @@ export const marketplaceService = {
                 return {
                     ...updatedBid,
                     id: updatedBid.id as UUIDv7,
-                    card_id: updatedBid.card_id as UUIDv7,
-                    bidder_id: updatedBid.bidder_id as UUIDv7,
-                    bid_type: 'open' as const,
-                    bid_status: updatedBid.status as
-                        | BidStatusOpen
-                        | 'withdrawn',
-                    listing_id: updatedBid.listing_id as UUIDv7 | null,
-                    order_data: deserializeOrder(
-                        updatedBid.order_data as Record<string, unknown>
+                    cardId: updatedBid.cardId as UUIDv7,
+                    bidderId: updatedBid.bidderId as UUIDv7,
+                    bidType: 'open' as const,
+                    bidStatus: updatedBid.status as BidStatusOpen | 'withdrawn',
+                    listingId: updatedBid.listingId as UUIDv7 | null,
+                    orderData: deserializeOrder(
+                        updatedBid.orderData as Record<string, unknown>
                     )
                 };
             });

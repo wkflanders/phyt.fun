@@ -58,9 +58,9 @@ router.get(
         }
 
         const sortStr = toStringValue(sort) as
-            | 'price_asc'
-            | 'price_desc'
-            | 'created_at'
+            | 'priceAsc'
+            | 'priceDesc'
+            | 'createdAt'
             | undefined;
 
         const listings = await marketplaceService.getListings({
@@ -85,16 +85,16 @@ router.post(
         // if (!req.auth) {
         //     throw new HttpError('Authentication data missing', 401);
         // }
-        const { card_id, price, signature, order_hash, order_data, user } =
+        const { cardId, price, signature, orderHash, orderData, user } =
             req.body;
         const listing = await marketplaceService.createListing({
-            card_id,
-            seller_id: user.id,
+            cardId,
+            sellerId: user.id,
             price,
             signature,
-            order_data,
-            order_hash,
-            expiration_time: String(order_data.expiration_time)
+            orderData,
+            orderHash,
+            expirationTime: String(orderData.expirationTime)
         });
         res.status(201).json(listing);
     }
@@ -111,23 +111,17 @@ router.post(
         // if (!req.auth) {
         //     throw new HttpError('Authentication data missing', 401);
         // }
-        const {
-            listing_id,
-            bid_amount,
-            signature,
-            order_hash,
-            order_data,
-            user
-        } = req.body;
+        const { listingId, bidAmount, signature, orderHash, orderData, user } =
+            req.body;
 
         const bid = await marketplaceService.createBid({
-            listing_id,
-            bidder_id: user.id,
+            listingId,
+            bidderId: user.id,
             signature,
-            order_hash,
-            order_data,
-            bid_type: 'listing',
-            bid_amount
+            orderHash,
+            orderData,
+            bidType: 'listing',
+            bidAmount
         });
 
         res.status(201).json(bid);
@@ -146,24 +140,24 @@ router.post(
         //     throw new HttpError('Authentication data missing', 401);
         // }
         const {
-            card_id,
-            bid_amount,
+            cardId,
+            bidAmount,
             signature,
-            order_hash,
-            order_data,
-            expiration_time,
+            orderHash,
+            orderData,
+            expirationTime,
             user
         } = req.body;
 
         const bid = await marketplaceService.createOpenBid({
-            card_id,
-            bidder_id: user.id,
-            bid_type: 'open',
-            bid_amount,
+            cardId,
+            bidderId: user.id,
+            bidType: 'open',
+            bidAmount,
             signature,
-            order_hash,
-            order_data,
-            expiration_time
+            orderHash,
+            orderData,
+            expirationTime
         });
 
         res.status(201).json(bid);
@@ -204,15 +198,15 @@ router.get(
 router.post(
     '/open-bid/:bidId/accept',
     async (
-        req: Request<{ bidId: UUIDv7 }, OpenBid, { transaction_hash: string }>,
+        req: Request<{ bidId: UUIDv7 }, OpenBid, { transactionHash: string }>,
         res: Response<OpenBid>
     ) => {
         const { bidId } = req.params;
-        const { transaction_hash } = req.body;
+        const { transactionHash } = req.body;
 
         const result = await marketplaceService.acceptOpenBid({
-            bid_id: bidId,
-            transaction_hash
+            bidId: bidId,
+            transactionHash
         });
 
         res.status(200).json(result);

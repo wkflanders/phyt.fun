@@ -117,13 +117,13 @@ router.post(
         req: Request<Record<string, never>, User, CreateUserFormData>,
         res: Response<User>
     ) => {
-        const { email, username, privy_id, wallet_address } = req.body;
+        const { email, username, privyId, walletAddress } = req.body;
 
         const newUser = await userService.createUser({
             email,
             username,
-            privy_id,
-            wallet_address,
+            privyId,
+            walletAddress,
             avatarFile: req.file // Pass the file if it exists
         });
 

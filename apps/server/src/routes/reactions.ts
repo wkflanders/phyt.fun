@@ -29,17 +29,17 @@ router.post(
         >,
         res: Response<ReactionToggleResponse>
     ) => {
-        const { user_id, post_id, comment_id, type } = req.body;
+        const { userId, postId, commentId, type } = req.body;
 
-        if (!user_id) {
+        if (!userId) {
             throw new ValidationError('Missing valid user Id');
         }
 
-        if (!post_id) {
+        if (!postId) {
             throw new ValidationError('Missing valid post Id');
         }
 
-        if (!comment_id) {
+        if (!commentId) {
             throw new ValidationError('Missing valid comment Id');
         }
 
@@ -48,9 +48,9 @@ router.post(
         }
 
         const result = await reactionService.toggleReaction({
-            user_id,
-            post_id,
-            comment_id,
+            userId,
+            postId,
+            commentId,
             type
         });
 
@@ -60,61 +60,61 @@ router.post(
 
 // Get reactions for a post
 router.get(
-    '/:post_id',
+    '/:postId',
     async (
-        req: Request<{ post_id: UUIDv7 }, ReactionCount>,
+        req: Request<{ postId: UUIDv7 }, ReactionCount>,
         res: Response<ReactionCount>
     ) => {
-        const post_id = req.params.post_id;
+        const postId = req.params.postId;
 
-        if (!post_id) {
+        if (!postId) {
             throw new ValidationError('Invalid post ID');
         }
 
-        const reactions = await reactionService.getPostReactions(post_id);
+        const reactions = await reactionService.getPostReactions(postId);
         res.status(200).json(reactions);
     }
 );
 
 // Get reactions for a comment
 router.get(
-    '/:comment_id',
+    '/:commentId',
     async (
-        req: Request<{ comment_id: UUIDv7 }, ReactionCount>,
+        req: Request<{ commentId: UUIDv7 }, ReactionCount>,
         res: Response<ReactionCount>
     ) => {
-        const comment_id = req.params.comment_id;
-        if (!comment_id) {
+        const commentId = req.params.commentId;
+        if (!commentId) {
             throw new ValidationError('Invalid comment ID');
         }
 
-        const reactions = await reactionService.getCommentReactions(comment_id);
+        const reactions = await reactionService.getCommentReactions(commentId);
         res.status(200).json(reactions);
     }
 );
 
 // Get current user's reactions to a post
 router.get(
-    '/:user_id/:post_id',
+    '/:userId/:postId',
     async (
-        req: Request<{ user_id: UUIDv7; post_id: UUIDv7 }, Reaction[]>,
+        req: Request<{ userId: UUIDv7; postId: UUIDv7 }, Reaction[]>,
         res: Response<Reaction[]>
     ) => {
-        const post_id = req.params.post_id;
+        const postId = req.params.postId;
 
-        if (!post_id) {
+        if (!postId) {
             throw new ValidationError('Invalid post ID');
         }
 
-        const user_id = req.params.user_id;
+        const userId = req.params.userId;
 
-        if (!user_id) {
+        if (!userId) {
             throw new ValidationError('Invalid user ID');
         }
 
         const reactions = await reactionService.getUserPostReactions(
-            user_id,
-            post_id
+            userId,
+            postId
         );
 
         res.status(200).json(reactions);
@@ -123,24 +123,24 @@ router.get(
 
 // Get current user's reactions to a comment
 router.get(
-    '/:user_id/:comment_id',
+    '/:userId/:commentId',
     async (
-        req: Request<{ user_id: UUIDv7; comment_id: UUIDv7 }, Reaction[]>,
+        req: Request<{ userId: UUIDv7; commentId: UUIDv7 }, Reaction[]>,
         res: Response<Reaction[]>
     ) => {
-        const { user_id, comment_id } = req.params;
+        const { userId, commentId } = req.params;
 
-        if (!user_id) {
+        if (!userId) {
             throw new ValidationError('Missing valid user Id');
         }
 
-        if (!comment_id) {
+        if (!commentId) {
             throw new ValidationError('Missing valid comment Id');
         }
 
         const reactions = await reactionService.getUserCommentReactions(
-            user_id,
-            comment_id
+            userId,
+            commentId
         );
         res.status(200).json(reactions);
     }

@@ -30,12 +30,12 @@ export const runnerService = {
             const runsData = await db
                 .select({
                     id: runs.id,
-                    runner_id: runs.runner_id,
-                    distance_m: runs.distance_m,
-                    completed_at: runs.end_time
+                    runnerId: runs.runnerId,
+                    distance: runs.distance,
+                    completedAt: runs.endTime
                 })
                 .from(runs)
-                .orderBy(desc(runs.end_time))
+                .orderBy(desc(runs.endTime))
                 .limit(20);
 
             if (!runsData.length) {
@@ -48,11 +48,11 @@ export const runnerService = {
                         const runnerData = await db
                             .select({
                                 id: runners.id,
-                                user_id: runners.user_id,
-                                is_pooled: runners.is_pooled
+                                userId: runners.userId,
+                                isPooled: runners.isPooled
                             })
                             .from(runners)
-                            .where(eq(runners.id, run.runner_id))
+                            .where(eq(runners.id, run.runnerId))
                             .limit(1);
 
                         if (!runnerData.length) {
@@ -61,7 +61,7 @@ export const runnerService = {
 
                         const runner = runnerData[0];
 
-                        if (filter === 'pooled' && !runner.is_pooled) {
+                        if (filter === 'pooled' && !runner.isPooled) {
                             return null;
                         }
 
@@ -71,7 +71,7 @@ export const runnerService = {
                                     id: users.id
                                 })
                                 .from(users)
-                                .where(eq(users.privy_id, privyId))
+                                .where(eq(users.privyId, privyId))
                                 .limit(1);
 
                             const userData = await userQuery;
@@ -87,10 +87,10 @@ export const runnerService = {
                                 .from(follows)
                                 .where(
                                     and(
-                                        eq(follows.follower_id, userId),
+                                        eq(follows.followerId, userId),
                                         eq(
-                                            follows.follow_target_id,
-                                            runner.user_id
+                                            follows.followTargetId,
+                                            runner.userId
                                         )
                                     )
                                 )
@@ -104,10 +104,10 @@ export const runnerService = {
                         const userData = await db
                             .select({
                                 username: users.username,
-                                avatar_url: users.avatar_url
+                                avatarUrl: users.avatarUrl
                             })
                             .from(users)
-                            .where(eq(users.id, runner.user_id))
+                            .where(eq(users.id, runner.userId))
                             .limit(1);
 
                         if (!userData.length) {
@@ -117,15 +117,15 @@ export const runnerService = {
                         const user = userData[0];
 
                         return {
-                            id: run.id,
-                            runner_id: runner.id,
+                            id: run.id as UUIDv7,
+                            runnerId: runner.id as UUIDv7,
                             username: user.username,
-                            avatar_url: user.avatar_url,
-                            distance_m: run.distance_m,
-                            completed_at: run.completed_at.toISOString(),
-                            is_pooled: runner.is_pooled,
-                            time_ago: formatDistanceToNow(
-                                new Date(run.completed_at),
+                            avatarUrl: user.avatarUrl,
+                            distance: run.distance,
+                            completedAt: run.completedAt.toISOString(),
+                            isPooled: runner.isPooled,
+                            timeAgo: formatDistanceToNow(
+                                new Date(run.completedAt),
                                 { addSuffix: true }
                             )
                         };
@@ -138,7 +138,8 @@ export const runnerService = {
 
             // Filter out null values and return
             return activitiesWithDetails.filter(
-                (activity): activity is RunnerActivity => activity !== null
+                (activity): activity is NonNullable<typeof activity> =>
+                    activity !== null
             );
         } catch (err) {
             console.error('Error with getRecentActivities ', err);
@@ -165,26 +166,26 @@ export const runnerService = {
             const activities = await db
                 .select({
                     id: runs.id,
-                    runner_id: runners.id,
+                    runnerId: runners.id,
                     username: users.username,
-                    avatar_url: users.avatar_url,
-                    distance_m: runs.distance_m,
-                    completed_at: runs.end_time,
-                    is_pooled: runners.is_pooled
+                    avatarUrl: users.avatarUrl,
+                    distance: runs.distance,
+                    completedAt: runs.endTime,
+                    isPooled: runners.isPooled
                 })
                 .from(runs)
-                .innerJoin(runners, eq(runs.runner_id, runners.id))
-                .innerJoin(users, eq(runners.user_id, users.id))
-                .where(eq(runs.runner_id, runnerId))
-                .orderBy(desc(runs.end_time))
+                .innerJoin(runners, eq(runs.runnerId, runners.id))
+                .innerJoin(users, eq(runners.userId, users.id))
+                .where(eq(runs.runnerId, runnerId))
+                .orderBy(desc(runs.endTime))
                 .limit(10);
 
             return activities.map((activity) => ({
                 ...activity,
                 id: activity.id as UUIDv7,
-                runner_id: activity.runner_id as UUIDv7,
-                completed_at: activity.completed_at.toISOString(),
-                time_ago: formatDistanceToNow(new Date(activity.completed_at), {
+                runnerId: activity.runnerId as UUIDv7,
+                completedAt: activity.completedAt.toISOString(),
+                timeAgo: formatDistanceToNow(new Date(activity.completedAt), {
                     addSuffix: true
                 })
             }));
@@ -198,7 +199,7 @@ export const runnerService = {
 
     getAllRunners: async ({
         search,
-        sortBy = 'total_distance_m',
+        sortBy = 'totalDistance',
         sortOrder = 'desc'
     }: RunnerQueryParams): Promise<RunnerProfile[]> => {
         // Define the valid sort fields type
@@ -215,21 +216,21 @@ export const runnerService = {
             const query = db
                 .select({
                     id: runners.id,
-                    user_id: runners.user_id,
-                    total_distance_m: runners.total_distance_m,
-                    average_pace: runners.average_pace,
-                    total_runs: runners.total_runs,
-                    best_mile_time: runners.best_mile_time,
+                    userId: runners.userId,
+                    totalDistance: runners.totalDistance,
+                    averagePace: runners.averagePace,
+                    totalRuns: runners.totalRuns,
+                    bestMileTime: runners.bestMileTime,
                     status: runners.status,
-                    is_pooled: runners.is_pooled,
-                    runner_wallet: runners.runner_wallet,
+                    isPooled: runners.isPooled,
+                    runnerWallet: runners.runnerWallet,
                     username: users.username,
-                    avatar_url: users.avatar_url,
-                    created_at: runners.created_at,
-                    updated_at: runners.updated_at
+                    avatarUrl: users.avatarUrl,
+                    createdAt: runners.createdAt,
+                    updatedAt: runners.updatedAt
                 })
                 .from(runners)
-                .innerJoin(users, eq(runners.user_id, users.id))
+                .innerJoin(users, eq(runners.userId, users.id))
                 .where(and(...conditions));
 
             const isDesc = sortOrder === 'desc';
@@ -237,11 +238,11 @@ export const runnerService = {
             // Define the valid sort fields
             const validSortFields: ValidSortField[] = [
                 'username',
-                'total_distance_m',
-                'average_pace',
-                'total_runs',
-                'best_mile_time',
-                'created_at'
+                'totalDistance',
+                'averagePace',
+                'totalRuns',
+                'bestMileTime',
+                'createdAt'
             ];
 
             // Type guard to check if the sortBy is valid
@@ -254,16 +255,16 @@ export const runnerService = {
             // Validate and get the sortBy field
             const validSortBy = isValidSortField(sortBy)
                 ? sortBy
-                : 'total_distance_m';
+                : 'totalDistance';
 
             // Map sort fields to their corresponding columns
             const sortColumnMap = {
                 username: users.username,
-                total_distance_m: runners.total_distance_m,
-                average_pace: runners.average_pace,
-                total_runs: runners.total_runs,
-                best_mile_time: runners.best_mile_time,
-                created_at: runners.created_at
+                totalDistance: runners.totalDistance,
+                averagePace: runners.averagePace,
+                totalRuns: runners.totalRuns,
+                bestMileTime: runners.bestMileTime,
+                createdAt: runners.createdAt
             };
 
             // Apply sorting
@@ -274,7 +275,7 @@ export const runnerService = {
             return results.map((runner) => ({
                 ...runner,
                 id: runner.id as UUIDv7,
-                user_id: runner.user_id as UUIDv7
+                userId: runner.userId as UUIDv7
             }));
         } catch (error) {
             console.error('Error with getAllRunners ', error);
@@ -287,7 +288,7 @@ export const runnerService = {
             const userResults = await db
                 .select()
                 .from(users)
-                .where(eq(users.privy_id, privyId))
+                .where(eq(users.privyId, privyId))
                 .limit(1);
 
             if (!userResults.length) {
@@ -297,21 +298,21 @@ export const runnerService = {
             const runnerResults = await db
                 .select({
                     id: runners.id,
-                    user_id: runners.user_id,
-                    total_distance_m: runners.total_distance_m,
-                    average_pace: runners.average_pace,
-                    total_runs: runners.total_runs,
-                    best_mile_time: runners.best_mile_time,
+                    userId: runners.userId,
+                    totalDistance: runners.totalDistance,
+                    averagePace: runners.averagePace,
+                    totalRuns: runners.totalRuns,
+                    bestMileTime: runners.bestMileTime,
                     status: runners.status,
-                    is_pooled: runners.is_pooled,
-                    runner_wallet: runners.runner_wallet,
+                    isPooled: runners.isPooled,
+                    runnerWallet: runners.runnerWallet,
                     username: users.username,
-                    avatar_url: users.avatar_url,
-                    created_at: runners.created_at,
-                    updated_at: runners.updated_at
+                    avatarUrl: users.avatarUrl,
+                    createdAt: runners.createdAt,
+                    updatedAt: runners.updatedAt
                 })
                 .from(runners)
-                .innerJoin(users, eq(runners.user_id, users.id))
+                .innerJoin(users, eq(runners.userId, users.id))
                 .limit(1);
             if (!runnerResults.length) {
                 throw new NotFoundError('Runner not found');
@@ -319,7 +320,7 @@ export const runnerService = {
             return {
                 ...runnerResults[0],
                 id: runnerResults[0].id as UUIDv7,
-                user_id: runnerResults[0].user_id as UUIDv7
+                userId: runnerResults[0].userId as UUIDv7
             };
         } catch (error: unknown) {
             console.error('Error with getRunnerByPrivyId ', error);
@@ -332,21 +333,21 @@ export const runnerService = {
             const runnerResults = await db
                 .select({
                     id: runners.id,
-                    user_id: runners.user_id,
-                    total_distance_m: runners.total_distance_m,
-                    average_pace: runners.average_pace,
-                    total_runs: runners.total_runs,
-                    best_mile_time: runners.best_mile_time,
+                    userId: runners.userId,
+                    totalDistance: runners.totalDistance,
+                    averagePace: runners.averagePace,
+                    totalRuns: runners.totalRuns,
+                    bestMileTime: runners.bestMileTime,
                     status: runners.status,
-                    is_pooled: runners.is_pooled,
-                    runner_wallet: runners.runner_wallet,
+                    isPooled: runners.isPooled,
+                    runnerWallet: runners.runnerWallet,
                     username: users.username,
-                    avatar_url: users.avatar_url,
-                    created_at: runners.created_at,
-                    updated_at: runners.updated_at
+                    avatarUrl: users.avatarUrl,
+                    createdAt: runners.createdAt,
+                    updatedAt: runners.updatedAt
                 })
                 .from(runners)
-                .innerJoin(users, eq(runners.user_id, users.id))
+                .innerJoin(users, eq(runners.userId, users.id))
                 .where(eq(runners.id, runnerId))
                 .limit(1);
 
@@ -357,7 +358,7 @@ export const runnerService = {
             return {
                 ...runnerResults[0],
                 id: runnerResults[0].id as UUIDv7,
-                user_id: runnerResults[0].user_id as UUIDv7
+                userId: runnerResults[0].userId as UUIDv7
             };
         } catch (error: unknown) {
             console.error('Error with getRunnerById ', error);
@@ -372,7 +373,7 @@ export const runnerService = {
             const user = await db
                 .select()
                 .from(users)
-                .where(eq(users.privy_id, privyId))
+                .where(eq(users.privyId, privyId))
                 .limit(1);
 
             if (!user.length) {
@@ -382,7 +383,7 @@ export const runnerService = {
             const runner = await db
                 .select()
                 .from(runners)
-                .where(eq(runners.user_id, user[0].id))
+                .where(eq(runners.userId, user[0].id))
                 .limit(1);
 
             if (runner.length) {
@@ -391,7 +392,7 @@ export const runnerService = {
 
             return {
                 status: runner[0].status,
-                is_pooled: runner[0].is_pooled
+                isPooled: runner[0].isPooled
             };
         } catch (error) {
             console.error('Error with getRunnerStatusByPrivyId ', error);

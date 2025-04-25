@@ -48,7 +48,7 @@ export const metadataService = {
             return {
                 ...runner,
                 id: runner.id as UUIDv7,
-                user_id: runner.user_id as UUIDv7
+                userId: runner.userId as UUIDv7
             };
         } catch (err: unknown) {
             console.error('Error with selectRandomRunner', err);
@@ -90,8 +90,8 @@ export const metadataService = {
             image: imageUrl,
             attributes: [
                 {
-                    runner_id: runner.id,
-                    runner_name: runnerName,
+                    runnerId: runner.id,
+                    runnerName: runnerName,
                     rarity: rarity,
                     multiplier: multiplier,
                     season: 'season_0' as const
@@ -124,8 +124,8 @@ export const metadataService = {
             image: imageUrl,
             attributes: [
                 {
-                    runner_id: runner.id,
-                    runner_name: runnerName,
+                    runnerId: runner.id,
+                    runnerName: runnerName,
                     rarity: rarity,
                     multiplier: multiplier,
                     season: 'season_0' as const

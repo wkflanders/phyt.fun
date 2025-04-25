@@ -32,12 +32,9 @@ router.get(
     ) => {
         const { page = '1', limit = '10', filter } = req.query;
 
-        const privy_id = req.auth?.privy_id;
-        if (!privy_id) {
-            throw new ValidationError('Unauthorized');
-        }
+        const privyId = req.body.privyId;
 
-        const result = await postService.getPosts(privy_id, {
+        const result = await postService.getPosts(privyId, {
             page: parseInt(page as string),
             limit: parseInt(limit as string),
             filter: filter as ('following' | 'trending' | 'all') | undefined
@@ -113,15 +110,15 @@ router.patch(
         req: Request<{ id: UUIDv7 }, Post, { status: PostStatus }>,
         res: Response<Post>
     ) => {
-        const post_id = req.params.id;
-        if (!post_id) {
+        const postId = req.params.id;
+        if (!postId) {
             throw new ValidationError('Invalid post Id');
         }
 
         const { status } = req.body;
 
         // TODO: Add authorization check - user can only update their own posts
-        const post = await postService.updatePostStatus({ post_id, status });
+        const post = await postService.updatePostStatus({ postId, status });
 
         res.status(200).json(post);
     }

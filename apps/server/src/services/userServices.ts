@@ -6,7 +6,7 @@ import {
     users,
     transactions,
     cards,
-    card_metadata,
+    cardMetadata,
     runners
 } from '@phyt/database';
 import {
@@ -38,7 +38,7 @@ export const userService = {
                 const userResults = await db
                     .select()
                     .from(users)
-                    .where(eq(users.privy_id, privyId))
+                    .where(eq(users.privyId, privyId))
                     .limit(1);
 
                 if (userResults.length === 0)
@@ -48,7 +48,7 @@ export const userService = {
                 const [runner] = await db
                     .select()
                     .from(runners)
-                    .where(eq(runners.user_id, user.id));
+                    .where(eq(runners.userId, user.id));
 
                 return {
                     ...user,
@@ -59,7 +59,7 @@ export const userService = {
                 const userResults = await db
                     .select()
                     .from(users)
-                    .where(eq(users.privy_id, privyId))
+                    .where(eq(users.privyId, privyId))
                     .limit(1);
 
                 if (userResults.length === 0)
@@ -84,7 +84,7 @@ export const userService = {
             const userResults = await db
                 .select()
                 .from(users)
-                .where(eq(users.wallet_address, walletAddress))
+                .where(eq(users.walletAddress, walletAddress))
                 .limit(1);
 
             if (userResults.length === 0)
@@ -178,7 +178,7 @@ export const userService = {
             const userResults = await db
                 .select()
                 .from(users)
-                .where(eq(users.privy_id, privyId))
+                .where(eq(users.privyId, privyId))
                 .limit(1);
 
             if (userResults.length === 0)
@@ -190,20 +190,20 @@ export const userService = {
                 .from(transactions)
                 .where(
                     or(
-                        eq(transactions.from_user_id, user.id),
-                        eq(transactions.to_user_id, user.id)
+                        eq(transactions.fromUserId, user.id),
+                        eq(transactions.toUserId, user.id)
                     )
                 )
-                .orderBy(desc(transactions.created_at));
+                .orderBy(desc(transactions.createdAt));
 
             return userTransactions.map((tx) => ({
                 ...tx,
                 id: tx.id as UUIDv7,
-                from_user_id: tx.from_user_id as UUIDv7 | null,
-                to_user_id: tx.to_user_id as UUIDv7 | null,
-                card_id: tx.card_id as UUIDv7 | null,
-                competition_id: tx.competition_id as UUIDv7 | null,
-                pack_purchases_id: tx.pack_purchases_id as UUIDv7 | null
+                fromUserId: tx.fromUserId as UUIDv7 | null,
+                toUserId: tx.toUserId as UUIDv7 | null,
+                cardId: tx.cardId as UUIDv7 | null,
+                competitionId: tx.competitionId as UUIDv7 | null,
+                packPurchaseId: tx.packPurchaseId as UUIDv7 | null
             }));
         } catch (error) {
             console.error('Error with getTransactionsByPrivyId: ', error);
@@ -216,7 +216,7 @@ export const userService = {
             const userResults = await db
                 .select()
                 .from(users)
-                .where(eq(users.privy_id, privyId))
+                .where(eq(users.privyId, privyId))
                 .limit(1);
 
             if (userResults.length === 0)
@@ -227,19 +227,19 @@ export const userService = {
                 .select()
                 .from(cards)
                 .innerJoin(
-                    card_metadata,
-                    eq(cards.token_id, card_metadata.token_id)
+                    cardMetadata,
+                    eq(cards.tokenId, cardMetadata.tokenId)
                 )
-                .where(eq(cards.owner_id, user.id));
+                .where(eq(cards.ownerId, user.id));
 
-            return userCards.map(({ cards, card_metadata }) => ({
+            return userCards.map(({ cards, cardMetadata }) => ({
                 ...cards,
                 id: cards.id as UUIDv7,
-                owner_id: cards.owner_id as UUIDv7,
-                pack_purchase_id: cards.pack_purchase_id as UUIDv7,
+                ownerId: cards.ownerId as UUIDv7,
+                packPurchaseId: cards.packPurchaseId as UUIDv7,
                 metadata: {
-                    ...card_metadata,
-                    runner_id: card_metadata.runner_id as UUIDv7
+                    ...cardMetadata,
+                    runnerId: cardMetadata.runnerId as UUIDv7
                 }
             }));
         } catch (error) {
@@ -251,11 +251,11 @@ export const userService = {
     createUser: async (userData: {
         email: string;
         username: string;
-        privy_id: string;
-        wallet_address: string;
+        privyId: string;
+        walletAddress: string;
         avatarFile?: Express.Multer.File;
     }): Promise<User> => {
-        if (!userData.email || !userData.username || !userData.privy_id) {
+        if (!userData.email || !userData.username || !userData.privyId) {
             throw new ValidationError(
                 'Email, username, and Privy ID are required'
             );
@@ -287,12 +287,12 @@ export const userService = {
             }
 
             // Handle avatar upload if file exists
-            let avatar_url = DEFAULT_AVATAR;
+            let avatarUrl = DEFAULT_AVATAR;
             if (userData.avatarFile) {
                 const fileKey = await s3Service.uploadAvatar(
                     userData.avatarFile.buffer
                 );
-                avatar_url = s3Service.generateAvatarUrl(fileKey);
+                avatarUrl = s3Service.generateAvatarUrl(fileKey);
             }
 
             // Create user record
@@ -301,11 +301,11 @@ export const userService = {
                 .values({
                     email: userData.email,
                     username: userData.username,
-                    privy_id: userData.privy_id,
-                    wallet_address: userData.wallet_address,
-                    avatar_url,
+                    privyId: userData.privyId,
+                    walletAddress: userData.walletAddress,
+                    avatarUrl,
                     role: 'user',
-                    phytness_points: 0
+                    phytnessPoints: 0
                 })
                 .returning();
 

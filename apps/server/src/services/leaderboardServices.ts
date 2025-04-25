@@ -2,8 +2,8 @@ import {
     db,
     eq,
     and,
-    runner_leaderboard,
-    manager_leaderboard,
+    runnerLeaderboard,
+    managerLeaderboard,
     count,
     gte
 } from '@phyt/database';
@@ -60,11 +60,11 @@ export const leaderboardService = {
 
             const leaderboardResults = await db
                 .select()
-                .from(runner_leaderboard)
+                .from(runnerLeaderboard)
                 .where(
                     and(
-                        eq(runner_leaderboard.runner_id, runner.id),
-                        gte(runner_leaderboard.updated_at, startDate)
+                        eq(runnerLeaderboard.runnerId, runner.id),
+                        gte(runnerLeaderboard.updatedAt, startDate)
                     )
                 )
                 .limit(1);
@@ -79,8 +79,8 @@ export const leaderboardService = {
                 id: runner.id,
                 runner: runner,
                 ranking: leaderboardResults[0].ranking,
-                updated_at: runner.updated_at,
-                created_at: runner.created_at
+                updatedAt: runner.updatedAt,
+                createdAt: runner.createdAt
             };
         } catch (error) {
             console.error('Error with getRunnerStanding ', error);
@@ -120,11 +120,11 @@ export const leaderboardService = {
 
             const leaderboardResults = await db
                 .select()
-                .from(manager_leaderboard)
+                .from(managerLeaderboard)
                 .where(
                     and(
-                        eq(manager_leaderboard.user_id, user.id),
-                        gte(manager_leaderboard.updated_at, startDate)
+                        eq(managerLeaderboard.userId, user.id),
+                        gte(managerLeaderboard.updatedAt, startDate)
                     )
                 )
                 .limit(1);
@@ -139,8 +139,8 @@ export const leaderboardService = {
                 id: user.id,
                 user: user,
                 ranking: leaderboardResults[0].ranking,
-                updated_at: user.updated_at,
-                created_at: user.created_at
+                updatedAt: user.updatedAt,
+                createdAt: user.createdAt
             };
         } catch (error) {
             console.error('Error with getManagerStanding ', error);
@@ -175,24 +175,24 @@ export const leaderboardService = {
 
             const leaderboardEntries = await db
                 .select()
-                .from(runner_leaderboard)
-                .where(gte(runner_leaderboard.updated_at, startDate))
-                .orderBy(runner_leaderboard.ranking)
+                .from(runnerLeaderboard)
+                .where(gte(runnerLeaderboard.updatedAt, startDate))
+                .orderBy(runnerLeaderboard.ranking)
                 .limit(limit)
                 .offset(offset);
 
             const results = await Promise.all(
                 leaderboardEntries.map(async (entry) => {
                     const runner = await runnerService.getRunnerById(
-                        entry.runner_id as UUIDv7
+                        entry.runnerId as UUIDv7
                     );
 
                     return {
                         id: runner.id,
                         runner: runner,
                         ranking: entry.ranking,
-                        updated_at: runner.updated_at,
-                        created_at: runner.created_at
+                        updatedAt: runner.updatedAt,
+                        createdAt: runner.createdAt
                     };
                 })
             );
@@ -201,8 +201,8 @@ export const leaderboardService = {
                 .select({
                     value: count()
                 })
-                .from(runner_leaderboard)
-                .where(gte(runner_leaderboard.updated_at, startDate));
+                .from(runnerLeaderboard)
+                .where(gte(runnerLeaderboard.updatedAt, startDate));
 
             return {
                 standings: results,
@@ -246,24 +246,24 @@ export const leaderboardService = {
 
             const leaderboardEntries = await db
                 .select()
-                .from(manager_leaderboard)
-                .where(gte(manager_leaderboard.updated_at, startDate))
-                .orderBy(manager_leaderboard.ranking)
+                .from(managerLeaderboard)
+                .where(gte(managerLeaderboard.updatedAt, startDate))
+                .orderBy(managerLeaderboard.ranking)
                 .limit(limit)
                 .offset(offset);
 
             const results = await Promise.all(
                 leaderboardEntries.map(async (entry) => {
                     const user = await userService.getUserById(
-                        entry.user_id as UUIDv7
+                        entry.userId as UUIDv7
                     );
 
                     return {
                         id: user.id,
                         user: user,
                         ranking: entry.ranking,
-                        updated_at: user.updated_at,
-                        created_at: user.created_at
+                        updatedAt: user.updatedAt,
+                        createdAt: user.createdAt
                     };
                 })
             );
@@ -272,8 +272,8 @@ export const leaderboardService = {
                 .select({
                     value: count()
                 })
-                .from(manager_leaderboard)
-                .where(gte(manager_leaderboard.updated_at, startDate));
+                .from(managerLeaderboard)
+                .where(gte(managerLeaderboard.updatedAt, startDate));
 
             return {
                 standings: results,
@@ -293,7 +293,7 @@ export const leaderboardService = {
     // updateLeaderboards: async () => {
     //     try {
     // await db.transaction(async (tx) => {
-    //     await tx.delete(runner_leaderboard);
+    //     await tx.delete(runnerLeaderboard);
     //     const runnerRankings = await tx
     //         .select({
     //             id: runners.id,
@@ -303,14 +303,14 @@ export const leaderboardService = {
     //         .orderBy(desc(runners.total_distance_m));
     //     // Insert new rankings
     //     await Promise.all(runnerRankings.map((runner, index) =>
-    //         tx.insert(runner_leaderboard).values({
+    //         tx.insert(runnerLeaderboard).values({
     //             runner_id: runner.id,
     //             ranking: index + 1
     //         })
     //     ));
     // });
     // await db.transaction(async (tx) => {
-    //     await tx.delete(manager_leaderboard);
+    //     await tx.delete(managerLeaderboard);
     //     const managerRankings = await tx
     //         .select({
     //             id: users.id,
@@ -319,8 +319,8 @@ export const leaderboardService = {
     //         .where(eq(users.role, 'user'))
     //         .orderBy(desc(users.phytness_points));
     //     await Promise.all(managerRankings.map((user, index) =>
-    //         tx.insert(manager_leaderboard).values({
-    //             user_id: user.id,
+    //         tx.insert(managerLeaderboard).values({
+    //             userId: user.id,
     //             ranking: index + 1
     //         })
     //     ));

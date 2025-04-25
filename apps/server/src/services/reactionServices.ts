@@ -11,36 +11,36 @@ import {
 
 export const reactionService = {
     toggleReaction: async ({
-        user_id,
-        post_id,
-        comment_id,
+        userId,
+        postId,
+        commentId,
         type
     }: ReactionToggleRequest): Promise<ReactionToggleResponse> => {
         try {
-            if (post_id) {
+            if (postId) {
                 const post = await db
                     .select()
                     .from(posts)
                     .where(
-                        and(eq(posts.id, post_id), eq(posts.status, 'visible'))
+                        and(eq(posts.id, postId), eq(posts.status, 'visible'))
                     )
                     .limit(1);
 
                 if (!post.length) {
                     throw new NotFoundError(
-                        `Post with ID ${String(post_id)} not found or is not visible`
+                        `Post with ID ${String(postId)} not found or is not visible`
                     );
                 }
-            } else if (comment_id) {
+            } else if (commentId) {
                 const comment = await db
                     .select()
                     .from(comments)
-                    .where(eq(comments.id, comment_id))
+                    .where(eq(comments.id, commentId))
                     .limit(1);
 
                 if (!comment.length) {
                     throw new NotFoundError(
-                        `Comment with ID ${String(comment_id)} not found`
+                        `Comment with ID ${String(commentId)} not found`
                     );
                 }
             }
@@ -51,10 +51,10 @@ export const reactionService = {
                 .from(reactions)
                 .where(
                     and(
-                        eq(reactions.user_id, user_id),
-                        post_id
-                            ? eq(reactions.post_id, post_id)
-                            : eq(reactions.comment_id, comment_id),
+                        eq(reactions.userId, userId),
+                        postId
+                            ? eq(reactions.postId, postId)
+                            : eq(reactions.commentId, commentId),
                         eq(reactions.type, type)
                     )
                 )
@@ -75,9 +75,9 @@ export const reactionService = {
             const [newReaction] = await db
                 .insert(reactions)
                 .values({
-                    user_id,
-                    post_id,
-                    comment_id,
+                    userId,
+                    postId,
+                    commentId,
                     type
                 })
                 .returning();
@@ -92,7 +92,7 @@ export const reactionService = {
         }
     },
 
-    getPostReactions: async (post_id: UUIDv7): Promise<ReactionCount> => {
+    getPostReactions: async (postId: UUIDv7): Promise<ReactionCount> => {
         try {
             const reactionCounts = await db
                 .select({
@@ -100,7 +100,7 @@ export const reactionService = {
                     value: count()
                 })
                 .from(reactions)
-                .where(eq(reactions.post_id, post_id))
+                .where(eq(reactions.postId, postId))
                 .groupBy(reactions.type);
 
             return reactionCounts.reduce<ReactionCount>(
@@ -116,7 +116,7 @@ export const reactionService = {
         }
     },
 
-    getCommentReactions: async (comment_id: UUIDv7): Promise<ReactionCount> => {
+    getCommentReactions: async (commentId: UUIDv7): Promise<ReactionCount> => {
         try {
             const reactionCounts = await db
                 .select({
@@ -124,7 +124,7 @@ export const reactionService = {
                     value: count()
                 })
                 .from(reactions)
-                .where(eq(reactions.comment_id, comment_id))
+                .where(eq(reactions.commentId, commentId))
                 .groupBy(reactions.type);
 
             return reactionCounts.reduce<ReactionCount>(
@@ -141,8 +141,8 @@ export const reactionService = {
     },
 
     getUserPostReactions: async (
-        user_id: UUIDv7,
-        post_id: UUIDv7
+        userId: UUIDv7,
+        postId: UUIDv7
     ): Promise<Reaction[]> => {
         try {
             const userReactions = await db
@@ -150,8 +150,8 @@ export const reactionService = {
                 .from(reactions)
                 .where(
                     and(
-                        eq(reactions.user_id, user_id),
-                        eq(reactions.post_id, post_id)
+                        eq(reactions.userId, userId),
+                        eq(reactions.postId, postId)
                     )
                 );
 
@@ -163,8 +163,8 @@ export const reactionService = {
     },
 
     getUserCommentReactions: async (
-        user_id: UUIDv7,
-        comment_id: UUIDv7
+        userId: UUIDv7,
+        commentId: UUIDv7
     ): Promise<Reaction[]> => {
         try {
             const userReactions = await db
@@ -172,8 +172,8 @@ export const reactionService = {
                 .from(reactions)
                 .where(
                     and(
-                        eq(reactions.user_id, user_id),
-                        eq(reactions.comment_id, comment_id)
+                        eq(reactions.userId, userId),
+                        eq(reactions.commentId, commentId)
                     )
                 );
 

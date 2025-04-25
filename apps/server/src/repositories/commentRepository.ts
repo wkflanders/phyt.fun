@@ -19,60 +19,60 @@ import {
 
 export interface CommentRepository {
     create(
-        comment_data: Omit<Comment, 'id' | 'created_at' | 'updated_at'>
+        commentData: Omit<Comment, 'id' | 'createdAt' | 'updatedAt'>
     ): Promise<Comment>;
-    findById(comment_id: UUIDv7): Promise<Comment | null>;
+    findById(commentId: UUIDv7): Promise<Comment | null>;
     listForPost(
-        post_id: UUIDv7,
+        postId: UUIDv7,
         params: CommentQueryParams
     ): Promise<CommentResponse>;
     listReplies(
-        parent_comment_id: UUIDv7,
+        parentCommentId: UUIDv7,
         params: CommentQueryParams
     ): Promise<CommentResponse>;
-    update(comment_id: UUIDv7, content: string): Promise<Comment>;
-    remove(comment_id: UUIDv7): Promise<Comment>;
+    update(commentId: UUIDv7, content: string): Promise<Comment>;
+    remove(commentId: UUIDv7): Promise<Comment>;
 }
 
 export const makeCommentRepository = () => {
     const commentRepository: CommentRepository = {
-        create: async (comment_data) => {
+        create: async (commentData) => {
             const [row] = await db
                 .insert(comments)
-                .values(comment_data)
+                .values(commentData)
                 .returning();
             return {
                 ...row,
                 id: row.id as UUIDv7,
-                user_id: row.user_id as UUIDv7,
-                post_id: row.post_id as UUIDv7,
-                parent_comment_id: row.parent_comment_id as UUIDv7 | null
+                userId: row.userId as UUIDv7,
+                postId: row.postId as UUIDv7,
+                parentCommentId: row.parentCommentId as UUIDv7 | null
             };
         },
 
-        findById: async (comment_id) => {
+        findById: async (commentId) => {
             const [row] = await db
                 .select()
                 .from(comments)
-                .where(eq(comments.id, comment_id))
+                .where(eq(comments.id, commentId))
                 .limit(1);
             return {
                 ...row,
                 id: row.id as UUIDv7,
-                user_id: row.user_id as UUIDv7,
-                post_id: row.post_id as UUIDv7,
-                parent_comment_id: row.parent_comment_id as UUIDv7 | null
+                userId: row.userId as UUIDv7,
+                postId: row.postId as UUIDv7,
+                parentCommentId: row.parentCommentId as UUIDv7 | null
             };
         },
 
         listForPost: async (
-            post_id,
-            { page = 1, limit = 20, parent_only = false }
+            postId,
+            { page = 1, limit = 20, parentOnly = false }
         ) => {
             const offset = (page - 1) * limit;
-            const base = eq(comments.post_id, post_id);
-            const where = parent_only
-                ? and(base, isNull(comments.parent_comment_id))
+            const base = eq(comments.postId, postId);
+            const where = parentOnly
+                ? and(base, isNull(comments.parentCommentId))
                 : base;
 
             const rows = await db
@@ -80,13 +80,13 @@ export const makeCommentRepository = () => {
                     comment: comments,
                     user: {
                         username: users.username,
-                        avatar_url: users.avatar_url
+                        avatarUrl: users.avatarUrl
                     }
                 })
                 .from(comments)
-                .innerJoin(users, eq(comments.user_id, users.id))
+                .innerJoin(users, eq(comments.userId, users.id))
                 .where(where)
-                .orderBy(desc(comments.created_at))
+                .orderBy(desc(comments.createdAt))
                 .limit(limit)
                 .offset(offset);
 
@@ -104,14 +104,14 @@ export const makeCommentRepository = () => {
                     comment: {
                         ...comment,
                         id: comment.id as UUIDv7,
-                        user_id: comment.user_id as UUIDv7,
-                        post_id: comment.post_id as UUIDv7,
-                        parent_comment_id:
-                            comment.parent_comment_id as UUIDv7 | null
+                        userId: comment.userId as UUIDv7,
+                        postId: comment.postId as UUIDv7,
+                        parentCommentId:
+                            comment.parentCommentId as UUIDv7 | null
                     },
                     user: {
                         username: user.username,
-                        avatar_url: user.avatar_url
+                        avatarUrl: user.avatarUrl
                     }
                 })),
                 pagination: {
@@ -123,43 +123,43 @@ export const makeCommentRepository = () => {
             };
         },
 
-        listReplies: async (parent_id, params) => {
-            return commentRepository.listForPost(parent_id, {
+        listReplies: async (parentId, params) => {
+            return commentRepository.listForPost(parentId, {
                 ...params,
-                parent_only: false
+                parentOnly: false
             });
         },
 
-        update: async (comment_id, content) => {
+        update: async (commentId, content) => {
             const [row] = await db
                 .update(comments)
-                .set({ content, updated_at: new Date() })
-                .where(eq(comments.id, comment_id))
+                .set({ content, updatedAt: new Date() })
+                .where(eq(comments.id, commentId))
                 .returning();
             return {
                 ...row,
                 id: row.id as UUIDv7,
-                user_id: row.user_id as UUIDv7,
-                post_id: row.post_id as UUIDv7,
-                parent_comment_id: row.parent_comment_id as UUIDv7 | null
+                userId: row.userId as UUIDv7,
+                postId: row.postId as UUIDv7,
+                parentCommentId: row.parentCommentId as UUIDv7 | null
             };
         },
 
-        remove: async (comment_id) => {
+        remove: async (commentId) => {
             const [row] = await db
                 .delete(comments)
-                .where(eq(comments.id, comment_id))
+                .where(eq(comments.id, commentId))
                 .returning();
             if (!row)
                 throw new NotFoundError(
-                    `Error with comment ${String(comment_id)}`
+                    `Error with comment ${String(commentId)}`
                 );
             return {
                 ...row,
                 id: row.id as UUIDv7,
-                user_id: row.user_id as UUIDv7,
-                post_id: row.post_id as UUIDv7,
-                parent_comment_id: row.parent_comment_id as UUIDv7 | null
+                userId: row.userId as UUIDv7,
+                postId: row.postId as UUIDv7,
+                parentCommentId: row.parentCommentId as UUIDv7 | null
             };
         }
     };

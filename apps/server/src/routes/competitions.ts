@@ -63,16 +63,16 @@ router.post(
         res: Response<LineupSubmissionResponse>
     ) => {
         const competitionId = req.params.id;
-        const { user_id, card_ids } = req.body;
+        const { userId, cardIds } = req.body;
 
-        if (!Array.isArray(card_ids) || card_ids.length === 0) {
+        if (!Array.isArray(cardIds) || cardIds.length === 0) {
             throw new ValidationError('Invalid competition ID');
         }
 
         const result = await competitionService.submitLineup(
             competitionId,
-            user_id,
-            card_ids
+            userId,
+            cardIds
         );
         res.status(200).json(result);
     }

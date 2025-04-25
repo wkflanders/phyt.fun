@@ -23,7 +23,7 @@ async function updateUserRole(userId: string, role: UserRole) {
             const existingRunner = await db
                 .select()
                 .from(runners)
-                .where(eq(runners.user_id, userId))
+                .where(eq(runners.userId, userId))
                 .limit(1);
 
             if (existingRunner.length === 0) {
@@ -31,12 +31,12 @@ async function updateUserRole(userId: string, role: UserRole) {
                 const [newRunner] = await db
                     .insert(runners)
                     .values({
-                        user_id: userId,
-                        average_pace: null,
-                        total_distance_m: 0,
-                        total_runs: 0,
-                        best_mile_time: null,
-                        runner_wallet: updatedUser.wallet_address
+                        userId: userId,
+                        averagePace: null,
+                        totalDistance: 0,
+                        totalRuns: 0,
+                        bestMileTime: null,
+                        runnerWallet: updatedUser.walletAddress
                     })
                     .returning();
 

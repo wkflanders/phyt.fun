@@ -7,7 +7,7 @@ import {
     competitions,
     users,
     lineups,
-    lineup_cards,
+    lineupCards,
     cards
 } from '@phyt/database';
 import {
@@ -34,14 +34,14 @@ export const competitionService = {
             if (options.active) {
                 conditions.push(
                     and(
-                        lt(competitions.start_time, now),
-                        gt(competitions.end_time, now)
+                        lt(competitions.startTime, now),
+                        gt(competitions.endTime, now)
                     )
                 );
             }
 
             if (options.type) {
-                conditions.push(eq(competitions.event_type, options.type));
+                conditions.push(eq(competitions.eventType, options.type));
             }
 
             let results;
@@ -50,21 +50,21 @@ export const competitionService = {
                     .select()
                     .from(competitions)
                     .where(and(...conditions))
-                    .orderBy(competitions.start_time);
+                    .orderBy(competitions.startTime);
             } else {
                 results = await db
                     .select()
                     .from(competitions)
-                    .orderBy(competitions.start_time);
+                    .orderBy(competitions.startTime);
             }
 
             return results.map((result) => ({
                 ...result,
                 id: result.id as UUIDv7,
-                start_time: new Date(result.start_time).toISOString(),
-                end_time: new Date(result.end_time).toISOString(),
-                updated_at: new Date(result.updated_at),
-                created_at: new Date(result.created_at),
+                startTime: new Date(result.startTime).toISOString(),
+                endTime: new Date(result.endTime).toISOString(),
+                updatedAt: new Date(result.updatedAt),
+                createdAt: new Date(result.createdAt),
                 jackpot: result.jackpot ?? '0'
             }));
         } catch (error) {
@@ -90,10 +90,10 @@ export const competitionService = {
             return {
                 ...competition,
                 id: competition.id as UUIDv7,
-                start_time: new Date(competition.start_time).toISOString(),
-                end_time: new Date(competition.end_time).toISOString(),
-                updated_at: new Date(competition.updated_at),
-                created_at: new Date(competition.created_at),
+                startTime: new Date(competition.startTime).toISOString(),
+                endTime: new Date(competition.endTime).toISOString(),
+                updatedAt: new Date(competition.updatedAt),
+                createdAt: new Date(competition.createdAt),
                 jackpot: competition.jackpot ?? '0'
             };
         } catch (error) {
@@ -137,8 +137,8 @@ export const competitionService = {
                     .from(lineups)
                     .where(
                         and(
-                            eq(lineups.competition_id, competitionId),
-                            eq(lineups.manager_id, userId)
+                            eq(lineups.competitionId, competitionId),
+                            eq(lineups.managerId, userId)
                         )
                     )
                     .limit(1);
@@ -150,15 +150,15 @@ export const competitionService = {
 
                     // First, delete existing lineup cards
                     await tx
-                        .delete(lineup_cards)
-                        .where(eq(lineup_cards.lineup_id, lineup.id));
+                        .delete(lineupCards)
+                        .where(eq(lineupCards.lineupId, lineup.id));
                 } else {
                     // Create new lineup
                     const [newLineup] = await tx
                         .insert(lineups)
                         .values({
-                            competition_id: competitionId,
-                            manager_id: userId
+                            competitionId: competitionId,
+                            managerId: userId
                         })
                         .returning();
 
@@ -174,10 +174,7 @@ export const competitionService = {
                         .select()
                         .from(cards)
                         .where(
-                            and(
-                                eq(cards.id, cardId),
-                                eq(cards.owner_id, userId)
-                            )
+                            and(eq(cards.id, cardId), eq(cards.ownerId, userId))
                         )
                         .limit(1);
 
@@ -188,9 +185,9 @@ export const competitionService = {
                     }
 
                     // Insert lineup card
-                    await tx.insert(lineup_cards).values({
-                        lineup_id: lineup.id,
-                        card_id: cardId,
+                    await tx.insert(lineupCards).values({
+                        lineupId: lineup.id,
+                        cardId: cardId,
                         position: i + 1
                     });
                 }
@@ -198,7 +195,7 @@ export const competitionService = {
                 return {
                     success: true,
                     message: 'Lineup submitted successfully',
-                    lineup_id: lineup.id as UUIDv7
+                    lineupId: lineup.id as UUIDv7
                 };
             });
         } catch (error) {

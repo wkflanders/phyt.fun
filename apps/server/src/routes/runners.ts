@@ -24,7 +24,7 @@ router.get(
     ) => {
         const { search, sortBy, sortOrder } = {
             search: req.query.search,
-            sortBy: req.query.sortBy ?? 'total_distance_m',
+            sortBy: req.query.sortBy ?? 'totalDistance',
             sortOrder: req.query.sortOrder ?? 'desc'
         };
 
