@@ -316,7 +316,7 @@ export interface Transaction {
     competitionId: UUIDv7 | null;
     price: string | null;
     transactionType: TransactionType;
-    packPurchasesId: UUIDv7 | null;
+    packPurchaseId: UUIDv7 | null;
     hash: string | null;
     createdAt: Date;
     updatedAt: Date;
@@ -546,7 +546,7 @@ export interface GetListingProps {
     minPrice?: string;
     maxPrice?: string;
     rarity?: string[];
-    sort?: 'price_asc' | 'price_desc' | 'created_at';
+    sort?: 'priceAsc' | 'priceDesc' | 'createdAt';
 }
 
 export interface Bid {

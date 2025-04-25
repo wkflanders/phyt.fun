@@ -575,7 +575,7 @@ export const transactions = pgTable(
         price: decimal('price', { precision: ethValuePrecision, scale: 0 }),
         transactionType:
             enumTransactionsTransactionType('transactionType').notNull(),
-        packPurchasesId: text('packPurchasesId').references(
+        packPurchaseId: text('packPurchaseId').references(
             () => packPurchases.id,
             { onDelete: 'set null' }
         ),

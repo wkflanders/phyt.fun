@@ -85,6 +85,13 @@
       "when": 1745512806043,
       "tag": "0011_short_eternals",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1745562668593,
+      "tag": "0012_shiny_enchantress",
+      "breakpoints": true
     }
   ]
 }
