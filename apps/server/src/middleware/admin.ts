@@ -1,23 +1,22 @@
-import { AuthenticationError, PermissionError } from '@phyt/types';
-import { Request, Response, NextFunction } from 'express';
+import { PermissionError } from '@phyt/types';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
 
-import { userService } from '@/services/userServices.js';
+import { env } from '@/env.js';
 
 import { validateAuth } from './auth.js';
 
 export const validateAdmin = [
     validateAuth,
-    async (req: Request, res: Response, next: NextFunction) => {
-        if (!req.auth?.privy_id) {
-            throw new AuthenticationError('Authentication failed for request');
+    (req: Request, res: Response, next: NextFunction): void => {
+        const { privyId } = req.body as { privyId?: string };
+        if (!privyId) {
+            throw new PermissionError('Missing claims payload');
         }
 
-        const user = await userService.getUserByPrivyId(req.auth.privy_id);
-
-        if (user.role !== 'admin') {
+        if (!env.ADMIN_IDS.has(privyId)) {
             throw new PermissionError('Unauthorized');
         }
 
         next();
     }
-];
+] as RequestHandler[];
