@@ -262,7 +262,7 @@ export const cards = pgTable(
         ownerId: text('ownerId')
             .notNull()
             .references(() => users.id, { onDelete: 'set null' }),
-        packPurchaseId: text('pack_purchase_id').references(
+        packPurchaseId: text('packPurchaseId').references(
             () => packPurchases.id,
             { onDelete: 'set null' }
         ),
@@ -295,7 +295,7 @@ export const cardMetadata = pgTable(
         runnerId: text('runnerId')
             .notNull()
             .references(() => runners.id, { onDelete: 'restrict' }),
-        runner_name: varchar('runner_name').notNull(),
+        runnerName: varchar('runnerName').notNull(),
         rarity: enumCardsRarity('rarity').notNull(),
         multiplier: doublePrecision('multiplier').notNull(),
         season: enumSeasons('seasons').notNull(),
@@ -361,8 +361,8 @@ export const lineups = pgTable(
     (table) => [
         index('lineupsCompetitionIdx').on(table.competitionId),
         index('lineupsManagerIdx').on(table.managerId),
-        index('lineupsCreated_atIdx').on(table.createdAt),
-        index('lineupsUpdated_atIdx').on(table.updatedAt)
+        index('lineupsCreatedAtIdx').on(table.createdAt),
+        index('lineupsUpdatedAtIdx').on(table.updatedAt)
     ]
 );
 
@@ -422,8 +422,8 @@ export const runnerResults = pgTable(
         index('runnerResultsCompetitionIdx').on(table.competitionId),
         index('runnerResultsRunnerIdx').on(table.runnerId),
         index('runnerResultsSessionIdx').on(table.sessionId),
-        index('runnerResultsCreated_atIdx').on(table.createdAt),
-        index('runnerResultsUpdated_atIdx').on(table.updatedAt)
+        index('runnerResultsCreatedAtIdx').on(table.createdAt),
+        index('runnerResultsUpdatedAtIdx').on(table.updatedAt)
     ]
 );
 
@@ -479,7 +479,7 @@ export const listings = pgTable(
         highestBidderId: text('highestBidderId').references(() => users.id, {
             onDelete: 'set null'
         }),
-        expiration_time: timestamp('expirationTime', {
+        expirationTime: timestamp('expirationTime', {
             precision: 3
         }).notNull(),
         signature: varchar('signature').notNull(),
@@ -611,7 +611,7 @@ export const userDeviceAuthorizations = pgTable(
         accessToken: varchar('accessToken'),
         refreshToken: varchar('refreshToken'),
         scopes: varchar('scopes'),
-        lastSyncedAt: timestamp('last_syncedAt', { precision: 3 }),
+        lastSyncedAt: timestamp('lastSyncedAt', { precision: 3 }),
         updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull(),
@@ -752,7 +752,7 @@ export const follows = pgTable(
     ]
 );
 
-export const profile_views = pgTable(
+export const profileViews = pgTable(
     'profileViews',
     {
         id: text('id')
