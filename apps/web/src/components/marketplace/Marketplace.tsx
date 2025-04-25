@@ -192,8 +192,8 @@ const Marketplace = () => {
                             <CardContent className="p-0">
                                 <div className="relative w-[200px] h-[300px]">
                                     <Image
-                                        src={marketListing.metadata.image_url}
-                                        alt={`Card ${marketListing.metadata.runner_name}`}
+                                        src={marketListing.metadata.imageUrl}
+                                        alt={`Card ${marketListing.metadata.runnerName}`}
                                         fill
                                         className="object-contain hover:scale-105 transition-transform duration-200"
                                     />
@@ -221,7 +221,7 @@ const Marketplace = () => {
                                         {formatEther(
                                             BigInt(
                                                 marketListing.listing
-                                                    .highest_bid ?? 0
+                                                    .highestBid ?? 0
                                             )
                                         )}{' '}
                                         ETH

@@ -109,15 +109,15 @@ export function useToggleReaction() {
             },
             onSuccess: (_, variables) => {
                 // Invalidate queries for reacting to a post
-                if (variables.post_id) {
+                if (variables.postId) {
                     queryClient.invalidateQueries({
                         queryKey: REACTION_QUERY_KEYS.posts.byId(
-                            variables.post_id
+                            variables.postId
                         )
                     });
                     queryClient.invalidateQueries({
                         queryKey: REACTION_QUERY_KEYS.posts.byUser(
-                            variables.post_id
+                            variables.postId
                         )
                     });
 
@@ -126,20 +126,20 @@ export function useToggleReaction() {
                         queryKey: POST_QUERY_KEYS.all
                     });
                     queryClient.invalidateQueries({
-                        queryKey: POST_QUERY_KEYS.detail(variables.post_id)
+                        queryKey: POST_QUERY_KEYS.detail(variables.postId)
                     });
                 }
 
                 // Invalidate queries for reacting to a comment
-                if (variables.comment_id) {
+                if (variables.commentId) {
                     queryClient.invalidateQueries({
                         queryKey: REACTION_QUERY_KEYS.comments.byId(
-                            variables.comment_id
+                            variables.commentId
                         )
                     });
                     queryClient.invalidateQueries({
                         queryKey: REACTION_QUERY_KEYS.comments.byUser(
-                            variables.comment_id
+                            variables.commentId
                         )
                     });
                 }

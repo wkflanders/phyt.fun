@@ -16,5 +16,5 @@ export async function getMajorCompetitions(
     token: string
 ): Promise<Competition[]> {
     const allCompetitions = await getCompetitions(token);
-    return allCompetitions.filter((comp) => comp.event_type === 'major');
+    return allCompetitions.filter((comp) => comp.eventType === 'major');
 }

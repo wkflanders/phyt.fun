@@ -53,7 +53,7 @@ export async function fetchUserPosts(
 
 // Function to create a new post
 export async function createPost(
-    postData: { run_id: UUIDv7; content: string | null },
+    postData: { runId: UUIDv7; content: string | null },
     token: string
 ): Promise<Post> {
     const response = await api.post<Post>(`/posts`, postData, {
@@ -65,19 +65,15 @@ export async function createPost(
 // Function to update a post's status
 export async function updatePostStatus(
     updatePostData: {
-        post_id: UUIDv7;
+        postId: UUIDv7;
         status: 'visible' | 'hidden' | 'deleted';
     },
     token: string
 ): Promise<Post> {
-    const { post_id, status } = updatePostData;
-    const response = await api.patch<Post>(
-        `/posts/${String(post_id)}`,
-        status,
-        {
-            headers: { Authorization: `Bearer ${token}` }
-        }
-    );
+    const { postId, status } = updatePostData;
+    const response = await api.patch<Post>(`/posts/${String(postId)}`, status, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
     return response.data;
 }
 

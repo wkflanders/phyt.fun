@@ -19,13 +19,13 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 }) => {
     const [copied, setCopied] = useState(false);
 
-    const walletAddress = user?.wallet_address
-        ? `${user.wallet_address.substring(0, 6)}...${user.wallet_address.substring(user.wallet_address.length - 4)}`
+    const walletAddress = user?.walletAddress
+        ? `${user.walletAddress.substring(0, 6)}...${user.walletAddress.substring(user.walletAddress.length - 4)}`
         : 'Error fetching wallet';
 
     const handleCopy = () => {
-        if (user?.wallet_address) {
-            navigator.clipboard.writeText(user.wallet_address);
+        if (user?.walletAddress) {
+            navigator.clipboard.writeText(user.walletAddress);
             setCopied(true);
             setTimeout(() => {
                 setCopied(false);
@@ -40,7 +40,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 <div className="flex items-end">
                     <div className="h-32 w-32 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
                         <Image
-                            src={user?.avatar_url ?? DEFAULT_AVATAR}
+                            src={user?.avatarUrl ?? DEFAULT_AVATAR}
                             alt={user?.username ?? 'User'}
                             width={128}
                             height={128}
@@ -66,9 +66,9 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                         <div className="flex items-center gap-3 mt-4 text-sm">
                             <span className="px-3 py-1 bg-zinc-800/40 text-white-dim border border-white/10">
                                 Joined{' '}
-                                {user?.created_at
+                                {user?.createdAt
                                     ? new Date(
-                                          user.created_at
+                                          user.createdAt
                                       ).toLocaleDateString('en-US', {
                                           month: 'short',
                                           year: 'numeric'
@@ -79,7 +79,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                                 {walletAddress}
                             </span>
                             <span className="px-3 py-1 bg-zinc-800/40 text-white border border-white/10 flex items-center gap-2">
-                                {user?.phytness_points ?? 0}
+                                {user?.phytnessPoints ?? 0}
                                 <Image
                                     src="https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFEiSLtcfUBum8Mgfo1FYyXsrLc3tahDp4Q2JS"
                                     alt="Phytness Points"

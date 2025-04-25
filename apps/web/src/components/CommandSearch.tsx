@@ -123,7 +123,7 @@ export function CommandSearch() {
                                                                 >
                                                                     <Image
                                                                         src={
-                                                                            runner.avatar_url
+                                                                            runner.avatarUrl
                                                                         }
                                                                         alt={
                                                                             runner.username
@@ -187,7 +187,7 @@ export function CommandSearch() {
                                                                     <div className="flex items-center gap-3">
                                                                         <Image
                                                                             src={
-                                                                                runner.avatar_url
+                                                                                runner.avatarUrl
                                                                             }
                                                                             alt={
                                                                                 runner.username

@@ -41,9 +41,9 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
         const searchResults = cards.filter((card) => {
             const searchLower = query.toLowerCase();
             return (
-                card.metadata.runner_name.toLowerCase().includes(searchLower) ||
+                card.metadata.runnerName.toLowerCase().includes(searchLower) ||
                 card.metadata.season.toLowerCase().includes(searchLower) ||
-                card.metadata.token_id.toString().includes(searchLower)
+                card.metadata.tokenId.toString().includes(searchLower)
             );
         });
 
@@ -71,13 +71,13 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                         {
                             cards.filter(
                                 (card) =>
-                                    card.metadata.runner_name
+                                    card.metadata.runnerName
                                         .toLowerCase()
                                         .includes(searchQuery.toLowerCase()) ||
                                     card.metadata.season
                                         .toLowerCase()
                                         .includes(searchQuery.toLowerCase()) ||
-                                    card.metadata.token_id
+                                    card.metadata.tokenId
                                         .toString()
                                         .includes(searchQuery.toLowerCase())
                             ).length

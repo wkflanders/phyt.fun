@@ -43,9 +43,9 @@ export default function OnboardPage() {
 
             // Add additional user data to FormData
             typedFormData.append('email', user.google.email);
-            typedFormData.append('privy_id', user.id);
+            typedFormData.append('privyId', user.id);
             if (user.wallet?.address) {
-                typedFormData.append('wallet_address', user.wallet.address);
+                typedFormData.append('walletAddress', user.wallet.address);
             }
 
             await createUser.mutateAsync({ formData: typedFormData });

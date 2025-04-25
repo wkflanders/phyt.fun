@@ -26,13 +26,13 @@ export default function ProfilePage() {
         if (!searchTerm) return cards;
         return cards.filter(
             (card) =>
-                card.metadata.runner_name
+                card.metadata.runnerName
                     .toLowerCase()
                     .includes(searchTerm.toLowerCase()) ||
                 card.metadata.season
                     .toLowerCase()
                     .includes(searchTerm.toLowerCase()) ||
-                card.metadata.token_id
+                card.metadata.tokenId
                     .toString()
                     .includes(searchTerm.toLowerCase())
         );

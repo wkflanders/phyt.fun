@@ -22,13 +22,13 @@ export const COMMENT_QUERY_KEYS = {
 // Function to fetch comments for a post
 export async function fetchPostComments(
     postId: UUIDv7,
-    { page = 1, limit = 20, parent_only = false }: CommentQueryParams = {},
+    { page = 1, limit = 20, parentOnly = false }: CommentQueryParams = {},
     token: string
 ): Promise<CommentResponse> {
     const response = await api.get<CommentResponse>(
         `/comments/post/${String(postId)}`,
         {
-            params: { page, limit, parent_only },
+            params: { page, limit, parentOnly },
             headers: { Authorization: `Bearer ${token}` }
         }
     );

@@ -174,7 +174,7 @@ const AdminDashboard = () => {
                                                 </TableCell>
                                                 <TableCell className="text-phyt_text">
                                                     {new Date(
-                                                        runner.created_at
+                                                        runner.createdAt
                                                     ).toLocaleDateString()}
                                                 </TableCell>
                                                 <TableCell>
@@ -256,15 +256,14 @@ const AdminDashboard = () => {
                                                 </TableCell>
                                                 <TableCell className="text-phyt_text">
                                                     {(
-                                                        run.run.distance_m /
-                                                        1000
+                                                        run.run.distance / 1000
                                                     ).toFixed(2)}{' '}
                                                     km
                                                 </TableCell>
                                                 <TableCell className="text-phyt_text">
                                                     {new Date(
                                                         run.run
-                                                            .duration_seconds *
+                                                            .durationSeconds *
                                                             1000
                                                     )
                                                         .toISOString()
@@ -272,7 +271,7 @@ const AdminDashboard = () => {
                                                 </TableCell>
                                                 <TableCell className="text-phyt_text">
                                                     {new Date(
-                                                        run.run.created_at
+                                                        run.run.createdAt
                                                     ).toLocaleDateString()}
                                                 </TableCell>
                                                 <TableCell className="space-x-2">

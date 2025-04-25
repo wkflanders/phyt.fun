@@ -133,7 +133,7 @@ export function useUpdatePostStatus() {
             });
             queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.all });
             queryClient.invalidateQueries({
-                queryKey: POST_QUERY_KEYS.detail(variables.post_id)
+                queryKey: POST_QUERY_KEYS.detail(variables.postId)
             });
         },
         onError: (error: ApiError) => {

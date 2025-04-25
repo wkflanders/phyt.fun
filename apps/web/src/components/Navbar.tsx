@@ -50,7 +50,7 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
                     ) : (
                         <div className="flex items-center gap-4 px-4 py-2 transition-colors duration-200 group rounded-xl hover:bg-black/20 hover:cursor-pointer">
                             <span className="font-medium text-md">
-                                {user?.phytness_points ?? 0}
+                                {user?.phytnessPoints ?? 0}
                             </span>
                             <Image
                                 src="https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFEiSLtcfUBum8Mgfo1FYyXsrLc3tahDp4Q2JS"
@@ -70,7 +70,7 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
                     <NotificationsPopover />
                     <div className="w-px h-8 mx-2 bg-white/20"></div>
                     <ProfilePopover
-                        avatarUrl={user?.avatar_url}
+                        avatarUrl={user?.avatarUrl}
                         username={user?.username}
                     />
                 </div>
