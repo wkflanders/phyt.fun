@@ -1,1 +1,0 @@
-ALTER TABLE "runners" ALTER COLUMN "total_distance_m" SET NOT NULL;
