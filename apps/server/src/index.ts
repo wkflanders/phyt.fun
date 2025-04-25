@@ -20,7 +20,7 @@ config();
 console.log('Starting server initialization...');
 
 const app = express();
-const port = env.SERVER_PORT ?? 4000;
+const port = env.SERVER_PORT;
 
 app.use(helmet());
 

@@ -18,7 +18,7 @@ export const env = createEnv({
         BASE_RPC_URL: z.string().min(1).optional(),
         SERVER_ADDRESS: address,
         SERVER_PRIVATE_KEY: address,
-        SERVER_PORT: z.coerce.number().default(3000),
+        SERVER_PORT: z.coerce.number().default(4000),
         ADMIN_IDS: z
             .string()
             .default('')
