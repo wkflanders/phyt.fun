@@ -18,7 +18,19 @@ export const env = createEnv({
         BASE_RPC_URL: z.string().min(1).optional(),
         SERVER_ADDRESS: address,
         SERVER_PRIVATE_KEY: address,
-        SERVER_PORT: z.number().optional(),
+        SERVER_PORT: z.coerce.number().default(3000),
+        ADMIN_IDS: z
+            .string()
+            .default('')
+            .transform(
+                (csv) =>
+                    new Set(
+                        csv
+                            .split(',')
+                            .map((s) => s.trim())
+                            .filter(Boolean)
+                    )
+            ),
         EXECUTOR_ADDRESS: address,
         PHYT_CARDS_ADDRESS: address,
         MINTER_ADDRESS: address,
@@ -34,7 +46,7 @@ export const env = createEnv({
         AWS_CLOUDFRONT_AVATAR_URL: z.string().url(),
         AWS_CLOUDFRONT_AVATAR_URL_KEY_ID: z.string().min(1).optional(),
         AWS_CLOUDFRONT_AVATAR_URL_PRIVATE_KEY: z.string().min(1).optional(),
-        NODE_ENV: z.string().min(1)
+        NODE_ENV: z.enum(['development', 'production', 'test'])
     },
     runtimeEnv: {
         PRIVY_APP_ID: process.env.PRIVY_APP_ID,
@@ -46,6 +58,7 @@ export const env = createEnv({
         SERVER_ADDRESS: process.env.SERVER_ADDRESS,
         SERVER_PRIVATE_KEY: process.env.SERVER_PRIVATE_KEY,
         SERVER_PORT: process.env.SERVER_PORT,
+        ADMIN_IDS: process.env.ADMIN_IDS,
         EXECUTOR_ADDRESS: process.env.EXECUTOR_ADDRESS,
         PHYT_CARDS_ADDRESS: process.env.PHYT_CARDS_ADDRESS,
         MINTER_ADDRESS: process.env.MINTER_ADDRESS,

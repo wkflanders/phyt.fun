@@ -23,6 +23,7 @@
                 "SERVER_ADDRESS",
                 "SERVER_PRIVATE_KEY",
                 "SERVER_PORT",
+                "ADMIN_IDS",
                 "POSTGRES_HOST",
                 "POSTGRES_PORT",
                 "POSTGRES_USER",

@@ -62,10 +62,17 @@
     "editor.formatOnPaste": false,
     "prettier.useEditorConfig": false,
     "prettier.useTabs": false,
-    "editor.detectIndentation": false,
     "eslint.codeActionsOnSave.rules": null,
-    "eslint.useESLintClass": false
+    "eslint.useESLintClass": false,
 
     // For pnpm: tsdk path is also usually resolved correctly. Add if needed.
     // "typescript.tsdk": "node_modules/typescript/lib"
+
+    // Format
+    "editor.autoIndent": "full",
+    "editor.detectIndentation": false,
+    "editor.tabSize": 4,
+    "editor.indentSize": "tabSize",
+    "editor.fontFamily": "JetBrains Mono",
+    "editor.fontLigatures": true
 }
