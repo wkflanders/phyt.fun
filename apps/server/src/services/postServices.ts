@@ -1,42 +1,63 @@
 import {
     UUIDv7,
-    CommentResponse,
-    Comment,
-    CommentCreateRequest,
-    CommentUpdateRequest,
-    CommentQueryParams,
-    NotFoundError,
-    ValidationError
+    PostResponse,
+    Post,
+    PostQueryParams,
+    UpdatePostRequest
 } from '@phyt/types';
 
 import type { PostRepository } from '@/repositories/postRepository.js';
 
-export type {PostService} = ReturnType<typeof makePostService>;
+export type PostService = ReturnType<typeof makePostService>;
 
-export const makePostService = {
-    createPost: async (runId: UUIDv7): Promise<Post> => {},
+export const makePostService = (repo: PostRepository) => {
+    const createPost = async (userId: UUIDv7, runId: UUIDv7): Promise<Post> => {
+        return repo.create(userId, runId);
+    };
 
-    getPostById: async (postId: UUIDv7): Promise<PostResponse> => {},
+    const getPostById = async (postId: UUIDv7): Promise<PostResponse> => {
+        return repo.getById(postId);
+    };
 
-    getPosts: async (
-        privyId: string,
-        { limit = 10, page = 1, filter }: PostQueryParams
-    ): Promise<PostResponse> => {},
-
-    getUserPostsById: async (
+    const getPosts = async (
         userId: UUIDv7,
-        { page = 1, limit = 10 }: { page?: number; limit?: number } = {}
-    ): Promise<PostResponse[]> => {},
+        params: PostQueryParams
+    ): Promise<PostResponse> => {
+        return repo.list(userId, params);
+    };
 
-    getUserPostsByWalletAddress: async (
-        walletAddress: string,
-        { page = 1, limit = 10 }: { page?: number; limit?: number } = {}
-    ): Promise<PostResponse[]> => {},
+    const getUserPostsById = async (
+        userId: UUIDv7,
+        params: PostQueryParams
+    ): Promise<PostResponse> => {
+        return repo.getByUserId(userId, params);
+    };
 
-    updatePostStatus: async ({
-        postId,
-        status
-    }: UpdatePostRequest): Promise<Post> => {},
+    const getUserPostsByWalletAddress = async (
+        walletAddress: `0x${string}`,
+        params: PostQueryParams
+    ): Promise<PostResponse> => {
+        return repo.getByUserWalletAddress(walletAddress, params);
+    };
 
-    deletePost: async (postId: UUIDv7): Promise<Post> => {}
+    const updatePostStatus = async (
+        postData: UpdatePostRequest
+    ): Promise<Post> => {
+        const { postId, status } = postData;
+        return repo.updateStatus(postId, status);
+    };
+
+    const deletePost = async (postId: UUIDv7): Promise<Post> => {
+        return repo.delete(postId);
+    };
+
+    return Object.freeze({
+        createPost,
+        getPosts,
+        getPostById,
+        getUserPostsById,
+        getUserPostsByWalletAddress,
+        updatePostStatus,
+        deletePost
+    });
 };

@@ -22,6 +22,10 @@ export interface PostRepository {
     updateStatus(postId: UUIDv7, status: Post['status']): Promise<Post>;
     delete(postId: UUIDv7): Promise<Post>;
     getByUserId(userId: UUIDv7, params: PostQueryParams): Promise<PostResponse>;
+    getByUserWalletAddress(
+        walletAddress: `0x${string}`,
+        params: PostQueryParams
+    ): Promise<PostResponse>;
     getById(postId: UUIDv7): Promise<PostResponse>;
     list(userId: UUIDv7, params: PostQueryParams): Promise<PostResponse>;
 }
@@ -112,6 +116,94 @@ export const makePostRepository = () => {
                 .select({ value: countFn() })
                 .from(posts)
                 .where(eq(posts.userId, userId));
+
+            return {
+                posts: rows.map((row) => ({
+                    ...row,
+                    post: {
+                        ...row.post,
+                        id: row.post.id as UUIDv7,
+                        userId: row.post.userId as UUIDv7,
+                        runId: row.post.runId as UUIDv7
+                    },
+                    user: {
+                        ...row.user,
+                        avatarUrl: row.user.avatarUrl
+                    }
+                })),
+                pagination: {
+                    page,
+                    limit,
+                    total: Number(total),
+                    totalPages: Math.ceil(Number(total) / limit)
+                }
+            };
+        },
+
+        getByUserWalletAddress: async (walletAddress, params) => {
+            const { page = 1, limit = 10 } = params;
+            const offset = (page - 1) * limit;
+
+            // Find user by wallet address
+            const [user] = await db
+                .select({ id: users.id })
+                .from(users)
+                .where(eq(users.walletAddress, walletAddress))
+                .limit(1);
+
+            if (!user) {
+                return {
+                    posts: [],
+                    pagination: {
+                        page,
+                        limit,
+                        total: 0,
+                        totalPages: 0
+                    }
+                };
+            }
+
+            const rows = await db
+                .select({
+                    post: posts,
+                    user: {
+                        username: users.username,
+                        avatarUrl: users.avatarUrl,
+                        role: users.role,
+                        isPooled: runners.isPooled
+                    },
+                    run: {
+                        distance: runs.distance,
+                        durationSeconds: runs.durationSeconds,
+                        averagePaceSec: runs.averagePaceSec,
+                        gpsRouteData: runs.gpsRouteData,
+                        elevationGain: runs.elevationGain,
+                        startTime: runs.startTime,
+                        endTime: runs.endTime
+                    },
+                    stats: {
+                        comments: countFn(comments.id).as('comments'),
+                        reactions: countFn(reactions.id).as('reactions')
+                    }
+                })
+                .from(posts)
+                .innerJoin(users, eq(posts.userId, users.id))
+                .innerJoin(runners, eq(posts.userId, runners.userId))
+                .innerJoin(runs, eq(posts.runId, runs.id))
+                .leftJoin(comments, eq(comments.postId, posts.id))
+                .leftJoin(reactions, eq(reactions.postId, posts.id))
+                .where(
+                    and(eq(posts.userId, user.id), eq(posts.status, 'visible'))
+                )
+                .groupBy(posts.id, users.id, runs.id, runners.id)
+                .orderBy(desc(posts.createdAt))
+                .limit(limit)
+                .offset(offset);
+
+            const [{ value: total }] = await db
+                .select({ value: countFn() })
+                .from(posts)
+                .where(eq(posts.userId, user.id));
 
             return {
                 posts: rows.map((row) => ({
