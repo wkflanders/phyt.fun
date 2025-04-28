@@ -56,6 +56,9 @@ export const makeCommentRepository = () => {
                 .from(comments)
                 .where(eq(comments.id, commentId))
                 .limit(1);
+
+            if (!row) throw new NotFoundError(`Comment ${commentId} not found`);
+
             return {
                 ...row,
                 id: row.id as UUIDv7,

@@ -30,7 +30,7 @@ export const makeCommentController = (svc: CommentService) => ({
             const data = await svc.getPostComments(req.params.postId, {
                 page: page,
                 limit: limit,
-                parentOnly: Boolean(parentOnly)
+                parentOnly: parentOnly
             });
             res.status(200).json(data);
         }

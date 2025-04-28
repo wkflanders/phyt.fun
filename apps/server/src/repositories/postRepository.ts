@@ -33,7 +33,6 @@ export const makePostRepository = () => {
                 .insert(posts)
                 .values({ userId: userId, runId: runId })
                 .returning();
-            // Cast id, userId, and runId to UUIDv7
             return {
                 ...post,
                 id: post.id as UUIDv7,
@@ -48,7 +47,6 @@ export const makePostRepository = () => {
                 .set({ status, updatedAt: new Date() })
                 .where(eq(posts.id, postId))
                 .returning();
-            // Cast id, userId, and runId to UUIDv7
             return {
                 ...updated,
                 id: updated.id as UUIDv7,
@@ -62,7 +60,6 @@ export const makePostRepository = () => {
                 .delete(posts)
                 .where(eq(posts.id, postId))
                 .returning();
-            // Cast id, userId, and runId to UUIDv7
             return {
                 ...deleted,
                 id: deleted.id as UUIDv7,
@@ -173,9 +170,6 @@ export const makePostRepository = () => {
                 .groupBy(posts.id, users.id, runs.id, runners.id)
                 .limit(1);
 
-            if (!result) {
-                throw new Error(`Post with ID ${String(postId)} not found`);
-            }
             return {
                 posts: [
                     {
