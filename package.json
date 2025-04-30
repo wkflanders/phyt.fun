@@ -4,7 +4,7 @@
     "private": true,
     "scripts": {
         "dev": "turbo dev",
-        "prebuild": "turbo run clean --concurrency=1 && pnpm install --frozen-lockfile",
+        "prebuild": "turbo run clean --concurrency=1 && pnpm install",
         "build": "pnpm run prebuild && turbo run build",
         "lint": "turbo lint",
         "lint:fix": "turbo lint:fix",
