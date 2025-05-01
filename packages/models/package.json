@@ -19,10 +19,8 @@
         "lint:fix": "eslint . --fix",
         "clean": "rm -rf dist .turbo node_modules"
     },
-    "dependencies": {
-        "@phyt/eslint": "workspace:*"
-    },
     "devDependencies": {
+        "@phyt/eslint": "workspace:*",
         "@phyt/tsconfig": "workspace:*"
     }
 }
