@@ -1,0 +1,26 @@
+{
+    "extends": "@phyt/tsconfig/library.json",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "rootDir": ".",
+        "outDir": "dist",
+        "emitDeclarationOnly": true,
+        "moduleResolution": "nodenext",
+        "module": "nodenext",
+        "declaration": true,
+        "declarationMap": true,
+        "strict": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "strictBindCallApply": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "allowImportingTsExtensions": true,
+        "paths": {
+            "@/*": ["./src/*"],
+            "@/*.js": ["./src/*.ts"]
+        }
+    },
+    "include": ["src/**/*", "drizzle.config.ts"],
+    "exclude": ["node_modules", "dist"]
+}
