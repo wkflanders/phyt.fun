@@ -1,0 +1,45 @@
+{
+    "name": "@phyt/drizzle",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "types": "./src/index.ts",
+    "main": "./dist/cjs/index.cjs",
+    "module": "./dist/esm/index.js",
+    "exports": {
+        ".": {
+            "types": "./src/index.ts",
+            "import": "./dist/esm/index.js",
+            "require": "./dist/cjs/index.cjs"
+        }
+    },
+    "scripts": {
+        "build": "tsup src/index.ts --dts --format esm,cjs --out-dir dist",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "clean": "rm -rf dist .turbo node_modules",
+        "db:generate": "drizzle-kit generate",
+        "db:migrate": "drizzle-kit migrate",
+        "db:migrate-reset": "drizzle-kit migrate:reset",
+        "db:push": "drizzle-kit push",
+        "db:reset": "node --loader ts-node/esm src/reset.ts",
+        "db:studio": "drizzle-kit studio",
+        "db:seed": "ts-node src/seed.ts"
+    },
+    "dependencies": {
+        "@t3-oss/env-core": "^0.12.0",
+        "dotenv": "^16.5.0",
+        "drizzle-orm": "^0.39.3",
+        "pg": "^8.14.1",
+        "uuid": "^11.1.0",
+        "zod": "^3.24.3"
+    },
+    "devDependencies": {
+        "@phyt/models": "workspace:*",
+        "@phyt/repositories": "workspace:*",
+        "@phyt/eslint": "workspace:*",
+        "@phyt/tsconfig": "workspace:*",
+        "@types/pg": "^8.11.11",
+        "drizzle-kit": "^0.30.6"
+    }
+}
