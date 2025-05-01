@@ -1,103 +1,19 @@
 {
-  "version": "7",
+  "version": "0",
   "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
       "version": "7",
-      "when": 1743372693223,
-      "tag": "0000_worried_switch",
+      "when": 1746064927861,
+      "tag": "0000_add_uuidv7",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1743382184961,
-      "tag": "0001_soft_squirrel_girl",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1743383460743,
-      "tag": "0002_green_rhodey",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1743392664394,
-      "tag": "0003_wealthy_thunderball",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1743392794341,
-      "tag": "0004_jittery_king_cobra",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1743393015820,
-      "tag": "0005_sparkling_retro_girl",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1743400696685,
-      "tag": "0006_damp_sersi",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1743405683699,
-      "tag": "0007_productive_makkari",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1743420619031,
-      "tag": "0008_neat_black_queen",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "7",
-      "when": 1743469481893,
-      "tag": "0009_parched_whizzer",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "7",
-      "when": 1743592581778,
-      "tag": "0010_puzzling_morlocks",
-      "breakpoints": true
-    },
-    {
-      "idx": 11,
-      "version": "7",
-      "when": 1745512806043,
-      "tag": "0011_short_eternals",
-      "breakpoints": true
-    },
-    {
-      "idx": 12,
-      "version": "7",
-      "when": 1745562668593,
-      "tag": "0012_shiny_enchantress",
-      "breakpoints": true
-    },
-    {
-      "idx": 13,
-      "version": "7",
-      "when": 1745565428966,
-      "tag": "0013_bumpy_mephistopheles",
+      "when": 1746066019568,
+      "tag": "0001_daily_george_stacy",
       "breakpoints": true
     }
   ]
