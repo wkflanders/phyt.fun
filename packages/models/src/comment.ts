@@ -30,9 +30,8 @@ export interface CreateCommentRequest {
     parentCommentId: UUIDv7 | null;
 }
 
-export interface UpdateCommentRequest {
+export interface UpdateCommentContent {
     content: string;
-    commentId: UUIDv7;
 }
 
 export interface CommentResponse {

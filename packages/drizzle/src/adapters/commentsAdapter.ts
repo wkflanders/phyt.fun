@@ -5,7 +5,7 @@ import {
     CommentQueryParams,
     CommentResponse,
     CreateCommentRequest,
-    UpdateCommentRequest,
+    UpdateCommentContent,
     NotFoundError,
     RequestError
 } from '@phyt/models';
@@ -129,11 +129,13 @@ export const makeCommentRepositoryDrizzle = (): CommentRepository => {
         return paginate(filter, params);
     };
 
-    const update = async (updateCommentData: UpdateCommentRequest) => {
-        const { commentId, content } = updateCommentData;
+    const update = async (
+        commentId: UUIDv7,
+        updateContent: UpdateCommentContent
+    ) => {
         const [row] = await db
             .update(comments)
-            .set({ content, updatedAt: new Date() })
+            .set({ content: updateContent.content, updatedAt: new Date() })
             .where(eq(comments.id, commentId))
             .returning();
         return mapCommentRow(row);

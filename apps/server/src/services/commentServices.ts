@@ -3,7 +3,7 @@ import {
     CommentResponse,
     Comment,
     CreateCommentRequest,
-    UpdateCommentRequest,
+    UpdateCommentContent,
     CommentQueryParams,
     NotFoundError,
     ValidationError
@@ -43,8 +43,11 @@ export const makeCommentService = (repo: CommentRepository) => {
         return comment;
     };
 
-    const updateComment = (commentData: UpdateCommentRequest) => {
-        return repo.update(commentData);
+    const updateComment = (
+        commentId: UUIDv7,
+        updateCommentData: UpdateCommentContent
+    ) => {
+        return repo.update(commentId, updateCommentData);
     };
 
     const deleteComment = (commentId: UUIDv7) => {

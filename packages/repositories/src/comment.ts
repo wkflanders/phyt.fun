@@ -2,7 +2,7 @@ import type {
     Comment,
     CommentQueryParams,
     CreateCommentRequest,
-    UpdateCommentRequest,
+    UpdateCommentContent,
     CommentResponse,
     UUIDv7
 } from '@phyt/models';
@@ -18,6 +18,9 @@ export interface CommentRepository {
         parentId: UUIDv7,
         params: CommentQueryParams
     ): Promise<CommentResponse>;
-    update(updateCommentData: UpdateCommentRequest): Promise<Comment>;
+    update(
+        commentId: UUIDv7,
+        updateCommentData: UpdateCommentContent
+    ): Promise<Comment>;
     remove(commentId: UUIDv7): Promise<Comment>;
 }
