@@ -15,14 +15,13 @@ import {
     and,
     isNull,
     desc,
-    sql,
     count,
     InferSelectModel,
     InferInsertModel
 } from 'drizzle-orm';
 
-import { db } from '@/drizzle.ts';
-import { comments, users } from '@/schema.ts';
+import { db } from '@/drizzle.js';
+import { comments, users } from '@/schema.js';
 
 type CommentRow = InferSelectModel<typeof comments>;
 type CommentInsert = InferInsertModel<typeof comments>;
@@ -55,7 +54,7 @@ const mapCommentRow = (row: CommentRow): Comment => {
     };
 };
 
-export const makeCommentRepositoryPg = (): CommentRepository => {
+export const makeCommentRepositoryDrizzle = (): CommentRepository => {
     const paginate = async (
         filterCondition: ReturnType<typeof eq> | ReturnType<typeof and>,
         { page = 1, limit = 20 }: CommentQueryParams
@@ -79,10 +78,15 @@ export const makeCommentRepositoryPg = (): CommentRepository => {
             .orderBy(desc(comments.createdAt))
             .limit(limit)
             .offset(offset);
-        const items = rows.map(({ comment, username, avatarUrl }) => ({
-            comment: mapCommentRow(comment),
-            user: { username: username ?? '', avatarUrl }
-        }));
+        const items = rows.map(({ comment, username, avatarUrl }) => {
+            if (username === null || avatarUrl === null) {
+                throw new NotFoundError('User data missing');
+            }
+            return {
+                comment: mapCommentRow(comment),
+                user: { username, avatarUrl }
+            };
+        });
         const totalPages = Math.ceil(Number(total) / limit);
         return {
             comments: items,
