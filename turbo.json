@@ -52,16 +52,16 @@
             "dependsOn": ["@phyt/eslint#build"],
             "outputs": ["dist/**"]
         },
-        "@phyt/database#build": {
+        "@phyt/drizzle#build": {
             "dependsOn": ["@phyt/types#build"],
             "outputs": ["dist/**"]
         },
         "@phyt/server#build": {
-            "dependsOn": ["@phyt/database#build", "@phyt/contracts#build"],
+            "dependsOn": ["@phyt/drizzle#build", "@phyt/contracts#build"],
             "outputs": ["dist/**"]
         },
         "@phyt/web#build": {
-            "dependsOn": ["@phyt/database#build", "@phyt/server#build"],
+            "dependsOn": ["@phyt/drizzle#build", "@phyt/server#build"],
             "outputs": [".next/**"]
         },
         "type-check": {
