@@ -1,28 +1,25 @@
 import { Router } from 'express';
 
-import { service } from '@/container.js';
-import { makeCommentController } from '@/controllers/commentController.js';
-
-const ctrl = makeCommentController(service.comments);
+import { controller } from '@/container.js';
 
 const router: Router = Router();
 
 // Get comments for a post
-router.get('/post/:postId', ...ctrl.getPostComments);
+router.get('/post/:postId', ...controller.comments.getPostComments);
 
 // Get replies to a comment
-router.get('/replies/:commentId', ...ctrl.getCommentReplies);
+router.get('/replies/:commentId', ...controller.comments.getCommentReplies);
 
 // Get a specific comment by ID
-router.get('/:id', ...ctrl.getCommentById);
+router.get('/:id', ...controller.comments.getCommentById);
 
 // Create a new comment
-router.post('/', ...ctrl.createComment);
+router.post('/', ...controller.comments.createComment);
 
 // Update a comment
-router.patch('/:id', ...ctrl.updateComment);
+router.patch('/:id', ...controller.comments.updateComment);
 
 // Delete a comment
-router.delete('/:id', ...ctrl.deleteComment);
+router.delete('/:id', ...controller.comments.deleteComment);
 
 export { router as commentsRouter };
