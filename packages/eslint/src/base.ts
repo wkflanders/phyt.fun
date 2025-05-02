@@ -27,7 +27,7 @@ export const baseConfig: import('eslint').Linter.Config[] = [
             'packages/eslint/**',
             'packages/contracts/**',
             'packages/contracts/**/*',
-            'packages/database/migrations/**/*'
+            'packages/drizzle/migrations/**/*'
         ]
     },
     eslint.configs.recommended,
