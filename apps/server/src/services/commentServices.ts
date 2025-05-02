@@ -2,20 +2,20 @@ import {
     UUIDv7,
     CommentResponse,
     Comment,
-    CommentCreateRequest,
-    CommentUpdateRequest,
+    CreateCommentRequest,
+    UpdateCommentRequest,
     CommentQueryParams,
     NotFoundError,
     ValidationError
-} from '@phyt/types';
+} from '@phyt/models';
 
-import type { CommentRepository } from '@/repositories/commentRepository.js';
+import type { CommentRepository } from '@phyt/repositories';
 
 export type CommentService = ReturnType<typeof makeCommentService>;
 
 export const makeCommentService = (repo: CommentRepository) => {
     const createComment = async (
-        commentData: CommentCreateRequest
+        commentData: CreateCommentRequest
     ): Promise<Comment> => {
         if (!commentData.content.trim())
             throw new ValidationError('Cannot be empty comment');
@@ -43,9 +43,8 @@ export const makeCommentService = (repo: CommentRepository) => {
         return comment;
     };
 
-    const updateComment = (commentData: CommentUpdateRequest) => {
-        const { commentId, content } = commentData;
-        return repo.update(commentId, content);
+    const updateComment = (commentData: UpdateCommentRequest) => {
+        return repo.update(commentData);
     };
 
     const deleteComment = (commentId: UUIDv7) => {
