@@ -1,4 +1,3 @@
-import { db, users } from '@phyt/database';
 import { MerkleTree } from 'merkletreejs';
 import { keccak256 } from 'viem';
 
