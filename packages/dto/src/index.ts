@@ -1,1 +1,1 @@
-export * as CommentDTO from './comment.js';
+export * from './comment.js';

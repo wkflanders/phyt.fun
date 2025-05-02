@@ -1,7 +1,6 @@
-import { z } from 'zod';
-
-import type {
+import {
     UUIDv7,
+    isUUIDv7,
     Comment,
     CreateCommentRequest,
     UpdateCommentRequest,
@@ -9,77 +8,75 @@ import type {
     CommentPagination,
     CommentResponse
 } from '@phyt/models';
+import { z, ZodType, ZodTypeDef } from 'zod';
+
+type DTOSchema<T> = ZodType<T, ZodTypeDef, unknown>;
 
 const uuidv7 = () =>
-    z
-        .string()
-        .regex(
-            /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
-            'Invalid uuid-v7'
-        ) as unknown as z.ZodType<UUIDv7, z.ZodTypeDef, string>;
+    z.string().refine(isUUIDv7, { message: 'Invalid UUIDv7' }).brand<UUIDv7>();
 
-export const CommentSchema = z
+export const CommentSchema: DTOSchema<Comment> = z
     .object({
         id: uuidv7(),
         postId: uuidv7(),
         userId: uuidv7(),
         parentCommentId: uuidv7().nullable(),
         content: z.string(),
-        createdAt: z.date(),
-        updatedAt: z.date()
+        createdAt: z.coerce.date(),
+        updatedAt: z.coerce.date()
     })
-    .strict() satisfies z.ZodType<Comment, z.ZodTypeDef, unknown>;
+    .strict();
 export type CommentDTO = z.infer<typeof CommentSchema>;
 
-export const CreateCommentSchema = z
+export const CreateCommentSchema: DTOSchema<CreateCommentRequest> = z
     .object({
         userId: uuidv7(),
         postId: uuidv7(),
         content: z.string().min(1).max(10_000),
         parentCommentId: uuidv7().nullable()
     })
-    .strict() satisfies z.ZodType<CreateCommentRequest, z.ZodTypeDef, unknown>;
+    .strict();
 export type CreateCommentDTO = z.infer<typeof CreateCommentSchema>;
 
-export const UpdateCommentSchema = z
+export const UpdateCommentSchema: DTOSchema<UpdateCommentRequest> = z
     .object({
         commentId: uuidv7(),
         content: z.string().min(1).max(10_000)
     })
-    .strict() satisfies z.ZodType<UpdateCommentRequest, z.ZodTypeDef, unknown>;
+    .strict();
 export type UpdateCommentDTO = z.infer<typeof UpdateCommentSchema>;
 
-export const CommentQueryParamsSchema = z
+export const CommentQueryParamsSchema: DTOSchema<CommentQueryParams> = z
     .object({
         page: z.coerce.number().int().positive().default(1),
         limit: z.coerce.number().int().positive().max(100).default(20),
-        parentOnly: z.coerce.boolean().default(true)
+        parentOnly: z.coerce.boolean().default(false)
     })
-    .strict() satisfies z.ZodType<CommentQueryParams, z.ZodTypeDef, unknown>;
+    .strict();
 export type CommentQueryParamsDTO = z.infer<typeof CommentQueryParamsSchema>;
 
-export const CommentPaginationSchema = z
+export const CommentPaginationSchema: DTOSchema<CommentPagination> = z
     .object({
         page: z.number().int().nonnegative(),
         limit: z.number().int().positive(),
         total: z.number().int().nonnegative(),
         totalPages: z.number().int().nonnegative()
     })
-    .strict() satisfies z.ZodType<CommentPagination>;
+    .strict();
 export type CommentPaginationDTO = z.infer<typeof CommentPaginationSchema>;
 
-export const CommentResponseSchema = z
+export const CommentResponseSchema: DTOSchema<CommentResponse> = z
     .object({
         comments: z.array(
             z.object({
                 comment: CommentSchema,
                 user: z.object({
                     username: z.string(),
-                    avatarUrl: z.string().nullable()
+                    avatarUrl: z.string()
                 })
             })
         ),
         pagination: CommentPaginationSchema.optional()
     })
-    .strict() satisfies z.ZodType<CommentResponse, z.ZodTypeDef, unknown>;
+    .strict();
 export type CommentResponseDTO = z.infer<typeof CommentResponseSchema>;
