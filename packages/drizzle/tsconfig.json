@@ -18,7 +18,8 @@
         "allowImportingTsExtensions": true,
         "paths": {
             "@/*": ["./src/*"],
-            "@/*.js": ["./src/*.ts"]
+            "@/drizzle": ["src/drizzle.ts"],
+            "@/schema": ["src/schema.ts"]
         }
     },
     "include": ["src/**/*", "drizzle.config.ts"],
