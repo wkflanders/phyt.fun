@@ -14,12 +14,8 @@
         "strictNullChecks": true,
         "strictBindCallApply": true,
         "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
-        "allowImportingTsExtensions": true,
         "paths": {
-            "@/*": ["./src/*"],
-            "@/drizzle": ["src/drizzle.ts"],
-            "@/schema": ["src/schema.ts"]
+            "@/*": ["./src/*"]
         }
     },
     "include": ["src/**/*", "drizzle.config.ts"],

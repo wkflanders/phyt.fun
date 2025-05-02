@@ -20,8 +20,8 @@ import {
     InferInsertModel
 } from 'drizzle-orm';
 
-import { db } from '@/drizzle';
-import { comments, users } from '@/schema';
+import { db } from '@/drizzle.js';
+import { comments, users } from '@/schema.js';
 
 type CommentRow = InferSelectModel<typeof comments>;
 type CommentInsert = InferInsertModel<typeof comments>;
