@@ -17,11 +17,11 @@
         "db:start": "docker compose start",
         "db:stop": "docker compose stop",
         "db:clean": "docker compose down -v",
-        "db:generate": "pnpm --filter @phyt/database run db:generate",
-        "db:migrate": "pnpm --filter @phyt/database run db:migrate",
-        "db:studio": "pnpm --filter @phyt/database run db:studio",
-        "db:seed": "pnpm --filter @phyt/database run db:seed",
-        "db:reset": "pnpm --filter @phyt/database run db:reset"
+        "db:generate": "pnpm --filter @phyt/drizzle run db:generate",
+        "db:migrate": "pnpm --filter @phyt/drizzle run db:migrate",
+        "db:studio": "pnpm --filter @phyt/drizzle run db:studio",
+        "db:seed": "pnpm --filter @phyt/drizzle run db:seed",
+        "db:reset": "pnpm --filter @phyt/drizzle run db:reset"
     },
     "devDependencies": {
         "@types/node": "^22.14.0",
