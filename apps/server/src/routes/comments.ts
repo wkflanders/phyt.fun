@@ -1,12 +1,9 @@
 import { Router } from 'express';
 
+import { service } from '@/container.js';
 import { makeCommentController } from '@/controllers/commentController.js';
-import { makeCommentRepository } from '@/repositories/commentRepository.js';
-import { makeCommentService } from '@/services/commentServices.js';
 
-const repo = makeCommentRepository();
-const svc = makeCommentService(repo);
-const ctrl = makeCommentController(svc);
+const ctrl = makeCommentController(service.comments);
 
 const router: Router = Router();
 
