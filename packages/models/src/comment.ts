@@ -1,4 +1,4 @@
-import { UUIDv7 } from './primitives.js';
+import { UUIDv7 } from './uuid.js';
 
 export interface Comment {
     id: UUIDv7;
