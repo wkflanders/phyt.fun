@@ -1,19 +1,21 @@
 import {
-    UUIDv7,
-    isUUIDv7,
     Comment,
     CreateCommentRequest,
-    UpdateCommentRequest,
+    UpdateCommentContent,
     CommentQueryParams,
     CommentPagination,
     CommentResponse
 } from '@phyt/models';
 import { z, ZodType, ZodTypeDef } from 'zod';
 
+import { uuidv7 } from './primitives.js';
+
 type DTOSchema<T> = ZodType<T, ZodTypeDef, unknown>;
 
-const uuidv7 = () =>
-    z.string().refine(isUUIDv7, { message: 'Invalid UUIDv7' }).brand<UUIDv7>();
+export const CommentIdSchema = z.object({
+    commentId: uuidv7()
+});
+export type CommentIdDTO = z.infer<typeof CommentIdSchema>;
 
 export const CommentSchema: DTOSchema<Comment> = z
     .object({
@@ -38,9 +40,8 @@ export const CreateCommentSchema: DTOSchema<CreateCommentRequest> = z
     .strict();
 export type CreateCommentDTO = z.infer<typeof CreateCommentSchema>;
 
-export const UpdateCommentSchema: DTOSchema<UpdateCommentRequest> = z
+export const UpdateCommentSchema: DTOSchema<UpdateCommentContent> = z
     .object({
-        commentId: uuidv7(),
         content: z.string().min(1).max(10_000)
     })
     .strict();
@@ -55,7 +56,7 @@ export const CommentQueryParamsSchema: DTOSchema<CommentQueryParams> = z
     .strict();
 export type CommentQueryParamsDTO = z.infer<typeof CommentQueryParamsSchema>;
 
-export const CommentPaginationSchema: DTOSchema<CommentPagination> = z
+const CommentPaginationSchema: DTOSchema<CommentPagination> = z
     .object({
         page: z.number().int().nonnegative(),
         limit: z.number().int().positive(),
@@ -63,9 +64,9 @@ export const CommentPaginationSchema: DTOSchema<CommentPagination> = z
         totalPages: z.number().int().nonnegative()
     })
     .strict();
-export type CommentPaginationDTO = z.infer<typeof CommentPaginationSchema>;
+type CommentPaginationDTO = z.infer<typeof CommentPaginationSchema>;
 
-export const CommentResponseSchema: DTOSchema<CommentResponse> = z
+const CommentResponseSchema: DTOSchema<CommentResponse> = z
     .object({
         comments: z.array(
             z.object({
