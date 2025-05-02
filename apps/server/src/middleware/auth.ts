@@ -1,4 +1,4 @@
-import { AuthenticationError } from '@phyt/types';
+import { AuthenticationError } from '@phyt/models';
 import { Request, Response, NextFunction } from 'express';
 
 import { env } from '@/env.js';

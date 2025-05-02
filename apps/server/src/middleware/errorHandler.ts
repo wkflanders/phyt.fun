@@ -7,8 +7,9 @@ import {
     DatabaseError,
     PackPurchaseError,
     MarketplaceError
-} from '@phyt/types';
+} from '@phyt/models';
 import { Request, Response, NextFunction } from 'express';
+import { ZodError } from 'zod';
 
 import { env } from '@/env.js';
 
@@ -86,6 +87,14 @@ export const errorHandler = (
 
     if (err instanceof MarketplaceError) {
         res.status(500).json({
+            error: err.message,
+            requestId
+        });
+        return;
+    }
+
+    if (err instanceof ZodError) {
+        res.status(400).json({
             error: err.message,
             requestId
         });

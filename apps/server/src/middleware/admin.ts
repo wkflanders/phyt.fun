@@ -1,4 +1,4 @@
-import { PermissionError } from '@phyt/types';
+import { PermissionError } from '@phyt/models';
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 
 import { env } from '@/env.js';
