@@ -1,17 +1,34 @@
-import { Request, Response, NextFunction, RequestHandler } from 'express';
-import { ZodError, ZodSchema } from 'zod';
+import { Request, Response, NextFunction } from 'express';
+import { ParamsDictionary } from 'express-serve-static-core';
+import { ZodType, ZodTypeDef } from 'zod';
 
-export function validateSchema(schema: ZodSchema): RequestHandler {
-    return async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            await schema.parseAsync(req.body);
-            next();
-        } catch (err: unknown) {
-            if (err instanceof ZodError) {
-                res.status(400).json({ errors: err.errors });
-            } else {
-                next(err as Error);
-            }
+type DTOSchema<T> = ZodType<T, ZodTypeDef, unknown>;
+
+export function validateSchema<
+    P extends ParamsDictionary = ParamsDictionary,
+    B = unknown,
+    Q = unknown
+>(
+    paramsSchema?: DTOSchema<P>,
+    bodySchema?: DTOSchema<B>,
+    querySchema?: DTOSchema<Q>
+) {
+    return (req: Request<P, any, B, Q>, res: Response, next: NextFunction) => {
+        if (paramsSchema) {
+            const parsedParams = paramsSchema.parse(req.params);
+            req.params = parsedParams;
         }
+
+        if (bodySchema) {
+            const parsedBody = bodySchema.parse(req.body);
+            req.body = parsedBody;
+        }
+
+        if (querySchema) {
+            const parsedQuery = querySchema.parse(req.query);
+            req.query = parsedQuery;
+        }
+
+        next();
     };
 }
