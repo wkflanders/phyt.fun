@@ -35,13 +35,12 @@ export interface UpdateCommentRequest {
     commentId: UUIDv7;
 }
 
-// Come back to this
 export interface CommentResponse {
     comments: {
         comment: Comment;
         user: {
             username: string;
-            avatarUrl: string | null;
+            avatarUrl: string;
         };
     }[];
     pagination?: CommentPagination;
