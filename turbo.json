@@ -84,10 +84,10 @@
             "dependsOn": ["^type-check"]
         },
         "lint": {
-            "dependsOn": ["type-check", "^lint"]
+            "dependsOn": ["^lint"]
         },
         "lint:fix": {
-            "dependsOn": ["type-check", "^lint:fix"]
+            "dependsOn": ["^lint:fix"]
         },
         "dev": {
             "cache": false,

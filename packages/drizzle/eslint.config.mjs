@@ -17,7 +17,10 @@ export default [
         settings: {
             'import/resolver': {
                 typescript: {
-                    project: path.resolve(__dirname, 'tsconfig.json'),
+                    project: path.resolve(
+                        __dirname,
+                        '../../tsconfig.eslint.json'
+                    ),
                     alwaysTryTypes: true
                 },
                 node: true
