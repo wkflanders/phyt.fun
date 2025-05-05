@@ -89,6 +89,31 @@
         "lint:fix": {
             "dependsOn": ["^lint:fix"]
         },
+        "@phyt/types#lint:fix": {
+            "dependsOn": ["@phyt/eslint#lint:fix"]
+        },
+        "@phyt/models#lint:fix": {
+            "dependsOn": ["@phyt/eslint#lint:fix"]
+        },
+        "@phyt/repositories#lint:fix": {
+            "dependsOn": ["@phyt/models#build"]
+        },
+        "@phyt/dto#lint:fix": {
+            "dependsOn": ["@phyt/models#lint:fix"]
+        },
+        "@phyt/drizzle#lint:fix": {
+            "dependsOn": [
+                "@phyt/models#lint:fix",
+                "@phyt/repositories#lint:fix",
+                "@phyt/dto#lint:fix"
+            ]
+        },
+        "@phyt/web#lint:fix": {
+            "dependsOn": ["@phyt/drizzle#lint:fix", "@phyt/contracts#lint:fix"]
+        },
+        "@phyt/server#lint:fix": {
+            "dependsOn": ["@phyt/drizzle#lint:fix", "@phyt/web#lint:fix"]
+        },
         "dev": {
             "cache": false,
             "persistent": true
