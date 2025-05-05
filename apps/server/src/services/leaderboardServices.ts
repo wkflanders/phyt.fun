@@ -1,3 +1,5 @@
+import { subDays } from 'date-fns';
+
 import {
     db,
     eq,
@@ -16,7 +18,6 @@ import {
     DatabaseError,
     NotFoundError
 } from '@phyt/types';
-import { subDays } from 'date-fns';
 
 import { runnerService } from './runnerServices.js';
 import { userService } from './userServices.js';

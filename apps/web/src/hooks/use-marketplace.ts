@@ -1,8 +1,11 @@
-import { env } from '@/env';
-import { UUIDv7, MarketListing, Order, User, Listing } from '@phyt/types';
 import { usePrivy } from '@privy-io/react-auth';
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAccount } from 'wagmi';
+
+import { UUIDv7, MarketListing, Order, User, Listing } from '@phyt/types';
+
+import { env } from '@/env';
 
 import { useExchange } from './use-exchange';
 import { useToast } from './use-toast';

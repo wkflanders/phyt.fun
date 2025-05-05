@@ -1,6 +1,7 @@
-import { CardWithMetadata, User } from '@phyt/types';
 import Image from 'next/image';
 import React from 'react';
+
+import { CardWithMetadata, User } from '@phyt/types';
 
 import { ListingModal } from '@/components/marketplace/ListingModal';
 import { Card, CardContent } from '@/components/ui/card';

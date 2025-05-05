@@ -1,3 +1,5 @@
+import express, { Router, Request, Response } from 'express';
+
 import {
     UUIDv7,
     CompetitionLineupRequestBody,
@@ -5,7 +7,6 @@ import {
     Competition,
     ValidationError
 } from '@phyt/types';
-import express, { Router, Request, Response } from 'express';
 
 import { validateAuth } from '@/middleware/auth.js';
 import { competitionService } from '@/services/competitionServices.js';

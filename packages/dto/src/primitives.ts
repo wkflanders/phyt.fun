@@ -1,5 +1,6 @@
-import { isUUIDv7 } from '@phyt/models';
 import { z } from 'zod';
+
+import { isUUIDv7 } from '@phyt/models';
 
 export const uuidv7 = () =>
     z

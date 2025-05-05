@@ -1,8 +1,9 @@
 'use client';
 
-import { Loader2, Calendar, TrophyIcon, Layers } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
+
+import { Loader2, Calendar, TrophyIcon, Layers } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { useGetMajorCompetitions } from '@/hooks/use-competitions';

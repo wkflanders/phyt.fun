@@ -1,3 +1,5 @@
+import express, { Request, Response, Router } from 'express';
+
 import {
     UUIDv7,
     ValidationError,
@@ -6,7 +8,6 @@ import {
     RunnerActivity,
     RunnerPoolStatus
 } from '@phyt/types';
-import express, { Request, Response, Router } from 'express';
 
 import { validateAuth } from '@/middleware/auth.js';
 import { runnerService } from '@/services/runnerServices.js';

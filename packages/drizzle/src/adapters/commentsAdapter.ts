@@ -1,4 +1,14 @@
 import {
+    eq,
+    and,
+    isNull,
+    desc,
+    count,
+    InferSelectModel,
+    InferInsertModel
+} from 'drizzle-orm';
+
+import {
     UUIDv7,
     assertUUIDv7,
     Comment,
@@ -10,18 +20,11 @@ import {
     RequestError
 } from '@phyt/models';
 import { CommentRepository } from '@phyt/repositories';
-import {
-    eq,
-    and,
-    isNull,
-    desc,
-    count,
-    InferSelectModel,
-    InferInsertModel
-} from 'drizzle-orm';
 
-import { db } from '@/drizzle.js';
-import { comments, users } from '@/schema.js';
+// eslint-disable-next-line no-restricted-imports
+import { db } from '../drizzle.js';
+// eslint-disable-next-line no-restricted-imports
+import { comments, users } from '../schema.js';
 
 type CommentRow = InferSelectModel<typeof comments>;
 type CommentInsert = InferInsertModel<typeof comments>;

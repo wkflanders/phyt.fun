@@ -1,10 +1,11 @@
 'use client';
 
-import { env } from '@/env';
-import { PrivyProvider } from '@privy-io/react-auth';
-import { WagmiProvider } from '@privy-io/wagmi';
 import React from 'react';
 
+import { PrivyProvider } from '@privy-io/react-auth';
+import { WagmiProvider } from '@privy-io/wagmi';
+
+import { env } from '@/env';
 import { privyConfig } from '@/lib/privyConfig';
 import { config } from '@/lib/wagmi';
 

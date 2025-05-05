@@ -1,9 +1,11 @@
 'use client';
 
-import { ApiError, AuthenticationError } from '@phyt/types';
-import { usePrivy, useLogin } from '@privy-io/react-auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useState } from 'react';
+
+import { usePrivy, useLogin } from '@privy-io/react-auth';
+
+import { ApiError, AuthenticationError } from '@phyt/types';
 
 import { Button } from '@/components/ui/button';
 import { getUser } from '@/queries/user';

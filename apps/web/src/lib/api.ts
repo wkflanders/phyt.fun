@@ -1,6 +1,8 @@
-import { env } from '@/env';
-import { ApiError } from '@phyt/types';
 import axios, { AxiosError } from 'axios';
+
+import { ApiError } from '@phyt/types';
+
+import { env } from '@/env';
 
 interface ErrorResponse {
     error: string;

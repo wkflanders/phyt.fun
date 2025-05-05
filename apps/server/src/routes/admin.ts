@@ -1,3 +1,5 @@
+import express, { Router, Request, Response } from 'express';
+
 import {
     UUIDv7,
     Run,
@@ -5,7 +7,6 @@ import {
     NotFoundError,
     ValidationError
 } from '@phyt/types';
-import express, { Router, Request, Response } from 'express';
 
 import { validateAdmin } from '@/middleware/admin.js';
 import { validateAuth } from '@/middleware/auth.js';

@@ -1,3 +1,7 @@
+import express, { Router, Request, Response } from 'express';
+
+import multer from 'multer';
+
 import {
     NotFoundError,
     Transaction,
@@ -6,8 +10,6 @@ import {
     CreateUserFormData,
     CardWithMetadata
 } from '@phyt/types';
-import express, { Router, Request, Response } from 'express';
-import multer from 'multer';
 
 import { createUserSchema } from '@/lib/validation.js';
 import { validateAuth } from '@/middleware/auth.js';

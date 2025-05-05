@@ -1,11 +1,12 @@
 'use client';
 
-import { useLogout } from '@privy-io/react-auth';
-import { LogOut } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+
+import { useLogout } from '@privy-io/react-auth';
+import { LogOut } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {

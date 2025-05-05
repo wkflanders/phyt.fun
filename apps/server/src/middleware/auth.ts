@@ -1,5 +1,6 @@
-import { AuthenticationError } from '@phyt/models';
 import { Request, Response, NextFunction } from 'express';
+
+import { AuthenticationError } from '@phyt/models';
 
 import { env } from '@/env.js';
 import { privy } from '@/lib/privyClient.js';

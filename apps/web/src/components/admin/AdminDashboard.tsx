@@ -1,3 +1,6 @@
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+
 import { usePrivy } from '@privy-io/react-auth';
 import {
     Users,
@@ -7,8 +10,6 @@ import {
     CheckCircle,
     XCircle
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

@@ -1,3 +1,5 @@
+import { z, ZodType, ZodTypeDef } from 'zod';
+
 import {
     Comment,
     CreateCommentRequest,
@@ -6,7 +8,6 @@ import {
     CommentPagination,
     CommentResponse
 } from '@phyt/models';
-import { z, ZodType, ZodTypeDef } from 'zod';
 
 import { uuidv7 } from './primitives.js';
 

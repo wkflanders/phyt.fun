@@ -1,5 +1,6 @@
-import { UUIDv7 } from '@phyt/types';
 import express, { Router, Request, Response } from 'express';
+
+import { UUIDv7 } from '@phyt/types';
 
 import { validateAuth } from '@/middleware/auth.js';
 import { leaderboardService } from '@/services/leaderboardServices.js';

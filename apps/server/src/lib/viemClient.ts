@@ -1,6 +1,7 @@
-import { createPublicClient, createWalletClient, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { baseSepolia } from 'viem/chains';
+
+import { createPublicClient, createWalletClient, http } from 'viem';
 
 import { env } from '@/env.js';
 

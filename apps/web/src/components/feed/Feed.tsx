@@ -1,6 +1,8 @@
 'use client';
 
-import { cn } from '@/lib/utils';
+import Image from 'next/image';
+import React, { useState } from 'react';
+
 import { formatDistanceToNow } from 'date-fns';
 import {
     Heart,
@@ -13,12 +15,11 @@ import {
     ArrowDown,
     TrendingUp
 } from 'lucide-react';
-import Image from 'next/image';
-import React, { useState } from 'react';
 
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetPosts, useDeletePost } from '@/hooks/use-posts';
 import { useToggleReaction } from '@/hooks/use-reactions';
+import { cn } from '@/lib/utils';
 
 type PostFilter = 'all' | 'following' | 'trending';
 

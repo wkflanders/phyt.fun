@@ -1,6 +1,8 @@
-import { Competition, ApiError, AuthenticationError } from '@phyt/types';
 import { usePrivy } from '@privy-io/react-auth';
+
 import { useQuery } from '@tanstack/react-query';
+
+import { Competition, ApiError, AuthenticationError } from '@phyt/types';
 
 import {
     getCompetitions,

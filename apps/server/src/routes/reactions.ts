@@ -1,3 +1,5 @@
+import express, { Router, Request, Response } from 'express';
+
 import {
     UUIDv7,
     ValidationError,
@@ -6,7 +8,6 @@ import {
     ReactionCount,
     Reaction
 } from '@phyt/types';
-import express, { Router, Request, Response } from 'express';
 
 import { createReactionSchema } from '@/lib/validation.js';
 import { validateAuth } from '@/middleware/auth.js';

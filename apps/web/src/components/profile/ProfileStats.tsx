@@ -1,5 +1,6 @@
-import { CardWithMetadata } from '@phyt/types';
 import React from 'react';
+
+import { CardWithMetadata } from '@phyt/types';
 
 interface ProfileStatsProps {
     cards: CardWithMetadata[];

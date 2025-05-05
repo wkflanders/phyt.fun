@@ -1,7 +1,9 @@
-import { User, CardWithMetadata } from '@phyt/types';
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import Image from 'next/image';
 import React, { useState } from 'react';
+
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+
+import { User, CardWithMetadata } from '@phyt/types';
 
 import { Button } from '@/components/ui/button';
 import {

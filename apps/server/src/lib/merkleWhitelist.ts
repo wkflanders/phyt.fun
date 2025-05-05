@@ -1,4 +1,5 @@
 import { MerkleTree } from 'merkletreejs';
+
 import { keccak256 } from 'viem';
 
 export async function getWhitelistedWallets(): Promise<string[]> {

@@ -1,5 +1,5 @@
-import { cn } from '@/lib/utils';
-import { CardWithMetadata } from '@phyt/types';
+import React from 'react';
+
 import {
     ArrowDown,
     Grid,
@@ -9,9 +9,11 @@ import {
     Flame,
     ArrowUpCircle
 } from 'lucide-react';
-import React from 'react';
+
+import { CardWithMetadata } from '@phyt/types';
 
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface ItemsToolbarProps {
     totalItems: number;

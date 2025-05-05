@@ -1,3 +1,5 @@
+import { formatDistanceToNow } from 'date-fns';
+
 import {
     db,
     eq,
@@ -19,7 +21,6 @@ import {
     RunnerQueryParams,
     RunnerSortFields
 } from '@phyt/types';
-import { formatDistanceToNow } from 'date-fns';
 
 export const runnerService = {
     getRecentActivities: async (

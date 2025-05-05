@@ -1,9 +1,13 @@
-import { CardRarity, Listing, MarketListing } from '@phyt/types';
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
-import { Loader2, Heart, MessageCircle, Share2 } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
+
+import { Loader2, Heart, MessageCircle, Share2 } from 'lucide-react';
+
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+
 import { formatEther } from 'viem';
+
+import { CardRarity, Listing, MarketListing } from '@phyt/types';
 
 import { Button } from '@/components/ui/button';
 import {

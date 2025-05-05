@@ -1,9 +1,10 @@
+import express, { Router, Request, Response } from 'express';
+
 import {
     PackPurchaseNotif,
     TokenURIMetadata,
     MintConfigResponse
 } from '@phyt/types';
-import express, { Router, Request, Response } from 'express';
 
 import { purchasePackSchema } from '@/lib/validation.js';
 import { validateAuth } from '@/middleware/auth.js';

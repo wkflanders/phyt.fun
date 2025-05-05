@@ -1,11 +1,13 @@
+import { usePrivy } from '@privy-io/react-auth';
+
+import { useQuery } from '@tanstack/react-query';
+
 import {
     UUIDv7,
     AuthenticationError,
     RunnerProfile,
     ApiError
 } from '@phyt/types';
-import { usePrivy } from '@privy-io/react-auth';
-import { useQuery } from '@tanstack/react-query';
 
 import {
     getRunners,

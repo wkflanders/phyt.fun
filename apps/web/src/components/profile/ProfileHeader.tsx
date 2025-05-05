@@ -1,7 +1,9 @@
-import { User, CardWithMetadata } from '@phyt/types';
-import { Copy, Check } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
+
+import { Copy, Check } from 'lucide-react';
+
+import { User, CardWithMetadata } from '@phyt/types';
 
 import { ProfileStats } from './ProfileStats';
 

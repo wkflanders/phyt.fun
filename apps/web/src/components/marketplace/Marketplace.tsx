@@ -1,10 +1,13 @@
-import { Listing, MarketListing } from '@phyt/types';
-import { usePrivy } from '@privy-io/react-auth';
-import { Loader2, Filter, ArrowUpDown } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
+
+import { usePrivy } from '@privy-io/react-auth';
+import { Loader2, Filter, ArrowUpDown } from 'lucide-react';
+
 import { formatEther } from 'viem';
 import { useAccount } from 'wagmi';
+
+import { Listing, MarketListing } from '@phyt/types';
 
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import {

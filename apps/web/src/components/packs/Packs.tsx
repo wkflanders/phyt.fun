@@ -1,12 +1,15 @@
 'use client';
 
-import { TokenURIMetadata, PackTypes, PackType } from '@phyt/types';
-import { usePrivy } from '@privy-io/react-auth';
-import { HelpCircle } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
+
+import { usePrivy } from '@privy-io/react-auth';
+import { HelpCircle } from 'lucide-react';
+
 import { parseEther } from 'viem';
 import { useAccount, useBalance } from 'wagmi';
+
+import { TokenURIMetadata, PackTypes, PackType } from '@phyt/types';
 
 import { Button } from '@/components/ui/button';
 import {

@@ -1,13 +1,15 @@
 'use client';
 
-import { cn } from '@/lib/utils';
-import { RunnerActivity } from '@phyt/types';
-import { Zap, Users, ArrowDown, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
 
+import { Zap, Users, ArrowDown, Loader2 } from 'lucide-react';
+
+import { RunnerActivity } from '@phyt/types';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useGetRunnerActivities } from '@/hooks/use-runners';
+import { cn } from '@/lib/utils';
 
 type TabType = 'all' | 'pooled';
 

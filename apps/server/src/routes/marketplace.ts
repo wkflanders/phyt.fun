@@ -1,3 +1,5 @@
+import express, { Request, Router, Response } from 'express';
+
 import {
     UUIDv7,
     CreateListingRequestBody,
@@ -11,7 +13,6 @@ import {
     ListingBid,
     ValidationError
 } from '@phyt/types';
-import express, { Request, Router, Response } from 'express';
 
 import { toStringValue } from '@/lib/utils.js';
 import { openBidSchema, bidSchema, listingSchema } from '@/lib/validation.js';

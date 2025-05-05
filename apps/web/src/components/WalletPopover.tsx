@@ -1,3 +1,5 @@
+import React, { useState } from 'react';
+
 import { usePrivy, useFundWallet } from '@privy-io/react-auth';
 import {
     Wallet,
@@ -12,7 +14,7 @@ import {
     ArrowUp,
     Download
 } from 'lucide-react';
-import React, { useState } from 'react';
+
 import { formatEther } from 'viem';
 import { useAccount, useBalance } from 'wagmi';
 
