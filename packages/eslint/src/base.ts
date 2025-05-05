@@ -1,4 +1,4 @@
-import eslint from '@eslint/js';
+import eslintJs from '@eslint/js';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import turbo from 'eslint-plugin-turbo';
 import tseslint from 'typescript-eslint';
@@ -7,9 +7,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import pluginImport from 'eslint-plugin-import';
 import pluginUnicorn from 'eslint-plugin-unicorn';
+import globals from 'globals';
+import type { Linter } from 'eslint';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 const REPO_ROOT = path.resolve(__dirname, '../../..');
 const ESLINT_TSCONFIG = path.resolve(REPO_ROOT, 'tsconfig.eslint.json');
 
@@ -24,35 +25,27 @@ export const baseConfig: import('eslint').Linter.Config[] = [
             'eslint.config.js',
             'eslint.config.mjs',
             'eslint.config.cjs',
-            'packages/eslint/**',
+            // 'packages/eslint/**',
             'packages/contracts/**',
             'packages/contracts/**/*',
             'packages/drizzle/migrations/**/*'
         ]
     },
-    eslint.configs.recommended,
-    ...tseslint.configs.recommended,
-    ...tseslint.configs.strictTypeChecked,
-    ...tseslint.configs.stylisticTypeChecked,
-    pluginImport.flatConfigs.recommended,
-    {
-        files: ['**/*.{ts,tsx,cts,mts}'],
+    eslintJs.configs.recommended,
+    ...(tseslint.config({
+        files: ['**/*.{ts,tsx,js,jsx,mjs,cjs}'],
+        extends: [
+            ...tseslint.configs.recommendedTypeChecked,
+            ...tseslint.configs.strictTypeChecked,
+            ...tseslint.configs.stylisticTypeChecked
+        ],
         languageOptions: {
-            parser,
+            parser, // Keep the explicit parser if your setup requires it
             parserOptions: {
-                project: [ESLINT_TSCONFIG],
+                project: ESLINT_TSCONFIG,
                 tsconfigRootDir: REPO_ROOT,
                 sourceType: 'module',
                 ecmaVersion: 'latest'
-            }
-        },
-        settings: {
-            'import/resolver': {
-                typescript: {
-                    alwaysTryTypes: true,
-                    project: [ESLINT_TSCONFIG]
-                },
-                node: true
             }
         },
         rules: {
@@ -76,7 +69,24 @@ export const baseConfig: import('eslint').Linter.Config[] = [
                 'off',
                 { argsIgnorePattern: '^_' }
             ],
-            '@typescript-eslint/no-explicit-any': 'off',
+            '@typescript-eslint/no-explicit-any': 'off'
+        }
+    }) as Linter.Config[]),
+    {
+        files: ['**/*.{ts,tsx,js,jsx,mjs,cjs}'],
+        plugins: {
+            import: pluginImport
+        },
+        settings: {
+            'import/resolver': {
+                typescript: {
+                    alwaysTryTypes: true,
+                    project: ESLINT_TSCONFIG
+                },
+                node: true
+            }
+        },
+        rules: {
             'import/order': [
                 'error',
                 {
@@ -89,8 +99,12 @@ export const baseConfig: import('eslint').Linter.Config[] = [
                         'object',
                         'type'
                     ],
-
                     pathGroups: [
+                        {
+                            pattern: '@phyt/**',
+                            group: 'internal',
+                            position: 'before'
+                        },
                         {
                             pattern:
                                 '{react,react-dom,react-dom/**,next,next/**}',
@@ -98,23 +112,12 @@ export const baseConfig: import('eslint').Linter.Config[] = [
                             position: 'before'
                         },
                         {
-                            pattern:
-                                '{express,express/**,node:http,node:https}',
-                            group: 'external',
-                            position: 'before'
-                        },
-                        {
-                            pattern: '@phyt/**',
-                            group: 'internal',
+                            pattern: '{express,express/**,node:*,@node/*}',
+                            group: 'builtin',
                             position: 'before'
                         },
                         {
                             pattern: '@/**',
-                            group: 'internal',
-                            position: 'before'
-                        },
-                        {
-                            pattern: '~/**',
                             group: 'internal',
                             position: 'before'
                         },
@@ -126,11 +129,10 @@ export const baseConfig: import('eslint').Linter.Config[] = [
                         },
                         {
                             pattern:
-                                '{@tanstack/**,zod,jotai,valtio,swr,axios,drizzle-orm/**}',
+                                '{@tanstack/**,zod,jotai,valtio,swr,axios,drizzle-orm/**,viem,wagmi}',
                             group: 'external',
                             position: 'after'
                         },
-
                         {
                             pattern: '{@/components/ui/**,~/*/ui/**}',
                             group: 'internal',
@@ -139,15 +141,11 @@ export const baseConfig: import('eslint').Linter.Config[] = [
                     ],
                     pathGroupsExcludedImportTypes: [
                         'builtin',
-                        'external',
                         'object',
                         'type'
                     ],
                     'newlines-between': 'always',
-                    alphabetize: {
-                        order: 'asc',
-                        caseInsensitive: true
-                    },
+                    alphabetize: { order: 'asc', caseInsensitive: true },
                     warnOnUnassignedImports: true
                 }
             ],
@@ -156,7 +154,7 @@ export const baseConfig: import('eslint').Linter.Config[] = [
                 'error',
                 { noUselessIndex: true }
             ],
-            'import/no-relative-parent-imports': 'off', // Often disabled in monorepos
+            'import/no-relative-parent-imports': 'off',
             'import/consistent-type-specifier-style': [
                 'error',
                 'prefer-top-level'
@@ -170,8 +168,15 @@ export const baseConfig: import('eslint').Linter.Config[] = [
     },
     {
         files: ['**/*.{js,cjs}'],
+        languageOptions: {
+            globals: {
+                ...globals.node,
+                require: 'readonly',
+                module: 'readonly',
+                exports: 'readonly'
+            }
+        },
         rules: {
-            // --- Turn OFF TypeScript-specific rules for JS files ---
             '@typescript-eslint/explicit-module-boundary-types': 'off',
             '@typescript-eslint/no-floating-promises': 'off',
             '@typescript-eslint/no-misused-promises': 'off',
@@ -182,16 +187,8 @@ export const baseConfig: import('eslint').Linter.Config[] = [
             '@typescript-eslint/no-unsafe-return': 'off',
             '@typescript-eslint/dot-notation': 'off',
             '@typescript-eslint/no-unused-vars': 'off',
-            '@typescript-eslint/explicit-function-return-type': 'off',
-
-            'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-            'dot-notation': ['warn', { allowKeywords: true }]
-        }
-    },
-    {
-        files: ['**/*.mjs'],
-        languageOptions: {
-            parser
+            '@typescript-eslint/no-var-requires': 'off',
+            '@typescript-eslint/explicit-function-return-type': 'off'
         }
     },
     {
