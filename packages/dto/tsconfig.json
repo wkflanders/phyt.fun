@@ -2,8 +2,8 @@
 {
     "extends": "@phyt/tsconfig/library.json",
     "compilerOptions": {
-        "rootDir": "src",
         "outDir": "dist",
+        "rootDir": "src",
         "baseUrl": ".",
         "module": "nodenext",
         "moduleResolution": "nodenext"

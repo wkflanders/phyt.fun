@@ -2,8 +2,8 @@
 {
     "extends": "./tsconfig.json",
     "compilerOptions": {
-        "moduleResolution": "node16",
-        "module": "NodeNext",
+        "moduleResolution": "bundler",
+        "module": "esnext",
         "types": ["node"],
         "baseUrl": ".",
         "paths": {
@@ -11,5 +11,18 @@
             "@/*": ["apps/server/src/*", "apps/web/src/*"]
         }
     },
-    "include": ["apps/*/src", "packages/*/src"]
+    "include": [
+        "apps/*/src",
+        "packages/*/src",
+        "apps/*/eslint.config.mjs",
+        "packages/*/eslint.config.mjs",
+        "eslint.config.mjs"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/dist",
+        "**/.turbo",
+        "**/build",
+        "packages/contracts/**/*"
+    ]
 }

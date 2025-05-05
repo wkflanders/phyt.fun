@@ -3,12 +3,11 @@
     "extends": "@phyt/tsconfig/base.json",
     "compilerOptions": {
         "outDir": "dist",
-        "resolveJsonModule": true,
-        "esModuleInterop": true,
-        "baseUrl": ".",
         "module": "nodenext",
         "moduleResolution": "nodenext",
-        "noErrorTruncation": true,
+        "baseUrl": ".",
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
         "paths": {
             "@/*": ["./src/*"]
         }
