@@ -3,6 +3,8 @@ import { fileURLToPath } from 'node:url';
 import { serverConfig } from '@phyt/eslint';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = path.resolve(__dirname, '../..');
+const ESLINT_TSCONFIG = path.resolve(REPO_ROOT, 'tsconfig.eslint.json');
 
 /** @type {import("eslint").Linter.Config} */
 export default [
@@ -10,36 +12,26 @@ export default [
     {
         languageOptions: {
             parserOptions: {
-                // use root ESLint tsconfig for workspace-wide resolution
-                project: path.resolve(__dirname, '../../tsconfig.eslint.json')
+                project: ESLINT_TSCONFIG,
+                tsconfigRootDir: REPO_ROOT
             }
         },
         settings: {
             'import/resolver': {
                 typescript: {
-                    // use root tsconfig for resolving workspace packages
-                    project: path.resolve(
-                        __dirname,
-                        '../../tsconfig.eslint.json'
-                    ),
+                    project: ESLINT_TSCONFIG,
                     alwaysTryTypes: true
                 },
-                // also allow Node module resolution
                 node: true
             }
         }
     },
     {
-        // allow console statements in scripts
         files: ['src/scripts/**/*.ts'],
-        rules: {
-            'no-console': 'off'
-        }
+        rules: { 'no-console': 'off' }
     },
     {
         files: ['src/services/**/*.ts'],
-        rules: {
-            'no-console': ['error', { allow: ['error', 'warn', 'log'] }]
-        }
+        rules: { 'no-console': ['error', { allow: ['error', 'warn', 'log'] }] }
     }
 ];

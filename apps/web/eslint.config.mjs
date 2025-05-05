@@ -1,20 +1,21 @@
 import { nextConfig } from '@phyt/eslint';
-import next from 'next';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const LOCAL_TSCONFIG = path.resolve(__dirname, 'tsconfig.json');
 
 /** @type {import("eslint").Linter.Config} */
 export default [
     ...nextConfig,
     {
+        files: ['**/*.{ts,tsx}'],
         languageOptions: {
             parserOptions: {
-                // use root ESLint tsconfig for workspace-wide resolution
-                project: [path.resolve(__dirname, 'tsconfig.json')],
-                tsconfigRootDir: path.resolve(__dirname)
+                project: LOCAL_TSCONFIG,
+                tsconfigRootDir: __dirname
             }
         }
+        // Shared config should handle resolver based on root tsconfig.eslint.json
     }
 ];

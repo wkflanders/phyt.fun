@@ -1,36 +1,29 @@
+import { baseConfig } from '@phyt/eslint';
 import path from 'node:path';
-import { drizzleConfig } from '@phyt/eslint';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = path.resolve(__dirname, '../..');
+const ESLINT_TSCONFIG = path.resolve(REPO_ROOT, 'tsconfig.eslint.json');
 
 /** @type {import("eslint").Linter.Config} */
 export default [
-    ...drizzleConfig,
+    ...baseConfig,
     {
         languageOptions: {
             parserOptions: {
-                project: path.resolve(__dirname, 'tsconfig.json'),
-                tsconfigRootDir: __dirname
+                project: ESLINT_TSCONFIG,
+                tsconfigRootDir: REPO_ROOT
             }
         },
         settings: {
             'import/resolver': {
                 typescript: {
-                    project: path.resolve(
-                        __dirname,
-                        '../../tsconfig.eslint.json'
-                    ),
+                    project: ESLINT_TSCONFIG,
                     alwaysTryTypes: true
                 },
                 node: true
             }
-        }
-    },
-    {
-        files: ['src/scripts/**/*.ts'],
-        rules: {
-            'no-console': 'off'
         }
     }
 ];
