@@ -1,6 +1,6 @@
-import { UUIDv7 } from './primitives.js';
+import { UUIDv7 } from './core.js';
 export * from './comment.js';
-export * from './primitives.js';
+export * from './core.js';
 
 export type CardRarity =
     | 'bronze'

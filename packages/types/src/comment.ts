@@ -1,4 +1,4 @@
-import { UUIDv7, Pagination } from './primitives.js';
+import { UUIDv7, Pagination } from './core.js';
 
 export interface Comment {
     id: UUIDv7;
