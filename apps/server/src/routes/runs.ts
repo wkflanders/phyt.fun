@@ -1,220 +1,222 @@
-// // src/routes/runs.ts
-// import {
-//     UUIDv7,
-//     NotFoundError,
-//     RunnerApplicationStatus,
-//     Run,
-//     Post,
-//     RunVerificationStatus
-// } from '@phyt/types';
-// import express, { Router, Request, Response } from 'express';
-// import { z } from 'zod';
+// src/routes/runs.ts
+import express, { Router, Request, Response } from 'express';
 
-// import { workoutSchema, createPostSchema } from '@/lib/validation.js';
-// import { validateAuth } from '@/middleware/auth.js';
-// import { validateSchema } from '@/middleware/validator.js';
-// // import { postService } from '@/services/postServices.js';
-// import { runService } from '@/services/runServices.js';
+import { z } from 'zod';
 
-// const router: Router = express.Router();
+import {
+    UUIDv7,
+    NotFoundError,
+    RunnerApplicationStatus,
+    Run,
+    Post,
+    RunVerificationStatus
+} from '@phyt/types';
 
-// router.use(validateAuth);
+import { workoutSchema, createPostSchema } from '@/lib/validation.js';
+import { validateAuth } from '@/middleware/auth.js';
+import { validateSchema } from '@/middleware/validator.js';
+// import { postService } from '@/services/postServices.js';
+import { runService } from '@/services/runServices.js';
 
-// // Apply to be a runner
-// router.post(
-//     '/apply/:privyId',
-//     async (
-//         req: Request<
-//             { privyId: string },
-//             RunnerApplicationStatus,
-//             { workouts: Run[] }
-//         >,
-//         res: Response<RunnerApplicationStatus>
-//     ) => {
-//         const { privyId } = req.params;
+const router: Router = express.Router();
 
-//         if (!privyId) {
-//             throw new NotFoundError('Missing valid Id');
-//         }
+router.use(validateAuth);
 
-//         const workouts = req.body.workouts;
+// Apply to be a runner
+router.post(
+    '/apply/:privyId',
+    async (
+        req: Request<
+            { privyId: string },
+            RunnerApplicationStatus,
+            { workouts: Run[] }
+        >,
+        res: Response<RunnerApplicationStatus>
+    ) => {
+        const { privyId } = req.params;
 
-//         const result = await runService.processRunnerApplication({
-//             privyId,
-//             workouts
-//         });
+        if (!privyId) {
+            throw new NotFoundError('Missing valid Id');
+        }
 
-//         switch (result) {
-//             case 'success':
-//                 res.status(200).json('success');
-//                 break;
-//             case 'alreadyRunner':
-//                 res.status(200).json('alreadyRunner');
-//                 break;
-//             default:
-//                 res.status(200).json('alreadySubmitted');
-//                 break;
-//         }
-//     }
-// );
+        const workouts = req.body.workouts;
 
-// // Get all runs by a runner
-// router.get(
-//     '/:runnerId',
-//     async (req: Request<{ runnerId: UUIDv7 }, Run[]>, res: Response<Run[]>) => {
-//         const runnerId = req.params.runnerId;
+        const result = await runService.processRunnerApplication({
+            privyId,
+            workouts
+        });
 
-//         if (!runnerId) {
-//             throw new NotFoundError('Invalid runner Id');
-//         }
+        switch (result) {
+            case 'success':
+                res.status(200).json('success');
+                break;
+            case 'alreadyRunner':
+                res.status(200).json('alreadyRunner');
+                break;
+            default:
+                res.status(200).json('alreadySubmitted');
+                break;
+        }
+    }
+);
 
-//         const runs = await runService.getRunnerRuns(runnerId);
-//         res.status(200).json(runs);
-//     }
-// );
+// Get all runs by a runner
+router.get(
+    '/:runnerId',
+    async (req: Request<{ runnerId: UUIDv7 }, Run[]>, res: Response<Run[]>) => {
+        const runnerId = req.params.runnerId;
 
-// // Get a single run by Id
-// router.get(
-//     '/:runId',
-//     async (req: Request<{ runId: UUIDv7 }, Run>, res: Response<Run>) => {
-//         const runId = req.params.runId;
+        if (!runnerId) {
+            throw new NotFoundError('Invalid runner Id');
+        }
 
-//         if (!runId) {
-//             throw new NotFoundError('Invalid run Id');
-//         }
+        const runs = await runService.getRunnerRuns(runnerId);
+        res.status(200).json(runs);
+    }
+);
 
-//         const run = await runService.getRunById(runId);
-//         res.status(200).json(run);
-//     }
-// );
+// Get a single run by Id
+router.get(
+    '/:runId',
+    async (req: Request<{ runId: UUIDv7 }, Run>, res: Response<Run>) => {
+        const runId = req.params.runId;
 
-// // Submit batch workouts
-// router.post(
-//     '/batch/:privyId',
-//     validateSchema(z.array(workoutSchema)),
-//     async (
-//         req: Request<{ privyId: string }, Run[], { workouts: Run[] }>,
-//         res: Response<Run[]>
-//     ) => {
-//         const { privyId } = req.params;
+        if (!runId) {
+            throw new NotFoundError('Invalid run Id');
+        }
 
-//         if (!privyId) {
-//             throw new NotFoundError('Missing valid Id');
-//         }
+        const run = await runService.getRunById(runId);
+        res.status(200).json(run);
+    }
+);
 
-//         const workouts = req.body.workouts;
+// Submit batch workouts
+router.post(
+    '/batch/:privyId',
+    validateSchema(z.array(workoutSchema)),
+    async (
+        req: Request<{ privyId: string }, Run[], { workouts: Run[] }>,
+        res: Response<Run[]>
+    ) => {
+        const { privyId } = req.params;
 
-//         const results = await runService.createRunsBatchByPrivyId({
-//             privyId,
-//             workouts
-//         });
+        if (!privyId) {
+            throw new NotFoundError('Missing valid Id');
+        }
 
-//         res.status(200).json(results);
-//     }
-// );
+        const workouts = req.body.workouts;
 
-// // Submit and post a run as its completed
-// router.post(
-//     '/single/:privyId',
-//     validateSchema(workoutSchema),
-//     async (
-//         req: Request<
-//             { privyId: string },
-//             { run: Run; post: Post | null },
-//             { toPost: boolean; workout: Run }
-//         >,
-//         res: Response<{ run: Run; post: Post | null }>
-//     ) => {
-//         const { privyId } = req.params;
+        const results = await runService.createRunsBatchByPrivyId({
+            privyId,
+            workouts
+        });
 
-//         if (!privyId) {
-//             throw new NotFoundError('Missing valid Id');
-//         }
+        res.status(200).json(results);
+    }
+);
 
-//         const { toPost, workout } = req.body;
+// Submit and post a run as its completed
+router.post(
+    '/single/:privyId',
+    validateSchema(workoutSchema),
+    async (
+        req: Request<
+            { privyId: string },
+            { run: Run; post: Post | null },
+            { toPost: boolean; workout: Run }
+        >,
+        res: Response<{ run: Run; post: Post | null }>
+    ) => {
+        const { privyId } = req.params;
 
-//         const run = await runService.createRunByPrivyId({
-//             privyId,
-//             workout
-//         });
+        if (!privyId) {
+            throw new NotFoundError('Missing valid Id');
+        }
 
-//         let createdPost = null;
-//         if (toPost) {
-//             createdPost = await postService.createPost(run.id);
+        const { toPost, workout } = req.body;
 
-//             await runService.markRunAsPosted(run.id);
-//         }
+        const run = await runService.createRunByPrivyId({
+            privyId,
+            workout
+        });
 
-//         res.status(201).json({ run, post: createdPost });
-//     }
-// );
+        let createdPost = null;
+        if (toPost) {
+            createdPost = await postService.createPost(run.id);
 
-// // Post an already completed run
-// router.post(
-//     '/:runId/post',
-//     validateSchema(createPostSchema),
-//     async (req: Request<{ runId: UUIDv7 }, Post>, res: Response<Post>) => {
-//         const runId = req.params.runId;
+            await runService.markRunAsPosted(run.id);
+        }
 
-//         if (!runId) {
-//             throw new NotFoundError('Invalid run Id');
-//         }
+        res.status(201).json({ run, post: createdPost });
+    }
+);
 
-//         const createdPost = await postService.createPost(runId);
+// Post an already completed run
+router.post(
+    '/:runId/post',
+    validateSchema(createPostSchema),
+    async (req: Request<{ runId: UUIDv7 }, Post>, res: Response<Post>) => {
+        const runId = req.params.runId;
 
-//         await runService.markRunAsPosted(runId);
+        if (!runId) {
+            throw new NotFoundError('Invalid run Id');
+        }
 
-//         res.status(201).json(createdPost);
-//     }
-// );
+        const createdPost = await postService.createPost(runId);
 
-// // Update run verification status
-// router.patch(
-//     '/:runId/verify',
-//     validateSchema(
-//         z.object({
-//             status: z.enum(['pending', 'verified', 'flagged'])
-//         })
-//     ),
-//     async (
-//         req: Request<{ runId: UUIDv7 }, Run, { status: RunVerificationStatus }>,
-//         res: Response<Run>
-//     ) => {
-//         const runId = req.params.runId;
+        await runService.markRunAsPosted(runId);
 
-//         if (!runId) {
-//             throw new NotFoundError('Invalid run Id');
-//         }
+        res.status(201).json(createdPost);
+    }
+);
 
-//         const { status } = req.body;
+// Update run verification status
+router.patch(
+    '/:runId/verify',
+    validateSchema(
+        z.object({
+            status: z.enum(['pending', 'verified', 'flagged'])
+        })
+    ),
+    async (
+        req: Request<{ runId: UUIDv7 }, Run, { status: RunVerificationStatus }>,
+        res: Response<Run>
+    ) => {
+        const runId = req.params.runId;
 
-//         if (!status.length) {
-//             throw new NotFoundError('Initial run status missing');
-//         }
+        if (!runId) {
+            throw new NotFoundError('Invalid run Id');
+        }
 
-//         const updatedRun = await runService.updateRunVerificationStatus({
-//             runId,
-//             status
-//         });
+        const { status } = req.body;
 
-//         res.status(200).json(updatedRun);
-//     }
-// );
+        if (!status.length) {
+            throw new NotFoundError('Initial run status missing');
+        }
 
-// // Delete a run
-// router.delete(
-//     '/:runId',
-//     async (req: Request<{ runId: UUIDv7 }, Run>, res: Response<Run>) => {
-//         const runId = req.params.runId;
+        const updatedRun = await runService.updateRunVerificationStatus({
+            runId,
+            status
+        });
 
-//         if (!runId) {
-//             throw new NotFoundError('Invalid run Id');
-//         }
+        res.status(200).json(updatedRun);
+    }
+);
 
-//         const deletedRun = await runService.deleteRun(runId);
+// Delete a run
+router.delete(
+    '/:runId',
+    async (req: Request<{ runId: UUIDv7 }, Run>, res: Response<Run>) => {
+        const runId = req.params.runId;
 
-//         res.status(200).json(deletedRun);
-//     }
-// );
+        if (!runId) {
+            throw new NotFoundError('Invalid run Id');
+        }
 
-// export { router as runRouter };
+        const deletedRun = await runService.deleteRun(runId);
+
+        res.status(200).json(deletedRun);
+    }
+);
+
+export { router as runRouter };

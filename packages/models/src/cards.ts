@@ -1,5 +1,5 @@
 import { CardRarity, AcquisitionType, SeasonCollection } from './metadata.js';
-import { UUIDv7 } from './uuid.js';
+import { UUIDv7 } from './primitives.js';
 
 export interface Card {
     id: UUIDv7;
@@ -23,4 +23,19 @@ export interface TokenURIMetadata {
         multiplier: number;
         season: SeasonCollection;
     }[];
+}
+
+export interface CardMetadata extends Pick<Card, 'tokenId'> {
+    tokenId: number;
+    runnerId: UUIDv7;
+    runnerName: string;
+    rarity: CardRarity;
+    imageUrl: string;
+    multiplier: number;
+    season: SeasonCollection;
+    createdAt: Date;
+}
+
+export interface CardWithMetadata extends Card {
+    metadata: CardMetadata;
 }

@@ -143,7 +143,7 @@ export const users = pgTable(
                 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut'
             )
             .notNull(),
-        phytnessPoints: integer('phytnessPoints').default(0)
+        phytnessPoints: integer('phytnessPoints').default(0).notNull()
     },
     (table) => [
         uniqueIndex('usersEmailIdx').on(table.email),

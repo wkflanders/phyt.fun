@@ -7,7 +7,7 @@ import {
     Transaction,
     User,
     UserWithStatus,
-    CreateUserFormData,
+    CreateUserInput,
     CardWithMetadata
 } from '@phyt/types';
 
@@ -116,16 +116,17 @@ router.post(
     validateSchema(createUserSchema),
     upload.single('avatar'),
     async (
-        req: Request<Record<string, never>, User, CreateUserFormData>,
+        // idk wtf is going on with why typescript wants this 'object' lol
+        req: Request<object, User, CreateUserInput>,
         res: Response<User>
     ) => {
-        const { email, username, privyId, walletAddress } = req.body;
+        const { formData } = req.body;
 
         const newUser = await userService.createUser({
-            email,
-            username,
-            privyId,
-            walletAddress,
+            email: formData.email,
+            username: formData.username,
+            privyId: formData.privyId,
+            walletAddress: formData.walletAddress,
             avatarFile: req.file // Pass the file if it exists
         });
 

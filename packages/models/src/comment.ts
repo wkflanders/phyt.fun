@@ -1,4 +1,4 @@
-import { UUIDv7 } from './uuid.js';
+import { UUIDv7, Pagination } from './primitives.js';
 
 export interface Comment {
     id: UUIDv7;
@@ -14,13 +14,6 @@ export interface CommentQueryParams {
     page?: number;
     limit?: number;
     parentOnly?: boolean;
-}
-
-export interface CommentPagination {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
 }
 
 export interface CreateCommentRequest {
@@ -42,5 +35,5 @@ export interface CommentResponse {
             avatarUrl: string;
         };
     }[];
-    pagination?: CommentPagination;
+    pagination?: Pagination;
 }

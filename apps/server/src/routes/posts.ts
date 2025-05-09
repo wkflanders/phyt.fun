@@ -1,143 +1,144 @@
-// import {
-//     NotFoundError,
-//     Post,
-//     PostResponse,
-//     ValidationError,
-//     PostQueryParams,
-//     PostStatus,
-//     UUIDv7
-// } from '@phyt/types';
-// import express, { Request, Response, Router } from 'express';
+import express, { Request, Response, Router } from 'express';
 
-// import { createPostSchema, updatePostSchema } from '@/lib/validation.js';
-// import { validateAuth } from '@/middleware/auth.js';
-// import { validateSchema } from '@/middleware/validator.js';
-// import { PostService } from '@/services/postServices.js';
+import {
+    NotFoundError,
+    Post,
+    PostResponse,
+    ValidationError,
+    PostQueryParams,
+    PostStatus,
+    UUIDv7
+} from '@phyt/types';
 
-// const router: Router = express.Router();
+import { createPostSchema, updatePostSchema } from '@/lib/validation.js';
+import { validateAuth } from '@/middleware/auth.js';
+import { validateSchema } from '@/middleware/validator.js';
+import { PostService } from '@/services/postServices.js';
 
-// router.use(validateAuth);
+const router: Router = express.Router();
 
-// // Get all posts with pagination and filtering
-// router.get(
-//     '/',
-//     async (
-//         req: Request<
-//             Record<string, never>,
-//             PostResponse,
-//             Record<string, never>,
-//             PostQueryParams
-//         >,
-//         res: Response<PostResponse>
-//     ) => {
-//         const { page = '1', limit = '10', filter } = req.query;
+router.use(validateAuth);
 
-//         const privyId = req.body.privyId;
+// Get all posts with pagination and filtering
+router.get(
+    '/',
+    async (
+        req: Request<
+            Record<string, never>,
+            PostResponse,
+            Record<string, never>,
+            PostQueryParams
+        >,
+        res: Response<PostResponse>
+    ) => {
+        const { page = '1', limit = '10', filter } = req.query;
 
-//         const result = await PostService.getPosts(privyId, {
-//             page: parseInt(page as string),
-//             limit: parseInt(limit as string),
-//             filter: filter as ('following' | 'trending' | 'all') | undefined
-//         });
+        const privyId = req.body.privyId;
 
-//         res.status(200).json(result);
-//     }
-// );
+        const result = await PostService.getPosts(privyId, {
+            page: parseInt(page as string),
+            limit: parseInt(limit as string),
+            filter: filter as ('following' | 'trending' | 'all') | undefined
+        });
 
-// // Get a specific post by ID
-// router.get(
-//     '/:id',
-//     async (
-//         req: Request<{ id: UUIDv7 }, PostResponse>,
-//         res: Response<PostResponse>
-//     ) => {
-//         const postId = req.params.id;
-//         if (!postId) {
-//             throw new NotFoundError('No valid post id');
-//         }
+        res.status(200).json(result);
+    }
+);
 
-//         const post = await PostService.getPostById(postId);
-//         res.status(200).json(post);
-//     }
-// );
+// Get a specific post by ID
+router.get(
+    '/:id',
+    async (
+        req: Request<{ id: UUIDv7 }, PostResponse>,
+        res: Response<PostResponse>
+    ) => {
+        const postId = req.params.id;
+        if (!postId) {
+            throw new NotFoundError('No valid post id');
+        }
 
-// // Get posts by a specific user
-// router.get(
-//     '/user/:userId',
-//     async (
-//         req: Request<
-//             { userId: UUIDv7 },
-//             PostResponse[],
-//             Record<string, never>,
-//             PostQueryParams
-//         >,
-//         res: Response<PostResponse[]>
-//     ) => {
-//         const userId = req.params.userId;
-//         if (!userId) {
-//             throw new ValidationError('No valid user Id');
-//         }
+        const post = await PostService.getPostById(postId);
+        res.status(200).json(post);
+    }
+);
 
-//         const { page = '1', limit = '10' } = req.query;
-//         const result = await PostService.getUserPostsById(userId, {
-//             page: parseInt(page as string),
-//             limit: parseInt(limit as string)
-//         });
+// Get posts by a specific user
+router.get(
+    '/user/:userId',
+    async (
+        req: Request<
+            { userId: UUIDv7 },
+            PostResponse[],
+            Record<string, never>,
+            PostQueryParams
+        >,
+        res: Response<PostResponse[]>
+    ) => {
+        const userId = req.params.userId;
+        if (!userId) {
+            throw new ValidationError('No valid user Id');
+        }
 
-//         res.status(200).json(result);
-//     }
-// );
+        const { page = '1', limit = '10' } = req.query;
+        const result = await PostService.getUserPostsById(userId, {
+            page: parseInt(page as string),
+            limit: parseInt(limit as string)
+        });
 
-// router.post(
-//     '/',
-//     validateSchema(createPostSchema),
-//     async (
-//         req: Request<Record<string, never>, Post, { runId: UUIDv7 }>,
-//         res: Response<Post>
-//     ) => {
-//         const { runId } = req.body;
-//         const post = await PostService.createPost(runId);
+        res.status(200).json(result);
+    }
+);
 
-//         res.status(201).json(post);
-//     }
-// );
+router.post(
+    '/',
+    validateSchema(createPostSchema),
+    async (
+        req: Request<Record<string, never>, Post, { runId: UUIDv7 }>,
+        res: Response<Post>
+    ) => {
+        const { runId } = req.body;
+        const post = await PostService.createPost(runId);
 
-// // Update a post's visibility status
-// router.patch(
-//     '/:id',
-//     validateSchema(updatePostSchema),
-//     async (
-//         req: Request<{ id: UUIDv7 }, Post, { status: PostStatus }>,
-//         res: Response<Post>
-//     ) => {
-//         const postId = req.params.id;
-//         if (!postId) {
-//             throw new ValidationError('Invalid post Id');
-//         }
+        res.status(201).json(post);
+    }
+);
 
-//         const { status } = req.body;
+// Update a post's visibility status
+router.patch(
+    '/:id',
+    validateSchema(updatePostSchema),
+    async (
+        req: Request<{ id: UUIDv7 }, Post, { status: PostStatus }>,
+        res: Response<Post>
+    ) => {
+        const postId = req.params.id;
+        if (!postId) {
+            throw new ValidationError('Invalid post Id');
+        }
 
-//         // TODO: Add authorization check - user can only update their own posts
-//         const post = await PostService.updatePostStatus(postId, status);
+        const { status } = req.body;
 
-//         res.status(200).json(post);
-//     }
-// );
+        // TODO: Add authorization check - user can only update their own posts
+        const post = await PostService.updatePostStatus(postId, status);
 
-// // Delete a post
-// router.delete(
-//     '/:id',
-//     async (req: Request<{ id: UUIDv7 }, Post>, res: Response<Post>) => {
-//         const postId = req.params.id;
-//         if (!postId) {
-//             throw new ValidationError('Invalid post ID');
-//         }
+        res.status(200).json(post);
+    }
+);
 
-//         // TODO: Add authorization check - user can only delete their own posts
-//         const deletedPost = await PostService.deletePost(postId);
+// Delete a post
+router.delete(
+    '/:id',
+    async (req: Request<{ id: UUIDv7 }, Post>, res: Response<Post>) => {
+        const postId = req.params.id;
+        if (!postId) {
+            throw new ValidationError('Invalid post ID');
+        }
 
-//         res.status(200).json(deletedPost);
-//     }
-// );
+        // TODO: Add authorization check - user can only delete their own posts
+        const deletedPost = await PostService.deletePost(postId);
 
-// export { router as postsRouter };
+        res.status(200).json(deletedPost);
+    }
+);
+
+export { router as postsRouter };
