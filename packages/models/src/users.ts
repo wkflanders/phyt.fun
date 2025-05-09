@@ -1,4 +1,4 @@
-import { UUIDv7, Pagination } from './primitives.js';
+import { UUIDv7, Pagination } from '@phyt/types';
 import { RunnerStatus } from './runners.js';
 
 export type UserRole = 'admin' | 'user' | 'runner';

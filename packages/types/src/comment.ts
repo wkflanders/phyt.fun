@@ -1,4 +1,4 @@
-import { UUIDv7, Pagination } from '@phyt/types';
+import { UUIDv7, Pagination } from './primitives.js';
 
 export interface Comment {
     id: UUIDv7;

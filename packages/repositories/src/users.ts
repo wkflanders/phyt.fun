@@ -1,8 +1,9 @@
+import { UUIDv7 } from '@phyt/types';
+
 import type {
     User,
     CreateUserRequest,
     UserResponse,
-    UUIDv7,
     CreateCommentRequest,
     Transaction,
     CardWithMetadata

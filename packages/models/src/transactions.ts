@@ -1,4 +1,4 @@
-import { UUIDv7, Pagination } from './primitives.js';
+import { UUIDv7 } from '@phyt/types';
 
 export type TransactionType =
     | 'packPurchase'

@@ -1,5 +1,5 @@
 import { CardRarity, AcquisitionType, SeasonCollection } from './metadata.js';
-import { UUIDv7 } from './primitives.js';
+import { UUIDv7 } from '@phyt/types';
 
 export interface Card {
     id: UUIDv7;

@@ -1,11 +1,6 @@
-import { RequestError } from './errors.js';
+import { UUIDv7 } from '@phyt/types';
 
-export interface Pagination {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-}
+import { RequestError } from './errors.js';
 
 const UUIDV7_REGEX =
     /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
@@ -19,5 +14,3 @@ export function assertUUIDv7(x: unknown): asserts x is UUIDv7 {
         throw new RequestError(`Invalid UUIDv7: ${String(x)}`);
     }
 }
-
-export type UUIDv7 = `${string}-${string}-${string}-${string}-${string}`;

@@ -53,7 +53,7 @@
             "outputs": ["dist/**"]
         },
         "@phyt/models#build": {
-            "dependsOn": ["@phyt/eslint#build"],
+            "dependsOn": ["@phyt/types#build"],
             "outputs": ["dist/**"]
         },
         "@phyt/repositories#build": {

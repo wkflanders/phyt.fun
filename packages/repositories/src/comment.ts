@@ -1,10 +1,11 @@
+import { UUIDv7 } from '@phyt/types';
+
 import type {
     Comment,
     CommentQueryParams,
     CreateCommentRequest,
     UpdateCommentContent,
-    CommentResponse,
-    UUIDv7
+    CommentResponse
 } from '@phyt/models';
 
 export interface CommentRepository {

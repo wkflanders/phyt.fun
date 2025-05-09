@@ -37,6 +37,7 @@
     "devDependencies": {
         "@phyt/models": "workspace:*",
         "@phyt/repositories": "workspace:*",
+        "@phyt/types": "workspace:*",
         "@phyt/eslint": "workspace:*",
         "@phyt/tsconfig": "workspace:*",
         "@types/pg": "^8.11.11",

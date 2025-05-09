@@ -7,6 +7,7 @@ import {
     CommentQueryParams,
     CommentResponse
 } from '@phyt/models';
+import { Pagination } from '@phyt/types';
 
 import { uuidv7, DTOSchema, PaginationSchema } from './primitives.js';
 

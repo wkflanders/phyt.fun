@@ -1,6 +1,7 @@
 import { z, ZodType, ZodTypeDef } from 'zod';
 
-import { isUUIDv7, Pagination } from '@phyt/models';
+import { isUUIDv7 } from '@phyt/models';
+import { Pagination } from '@phyt/types';
 
 export type DTOSchema<T> = ZodType<T, ZodTypeDef, unknown>;
 

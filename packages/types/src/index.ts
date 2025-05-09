@@ -1,4 +1,7 @@
-export type UUIDv7 = string & { __uuidv7: true };
+import { UUIDv7 } from './primitives.js';
+export * from './comment.js';
+export * from './primitives.js';
+
 export type CardRarity =
     | 'bronze'
     | 'silver'
@@ -763,53 +766,6 @@ export interface PostPagination {
     total: number;
     totalPages: number;
     nextPage?: number;
-}
-
-export interface Comment {
-    id: UUIDv7;
-    postId: UUIDv7;
-    userId: UUIDv7;
-    content: string;
-    parentCommentId: UUIDv7 | null;
-    updatedAt: Date;
-    createdAt: Date;
-}
-
-export interface CommentQueryParams {
-    page?: number;
-    limit?: number;
-    parentOnly?: boolean;
-}
-
-export interface CommentPagination {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-}
-
-export interface CommentCreateRequest {
-    userId: UUIDv7;
-    postId: UUIDv7;
-    content: string;
-    parentCommentId: UUIDv7 | null;
-}
-
-export interface CommentUpdateRequest {
-    content: string;
-    commentId: UUIDv7;
-}
-
-// Come back to this
-export interface CommentResponse {
-    comments: {
-        comment: Comment;
-        user: {
-            username: string;
-            avatarUrl: string | null;
-        };
-    }[];
-    pagination?: CommentPagination;
 }
 
 export type Reaction = 'like' | 'funny' | 'insightful' | 'fire';

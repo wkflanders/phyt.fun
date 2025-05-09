@@ -23,6 +23,7 @@
         "@phyt/eslint": "workspace:*",
         "@phyt/tsconfig": "workspace:*",
         "@phyt/models": "workspace:*",
+        "@phyt/types": "workspace:*",
         "zod": "^3.24.3"
     }
 }

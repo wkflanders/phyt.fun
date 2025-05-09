@@ -1,4 +1,4 @@
-import { UUIDv7 } from './primitives.js';
+import { UUIDv7 } from '@phyt/types';
 
 export type Reaction = 'like' | 'funny' | 'insightful' | 'fire';
 

@@ -9,17 +9,17 @@ import {
 } from 'drizzle-orm';
 
 import {
-    UUIDv7,
-    assertUUIDv7,
     Comment,
     CommentQueryParams,
     CommentResponse,
     CreateCommentRequest,
     UpdateCommentContent,
+    assertUUIDv7,
     NotFoundError,
     RequestError
 } from '@phyt/models';
 import { CommentRepository } from '@phyt/repositories';
+import { UUIDv7 } from '@phyt/types';
 
 // eslint-disable-next-line no-restricted-imports
 import { db } from '../drizzle.js';

@@ -22,6 +22,7 @@
     "devDependencies": {
         "@phyt/eslint": "workspace:*",
         "@phyt/tsconfig": "workspace:*",
-        "@phyt/models": "workspace:*"
+        "@phyt/models": "workspace:*",
+        "@phyt/types": "workspace:*"
     }
 }
