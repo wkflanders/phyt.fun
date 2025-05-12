@@ -1,25 +1,25 @@
 import {
     PostIdSchema,
-    CommentIdSchema,
     CreateCommentSchema,
     UpdateCommentSchema,
-    CommentQueryParamsSchema
+    CommentQueryParamsSchema,
+    CommentIdSchema
 } from '@phyt/dto';
 
 import { validateAuth } from '@/middleware/auth.js';
 import { ensureOwnership } from '@/middleware/owner.js';
 import { validateSchema } from '@/middleware/validator.js';
 
-import type { CommentService } from '@/services/commentServices.js';
 import type {
     PostIdDTO,
     CommentIdDTO,
-    CommentDTO,
+    CommentDataDTO,
     CreateCommentDTO,
     UpdateCommentDTO,
     CommentQueryParamsDTO,
-    CommentResponseDTO
+    CommentsPageDTO
 } from '@phyt/dto';
+import type { CommentService } from '@phyt/services';
 import type { Request, RequestHandler, Response } from 'express';
 
 export const makeCommentController = (svc: CommentService) => ({
@@ -29,11 +29,11 @@ export const makeCommentController = (svc: CommentService) => ({
         async (
             req: Request<
                 PostIdDTO,
-                CommentResponseDTO,
+                CommentsPageDTO,
                 Record<string, never>,
                 CommentQueryParamsDTO
             >,
-            res: Response<CommentResponseDTO>
+            res: Response<CommentsPageDTO>
         ) => {
             const { page = 1, limit = 20, parentOnly = true } = req.query;
             const data = await svc.getPostComments(req.params.postId, {
@@ -51,11 +51,11 @@ export const makeCommentController = (svc: CommentService) => ({
         async (
             req: Request<
                 CommentIdDTO,
-                CommentResponseDTO,
+                CommentsPageDTO,
                 Record<string, never>,
                 CommentQueryParamsDTO
             >,
-            res: Response<CommentResponseDTO>
+            res: Response<CommentsPageDTO>
         ) => {
             const { page = 1, limit = 20 } = req.query;
             const data = await svc.getCommentReplies(req.params.commentId, {
@@ -70,8 +70,8 @@ export const makeCommentController = (svc: CommentService) => ({
         validateAuth,
         validateSchema(CommentIdSchema),
         async (
-            req: Request<CommentIdDTO, CommentDTO>,
-            res: Response<CommentDTO>
+            req: Request<CommentIdDTO, CommentDataDTO>,
+            res: Response<CommentDataDTO>
         ) => {
             const comment = await svc.getCommentById(req.params.commentId);
             res.status(200).json(comment);
@@ -82,8 +82,12 @@ export const makeCommentController = (svc: CommentService) => ({
         validateAuth,
         validateSchema(undefined, CreateCommentSchema),
         async (
-            req: Request<Record<string, never>, CommentDTO, CreateCommentDTO>,
-            res: Response<CommentDTO>
+            req: Request<
+                Record<string, never>,
+                CommentDataDTO,
+                CreateCommentDTO
+            >,
+            res: Response<CommentDataDTO>
         ) => {
             const commentData = req.body;
             const comment = await svc.createComment(commentData);
@@ -95,8 +99,8 @@ export const makeCommentController = (svc: CommentService) => ({
         validateAuth,
         validateSchema(CommentIdSchema, UpdateCommentSchema),
         async (
-            req: Request<CommentIdDTO, CommentDTO, UpdateCommentDTO>,
-            res: Response<CommentDTO>
+            req: Request<CommentIdDTO, CommentDataDTO, UpdateCommentDTO>,
+            res: Response<CommentDataDTO>
         ) => {
             const commentId = req.params.commentId;
             const updateCommentData = req.body;
@@ -114,8 +118,8 @@ export const makeCommentController = (svc: CommentService) => ({
         ensureOwnership,
         validateSchema(CommentIdSchema),
         async (
-            req: Request<CommentIdDTO, CommentDTO>,
-            res: Response<CommentDTO>
+            req: Request<CommentIdDTO, CommentDataDTO>,
+            res: Response<CommentDataDTO>
         ) => {
             const commentId = req.params.commentId;
             const deleted = await svc.deleteComment(commentId);
