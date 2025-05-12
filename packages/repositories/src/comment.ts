@@ -1,27 +1,42 @@
-import { UUIDv7 } from '@phyt/types';
+import { CommentDrizzleOps } from '@phyt/drizzle';
 
 import type {
-    Comment,
+    UUIDv7,
+    CommentData,
     CommentQueryParams,
-    CreateCommentRequest,
-    UpdateCommentContent,
-    CommentResponse
-} from '@phyt/models';
+    CreateCommentInput,
+    UpdateCommentInput,
+    PaginatedComments
+} from '@phyt/types';
 
-export interface CommentRepository {
-    create(createCommentData: CreateCommentRequest): Promise<Comment>;
-    findById(id: UUIDv7): Promise<Comment | null>;
-    listForPost(
+export type CommentRepository = ReturnType<typeof makeCommentRepository>;
+
+export const makeCommentRepository = (ops: CommentDrizzleOps) => ({
+    create: async (input: CreateCommentInput): Promise<CommentData> => {
+        return await ops.create(input);
+    },
+    findById: async (commentId: UUIDv7): Promise<CommentData | null> => {
+        return ops.findById(commentId);
+    },
+    listForPost: async (
         postId: UUIDv7,
         params: CommentQueryParams
-    ): Promise<CommentResponse>;
-    listReplies(
+    ): Promise<PaginatedComments> => {
+        return ops.listForPost(postId, params);
+    },
+    listReplies: async (
         parentId: UUIDv7,
         params: CommentQueryParams
-    ): Promise<CommentResponse>;
-    update(
+    ): Promise<PaginatedComments> => {
+        return ops.listReplies(parentId, params);
+    },
+    update: async (
         commentId: UUIDv7,
-        updateCommentData: UpdateCommentContent
-    ): Promise<Comment>;
-    remove(commentId: UUIDv7): Promise<Comment>;
-}
+        input: UpdateCommentInput
+    ): Promise<CommentData> => {
+        return await ops.update(commentId, input);
+    },
+    remove: async (commentId: UUIDv7): Promise<CommentData> => {
+        return await ops.remove(commentId);
+    }
+});

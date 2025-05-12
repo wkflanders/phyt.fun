@@ -4,7 +4,6 @@ import type {
     User,
     CreateUserRequest,
     UserResponse,
-    CreateCommentRequest,
     Transaction,
     CardWithMetadata
 } from '@phyt/models';
