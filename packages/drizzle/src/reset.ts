@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 
-import { db } from './drizzle.js';
+import { db } from './db.js';
 
 async function reset() {
     console.warn('⏳ Resetting database schema + installing uuidv7…');
