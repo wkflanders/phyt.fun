@@ -1,0 +1,13 @@
+//  packages/services/tsconfig.json
+{
+    "extends": "@phyt/tsconfig/library.json",
+    "compilerOptions": {
+        "outDir": "dist",
+        "rootDir": "src",
+        "baseUrl": ".",
+        "module": "nodenext",
+        "moduleResolution": "nodenext"
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist"]
+}
