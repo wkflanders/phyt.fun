@@ -5,7 +5,7 @@ import {
     CreateCommentInput,
     UpdateCommentInput,
     CommentQueryParams,
-    CommentData,
+    Comment,
     PaginatedComments
 } from '@phyt/types';
 
@@ -14,7 +14,7 @@ import { DrizzleDB } from '../db.js';
 // eslint-disable-next-line no-restricted-imports
 import { comments, users } from '../schema.js';
 
-const toData = (commentRow: typeof comments.$inferSelect): CommentData => ({
+const toData = (commentRow: typeof comments.$inferSelect): Comment => ({
     id: commentRow.id as UUIDv7,
     postId: commentRow.postId as UUIDv7,
     userId: commentRow.userId as UUIDv7,
@@ -27,7 +27,7 @@ const toData = (commentRow: typeof comments.$inferSelect): CommentData => ({
 export type CommentDrizzleOps = ReturnType<typeof makeCommentDrizzleOps>;
 
 export const makeCommentDrizzleOps = (db: DrizzleDB) => {
-    const create = async (input: CreateCommentInput): Promise<CommentData> => {
+    const create = async (input: CreateCommentInput): Promise<Comment> => {
         const [row] = await db
             .insert(comments)
             .values({
@@ -102,7 +102,7 @@ export const makeCommentDrizzleOps = (db: DrizzleDB) => {
     const update = async (
         commentId: UUIDv7,
         input: UpdateCommentInput
-    ): Promise<CommentData> => {
+    ): Promise<Comment> => {
         const [row] = await db
             .update(comments)
             .set({ content: input.content, updatedAt: new Date() })
@@ -111,7 +111,7 @@ export const makeCommentDrizzleOps = (db: DrizzleDB) => {
         return toData(row);
     };
 
-    const remove = async (commentId: UUIDv7): Promise<CommentData> => {
+    const remove = async (commentId: UUIDv7): Promise<Comment> => {
         const [row] = await db
             .delete(comments)
             .where(eq(comments.id, commentId))

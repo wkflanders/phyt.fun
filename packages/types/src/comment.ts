@@ -1,6 +1,6 @@
 import { UUIDv7, Pagination, ISODate } from './core.js';
 
-export interface CommentData {
+export interface Comment {
     id: UUIDv7;
     postId: UUIDv7;
     userId: UUIDv7;
@@ -23,6 +23,10 @@ export interface CreateCommentInput {
     parentCommentId: UUIDv7 | null;
 }
 
+export interface UpdateCommentInput {
+    content: string;
+}
+
 export interface CommentRecord {
     id?: UUIDv7;
     postId: UUIDv7;
@@ -33,13 +37,9 @@ export interface CommentRecord {
     updatedAt?: ISODate;
 }
 
-export interface UpdateCommentInput {
-    content: string;
-}
-
 export interface PaginatedComments {
     comments: {
-        comment: CommentData;
+        comment: Comment;
         user: {
             username: string;
             avatarUrl: string;

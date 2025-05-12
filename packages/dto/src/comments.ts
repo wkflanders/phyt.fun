@@ -6,7 +6,7 @@ import type {
     CreateCommentInput,
     UpdateCommentInput,
     CommentQueryParams,
-    CommentData,
+    Comment,
     PaginatedComments
 } from '@phyt/types';
 
@@ -49,7 +49,7 @@ export const CommentDataSchema = z.object({
     createdAt: z.coerce.date(),
     updatedAt: z.coerce.date()
 });
-export type CommentDataDTO = z.infer<typeof CommentDataSchema> & CommentData;
+export type CommentDataDTO = z.infer<typeof CommentDataSchema> & Comment;
 
 export const CommentsPageSchema = z.object({
     comments: z.array(

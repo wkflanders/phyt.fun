@@ -3,7 +3,7 @@ import { z } from 'zod';
 import {
     UUIDv7,
     ISODate,
-    CommentData,
+    Comment,
     CreateCommentInput,
     UpdateCommentInput,
     CommentRecord
@@ -12,28 +12,28 @@ import {
 import { isUUIDv7, Iso } from './core.js';
 import { InputError, ValidationError } from './errors.js';
 
-export interface Comment extends CommentData {
-    updateContent(input: UpdateCommentInput): Comment;
-    toDTO(): CommentData;
+export interface CommentVO extends Comment {
+    updateContent(input: UpdateCommentInput): CommentVO;
+    toDTO(): Comment;
     toJSON(): CommentRecord;
 }
 
-export const Comment = (() => {
+export const CommentVO = (() => {
     const MAX_LEN = 2_000;
     const validate = (txt: string) => {
         if (!txt.trim()) throw new ValidationError('Empty comment');
         if (txt.length > MAX_LEN) throw new ValidationError('Comment too long');
     };
 
-    const make = (record: CommentRecord): Comment => {
-        const updateContent = ({ content }: UpdateCommentInput): Comment =>
+    const make = (record: CommentRecord): CommentVO => {
+        const updateContent = ({ content }: UpdateCommentInput): CommentVO =>
             make({
                 ...record,
                 content: (validate(content), content),
                 updatedAt: new Date().toISOString() as ISODate
             });
 
-        const toDTO = (): CommentData => {
+        const toDTO = (): Comment => {
             if (!record.id) throw new InputError('Comment ID is required');
             return {
                 id: record.id,
@@ -63,11 +63,11 @@ export const Comment = (() => {
             updateContent,
             toDTO,
             toJSON
-        }) as Comment;
+        }) as CommentVO;
     };
 
     return {
-        create(input: CreateCommentInput): Comment {
+        create(input: CreateCommentInput): CommentVO {
             return make({
                 postId: input.postId,
                 authorId: input.userId,
@@ -76,7 +76,7 @@ export const Comment = (() => {
                 createdAt: new Date().toISOString() as ISODate
             });
         },
-        fromRecord(raw: unknown): Comment {
+        fromRecord(raw: unknown): CommentVO {
             const record = z
                 .object({
                     id: z.custom<UUIDv7>(isUUIDv7).optional(),

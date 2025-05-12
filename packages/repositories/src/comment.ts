@@ -2,7 +2,7 @@ import { CommentDrizzleOps } from '@phyt/drizzle';
 
 import type {
     UUIDv7,
-    CommentData,
+    Comment,
     CommentQueryParams,
     CreateCommentInput,
     UpdateCommentInput,
@@ -12,10 +12,10 @@ import type {
 export type CommentRepository = ReturnType<typeof makeCommentRepository>;
 
 export const makeCommentRepository = (ops: CommentDrizzleOps) => ({
-    create: async (input: CreateCommentInput): Promise<CommentData> => {
+    create: async (input: CreateCommentInput): Promise<Comment> => {
         return await ops.create(input);
     },
-    findById: async (commentId: UUIDv7): Promise<CommentData | null> => {
+    findById: async (commentId: UUIDv7): Promise<Comment | null> => {
         return ops.findById(commentId);
     },
     listForPost: async (
@@ -33,10 +33,10 @@ export const makeCommentRepository = (ops: CommentDrizzleOps) => ({
     update: async (
         commentId: UUIDv7,
         input: UpdateCommentInput
-    ): Promise<CommentData> => {
+    ): Promise<Comment> => {
         return await ops.update(commentId, input);
     },
-    remove: async (commentId: UUIDv7): Promise<CommentData> => {
+    remove: async (commentId: UUIDv7): Promise<Comment> => {
         return await ops.remove(commentId);
     }
 });

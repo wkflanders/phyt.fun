@@ -1,8 +1,8 @@
-import { Comment } from '@phyt/models';
+import { CommentVO } from '@phyt/models';
 import {
     UUIDv7,
     PaginatedComments,
-    CommentData,
+    Comment,
     CreateCommentInput,
     UpdateCommentInput,
     CommentQueryParams,
@@ -17,10 +17,10 @@ export type CommentService = ReturnType<typeof makeCommentService>;
 export const makeCommentService = (repo: CommentRepository) => {
     const createComment = async (
         input: CreateCommentInput
-    ): Promise<CommentData> => {
+    ): Promise<Comment> => {
         if (!input.content.trim())
             throw new ValidationError('Cannot be empty comment');
-        Comment.create(input);
+        CommentVO.create(input);
         return repo.create(input);
     };
 
@@ -51,7 +51,7 @@ export const makeCommentService = (repo: CommentRepository) => {
     ) => {
         const cur = await repo.findById(commentId);
         if (!cur) throw new Error('not found');
-        const next = Comment.fromRecord(cur).updateContent({
+        const next = CommentVO.fromRecord(cur).updateContent({
             content: input.content
         });
         return await repo.update(commentId, next.toJSON());
