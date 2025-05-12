@@ -56,20 +56,16 @@
             "dependsOn": ["@phyt/types#build"],
             "outputs": ["dist/**"]
         },
-        "@phyt/repositories#build": {
+        "@phyt/drizzle#build": {
             "dependsOn": ["@phyt/models#build"],
+            "outputs": ["dist/**"]
+        },
+        "@phyt/repositories#build": {
+            "dependsOn": ["@phyt/drizzle#build"],
             "outputs": ["dist/**"]
         },
         "@phyt/dto#build": {
-            "dependsOn": ["@phyt/models#build"],
-            "outputs": ["dist/**"]
-        },
-        "@phyt/drizzle#build": {
-            "dependsOn": [
-                "@phyt/models#build",
-                "@phyt/repositories#build",
-                "@phyt/dto#build"
-            ],
+            "dependsOn": ["@phyt/drizzle#build"],
             "outputs": ["dist/**"]
         },
         "@phyt/server#build": {
