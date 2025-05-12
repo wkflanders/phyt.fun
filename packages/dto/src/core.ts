@@ -1,11 +1,8 @@
-import { z, ZodType, ZodTypeDef } from 'zod';
+import { z } from 'zod';
 
 import { isUUIDv7 } from '@phyt/models';
-import { Pagination } from '@phyt/types';
 
-export type DTOSchema<T> = ZodType<T, ZodTypeDef, unknown>;
-
-export const PaginationSchema: DTOSchema<Pagination> = z
+export const PaginationSchema = z
     .object({
         page: z.number().int().nonnegative(),
         limit: z.number().int().positive(),
@@ -14,10 +11,8 @@ export const PaginationSchema: DTOSchema<Pagination> = z
     })
     .strict();
 
-export const uuidv7 = ({ required_error }: { required_error: string }) =>
+export const uuidv7 = () =>
     z
-        .string({
-            required_error
-        })
+        .string()
         .refine(isUUIDv7, { message: 'Invalid UUIDv7' })
         .transform((s) => s);

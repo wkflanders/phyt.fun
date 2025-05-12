@@ -8,13 +8,11 @@ import {
     UserResponse
 } from '@phyt/models';
 
-import { uuidv7, DTOSchema, PaginationSchema } from './primitives.js';
+import { uuidv7 } from './core.js';
 import { RunnerStatusSchema } from './runners.js';
 
 export const UserIdSchema = z.object({
-    userId: uuidv7({
-        required_error: 'UserId is required'
-    })
+    userId: uuidv7()
 });
 export type UserIdDTO = z.infer<typeof UserIdSchema>;
 
@@ -22,7 +20,7 @@ const UserRoleSchema = z.enum(['admin', 'user', 'runner']);
 
 export const userSchema = z
     .object({
-        id: uuidv7({ required_error: 'User userId is required' }),
+        id: uuidv7(),
         email: z
             .string({
                 required_error: 'User email is required'
@@ -60,7 +58,7 @@ export const userSchema = z
         updatedAt: z.coerce.date()
     })
     .strict();
-export const UserSchema: DTOSchema<User> = userSchema;
+export const UserSchema = userSchema;
 export type UserDTO = z.infer<typeof UserSchema>;
 
 export const userWithStatusSchema = userSchema
@@ -68,11 +66,11 @@ export const userWithStatusSchema = userSchema
         status: RunnerStatusSchema.optional()
     })
     .strict();
-export const UserWithStatusSchema: DTOSchema<User> = userWithStatusSchema;
+export const UserWithStatusSchema = userWithStatusSchema;
 export type UserWithStatusDTO = z.infer<typeof UserWithStatusSchema>;
 
 // This should be validated on the client (don't waste a slow API call), but should definitely check on server when an actual api call is made to be safe
-export const CreateUserSchema: DTOSchema<CreateUserRequest> = z
+export const CreateUserSchema = z
     .object({
         email: z
             .string({
