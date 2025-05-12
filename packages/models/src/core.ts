@@ -1,4 +1,6 @@
-import { UUIDv7 } from '@phyt/types';
+import { z } from 'zod';
+
+import { ISODate, UUIDv7 } from '@phyt/types';
 
 import { RequestError } from './errors.js';
 
@@ -14,3 +16,5 @@ export function assertUUIDv7(x: unknown): asserts x is UUIDv7 {
         throw new RequestError(`Invalid UUIDv7: ${String(x)}`);
     }
 }
+
+export const Iso = () => z.string().datetime() as unknown as z.ZodType<ISODate>;

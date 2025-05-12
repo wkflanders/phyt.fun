@@ -28,6 +28,15 @@ export class DuplicateError extends Error {
     }
 }
 
+export class InputError extends Error {
+    statusCode: number;
+    constructor(message: string) {
+        super(message);
+        this.name = 'INPUT_ERROR';
+        this.statusCode = 400;
+    }
+}
+
 export class ValidationError extends Error {
     statusCode: number;
     constructor(message: string) {
