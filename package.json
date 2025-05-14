@@ -34,7 +34,7 @@
     "dependencies": {
         "dotenv": "^16.4.7"
     },
-    "packageManager": "pnpm@10.10.0",
+    "packageManager": "pnpm@10.11.0",
     "engines": {
         "node": ">=18.0.0"
     }
