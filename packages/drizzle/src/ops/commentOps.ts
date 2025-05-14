@@ -70,11 +70,9 @@ export const makeCommentDrizzleOps = (db: DrizzleDB) => {
 
         return {
             comments: rows.map(({ comment, user }) => ({
-                comment: toData(comment),
-                user: {
-                    username: user?.username ?? '',
-                    avatarUrl: user?.avatarUrl ?? ''
-                }
+                ...toData(comment),
+                username: user?.username ?? '',
+                avatarUrl: user?.avatarUrl ?? ''
             })),
             pagination: {
                 page,

@@ -4,95 +4,97 @@ import {
     UUIDv7,
     ISODate,
     Comment,
-    CreateCommentInput,
-    UpdateCommentInput,
-    CommentRecord
+    CommentInsert,
+    CommentUpdate
 } from '@phyt/types';
 
 import { isUUIDv7, Iso } from './core.js';
 import { InputError, ValidationError } from './errors.js';
 
-export interface CommentVO extends Comment {
-    updateContent(input: UpdateCommentInput): CommentVO;
-    toDTO(): Comment;
-    toJSON(): CommentRecord;
+interface CommentRow {
+    id?: UUIDv7;
+    postId: UUIDv7;
+    userId: UUIDv7;
+    parentCommentId: UUIDv7 | null;
+    content: string;
+    createdAt: ISODate;
+    updatedAt: ISODate;
 }
 
-export const CommentVO = (() => {
-    const MAX_LEN = 2_000;
-    const validate = (txt: string) => {
-        if (!txt.trim()) throw new ValidationError('Empty comment');
-        if (txt.length > MAX_LEN) throw new ValidationError('Comment too long');
-    };
+const MAX_LEN = 2_000;
+const validate = (txt: string) => {
+    if (!txt.trim()) throw new ValidationError('Empty comment');
+    if (txt.length > MAX_LEN) throw new ValidationError('Comment too long');
+};
 
-    const make = (record: CommentRecord): CommentVO => {
-        const updateContent = ({ content }: UpdateCommentInput): CommentVO =>
-            make({
-                ...record,
-                content: (validate(content), content),
-                updatedAt: new Date().toISOString() as ISODate
-            });
+export interface CommentVO extends CommentInsert {
+    id?: UUIDv7;
+    createdAt: Date;
+    updatedAt: Date;
+    updateContent(p: CommentUpdate): CommentVO;
+    toDTO(): Comment;
+    toNew(): CommentInsert;
+}
 
-        const toDTO = (): Comment => {
-            if (!record.id) throw new InputError('Comment ID is required');
-            return {
-                id: record.id,
-                postId: record.postId,
-                userId: record.authorId,
-                content: record.content,
-                parentCommentId: record.parentCommentId ?? null,
-                createdAt: new Date(record.createdAt),
-                updatedAt: record.updatedAt
-                    ? new Date(record.updatedAt)
-                    : new Date(record.createdAt)
-            };
-        };
-
-        const toJSON = (): CommentRecord => ({
-            id: record.id,
-            postId: record.postId,
-            authorId: record.authorId,
-            parentCommentId: record.parentCommentId ?? null,
-            content: record.content,
-            createdAt: record.createdAt,
-            updatedAt: record.updatedAt
+const make = (row: CommentRow): CommentVO => {
+    const updateContent = ({ content }: CommentUpdate): CommentVO =>
+        make({
+            ...row,
+            content: (validate(content), content),
+            updatedAt: new Date().toISOString() as ISODate
         });
 
-        return Object.freeze({
-            ...toDTO(),
-            updateContent,
-            toDTO,
-            toJSON
-        }) as CommentVO;
+    const toDTO = (): Comment => {
+        if (!row.id) throw new InputError('Comment ID missing');
+        return {
+            id: row.id,
+            postId: row.postId,
+            userId: row.userId,
+            content: row.content,
+            parentCommentId: row.parentCommentId,
+            createdAt: new Date(row.createdAt),
+            updatedAt: new Date(row.updatedAt)
+        };
     };
 
-    return {
-        create(input: CreateCommentInput): CommentVO {
-            return make({
-                postId: input.postId,
-                authorId: input.userId,
-                parentCommentId: input.parentCommentId,
-                content: (validate(input.content), input.content),
-                createdAt: new Date().toISOString() as ISODate
-            });
-        },
-        fromRecord(raw: unknown): CommentVO {
-            const record = z
-                .object({
-                    id: z.custom<UUIDv7>(isUUIDv7).optional(),
-                    postId: z.custom<UUIDv7>(isUUIDv7),
-                    authorId: z.custom<UUIDv7>(isUUIDv7),
-                    parentCommentId: z
-                        .custom<UUIDv7>(isUUIDv7)
-                        .nullable()
-                        .optional(),
-                    content: z.string().min(1).max(MAX_LEN),
-                    createdAt: Iso(),
-                    updatedAt: Iso().optional()
-                })
-                .parse(raw);
+    const toNew = (): CommentInsert => ({
+        postId: row.postId,
+        userId: row.userId,
+        parentCommentId: row.parentCommentId,
+        content: row.content
+    });
 
-            return make(record);
-        }
-    };
-})();
+    return Object.freeze({
+        ...toDTO(),
+        updateContent,
+        toDTO,
+        toNew
+    }) as CommentVO;
+};
+
+export const CommentVO = {
+    create(input: CommentInsert): CommentVO {
+        validate(input.content);
+        const now = new Date().toISOString() as ISODate;
+        return make({
+            ...input,
+            createdAt: now,
+            updatedAt: now
+        });
+    },
+
+    fromRow(raw: unknown): CommentVO {
+        const row = z
+            .object({
+                id: z.custom(isUUIDv7),
+                postId: z.custom(isUUIDv7),
+                userId: z.custom(isUUIDv7),
+                parentCommentId: z.custom(isUUIDv7).nullable(),
+                content: z.string().min(1).max(MAX_LEN),
+                createdAt: Iso(),
+                updatedAt: Iso()
+            })
+            .parse(raw) as CommentRow;
+        return make(row);
+    }
+};

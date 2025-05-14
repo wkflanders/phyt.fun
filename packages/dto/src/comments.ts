@@ -3,11 +3,11 @@ import { z } from 'zod';
 import { uuidv7, PaginationSchema } from './core.js';
 
 import type {
-    CreateCommentInput,
-    UpdateCommentInput,
     CommentQueryParams,
     Comment,
-    PaginatedComments
+    PaginatedComments,
+    CommentUpdate,
+    CommentInsert
 } from '@phyt/types';
 
 export const CommentIdSchema = z.object({
@@ -23,13 +23,13 @@ export const CreateCommentSchema = z.object({
     parentCommentId: uuidv7().nullable()
 });
 export type CreateCommentDTO = z.infer<typeof CreateCommentSchema> &
-    CreateCommentInput;
+    CommentInsert;
 
 export const UpdateCommentSchema = z.object({
     content: z.string().min(1)
 });
 export type UpdateCommentDTO = z.infer<typeof UpdateCommentSchema> &
-    UpdateCommentInput;
+    CommentUpdate;
 
 export const CommentQueryParamsSchema = z.object({
     page: z.coerce.number().min(1).optional(),

@@ -1,12 +1,6 @@
 import { z } from 'zod';
 
-import {
-    User,
-    UserWithStatus,
-    UserRole,
-    CreateUserRequest,
-    UserResponse
-} from '@phyt/models';
+import { User, UserWithStatus, UserInsert, DefaultAvatar } from '@phyt/types';
 
 import { uuidv7 } from './core.js';
 import { RunnerStatusSchema } from './runners.js';
@@ -18,38 +12,27 @@ export type UserIdDTO = z.infer<typeof UserIdSchema>;
 
 const UserRoleSchema = z.enum(['admin', 'user', 'runner']);
 
+export const UpdateAvatarSchema = z.object({ avatarUrl: z.string().url() });
+export type UpdateAvatarDTO = z.infer<typeof UpdateAvatarSchema>;
+
 export const userSchema = z
     .object({
         id: uuidv7(),
-        email: z
-            .string({
-                required_error: 'User email is required'
-            })
-            .email('Invalid email address'),
+        email: z.string().email('Invalid email address'),
         username: z
-            .string({
-                required_error: 'User username is required'
-            })
-            .min(3, 'Username must be at least 3 characters')
-            .max(30, 'Username must be at most 30 characters')
+            .string()
+            .min(3)
+            .max(30)
             .regex(
                 /^[a-zA-Z0-9_-]+$/,
                 'Username can only contain letters, numbers, underscores, and hyphens'
             ),
         role: UserRoleSchema,
-        privyId: z.string({
-            required_error: 'User privyId is required'
-        }),
-        avatarUrl: z
-            .string()
-            .default(
-                'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut'
-            ),
+        privyId: z.string(),
+        avatarUrl: z.string().default(DefaultAvatar),
         walletAddress: z
-            .string({
-                required_error: 'Wallet address is required'
-            })
-            .regex(/^0x[a-fA-F0-9]+$/, 'Wallet address must be a valid address')
+            .string()
+            .regex(/^0x[a-fA-F0-9]+$/)
             .transform((val) => val as `0x${string}`),
         phytnessPoints: z.number().nullable(),
         twitterHandle: z.string().nullable(),
@@ -59,7 +42,7 @@ export const userSchema = z
     })
     .strict();
 export const UserSchema = userSchema;
-export type UserDTO = z.infer<typeof UserSchema>;
+export type UserDTO = z.infer<typeof UserSchema> & User;
 
 export const userWithStatusSchema = userSchema
     .extend({
@@ -67,35 +50,26 @@ export const userWithStatusSchema = userSchema
     })
     .strict();
 export const UserWithStatusSchema = userWithStatusSchema;
-export type UserWithStatusDTO = z.infer<typeof UserWithStatusSchema>;
+export type UserWithStatusDTO = z.infer<typeof UserWithStatusSchema> &
+    UserWithStatus;
 
 // This should be validated on the client (don't waste a slow API call), but should definitely check on server when an actual api call is made to be safe
 export const CreateUserSchema = z
     .object({
-        email: z
-            .string({
-                required_error: 'Email is required'
-            })
-            .email('Invalid email address'),
+        email: z.string().email('Invalid email address'),
         username: z
-            .string({
-                required_error: 'Username is required'
-            })
-            .min(3, 'Username must be at least 3 characters')
-            .max(30, 'Username must be at most 30 characters')
+            .string()
+            .min(3)
+            .max(30)
             .regex(
                 /^[a-zA-Z0-9_-]+$/,
                 'Username can only contain letters, numbers, underscores, and hyphens'
             ),
-        privyId: z.string({
-            required_error: 'Privy ID is required'
-        }),
+        privyId: z.string(),
         walletAddress: z
-            .string({
-                required_error: 'Wallet address is required'
-            })
-            .regex(/^0x[a-fA-F0-9]+$/, 'Wallet address must be a valid address')
+            .string()
+            .regex(/^0x[a-fA-F0-9]+$/)
             .transform((val) => val as `0x${string}`)
     })
     .strict();
-export type CreateUserDTO = z.infer<typeof CreateUserSchema>;
+export type CreateUserDTO = z.infer<typeof CreateUserSchema> & UserInsert;
