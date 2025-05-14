@@ -3,8 +3,7 @@ import { z } from 'zod';
 import {
     User,
     UserWithStatus,
-    UserRecord,
-    CreateUserInput,
+    UserInsert,
     ISODate,
     DefaultAvatar
 } from '@phyt/types';
