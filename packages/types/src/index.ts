@@ -1,15 +1,19 @@
+import {
+    Card,
+    CardMetadata,
+    CardRarity,
+    CardWithMetadata,
+    SeasonCollection
+} from './card.js';
 import { UUIDv7 } from './core.js';
+import { User } from './users.js';
 export * from './comment.js';
 export * from './core.js';
+export * from './runners.js';
+export * from './users.js';
+export * from './card.js';
+export * from './transactions.js';
 
-export type CardRarity =
-    | 'bronze'
-    | 'silver'
-    | 'gold'
-    | 'sapphire'
-    | 'ruby'
-    | 'opal';
-export type AcquisitionType = 'mint' | 'transfer' | 'marketplace';
 export type RunVerificationStatus = 'pending' | 'verified' | 'flagged';
 export type RunnerApplicationStatus =
     | 'pending'
@@ -18,13 +22,6 @@ export type RunnerApplicationStatus =
     | 'alreadySubmitted'
     | 'failed';
 export type RunnerStatus = 'pending' | 'active' | 'inactive';
-export type TransactionType =
-    | 'packPurchase'
-    | 'marketplaceSale'
-    | 'marketplaceOffer'
-    | 'marketplaceListing'
-    | 'rewardPayout';
-export type UserRole = 'admin' | 'user' | 'runner';
 export type BidType = 'listing' | 'open';
 export type BidStatusOpen = 'active' | 'filled';
 export type BidStatusListed = 'topbid' | 'outbid';
@@ -106,36 +103,6 @@ export const RarityMultipliers: Record<CardRarity, number> = {
     opal: 10
 };
 
-export interface User {
-    id: UUIDv7;
-    email: string;
-    username: string;
-    role: UserRole;
-    privyId: string;
-    avatarUrl: string;
-    walletAddress: string;
-    phytnessPoints: number | null;
-    twitterHandle: string | null;
-    stravaHandle: string | null;
-    createdAt: Date;
-    updatedAt: Date;
-}
-
-export interface UserWithStatus extends User {
-    status?: RunnerStatus;
-}
-
-export interface CreateUserFormData extends FormData {
-    email: string;
-    username: string;
-    privyId: string;
-    walletAddress: `0x${string}`;
-}
-
-export interface CreateUserInput {
-    formData: CreateUserFormData;
-}
-
 export interface Run {
     id: UUIDv7;
     runnerId: UUIDv7;
@@ -163,8 +130,6 @@ export interface PendingRun {
     runner: string;
 }
 
-export type SeasonCollection = 'season_0';
-
 export interface TokenURIMetadata {
     name: string;
     description: string;
@@ -176,32 +141,6 @@ export interface TokenURIMetadata {
         multiplier: number;
         season: SeasonCollection;
     }[];
-}
-
-export interface Card {
-    id: UUIDv7;
-    ownerId: UUIDv7;
-    packPurchaseId: UUIDv7 | null;
-    tokenId: number;
-    isBurned: boolean;
-    acquisitionType: AcquisitionType;
-    updatedAt: Date;
-    createdAt: Date;
-}
-
-export interface CardMetadata extends Pick<Card, 'tokenId'> {
-    tokenId: number;
-    runnerId: UUIDv7;
-    runnerName: string;
-    rarity: CardRarity;
-    imageUrl: string;
-    multiplier: number;
-    season: SeasonCollection;
-    createdAt: Date;
-}
-
-export interface CardWithMetadata extends Card {
-    metadata: CardMetadata;
 }
 
 export interface Competition {
@@ -309,20 +248,6 @@ export interface GamblerResult {
     totalScore: number;
     finalPlacement: number | null;
     rewardAmountPhyt: number | null;
-}
-
-export interface Transaction {
-    id: UUIDv7;
-    fromUserId: UUIDv7 | null;
-    toUserId: UUIDv7 | null;
-    cardId: UUIDv7 | null;
-    competitionId: UUIDv7 | null;
-    price: string | null;
-    transactionType: TransactionType;
-    packPurchaseId: UUIDv7 | null;
-    hash: string | null;
-    createdAt: Date;
-    updatedAt: Date;
 }
 
 export interface PackPurchase {

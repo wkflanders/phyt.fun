@@ -1,13 +1,29 @@
-import { UUIDv7, Pagination, ISODate } from './core.js';
+import { UUIDv7, Pagination } from './core.js';
 
 export interface Comment {
     id: UUIDv7;
     postId: UUIDv7;
     userId: UUIDv7;
-    content: string;
     parentCommentId: UUIDv7 | null;
-    updatedAt: Date;
+    content: string;
     createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface CommentInsert {
+    postId: UUIDv7;
+    userId: UUIDv7;
+    parentCommentId: UUIDv7 | null;
+    content: string;
+}
+
+export interface CommentUpdate {
+    content: string;
+}
+
+export interface CommentWithUser extends Comment {
+    username: string;
+    avatarUrl: string;
 }
 
 export interface CommentQueryParams {
@@ -16,34 +32,7 @@ export interface CommentQueryParams {
     parentOnly?: boolean;
 }
 
-export interface CreateCommentInput {
-    userId: UUIDv7;
-    postId: UUIDv7;
-    content: string;
-    parentCommentId: UUIDv7 | null;
-}
-
-export interface UpdateCommentInput {
-    content: string;
-}
-
-export interface CommentRecord {
-    id?: UUIDv7;
-    postId: UUIDv7;
-    authorId: UUIDv7;
-    parentCommentId?: UUIDv7 | null;
-    content: string;
-    createdAt: ISODate;
-    updatedAt?: ISODate;
-}
-
 export interface PaginatedComments {
-    comments: {
-        comment: Comment;
-        user: {
-            username: string;
-            avatarUrl: string;
-        };
-    }[];
+    comments: CommentWithUser[];
     pagination?: Pagination;
 }
