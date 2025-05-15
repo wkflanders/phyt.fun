@@ -13,7 +13,7 @@ import { validateSchema } from '@/middleware/validator.js';
 import type {
     PostIdDTO,
     CommentIdDTO,
-    CommentDataDTO,
+    CommentDTO,
     CreateCommentDTO,
     UpdateCommentDTO,
     CommentQueryParamsDTO,
@@ -37,11 +37,11 @@ export const makeCommentController = (svc: CommentService) => ({
         ) => {
             const { page = 1, limit = 20, parentOnly = true } = req.query;
             const data = await svc.getPostComments(req.params.postId, {
-                page: page,
-                limit: limit,
-                parentOnly: parentOnly
+                page,
+                limit,
+                parentOnly
             });
-            res.status(200).json(data);
+            res.status(200).json(data as CommentsPageDTO);
         }
     ] as RequestHandler[],
 
@@ -59,10 +59,10 @@ export const makeCommentController = (svc: CommentService) => ({
         ) => {
             const { page = 1, limit = 20 } = req.query;
             const data = await svc.getCommentReplies(req.params.commentId, {
-                page: page,
-                limit: limit
+                page,
+                limit
             });
-            res.status(200).json(data);
+            res.status(200).json(data as CommentsPageDTO);
         }
     ] as RequestHandler[],
 
@@ -70,11 +70,11 @@ export const makeCommentController = (svc: CommentService) => ({
         validateAuth,
         validateSchema(CommentIdSchema),
         async (
-            req: Request<CommentIdDTO, CommentDataDTO>,
-            res: Response<CommentDataDTO>
+            req: Request<CommentIdDTO, CommentDTO>,
+            res: Response<CommentDTO>
         ) => {
             const comment = await svc.getCommentById(req.params.commentId);
-            res.status(200).json(comment);
+            res.status(200).json(comment as CommentDTO);
         }
     ] as RequestHandler[],
 
@@ -82,16 +82,12 @@ export const makeCommentController = (svc: CommentService) => ({
         validateAuth,
         validateSchema(undefined, CreateCommentSchema),
         async (
-            req: Request<
-                Record<string, never>,
-                CommentDataDTO,
-                CreateCommentDTO
-            >,
-            res: Response<CommentDataDTO>
+            req: Request<Record<string, never>, CommentDTO, CreateCommentDTO>,
+            res: Response<CommentDTO>
         ) => {
             const commentData = req.body;
             const comment = await svc.createComment(commentData);
-            res.status(201).json(comment);
+            res.status(201).json(comment as CommentDTO);
         }
     ] as RequestHandler[],
 
@@ -99,8 +95,8 @@ export const makeCommentController = (svc: CommentService) => ({
         validateAuth,
         validateSchema(CommentIdSchema, UpdateCommentSchema),
         async (
-            req: Request<CommentIdDTO, CommentDataDTO, UpdateCommentDTO>,
-            res: Response<CommentDataDTO>
+            req: Request<CommentIdDTO, CommentDTO, UpdateCommentDTO>,
+            res: Response<CommentDTO>
         ) => {
             const commentId = req.params.commentId;
             const updateCommentData = req.body;
@@ -109,7 +105,7 @@ export const makeCommentController = (svc: CommentService) => ({
                 commentId,
                 updateCommentData
             );
-            res.status(200).json(comment);
+            res.status(200).json(comment as CommentDTO);
         }
     ] as RequestHandler[],
 
@@ -118,12 +114,12 @@ export const makeCommentController = (svc: CommentService) => ({
         ensureOwnership,
         validateSchema(CommentIdSchema),
         async (
-            req: Request<CommentIdDTO, CommentDataDTO>,
-            res: Response<CommentDataDTO>
+            req: Request<CommentIdDTO, CommentDTO>,
+            res: Response<CommentDTO>
         ) => {
             const commentId = req.params.commentId;
             const deleted = await svc.deleteComment(commentId);
-            res.status(200).json(deleted);
+            res.status(200).json(deleted as CommentDTO);
         }
     ] as RequestHandler[]
 });
