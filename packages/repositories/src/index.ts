@@ -1,1 +1,1 @@
-export * from './comment.js';
+export * from './commentsRepo.js';
