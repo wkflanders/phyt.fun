@@ -1,1 +1,1 @@
-export * from './commentServices.js';
+export * from './commentsServices.js';

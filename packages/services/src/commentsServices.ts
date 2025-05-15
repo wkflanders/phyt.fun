@@ -1,13 +1,10 @@
-import { CommentVO } from '@phyt/models';
+import { CommentVO, NotFoundError } from '@phyt/models';
 import {
     UUIDv7,
     PaginatedComments,
-    Comment,
-    CreateCommentInput,
-    UpdateCommentInput,
-    CommentQueryParams,
-    NotFoundError,
-    ValidationError
+    CommentInsert,
+    CommentUpdate,
+    CommentQueryParams
 } from '@phyt/types';
 
 import type { CommentRepository } from '@phyt/repositories';
@@ -15,12 +12,9 @@ import type { CommentRepository } from '@phyt/repositories';
 export type CommentService = ReturnType<typeof makeCommentService>;
 
 export const makeCommentService = (repo: CommentRepository) => {
-    const createComment = async (
-        input: CreateCommentInput
-    ): Promise<Comment> => {
-        if (!input.content.trim())
-            throw new ValidationError('Cannot be empty comment');
-        CommentVO.create(input);
+    const createComment = async (input: CommentInsert) => {
+        const comment = CommentVO.create(input);
+
         return repo.create(input);
     };
 
@@ -40,24 +34,25 @@ export const makeCommentService = (repo: CommentRepository) => {
 
     const getCommentById = async (commentId: UUIDv7) => {
         const comment = await repo.findById(commentId);
-        if (!comment)
+        if (!comment) {
             throw new NotFoundError(`Comment ${String(commentId)} not found`);
+        }
         return comment;
     };
 
-    const updateComment = async (
-        commentId: UUIDv7,
-        input: UpdateCommentInput
-    ) => {
-        const cur = await repo.findById(commentId);
-        if (!cur) throw new Error('not found');
-        const next = CommentVO.fromRecord(cur).updateContent({
-            content: input.content
-        });
-        return await repo.update(commentId, next.toJSON());
+    const updateComment = async (commentId: UUIDv7, input: CommentUpdate) => {
+        const current = await repo.findById(commentId);
+        if (!current) {
+            throw new NotFoundError(`Comment ${String(commentId)} not found`);
+        }
+
+        return repo.update(commentId, input);
     };
 
-    const deleteComment = (commentId: UUIDv7) => {
+    const deleteComment = async (commentId: UUIDv7) => {
+        const comment = await repo.findById(commentId);
+        if (!comment)
+            throw new NotFoundError(`Comment ${String(commentId)} not found`);
         return repo.remove(commentId);
     };
 
