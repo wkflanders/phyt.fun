@@ -1,0 +1,121 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Full Implementation Guidelines
+
+## Coding pattern preferences
+
+– Always prefer simple, direct solutions  
+– Avoid duplication across layers (DTO, model, service, etc.)  
+– Validate and reuse shared logic via helper modules (e.g. validators)  
+– Respect project environment boundaries (dev/test/prod)  
+– Only make changes explicitly requested by the user
+
+## Step 1: Identify the Scope
+
+– Determine the domain/slice being implemented (e.g. comments, users)  
+– Parse the request for included layers:  
+ • DTOs (Zod schemas + types)  
+ • Models/VOs (Value Objects and invariants)  
+ • Repositories and Infra (Drizzle, Redis)  
+ • Services (application orchestration)  
+ • Controllers (Express handlers)  
+ • Routes (Express Router usage)  
+– Respect any exclusions (e.g., "skip transactions")
+
+## Step 2: Define or Locate All Layers
+
+### DTO Layer
+– Create Zod schemas for:  
+ • Request body  
+ • Params  
+ • Query  
+– Export corresponding DTO types (`z.infer` or manually)  
+– Collocate Zod + type export (avoid separate files)
+
+### Domain Model / VO
+– Implement a factory with validation + immutability  
+– Provide `.toDTO()` and `.toJSON()`  
+– Do not expose raw constructor — always use a factory
+
+### Repository
+– Define via factory (`makeXRepository`)  
+– Return plain object (no classes)  
+– Export `type XRepository = ReturnType<typeof makeXRepository>`  
+– Accept ops/cache as injected dependencies (don’t import them)
+
+### Infra Ops
+– Implement Drizzle ops in `commentOps(db)` or `makeCommentPgOps(db)`  
+– Implement optional Redis wrappers (`makeRedisCommentWrappers`)  
+– Never call DB directly inside repositories or services
+
+### Concrete Wiring (in container)
+– Compose ops/cache → pass into repo  
+– Repo → service → controller  
+– Keep in a centralized `container.ts`  
+– Group wiring into clear `repos`, `services`, `controllers` blocks
+
+### Services
+– Accept only typed repo param  
+– Handle orchestration: validation, model mutation, repo call  
+– Only `import type` repository  
+– Return DTO or void — no raw models exposed
+
+### Controllers
+– Use middleware (`validateSchema`, `validateAuth`, etc.)  
+– Type `Request` and `Response` precisely using DTOs  
+– Inject services from container  
+– No logic inside controller — just glue and transformation
+
+### Routes
+– Export `routes = express().get(...).post(...).patch(...)`  
+– Use `...controller.method` for arrays of middleware  
+– Keep file flat — one line per endpoint max
+
+## Step 3: Verify Cross-Layer Consistency
+
+– Field names and types match across DTO ⇄ VO ⇄ Repo  
+– Function names and responsibilities consistent  
+– Only `import type` used where appropriate  
+– All files export exactly what’s consumed by next layer  
+– Avoid circular imports and leaking infra across boundaries
+
+## Step 4: Handle Tooling and Project Integration
+
+– Add workspace links in `package.json` as needed  
+– Use `"devDependencies"` for cross-layer type-only usage  
+– Update `tsconfig.json` paths if new workspaces are added  
+– Keep Turbo aware of dependencies via package graph  
+– No changes unless explicitly instructed
+
+## Step 5: Output Strategy
+
+– Output each file in full with filename  
+– Do not skip lines or collapse logic  
+– Use Markdown code blocks unless told to export file (e.g. PDF/TXT)  
+– Only omit files if explicitly unchanged  
+– Avoid “...snip...” unless user permits
+
+## Step 6: Red Flags to Watch For
+
+– Missing or incorrect imports  
+– Any `any` types or inference gaps  
+– Services returning raw models instead of DTOs  
+– Repo functions not aligning with service calls  
+– Controllers lacking expected middleware  
+– Duplicate logic across slices  
+– Runtime imports inside services  
+– Redundant factories or unused helper methods  
+– Overcomplicated folder hierarchies
+
+## Step 7: What to Clarify in a Request
+
+– Which slices (e.g. comments)?  
+– What layers (DTO, VO, Repo, etc.)?  
+– Any tech exclusions (e.g., no Redis)?  
+– Should I create helper modules or inject inline?  
+– Is this standalone or expected to plug into existing infrastructure?
+
+– end –
