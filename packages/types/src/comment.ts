@@ -1,4 +1,4 @@
-import { UUIDv7, Pagination } from './core.js';
+import { UUIDv7, Pagination, ISODate } from './core.js';
 
 export interface Comment {
     id: UUIDv7;
@@ -35,4 +35,14 @@ export interface CommentQueryParams {
 export interface PaginatedComments {
     comments: CommentWithUser[];
     pagination?: Pagination;
+}
+
+export interface CommentRecord {
+    id?: UUIDv7;
+    postId: UUIDv7;
+    userId: UUIDv7;
+    parentCommentId: UUIDv7 | null;
+    content: string;
+    createdAt: ISODate;
+    updatedAt: ISODate;
 }
