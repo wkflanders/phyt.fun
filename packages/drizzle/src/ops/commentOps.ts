@@ -2,8 +2,8 @@ import { eq, and, isNull, desc, count } from 'drizzle-orm';
 
 import {
     UUIDv7,
-    CreateCommentInput,
-    UpdateCommentInput,
+    CommentInsert,
+    CommentUpdate,
     CommentQueryParams,
     Comment,
     PaginatedComments
@@ -27,7 +27,7 @@ const toData = (commentRow: typeof comments.$inferSelect): Comment => ({
 export type CommentDrizzleOps = ReturnType<typeof makeCommentDrizzleOps>;
 
 export const makeCommentDrizzleOps = (db: DrizzleDB) => {
-    const create = async (input: CreateCommentInput): Promise<Comment> => {
+    const create = async (input: CommentInsert): Promise<Comment> => {
         const [row] = await db
             .insert(comments)
             .values({
@@ -99,7 +99,7 @@ export const makeCommentDrizzleOps = (db: DrizzleDB) => {
 
     const update = async (
         commentId: UUIDv7,
-        input: UpdateCommentInput
+        input: CommentUpdate
     ): Promise<Comment> => {
         const [row] = await db
             .update(comments)
