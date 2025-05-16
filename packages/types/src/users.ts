@@ -1,9 +1,6 @@
 import { UUIDv7, Pagination, ISODate } from './core.js';
 import { RunnerStatus } from './runners.js';
 
-export const DefaultAvatar =
-    'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut';
-
 export type UserRole = 'admin' | 'user' | 'runner';
 
 /**
@@ -49,11 +46,9 @@ export interface UserInsert {
     stravaHandle?: string | null;
 }
 
-export interface PaginatedUsers {
-    users: UserWithStatus[];
+export interface PaginatedUsers<T = User> {
+    users: T[];
     pagination?: Pagination;
-    nextCursor?: string | null;
-    prevCursor?: string | null;
 }
 
 export type UserRecord = Omit<

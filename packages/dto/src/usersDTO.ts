@@ -1,16 +1,17 @@
 import { z } from 'zod';
 
-import {
-    User,
-    UserWithStatus,
-    UserInsert,
-    DefaultAvatar,
-    UserQueryParams,
-    PaginatedUsers
-} from '@phyt/types';
+import { DefaultAvatar } from '@phyt/models';
 
 import { uuidv7, PaginationSchema } from './core.js';
 import { RunnerStatusSchema } from './runnersDTO.js';
+
+import type {
+    User,
+    UserWithStatus,
+    UserInsert,
+    UserQueryParams,
+    PaginatedUsers
+} from '@phyt/types';
 
 /* ------------ Shared ------------------ */
 export const UserRoleSchema = z.enum(['admin', 'user', 'runner']);
@@ -21,9 +22,11 @@ export const UserIdSchema = z.object({
 });
 export type UserIdDTO = z.infer<typeof UserIdSchema>;
 
-export const UpdateAvatarSchema = z.object({
-    avatarUrl: z.string().url()
-});
+export const UpdateAvatarSchema = z
+    .object({
+        avatarUrl: z.string().url()
+    })
+    .strict();
 export type UpdateAvatarDTO = z.infer<typeof UpdateAvatarSchema>;
 
 export const UpdateProfileSchema = z
@@ -82,7 +85,7 @@ export const UserSchema = z
         avatarUrl: z.string().default(DefaultAvatar),
         walletAddress: z
             .string()
-            .regex(/^0x[a-fA-F0-9]+$/)
+            .regex(/^0x[a-fA-F0-9]{40}$/)
             .transform((val) => val as `0x${string}`),
         phytnessPoints: z.number(),
         twitterHandle: z.string().nullable(),

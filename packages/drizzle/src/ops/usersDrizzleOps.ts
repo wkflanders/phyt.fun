@@ -1,12 +1,28 @@
-import { eq, or } from 'drizzle-orm';
+import { eq, or, desc, count } from 'drizzle-orm';
 
 import { NotFoundError } from '@phyt/models';
-import { User, UserInsert, UUIDv7, WalletAddress } from '@phyt/types';
 
 // eslint-disable-next-line no-restricted-imports
 import { DrizzleDB } from '../db.js';
 // eslint-disable-next-line no-restricted-imports
-import { cards, competitions, transactions, users } from '../schema.js';
+import {
+    cards,
+    competitions,
+    transactions,
+    users,
+    runners
+} from '../schema.js';
+
+import type {
+    User,
+    UserInsert,
+    UUIDv7,
+    WalletAddress,
+    UserQueryParams,
+    PaginatedUsers,
+    UserWithStatus,
+    RunnerStatus
+} from '@phyt/types';
 
 const toData = (userRow: typeof users.$inferSelect): User => ({
     id: userRow.id as UUIDv7,
@@ -38,6 +54,44 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
             .where(eq(users.privyId, privyId));
         if (!row) throw new NotFoundError('User not found');
         return toData(row);
+    };
+
+    const findByPrivyIdWithStatus = async (
+        privyId: string
+    ): Promise<UserWithStatus> => {
+        const [row] = await db
+            .select({
+                user: users,
+                status: runners.status
+            })
+            .from(users)
+            .leftJoin(runners, eq(users.id, runners.userId))
+            .where(eq(users.privyId, privyId));
+
+        if (!row) throw new NotFoundError('User not found');
+
+        return {
+            ...toData(row.user),
+            status: row.status as RunnerStatus | undefined
+        };
+    };
+
+    const findByIdWithStatus = async (userId: UUIDv7) => {
+        const [row] = await db
+            .select({
+                user: users,
+                status: runners.status
+            })
+            .from(users)
+            .leftJoin(runners, eq(users.id, runners.userId))
+            .where(eq(users.id, userId));
+
+        if (!row) throw new NotFoundError('User not found');
+
+        return {
+            ...toData(row.user),
+            status: row.status as RunnerStatus | undefined
+        };
     };
 
     const findByWalletAddress = async (walletAddress: string) => {
@@ -101,14 +155,87 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
         return rows;
     };
 
+    const updateProfile = async (
+        userId: UUIDv7,
+        data: { twitterHandle?: string | null; stravaHandle?: string | null }
+    ) => {
+        const [row] = await db
+            .update(users)
+            .set({
+                ...data,
+                updatedAt: new Date()
+            })
+            .where(eq(users.id, userId))
+            .returning();
+
+        if (!row) throw new NotFoundError('User not found');
+        return toData(row);
+    };
+
+    const updateAvatar = async (userId: UUIDv7, avatarUrl: string) => {
+        const [row] = await db
+            .update(users)
+            .set({
+                avatarUrl,
+                updatedAt: new Date()
+            })
+            .where(eq(users.id, userId))
+            .returning();
+
+        if (!row) throw new NotFoundError('User not found');
+        return toData(row);
+    };
+
+    const listUsers = async (
+        params: UserQueryParams
+    ): Promise<PaginatedUsers> => {
+        const { page = 1, limit = 20 } = params;
+        const offset = (page - 1) * limit;
+
+        const [{ value: total }] = await db
+            .select({ value: count() })
+            .from(users);
+
+        const rows = await db
+            .select({
+                user: users,
+                status: runners.status
+            })
+            .from(users)
+            .leftJoin(runners, eq(users.id, runners.userId))
+            .limit(limit)
+            .offset(offset)
+            .orderBy(desc(users.createdAt));
+
+        const totalPages = Math.ceil(total / limit);
+
+        return {
+            users: rows.map((row) => ({
+                ...toData(row.user),
+                status: row.status as RunnerStatus | undefined
+            })),
+            pagination: {
+                total: total as number,
+                page,
+                limit,
+                totalPages
+            }
+        };
+    };
+
     return {
         create,
         findByPrivyId,
+        findByPrivyIdWithStatus,
         findByWalletAddress,
         findById,
         findByEmail,
         findByUsername,
         findTransactionById,
-        findCardsById
+        findCardsById,
+        updateProfile,
+        updateAvatar,
+        listUsers,
+        findByIdWithStatus
     };
 };

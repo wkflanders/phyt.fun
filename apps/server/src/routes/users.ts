@@ -1,158 +1,55 @@
-import express, { Router, Request, Response } from 'express';
+import { Router } from 'express';
 
-import multer from 'multer';
+import { controller } from '@/container.js';
 
-import {
-    NotFoundError,
-    Transaction,
-    User,
-    UserWithStatus,
-    CreateUserInput,
-    CardWithMetadata
-} from '@phyt/types';
+const router: Router = Router();
 
-import { createUserSchema } from '@/lib/validation.js';
-import { validateAuth } from '@/middleware/auth.js';
-import { validateSchema } from '@/middleware/validator.js';
-import { userService } from '@/services/userServices.js';
+// Get user by ID
+router.get('/id/:userId', ...controller.users.getUserById);
 
-const router: Router = express.Router();
+// Get user by Privy ID
+router.get('/privy/:privyId', ...controller.users.getUserByPrivyId);
 
-const upload = multer({
-    limits: {
-        fileSize: 5 * 1024 * 1024
-    },
-    fileFilter: (_, file, cb) => {
-        if (!file.mimetype.startsWith('image/')) {
-            cb(new Error('Only image files are allowed'));
-            return;
-        }
-        cb(null, true);
-    }
-});
-
-router.use(validateAuth);
-
-// Get all user transactions
+// Get user with status by Privy ID
 router.get(
-    '/transactions/:privyId',
-    async (
-        req: Request<{ privyId: string }, Transaction[]>,
-        res: Response<Transaction[]>
-    ) => {
-        const { privyId } = req.params;
-
-        if (!privyId) {
-            throw new NotFoundError('Missing valid id');
-        }
-
-        const result = await userService.getTransactionsByPrivyId(privyId);
-
-        res.status(200).json(result);
-    }
+    '/privy/:privyId/status',
+    ...controller.users.getUserWithStatusByPrivyId
 );
 
-// Get user by privy Id
+// Get user with status by ID
+router.get('/id/:userId/status', ...controller.users.getUserWithStatusById);
+
+// Get user by wallet address
 router.get(
-    '/:privyId',
-    async (req: Request<{ privyId: string }, User>, res: Response<User>) => {
-        const { privyId } = req.params;
-
-        if (!privyId) {
-            throw new NotFoundError('Missing valid id');
-        }
-
-        const user = await userService.getUserByPrivyId(privyId);
-
-        res.status(200).json(user);
-    }
-);
-
-router.get(
-    '/:walletAddress',
-    async (
-        req: Request<{ walletAddress: string }, User>,
-        res: Response<User>
-    ) => {
-        const { walletAddress } = req.params;
-
-        if (!walletAddress) {
-            throw new NotFoundError('Missing valid wallet address');
-        }
-
-        const user = await userService.getUserByWalletAddress(walletAddress);
-        res.status(200).json(user);
-    }
-);
-
-/// COME BACK TO THIS TO MAKE SURE THAT STATUS WILL NEVER BE RETURNED UNDEFINED (WHAT IF HAVENT CREATED A ROW IN RUNNER TABLE FOR USER?)
-
-// Get user by privy Id with runner status
-router.get(
-    '/status/:privyId',
-    async (
-        req: Request<{ privyId: string }, UserWithStatus>,
-        res: Response<UserWithStatus>
-    ) => {
-        const { privyId } = req.params;
-
-        if (!privyId) {
-            throw new NotFoundError('Missing valid id');
-        }
-
-        const user = await userService.getUserByPrivyId(privyId, true);
-
-        res.status(200).json(user);
-    }
+    '/wallet/:walletAddress',
+    ...controller.users.getUserByWalletAddress
 );
 
 // Get user by email
+router.get('/email/:email', ...controller.users.getUserByEmail);
 
 // Get user by username
+router.get('/username/:username', ...controller.users.getUserByUsername);
 
-// Create new user
-router.post(
-    '/create',
-    validateSchema(createUserSchema),
-    upload.single('avatar'),
-    async (
-        // idk wtf is going on with why typescript wants this 'object' lol
-        req: Request<object, User, CreateUserInput>,
-        res: Response<User>
-    ) => {
-        const { formData } = req.body;
+// Create a new user
+router.post('/', ...controller.users.createUser);
 
-        const newUser = await userService.createUser({
-            email: formData.email,
-            username: formData.username,
-            privyId: formData.privyId,
-            walletAddress: formData.walletAddress,
-            avatarFile: req.file // Pass the file if it exists
-        });
+// Update user profile
+router.patch('/:userId/profile', ...controller.users.updateProfile);
 
-        res.status(201).json(newUser);
-    }
-);
+// Update user avatar
+router.patch('/:userId/avatar', ...controller.users.updateAvatar);
 
-// Get all the cards owned by a privy Id
+// List users
+router.get('/', ...controller.users.listUsers);
+
+// Get all the cards owned by a user
+router.get('/cards/:userId', ...controller.users.getCardsByUserId);
+
+// Get all transactions for a user
 router.get(
-    '/cards/:privyId',
-    async (
-        req: Request<{ privyId: string }, CardWithMetadata[]>,
-        res: Response<CardWithMetadata[]>
-    ) => {
-        const { privyId } = req.params;
-
-        if (!privyId) {
-            throw new NotFoundError('Missing valid id');
-        }
-
-        const cards = await userService.getCardsByPrivyId(privyId);
-
-        res.status(200).json(cards);
-    }
+    '/transactions/:userId',
+    ...controller.users.getTransactionsByUserId
 );
 
-router.get('/');
-
-export { router as userRouter };
+export { router as usersRouter };
