@@ -1,7 +1,13 @@
 import { eq, and, isNull, desc, count } from 'drizzle-orm';
 
 import { NotFoundError } from '@phyt/models';
-import {
+
+// eslint-disable-next-line no-restricted-imports
+import { DrizzleDB } from '../db.js';
+// eslint-disable-next-line no-restricted-imports
+import { comments, users } from '../schema.js';
+
+import type {
     UUIDv7,
     CommentInsert,
     CommentUpdate,
@@ -10,11 +16,6 @@ import {
     PaginatedComments,
     CommentWithUser
 } from '@phyt/types';
-
-// eslint-disable-next-line no-restricted-imports
-import { DrizzleDB } from '../db.js';
-// eslint-disable-next-line no-restricted-imports
-import { comments, users } from '../schema.js';
 
 const toData = (commentRow: typeof comments.$inferSelect): Comment => ({
     id: commentRow.id as UUIDv7,

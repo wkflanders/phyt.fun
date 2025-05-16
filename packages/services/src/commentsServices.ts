@@ -1,10 +1,4 @@
 import { CommentsVO } from '@phyt/models';
-import {
-    UUIDv7,
-    CommentInsert,
-    CommentUpdate,
-    CommentQueryParams
-} from '@phyt/types';
 
 import type {
     CommentDTO,
@@ -12,6 +6,12 @@ import type {
     CommentWithUserDTO
 } from '@phyt/dto';
 import type { CommentsRepository } from '@phyt/repositories';
+import type {
+    UUIDv7,
+    CommentInsert,
+    CommentUpdate,
+    CommentQueryParams
+} from '@phyt/types';
 
 export type CommentsService = ReturnType<typeof makeCommentsService>;
 

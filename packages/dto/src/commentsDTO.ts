@@ -7,8 +7,7 @@ import type {
     Comment,
     PaginatedComments,
     CommentUpdate,
-    CommentInsert,
-    CommentWithUser
+    CommentInsert
 } from '@phyt/types';
 
 /* ---------- Inbound DTOs ---------- */

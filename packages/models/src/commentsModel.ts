@@ -1,4 +1,6 @@
-import {
+import { InputError } from './errors.js';
+
+import type {
     Comment,
     CommentInsert,
     CommentUpdate,
@@ -6,8 +8,6 @@ import {
     CommentRecord,
     ISODate
 } from '@phyt/types';
-
-import { InputError } from './errors.js';
 
 export interface CommentsVO extends Comment {
     username?: string;
