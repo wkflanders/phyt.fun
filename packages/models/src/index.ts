@@ -4,6 +4,6 @@ export * from './usersModel.js';
 export * from './commentsModel.js';
 export * from './cards.js';
 export * from './transactions.js';
-export * from './reactions.js';
+export * from './reactionsModel.js';
 export * from './metadata.js';
 export * from './runners.js';
