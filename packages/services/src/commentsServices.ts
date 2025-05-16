@@ -1,59 +1,81 @@
-import { CommentVO, NotFoundError } from '@phyt/models';
+import { CommentsVO } from '@phyt/models';
 import {
     UUIDv7,
-    PaginatedComments,
     CommentInsert,
     CommentUpdate,
     CommentQueryParams
 } from '@phyt/types';
 
-import type { CommentRepository } from '@phyt/repositories';
+import type {
+    CommentDTO,
+    CommentsPageDTO,
+    CommentWithUserDTO
+} from '@phyt/dto';
+import type { CommentsRepository } from '@phyt/repositories';
 
-export type CommentService = ReturnType<typeof makeCommentService>;
+export type CommentsService = ReturnType<typeof makeCommentsService>;
 
-export const makeCommentService = (repo: CommentRepository) => {
-    const createComment = async (input: CommentInsert) => {
-        const comment = CommentVO.create(input);
-
-        return repo.create(input);
+export const makeCommentsService = (repo: CommentsRepository) => {
+    /**
+     * Domain operations: Return CommentsVO objects for internal use
+     * These are not exposed outside the service
+     */
+    const _findById = async (commentId: UUIDv7): Promise<CommentsVO> => {
+        const commentVO = await repo.findById(commentId);
+        return commentVO;
     };
 
-    const getPostComments = (
+    /**
+     * Public API: Always return plain Comment DTOs for external consumption
+     */
+    const createComment = async (input: CommentInsert): Promise<CommentDTO> => {
+        CommentsVO.validateInput(input);
+
+        const commentVO = await repo.create(input);
+        return commentVO.toDTO<CommentDTO>();
+    };
+
+    const getPostComments = async (
         postId: UUIDv7,
         params: CommentQueryParams
-    ): Promise<PaginatedComments> => {
-        return repo.listForPost(postId, params);
+    ): Promise<CommentsPageDTO> => {
+        const result = await repo.listForPost(postId, params);
+        return {
+            comments: result.comments.map((c) => c.toDTO<CommentWithUserDTO>()),
+            pagination: result.pagination
+        };
     };
 
-    const getCommentReplies = (
+    const getCommentReplies = async (
         commentId: UUIDv7,
         params: CommentQueryParams
-    ): Promise<PaginatedComments> => {
-        return repo.listReplies(commentId, params);
+    ): Promise<CommentsPageDTO> => {
+        await _findById(commentId);
+        const result = await repo.listReplies(commentId, params);
+        return {
+            comments: result.comments.map((c) => c.toDTO<CommentWithUserDTO>()),
+            pagination: result.pagination
+        };
     };
 
-    const getCommentById = async (commentId: UUIDv7) => {
-        const comment = await repo.findById(commentId);
-        if (!comment) {
-            throw new NotFoundError(`Comment ${String(commentId)} not found`);
-        }
-        return comment;
+    const getCommentById = async (commentId: UUIDv7): Promise<CommentDTO> => {
+        const commentVO = await _findById(commentId);
+        return commentVO.toDTO<CommentDTO>();
     };
 
-    const updateComment = async (commentId: UUIDv7, input: CommentUpdate) => {
-        const current = await repo.findById(commentId);
-        if (!current) {
-            throw new NotFoundError(`Comment ${String(commentId)} not found`);
-        }
+    const updateComment = async (
+        commentId: UUIDv7,
+        input: CommentUpdate
+    ): Promise<CommentDTO> => {
+        CommentsVO.validateUpdate(input);
 
-        return repo.update(commentId, input);
+        const savedVO = await repo.update(commentId, input);
+        return savedVO.toDTO<CommentDTO>();
     };
 
-    const deleteComment = async (commentId: UUIDv7) => {
-        const comment = await repo.findById(commentId);
-        if (!comment)
-            throw new NotFoundError(`Comment ${String(commentId)} not found`);
-        return repo.remove(commentId);
+    const deleteComment = async (commentId: UUIDv7): Promise<CommentDTO> => {
+        const deletedVO = await repo.remove(commentId);
+        return deletedVO.toDTO<CommentDTO>();
     };
 
     return Object.freeze({

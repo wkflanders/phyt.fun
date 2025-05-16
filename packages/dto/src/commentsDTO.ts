@@ -62,17 +62,18 @@ export type CommentDTO = z.infer<typeof CommentSchema> & Comment;
 
 export const CommentWithUserSchema = z
     .object({
-        comment: CommentSchema,
-        user: z
-            .object({
-                username: z.string(),
-                avatarUrl: z.string().nullable()
-            })
-            .strict()
+        id: uuidv7(),
+        postId: uuidv7(),
+        userId: uuidv7(),
+        content: z.string(),
+        parentCommentId: uuidv7().nullable(),
+        createdAt: z.coerce.date(),
+        updatedAt: z.coerce.date(),
+        username: z.string(),
+        avatarUrl: z.string()
     })
     .strict();
-export type CommentWithUserDTO = z.infer<typeof CommentWithUserSchema> &
-    CommentWithUser;
+export type CommentWithUserDTO = z.infer<typeof CommentWithUserSchema>;
 
 export const CommentsPageSchema = z
     .object({

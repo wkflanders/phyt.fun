@@ -1,12 +1,14 @@
 import { eq, and, isNull, desc, count } from 'drizzle-orm';
 
+import { NotFoundError } from '@phyt/models';
 import {
     UUIDv7,
     CommentInsert,
     CommentUpdate,
     CommentQueryParams,
     Comment,
-    PaginatedComments
+    PaginatedComments,
+    CommentWithUser
 } from '@phyt/types';
 
 // eslint-disable-next-line no-restricted-imports
@@ -24,10 +26,19 @@ const toData = (commentRow: typeof comments.$inferSelect): Comment => ({
     updatedAt: commentRow.updatedAt
 });
 
-export type CommentDrizzleOps = ReturnType<typeof makeCommentDrizzleOps>;
+const toCommentWithUser = (
+    comment: typeof comments.$inferSelect,
+    user: typeof users.$inferSelect | null
+): CommentWithUser => ({
+    ...toData(comment),
+    username: user?.username ?? '',
+    avatarUrl: user?.avatarUrl ?? ''
+});
 
-export const makeCommentDrizzleOps = (db: DrizzleDB) => {
-    const create = async (input: CommentInsert): Promise<Comment> => {
+export type CommentsDrizzleOps = ReturnType<typeof makeCommentsDrizzleOps>;
+
+export const makeCommentsDrizzleOps = (db: DrizzleDB) => {
+    const create = async (input: CommentInsert) => {
         const [row] = await db
             .insert(comments)
             .values({
@@ -41,10 +52,15 @@ export const makeCommentDrizzleOps = (db: DrizzleDB) => {
     };
 
     const findById = async (commentId: UUIDv7) => {
-        const row = await db.query.comments.findFirst({
-            where: eq(comments.id, commentId)
-        });
-        return row ? toData(row) : null;
+        const [row] = await db
+            .select()
+            .from(comments)
+            .where(eq(comments.id, commentId))
+            .limit(1);
+        if (!row) {
+            throw new NotFoundError('Comment not found');
+        }
+        return toData(row);
     };
 
     const paginate = async (
@@ -52,33 +68,33 @@ export const makeCommentDrizzleOps = (db: DrizzleDB) => {
         params: CommentQueryParams
     ): Promise<PaginatedComments> => {
         const { page = 1, limit = 20 } = params;
-        const off = (page - 1) * limit;
+        const offset = (page - 1) * limit;
 
+        // Get total count
         const [{ total }] = await db
             .select({ total: count() })
             .from(comments)
             .where(cond);
 
+        // Query rows
         const rows = await db
             .select({ comment: comments, user: users })
             .from(comments)
             .leftJoin(users, eq(comments.userId, users.id))
             .where(cond)
-            .orderBy(desc(comments.createdAt))
+            .orderBy(desc(comments.createdAt), desc(comments.id))
             .limit(limit)
-            .offset(off);
+            .offset(offset);
 
         return {
-            comments: rows.map(({ comment, user }) => ({
-                ...toData(comment),
-                username: user?.username ?? '',
-                avatarUrl: user?.avatarUrl ?? ''
-            })),
+            comments: rows.map(({ comment, user }) =>
+                toCommentWithUser(comment, user)
+            ),
             pagination: {
                 page,
                 limit,
                 total: Number(total),
-                totalPages: Math.ceil(Number(total) / limit)
+                totalPages: Math.max(1, Math.ceil(Number(total) / limit))
             }
         };
     };
@@ -97,23 +113,26 @@ export const makeCommentDrizzleOps = (db: DrizzleDB) => {
     const listReplies = (parent: UUIDv7, params: CommentQueryParams) =>
         paginate(eq(comments.parentCommentId, parent), params);
 
-    const update = async (
-        commentId: UUIDv7,
-        input: CommentUpdate
-    ): Promise<Comment> => {
+    const update = async (commentId: UUIDv7, input: CommentUpdate) => {
         const [row] = await db
             .update(comments)
             .set({ content: input.content, updatedAt: new Date() })
             .where(eq(comments.id, commentId))
             .returning();
+        if (!row) {
+            throw new NotFoundError('Comment not found');
+        }
         return toData(row);
     };
 
-    const remove = async (commentId: UUIDv7): Promise<Comment> => {
+    const remove = async (commentId: UUIDv7) => {
         const [row] = await db
             .delete(comments)
             .where(eq(comments.id, commentId))
             .returning();
+        if (!row) {
+            throw new NotFoundError('Comment not found');
+        }
         return toData(row);
     };
 

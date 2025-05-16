@@ -32,8 +32,8 @@ export interface CommentQueryParams {
     parentOnly?: boolean;
 }
 
-export interface PaginatedComments {
-    comments: CommentWithUser[];
+export interface PaginatedComments<T = CommentWithUser> {
+    comments: T[];
     pagination?: Pagination;
 }
 

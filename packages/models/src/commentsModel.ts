@@ -9,66 +9,73 @@ import {
 
 import { InputError } from './errors.js';
 
-export interface CommentVO extends Comment {
-    update(update: CommentUpdate): CommentVO;
-    withUserInfo(username: string, avatarUrl: string): CommentWithUser;
-    toDTO(): Comment;
+export interface CommentsVO extends Comment {
+    username?: string;
+    avatarUrl?: string | null;
+    update(update: CommentUpdate): CommentsVO;
+    withUserInfo(username: string, avatarUrl: string | null): CommentsVO;
+    toDTO<T extends Comment = Comment>(options?: { [K in keyof T]?: T[K] }): T;
     toJSON(): CommentRecord;
 }
 
-export const CommentVO = (() => {
-    const make = (record: CommentRecord): CommentVO => {
-        const update = (updateData: CommentUpdate) =>
-            make({
+export const CommentsVO = (() => {
+    const make = (
+        record: CommentRecord & {
+            username?: string | null;
+            avatarUrl?: string | null;
+        }
+    ): CommentsVO => {
+        const update = (updateData: CommentUpdate): CommentsVO => {
+            CommentsVO.validateUpdate(updateData);
+            return make({
                 ...record,
                 ...updateData,
                 updatedAt: new Date().toISOString() as ISODate
             });
-
-        const withUserInfo = (
-            username: string,
-            avatarUrl: string
-        ): CommentWithUser => {
-            if (!record.id) throw new InputError('Comment id is required');
-            return {
-                id: record.id,
-                postId: record.postId,
-                userId: record.userId,
-                content: record.content,
-                parentCommentId: record.parentCommentId,
-                createdAt: new Date(record.createdAt),
-                updatedAt: new Date(record.updatedAt),
-                username,
-                avatarUrl
-            };
         };
 
-        const toDTO = (): Comment => {
-            if (!record.id) throw new InputError('Comment id is required');
+        const withUserInfo = (
+            username: string | null,
+            avatarUrl: string | null
+        ): CommentsVO => {
+            return make({ ...record, username, avatarUrl });
+        };
+
+        const toDTO = <T extends Comment = Comment>(options?: {
+            [K in keyof T]?: T[K];
+        }): T => {
             return {
                 id: record.id,
                 postId: record.postId,
                 userId: record.userId,
                 content: record.content,
                 parentCommentId: record.parentCommentId,
-                createdAt: new Date(record.createdAt),
-                updatedAt: new Date(record.updatedAt)
-            };
+                createdAt: record.createdAt,
+                updatedAt: record.updatedAt,
+                ...(record.username ? { username: record.username } : {}),
+                ...(record.avatarUrl !== undefined
+                    ? { avatarUrl: record.avatarUrl }
+                    : {}),
+                ...(options ?? {})
+            } as T;
         };
 
         const toJSON = (): CommentRecord => ({ ...record });
 
         return Object.freeze({
             ...toDTO(),
+            username: record.username,
+            avatarUrl: record.avatarUrl,
             update,
             withUserInfo,
             toDTO,
             toJSON
-        }) as CommentVO;
+        }) as CommentsVO;
     };
 
     return {
-        create(input: CommentInsert): CommentVO {
+        create(input: CommentInsert): CommentsVO {
+            CommentsVO.validateInput(input);
             return make({
                 id: undefined,
                 postId: input.postId,
@@ -80,12 +87,33 @@ export const CommentVO = (() => {
             });
         },
 
-        fromRecord(record: CommentRecord): CommentVO {
+        fromRecord(record: CommentRecord): CommentsVO {
             return make(record);
         },
 
-        validate(input: CommentInsert): void {
-            if (!input.content || input.content.trim() === '') {
+        fromWithUser(data: CommentWithUser): CommentsVO {
+            return make({
+                id: data.id,
+                postId: data.postId,
+                userId: data.userId,
+                content: data.content,
+                parentCommentId: data.parentCommentId,
+                createdAt: (data.createdAt instanceof Date
+                    ? data.createdAt.toISOString()
+                    : data.createdAt) as ISODate,
+                updatedAt: (data.updatedAt instanceof Date
+                    ? data.updatedAt.toISOString()
+                    : data.updatedAt) as ISODate,
+                username: data.username,
+                avatarUrl: data.avatarUrl
+            });
+        },
+
+        validateInput(input: CommentInsert): void {
+            if (
+                typeof input.content === 'string' &&
+                input.content.trim() === ''
+            ) {
                 throw new InputError('Comment content cannot be empty');
             }
 
@@ -95,6 +123,12 @@ export const CommentVO = (() => {
 
             if (!input.userId) {
                 throw new InputError('User ID is required');
+            }
+        },
+
+        validateUpdate(input: CommentUpdate): void {
+            if (!input.content || input.content.trim() === '') {
+                throw new InputError('Comment content cannot be empty');
             }
         }
     };

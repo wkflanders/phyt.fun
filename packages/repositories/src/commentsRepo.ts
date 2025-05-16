@@ -1,85 +1,94 @@
-import { CommentVO } from '@phyt/models';
+import { CommentsVO } from '@phyt/models';
 
-import type { CommentDrizzleOps } from '@phyt/drizzle';
+import type { CommentsDrizzleOps } from '@phyt/drizzle';
 import type {
     UUIDv7,
     ISODate,
     CommentInsert,
     CommentUpdate,
     CommentQueryParams,
-    PaginatedComments
+    PaginatedComments,
+    CommentRecord
 } from '@phyt/types';
 
-export type CommentRepository = ReturnType<typeof makeCommentRepository>;
+export type CommentsRepository = ReturnType<typeof makeCommentsRepository>;
 
-export const makeCommentRepository = (ops: CommentDrizzleOps) => ({
-    create: async (input: CommentInsert) => {
-        const data = await ops.create(input);
-        return CommentVO.fromRecord({
+export const makeCommentsRepository = (ops: CommentsDrizzleOps) => {
+    function isDate(val: unknown): val is Date {
+        return val instanceof Date;
+    }
+
+    function mapRecord(
+        data: CommentRecord | import('@phyt/types').Comment
+    ): CommentsVO {
+        return CommentsVO.fromRecord({
             ...data,
-            createdAt: data.createdAt.toISOString() as ISODate,
-            updatedAt: data.updatedAt.toISOString() as ISODate
-        });
-    },
-
-    findById: async (commentId: UUIDv7) => {
-        const data = await ops.findById(commentId);
-        if (!data) return null;
-        return CommentVO.fromRecord({
-            ...data,
-            createdAt: data.createdAt.toISOString() as ISODate,
-            updatedAt: data.updatedAt.toISOString() as ISODate
-        });
-    },
-
-    listForPost: async (
-        postId: UUIDv7,
-        params: CommentQueryParams
-    ): Promise<PaginatedComments> => {
-        const { comments, pagination } = await ops.listForPost(postId, params);
-        return {
-            comments: comments.map((comment) => ({
-                ...comment,
-                createdAt: new Date(comment.createdAt),
-                updatedAt: new Date(comment.updatedAt)
-            })),
-            pagination
-        };
-    },
-
-    listReplies: async (
-        parentId: UUIDv7,
-        params: CommentQueryParams
-    ): Promise<PaginatedComments> => {
-        const { comments, pagination } = await ops.listReplies(
-            parentId,
-            params
-        );
-        return {
-            comments: comments.map((comment) => ({
-                ...comment,
-                createdAt: new Date(comment.createdAt),
-                updatedAt: new Date(comment.updatedAt)
-            })),
-            pagination
-        };
-    },
-
-    update: async (commentId: UUIDv7, input: CommentUpdate) => {
-        const data = await ops.update(commentId, input);
-        return CommentVO.fromRecord({
-            ...data,
-            createdAt: data.createdAt.toISOString() as ISODate,
-            updatedAt: data.updatedAt.toISOString() as ISODate
-        });
-    },
-
-    remove: async (commentId: UUIDv7) => {
-        const data = await ops.remove(commentId);
-        return CommentVO.fromRecord({
-            ...data,
-            createdAt: data.createdAt.toISOString() as ISODate,
-            updatedAt: data.updatedAt.toISOString() as ISODate
+            createdAt: (isDate(data.createdAt)
+                ? data.createdAt.toISOString()
+                : data.createdAt) as ISODate,
+            updatedAt: (isDate(data.updatedAt)
+                ? data.updatedAt.toISOString()
+                : data.updatedAt) as ISODate
         });
     }
-});
+
+    const create = async (input: CommentInsert): Promise<CommentsVO> => {
+        const data = await ops.create(input);
+        return mapRecord(data);
+    };
+
+    const findById = async (commentId: UUIDv7): Promise<CommentsVO> => {
+        const data = await ops.findById(commentId);
+        return mapRecord(data);
+    };
+
+    const listForPost = async (
+        postId: UUIDv7,
+        params: CommentQueryParams
+    ): Promise<PaginatedComments<CommentsVO>> => {
+        const paginatedData = await ops.listForPost(postId, params);
+
+        return {
+            comments: paginatedData.comments.map((c) =>
+                CommentsVO.fromWithUser(c)
+            ),
+            pagination: paginatedData.pagination
+        };
+    };
+
+    const listReplies = async (
+        parentId: UUIDv7,
+        params: CommentQueryParams
+    ): Promise<PaginatedComments<CommentsVO>> => {
+        const paginatedData = await ops.listReplies(parentId, params);
+
+        return {
+            comments: paginatedData.comments.map((c) =>
+                CommentsVO.fromWithUser(c)
+            ),
+            pagination: paginatedData.pagination
+        };
+    };
+
+    const update = async (
+        commentId: UUIDv7,
+        input: CommentUpdate
+    ): Promise<CommentsVO> => {
+        const data = await ops.update(commentId, input);
+        return mapRecord(data);
+    };
+
+    const remove = async (commentId: UUIDv7): Promise<CommentsVO> => {
+        const data = await ops.remove(commentId);
+        return mapRecord(data);
+    };
+
+    return {
+        create,
+        findById,
+        listForPost,
+        listReplies,
+        update,
+        remove
+    };
+};

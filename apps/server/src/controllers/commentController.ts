@@ -19,10 +19,10 @@ import type {
     CommentQueryParamsDTO,
     CommentsPageDTO
 } from '@phyt/dto';
-import type { CommentService } from '@phyt/services';
+import type { CommentsService } from '@phyt/services';
 import type { Request, RequestHandler, Response } from 'express';
 
-export const makeCommentController = (svc: CommentService) => ({
+export const makeCommentController = (svc: CommentsService) => ({
     getPostComments: [
         validateAuth,
         validateSchema(PostIdSchema, undefined, CommentQueryParamsSchema),
@@ -41,7 +41,7 @@ export const makeCommentController = (svc: CommentService) => ({
                 limit,
                 parentOnly
             });
-            res.status(200).json(data as CommentsPageDTO);
+            res.status(200).json(data);
         }
     ] as RequestHandler[],
 
@@ -62,7 +62,7 @@ export const makeCommentController = (svc: CommentService) => ({
                 page,
                 limit
             });
-            res.status(200).json(data as CommentsPageDTO);
+            res.status(200).json(data);
         }
     ] as RequestHandler[],
 
@@ -74,7 +74,7 @@ export const makeCommentController = (svc: CommentService) => ({
             res: Response<CommentDTO>
         ) => {
             const comment = await svc.getCommentById(req.params.commentId);
-            res.status(200).json(comment as CommentDTO);
+            res.status(200).json(comment);
         }
     ] as RequestHandler[],
 
@@ -87,7 +87,7 @@ export const makeCommentController = (svc: CommentService) => ({
         ) => {
             const commentData = req.body;
             const comment = await svc.createComment(commentData);
-            res.status(201).json(comment as CommentDTO);
+            res.status(201).json(comment);
         }
     ] as RequestHandler[],
 
@@ -105,7 +105,7 @@ export const makeCommentController = (svc: CommentService) => ({
                 commentId,
                 updateCommentData
             );
-            res.status(200).json(comment as CommentDTO);
+            res.status(200).json(comment);
         }
     ] as RequestHandler[],
 
@@ -119,7 +119,7 @@ export const makeCommentController = (svc: CommentService) => ({
         ) => {
             const commentId = req.params.commentId;
             const deleted = await svc.deleteComment(commentId);
-            res.status(200).json(deleted as CommentDTO);
+            res.status(200).json(deleted);
         }
     ] as RequestHandler[]
 });
