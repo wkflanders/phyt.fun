@@ -36,3 +36,16 @@ export interface CardMetadata extends Pick<Card, 'tokenId'> {
 export interface CardWithMetadata extends Card {
     metadata: CardMetadata;
 }
+
+export interface TokenURIMetadata {
+    name: string;
+    description: string;
+    image: string;
+    attributes: {
+        runnerId: UUIDv7;
+        runnerName: string;
+        rarity: CardRarity;
+        multiplier: number;
+        season: SeasonCollection;
+    }[];
+}
