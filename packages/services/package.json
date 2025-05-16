@@ -17,12 +17,16 @@
         "build": "tsup src/index.ts --dts --format esm,cjs --out-dir dist",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
+        "type-check": "tsc --noEmit",
         "clean": "rm -rf dist .turbo node_modules"
+    },
+    "dependencies": {
+        "@phyt/aws": "workspace:*",
+        "@phyt/models": "workspace:*"
     },
     "devDependencies": {
         "@phyt/dto": "workspace:*",
         "@phyt/eslint": "workspace:*",
-        "@phyt/models": "workspace:*",
         "@phyt/repositories": "workspace:*",
         "@phyt/tsconfig": "workspace:*",
         "@phyt/types": "workspace:*",

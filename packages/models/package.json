@@ -19,12 +19,12 @@
         "lint:fix": "eslint . --fix",
         "clean": "rm -rf dist .turbo node_modules"
     },
+    "dependencies": {
+        "zod": "^3.24.4"
+    },
     "devDependencies": {
         "@phyt/eslint": "workspace:*",
         "@phyt/tsconfig": "workspace:*",
         "@phyt/types": "workspace:*"
-    },
-    "dependencies": {
-        "zod": "^3.24.4"
     }
 }
