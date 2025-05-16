@@ -13,6 +13,7 @@ export * from './runners.js';
 export * from './users.js';
 export * from './card.js';
 export * from './transactions.js';
+export * from './aws.js';
 
 // export type RunVerificationStatus = 'pending' | 'verified' | 'flagged';
 // export type RunnerApplicationStatus =

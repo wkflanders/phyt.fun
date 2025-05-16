@@ -10,6 +10,33 @@ export class DatabaseError extends Error {
     }
 }
 
+export class AWSPutError extends Error {
+    statusCode: number;
+    constructor(message: string) {
+        super(message);
+        this.name = 'AWS_UPLOAD_ERROR';
+        this.statusCode = 500;
+    }
+}
+
+export class AWSGetError extends Error {
+    statusCode: number;
+    constructor(message: string) {
+        super(message);
+        this.name = 'AWS_GET_ERROR';
+        this.statusCode = 500;
+    }
+}
+
+export class AWSDeleteError extends Error {
+    statusCode: number;
+    constructor(message: string) {
+        super(message);
+        this.name = 'AWS_DELETE_ERROR';
+        this.statusCode = 500;
+    }
+}
+
 export class NotFoundError extends Error {
     statusCode: number;
     constructor(message: string) {
@@ -18,7 +45,6 @@ export class NotFoundError extends Error {
         this.statusCode = 404;
     }
 }
-
 export class DuplicateError extends Error {
     statusCode: number;
     constructor(message: string) {
