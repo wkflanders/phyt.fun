@@ -22,7 +22,9 @@
     },
     "dependencies": {
         "@phyt/aws": "workspace:*",
-        "@phyt/models": "workspace:*"
+        "@phyt/models": "workspace:*",
+        "merkletreejs": "^0.4.1",
+        "viem": "^2.29.3"
     },
     "devDependencies": {
         "@phyt/dto": "workspace:*",
