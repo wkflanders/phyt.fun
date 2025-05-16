@@ -9,7 +9,11 @@ import {
     makeCommentsRepository,
     makeUsersRepository
 } from '@phyt/repositories';
-import { makeCommentsService, makeUsersService } from '@phyt/services';
+import {
+    makeCommentsService,
+    makeUsersService,
+    makeMerkleTreeService
+} from '@phyt/services';
 
 import { makeCommentsController } from './controllers/commentsController.js';
 import { makeUsersController } from './controllers/usersController.js';
@@ -27,7 +31,8 @@ export const repos = {
 
 export const service = {
     comments: makeCommentsService(repos.comments),
-    users: makeUsersService(repos.users)
+    users: makeUsersService(repos.users),
+    merkletree: makeMerkleTreeService(repos.users)
 };
 
 export const controller = {
