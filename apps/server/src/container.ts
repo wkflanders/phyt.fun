@@ -1,21 +1,21 @@
-import { makeCommentDrizzleOps, db } from '@phyt/drizzle';
-import { makeCommentRepository } from '@phyt/repositories';
-import { makeCommentService } from '@phyt/services';
+import { makeCommentsDrizzleOps, db } from '@phyt/drizzle';
+import { makeCommentsRepository } from '@phyt/repositories';
+import { makeCommentsService } from '@phyt/services';
 
-import { makeCommentController } from './controllers/commentController.js';
+import { makeCommentsController } from './controllers/commentsController.js';
 
 export const ops = {
-    comments: makeCommentDrizzleOps(db)
+    comments: makeCommentsDrizzleOps(db)
 };
 
 export const repos = {
-    comments: makeCommentRepository(ops.comments)
+    comments: makeCommentsRepository(ops.comments)
 };
 
 export const service = {
-    comments: makeCommentService(repos.comments)
+    comments: makeCommentsService(repos.comments)
 };
 
 export const controller = {
-    comments: makeCommentController(service.comments)
+    comments: makeCommentsController(service.comments)
 };

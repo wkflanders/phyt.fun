@@ -22,8 +22,19 @@ import type {
 import type { CommentsService } from '@phyt/services';
 import type { Request, RequestHandler, Response } from 'express';
 
-export const makeCommentController = (svc: CommentsService) => ({
-    getPostComments: [
+export interface CommentsController {
+    getPostComments: RequestHandler[];
+    getCommentReplies: RequestHandler[];
+    getCommentById: RequestHandler[];
+    createComment: RequestHandler[];
+    updateComment: RequestHandler[];
+    deleteComment: RequestHandler[];
+}
+
+export const makeCommentsController = (
+    svc: CommentsService
+): CommentsController => {
+    const getPostComments = [
         validateAuth,
         validateSchema(PostIdSchema, undefined, CommentQueryParamsSchema),
         async (
@@ -43,9 +54,9 @@ export const makeCommentController = (svc: CommentsService) => ({
             });
             res.status(200).json(data);
         }
-    ] as RequestHandler[],
+    ] as RequestHandler[];
 
-    getCommentReplies: [
+    const getCommentReplies = [
         validateAuth,
         validateSchema(CommentIdSchema, undefined, CommentQueryParamsSchema),
         async (
@@ -64,9 +75,9 @@ export const makeCommentController = (svc: CommentsService) => ({
             });
             res.status(200).json(data);
         }
-    ] as RequestHandler[],
+    ] as RequestHandler[];
 
-    getCommentById: [
+    const getCommentById = [
         validateAuth,
         validateSchema(CommentIdSchema),
         async (
@@ -76,9 +87,9 @@ export const makeCommentController = (svc: CommentsService) => ({
             const comment = await svc.getCommentById(req.params.commentId);
             res.status(200).json(comment);
         }
-    ] as RequestHandler[],
+    ] as RequestHandler[];
 
-    createComment: [
+    const createComment = [
         validateAuth,
         validateSchema(undefined, CreateCommentSchema),
         async (
@@ -89,9 +100,9 @@ export const makeCommentController = (svc: CommentsService) => ({
             const comment = await svc.createComment(commentData);
             res.status(201).json(comment);
         }
-    ] as RequestHandler[],
+    ] as RequestHandler[];
 
-    updateComment: [
+    const updateComment = [
         validateAuth,
         validateSchema(CommentIdSchema, UpdateCommentSchema),
         async (
@@ -107,9 +118,9 @@ export const makeCommentController = (svc: CommentsService) => ({
             );
             res.status(200).json(comment);
         }
-    ] as RequestHandler[],
+    ] as RequestHandler[];
 
-    deleteComment: [
+    const deleteComment = [
         validateAuth,
         ensureOwnership,
         validateSchema(CommentIdSchema),
@@ -121,5 +132,14 @@ export const makeCommentController = (svc: CommentsService) => ({
             const deleted = await svc.deleteComment(commentId);
             res.status(200).json(deleted);
         }
-    ] as RequestHandler[]
-});
+    ] as RequestHandler[];
+
+    return {
+        getPostComments,
+        getCommentReplies,
+        getCommentById,
+        createComment,
+        updateComment,
+        deleteComment
+    };
+};
