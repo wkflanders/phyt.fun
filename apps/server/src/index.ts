@@ -13,7 +13,7 @@ import { requestIdMiddleware, logFormat } from './middleware/logging.js';
 import { standardLimiter } from './middleware/rateLimiter.js';
 import { responseTimeMonitor } from './middleware/responseTime.js';
 import { sanitizeInputs } from './middleware/sanitize.js';
-import router from './routes/router.js';
+import { router } from './routes/router.js';
 
 config();
 
