@@ -223,6 +223,13 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
         };
     };
 
+    const findWhitelistedWallets = async (): Promise<string[]> => {
+        const records = await db
+            .select({ walletAddress: users.walletAddress })
+            .from(users);
+        return records.map((r) => r.walletAddress.toLowerCase());
+    };
+
     return {
         create,
         findByPrivyId,
@@ -236,6 +243,7 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
         updateProfile,
         updateAvatar,
         listUsers,
-        findByIdWithStatus
+        findByIdWithStatus,
+        findWhitelistedWallets
     };
 };
