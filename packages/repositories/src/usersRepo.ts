@@ -204,6 +204,11 @@ export const makeUsersRepository = (
         }));
     };
 
+    const findWhitelistedWallets = async (): Promise<string[]> => {
+        const records = await drizzleOps.findWhitelistedWallets();
+        return records;
+    };
+
     return {
         create,
         findByPrivyId,
@@ -221,6 +226,7 @@ export const makeUsersRepository = (
         extractFileKeyFromUrl,
         listUsers,
         findTransactionById,
-        findCardsById
+        findCardsById,
+        findWhitelistedWallets
     };
 };
