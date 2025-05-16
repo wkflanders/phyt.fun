@@ -1,6 +1,6 @@
 export * from './core.js';
 export * from './errors.js';
-export * from './users.js';
+export * from './usersModel.js';
 export * from './commentsModel.js';
 export * from './cards.js';
 export * from './transactions.js';
