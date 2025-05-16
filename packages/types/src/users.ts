@@ -6,6 +6,12 @@ export const DefaultAvatar =
 
 export type UserRole = 'admin' | 'user' | 'runner';
 
+/**
+ * EVM addresses are always 20 bytes → 40 hex chars → 42 chars incl. “0x”.
+ * Tighten the template literal so the compiler yells early.
+ */
+export type WalletAddress = `0x${string & { length: 40 }}`;
+
 export interface User {
     id: UUIDv7;
     email: string;
@@ -13,8 +19,8 @@ export interface User {
     role: UserRole;
     privyId: string;
     avatarUrl: string;
-    walletAddress: `0x${string}`;
-    phytnessPoints: number | null;
+    walletAddress: WalletAddress;
+    phytnessPoints: number;
     twitterHandle: string | null;
     stravaHandle: string | null;
     createdAt: Date;
@@ -31,21 +37,14 @@ export interface UserQueryParams {
     parentOnly?: boolean;
 }
 
-// export interface CreateUserInput {
-//     email: string;
-//     username: string;
-//     privyId: string;
-//     walletAddress: `0x${string}`;
-// }
-
 export interface UserInsert {
     email: string;
     username: string;
     privyId: string;
-    walletAddress: `0x${string}`;
+    walletAddress: WalletAddress;
     avatarUrl?: string;
     role?: UserRole;
-    phytnessPoints: number;
+    phytnessPoints?: number;
     twitterHandle?: string | null;
     stravaHandle?: string | null;
 }
@@ -53,4 +52,16 @@ export interface UserInsert {
 export interface PaginatedUsers {
     users: UserWithStatus[];
     pagination?: Pagination;
+    nextCursor?: string | null;
+    prevCursor?: string | null;
 }
+
+export type UserRecord = Omit<
+    User,
+    'createdAt' | 'updatedAt' | 'phytnessPoints'
+> & {
+    id?: UUIDv7;
+    createdAt: ISODate;
+    updatedAt: ISODate;
+    phytnessPoints: number;
+};
