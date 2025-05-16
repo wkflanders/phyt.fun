@@ -56,12 +56,16 @@
             "dependsOn": ["@phyt/types#build"],
             "outputs": ["dist/**"]
         },
+        "@phyt/aws#build": {
+            "dependsOn": ["@phyt/types#build", "@phyt/models#build"],
+            "outputs": ["dist/**"]
+        },
         "@phyt/drizzle#build": {
             "dependsOn": ["@phyt/models#build"],
             "outputs": ["dist/**"]
         },
         "@phyt/repositories#build": {
-            "dependsOn": ["@phyt/drizzle#build"],
+            "dependsOn": ["@phyt/drizzle#build", "@phyt/aws#build"],
             "outputs": ["dist/**"]
         },
         "@phyt/dto#build": {
@@ -69,7 +73,11 @@
             "outputs": ["dist/**"]
         },
         "@phyt/server#build": {
-            "dependsOn": ["@phyt/drizzle#build", "@phyt/contracts#build"],
+            "dependsOn": [
+                "@phyt/drizzle#build",
+                "@phyt/aws#build",
+                "@phyt/contracts#build"
+            ],
             "outputs": ["dist/**"]
         },
         "@phyt/web#build": {
@@ -91,8 +99,11 @@
         "@phyt/models#lint:fix": {
             "dependsOn": ["@phyt/eslint#lint:fix"]
         },
+        "@phyt/aws#lint:fix": {
+            "dependsOn": ["@phyt/models#lint:fix", "@phyt/types#lint:fix"]
+        },
         "@phyt/repositories#lint:fix": {
-            "dependsOn": ["@phyt/models#build"]
+            "dependsOn": ["@phyt/models#build", "@phyt/aws#build"]
         },
         "@phyt/dto#lint:fix": {
             "dependsOn": ["@phyt/models#lint:fix"]
@@ -108,7 +119,11 @@
             "dependsOn": ["@phyt/drizzle#lint:fix", "@phyt/contracts#lint:fix"]
         },
         "@phyt/server#lint:fix": {
-            "dependsOn": ["@phyt/drizzle#lint:fix", "@phyt/web#lint:fix"]
+            "dependsOn": [
+                "@phyt/drizzle#lint:fix",
+                "@phyt/web#lint:fix",
+                "@phyt/aws#lint:fix"
+            ]
         },
         "dev": {
             "cache": false,
