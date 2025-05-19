@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 
+import { privy } from '@phyt/infra';
 import { AuthenticationError } from '@phyt/models';
 
 import { env } from '@/env.js';
-import { privy } from '@/lib/privyClient.js';
 
 export const validateAuth = async (
     req: Request,

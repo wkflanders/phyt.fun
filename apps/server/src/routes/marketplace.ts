@@ -14,7 +14,11 @@ import {
     ValidationError
 } from '@phyt/types';
 
-import { openBidSchema, bidSchema, listingSchema } from '@/lib/validation.js';
+import {
+    openBidSchema,
+    bidSchema,
+    listingSchema
+} from '../../../../packages/infra/src/validation.js';
 import { validateAuth } from '@/middleware/auth.js';
 import { validateSchema } from '@/middleware/validator.js';
 import { marketplaceService } from '@/services/marketplaceServices.js';

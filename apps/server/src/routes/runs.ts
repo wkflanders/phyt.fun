@@ -12,7 +12,10 @@ import {
     RunVerificationStatus
 } from '@phyt/types';
 
-import { workoutSchema, createPostSchema } from '@/lib/validation.js';
+import {
+    workoutSchema,
+    createPostSchema
+} from '../../../../packages/infra/src/validation.js';
 import { validateAuth } from '@/middleware/auth.js';
 import { validateSchema } from '@/middleware/validator.js';
 // import { postService } from '@/services/postServices.js';

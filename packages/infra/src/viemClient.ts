@@ -3,7 +3,7 @@ import { baseSepolia } from 'viem/chains';
 
 import { createPublicClient, createWalletClient, http } from 'viem';
 
-import { env } from '@/env.js';
+import { env } from './env.js';
 
 import type { WalletClient } from 'viem';
 

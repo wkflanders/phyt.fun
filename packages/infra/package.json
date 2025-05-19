@@ -1,0 +1,33 @@
+{
+    "name": "@phyt/infra",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "types": "./src/index.ts",
+    "main": "./dist/index.js",
+    "module": "./dist/esm/index.js",
+    "exports": {
+        ".": {
+            "types": "./src/index.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/cjs/index.cjs"
+        }
+    },
+    "scripts": {
+        "build": "tsup src/index.ts --dts --format esm,cjs --out-dir dist",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "clean": "rm -rf dist .turbo node_modules"
+    },
+    "dependencies": {
+        "@privy-io/server-auth": "^1.19.2",
+        "viem": "^2.24.3",
+        "@t3-oss/env-core": "^0.12.0",
+        "zod": "^3.24.2"
+    },
+    "devDependencies": {
+        "@phyt/eslint": "workspace:*",
+        "@phyt/tsconfig": "workspace:*",
+        "@phyt/types": "workspace:*"
+    }
+}

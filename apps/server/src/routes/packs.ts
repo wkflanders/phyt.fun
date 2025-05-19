@@ -6,7 +6,7 @@ import {
     MintConfigResponse
 } from '@phyt/types';
 
-import { purchasePackSchema } from '@/lib/validation.js';
+import { purchasePackSchema } from '../../../../packages/infra/src/validation.js';
 import { validateAuth } from '@/middleware/auth.js';
 import { validateSchema } from '@/middleware/validator.js';
 import { packService } from '@/services/packServices.js';

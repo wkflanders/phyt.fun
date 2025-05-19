@@ -12,6 +12,11 @@
             "@/*": ["./src/*"]
         }
     },
-    "include": ["src/**/*"],
+    "include": [
+        "src/**/*",
+        "../../packages/infra/src/privyClient.ts",
+        "../../packages/infra/src/validation.ts",
+        "../../packages/infra/src/viemClient.ts"
+    ],
     "exclude": ["node_modules", "dist"]
 }
