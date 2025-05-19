@@ -1,4 +1,5 @@
 import { eq, and, isNull, desc, count } from 'drizzle-orm';
+import { uuidv7 } from 'uuidv7';
 
 import { NotFoundError } from '@phyt/models';
 
@@ -43,6 +44,7 @@ export const makeCommentsDrizzleOps = (db: DrizzleDB) => {
         const [row] = await db
             .insert(comments)
             .values({
+                id: uuidv7(),
                 postId: input.postId,
                 userId: input.userId,
                 content: input.content,

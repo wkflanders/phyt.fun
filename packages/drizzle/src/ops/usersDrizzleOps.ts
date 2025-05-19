@@ -1,4 +1,5 @@
 import { eq, or, desc, count } from 'drizzle-orm';
+import { uuidv7 } from 'uuidv7';
 
 import { NotFoundError } from '@phyt/models';
 
@@ -43,7 +44,10 @@ export type UsersDrizzleOps = ReturnType<typeof makeUsersDrizzleOps>;
 
 export const makeUsersDrizzleOps = (db: DrizzleDB) => {
     const create = async (input: UserInsert): Promise<User> => {
-        const [row] = await db.insert(users).values(input).returning();
+        const [row] = await db
+            .insert(users)
+            .values({ ...input, id: uuidv7() })
+            .returning();
         return toData(row);
     };
 

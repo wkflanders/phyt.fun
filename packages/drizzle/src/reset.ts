@@ -1,52 +1,36 @@
-import { sql } from 'drizzle-orm';
+import { connection as pool } from './db.js';
 
-import { db } from './db.js';
-
-async function reset() {
-    console.warn('⏳ Resetting database schema + installing uuidv7…');
-    const start = Date.now();
-
-    const teardownAndBootstrap = sql`
-    DROP SCHEMA IF EXISTS public CASCADE;
-    CREATE SCHEMA public;
-    CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
-    -- define a proper UUIDv7 generator (no hex‐literals)
-    CREATE OR REPLACE FUNCTION uuid_generate_v7(p_timestamp timestamptz DEFAULT clock_timestamp())
-      RETURNS uuid
-      LANGUAGE plpgsql
-    AS $$
-    DECLARE
-      ts              bigint := floor(extract(epoch FROM p_timestamp) * 1000);
-      time_low        bigint := ts & 4294967295;
-      time_mid        integer := ((ts >> 32) & 65535)::integer;
-      time_hi_and_ver integer := (((ts >> 48) & 4095) | 28672)::integer;   -- set version = 7
-      clock_seq       integer := ((floor(random() * 16384)::integer & 16383) | 32768)::integer; -- set variant bits
-      node            bytea   := gen_random_bytes(6);
-      hexstr          text;
-    BEGIN
-      hexstr :=
-        lpad(to_hex(time_low),8,'0')  || '-' ||
-        lpad(to_hex(time_mid),4,'0')  || '-' ||
-        lpad(to_hex(time_hi_and_ver),4,'0') || '-' ||
-        lpad(to_hex(clock_seq),4,'0') || '-' ||
-        encode(node, 'hex');
-      RETURN hexstr::uuid;
-    END;
-    $$;
-  `;
-
-    await db.execute(teardownAndBootstrap);
-
-    const duration = Date.now() - start;
-    console.warn(
-        `✅ Schema + UUIDv7 reset complete (took ${String(duration)}ms)`
-    );
-    process.exit(0);
+async function dropAllTables() {
+    const client = await pool.connect();
+    try {
+        // Get all tables in the public schema
+        const { rows }: { rows: { tablename: string }[] } = await client.query(`
+            SELECT tablename
+            FROM pg_tables
+            WHERE schemaname = 'public';
+        `);
+        if (rows.length === 0) {
+            console.log('No tables found.');
+            return;
+        }
+        // Disable referential integrity
+        await client.query('SET session_replication_role = replica;');
+        // Drop all tables
+        for (const { tablename } of rows) {
+            console.log(`Dropping table: ${tablename}`);
+            await client.query(`DROP TABLE IF EXISTS "${tablename}" CASCADE;`);
+        }
+        // Re-enable referential integrity
+        await client.query('SET session_replication_role = DEFAULT;');
+        console.log('All tables dropped.');
+    } finally {
+        client.release();
+    }
 }
 
-reset().catch((err: unknown) => {
-    console.error('❌ Reset failed');
-    console.error(err);
-    process.exit(1);
-});
+dropAllTables()
+    .then(() => process.exit(0))
+    .catch((err: unknown) => {
+        console.error(err);
+        process.exit(1);
+    });
