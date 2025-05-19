@@ -69,15 +69,15 @@
             "outputs": ["dist/**"]
         },
         "@phyt/dto#build": {
-            "dependsOn": ["@phyt/drizzle#build"],
+            "dependsOn": ["@phyt/repositories#build"],
+            "outputs": ["dist/**"]
+        },
+        "@phyt/services#build": {
+            "dependsOn": ["@phyt/dto#build"],
             "outputs": ["dist/**"]
         },
         "@phyt/server#build": {
-            "dependsOn": [
-                "@phyt/drizzle#build",
-                "@phyt/aws#build",
-                "@phyt/contracts#build"
-            ],
+            "dependsOn": ["@phyt/services#build"],
             "outputs": ["dist/**"]
         },
         "@phyt/web#build": {
