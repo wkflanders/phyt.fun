@@ -15,7 +15,8 @@ import {
     uuid,
     // bigint
     doublePrecision,
-    decimal
+    decimal,
+    text
 } from 'drizzle-orm/pg-core';
 
 export const ethValuePrecision = 78;
@@ -121,10 +122,7 @@ export const enumSeasons = pgEnum('enumSeasons', ['season_0']);
 export const users = pgTable(
     'users',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull(),
@@ -157,10 +155,7 @@ export const users = pgTable(
 export const runners = pgTable(
     'runners',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         userId: uuid('userId')
             .notNull()
             .references(() => users.id, { onDelete: 'restrict' }),
@@ -191,10 +186,7 @@ export const runners = pgTable(
 export const runs = pgTable(
     'runs',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         runnerId: uuid('runnerId')
             .notNull()
             .references(() => runners.id, { onDelete: 'set null' }),
@@ -232,10 +224,7 @@ export const runs = pgTable(
 export const packPurchases = pgTable(
     'packPurchases',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         buyerId: uuid('buyerId')
             .notNull()
             .references(() => users.id, { onDelete: 'set null' }),
@@ -261,10 +250,7 @@ export const packPurchases = pgTable(
 export const cards = pgTable(
     'cards',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         ownerId: uuid('ownerId')
             .notNull()
             .references(() => users.id, { onDelete: 'set null' }),
@@ -320,10 +306,7 @@ export const cardMetadata = pgTable(
 export const competitions = pgTable(
     'competitions',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         eventName: varchar('eventName').notNull(),
         startTime: timestamp('startTime', { precision: 3 }).notNull(),
         endTime: timestamp('endTime', { precision: 3 }).notNull(),
@@ -349,10 +332,7 @@ export const competitions = pgTable(
 export const lineups = pgTable(
     'lineups',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         competitionId: uuid('competitionId')
             .notNull()
             .references(() => competitions.id, { onDelete: 'set null' }),
@@ -377,10 +357,7 @@ export const lineups = pgTable(
 export const lineupCards = pgTable(
     'lineupCards',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         lineupId: uuid('lineupId')
             .notNull()
             .references(() => lineups.id, { onDelete: 'set null' }),
@@ -406,10 +383,7 @@ export const lineupCards = pgTable(
 export const runnerResults = pgTable(
     'runnerResults',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         competitionId: uuid('competitionId')
             .notNull()
             .references(() => competitions.id, { onDelete: 'set null' }),
@@ -440,10 +414,7 @@ export const runnerResults = pgTable(
 export const managerResults = pgTable(
     'managerResults',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         lineupId: uuid('lineupId')
             .notNull()
             .references(() => lineups.id, { onDelete: 'set null' }),
@@ -467,10 +438,7 @@ export const managerResults = pgTable(
 export const listings = pgTable(
     'listings',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         buyerId: uuid('buyerId').references(() => users.id, {
             onDelete: 'set null'
         }),
@@ -519,10 +487,7 @@ export const listings = pgTable(
 export const bids = pgTable(
     'bids',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         listingId: uuid('listingId').references(() => listings.id, {
             onDelete: 'set null'
         }),
@@ -570,10 +535,7 @@ export const bids = pgTable(
 export const transactions = pgTable(
     'transactions',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         fromUserId: uuid('fromUserId').references(() => users.id, {
             onDelete: 'set null'
         }),
@@ -615,10 +577,7 @@ export const transactions = pgTable(
 export const userDeviceAuthorizations = pgTable(
     'userDeviceAuthorizations',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         userId: uuid('userId')
             .notNull()
             .references(() => users.id, { onDelete: 'set null' }),
@@ -644,16 +603,13 @@ export const userDeviceAuthorizations = pgTable(
 export const posts = pgTable(
     'posts',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         userId: uuid('userId')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
-        runId: uuid('runId')
-            .notNull()
-            .references(() => runs.id, { onDelete: 'cascade' }),
+        runId: uuid('runId').references(() => runs.id, { onDelete: 'cascade' }),
+        title: varchar('title').notNull(),
+        content: text('content').notNull(),
         status: enumPostsStatus('status').default('visible').notNull(),
         updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
@@ -674,10 +630,7 @@ export const posts = pgTable(
 export const comments = pgTable(
     'comments',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         postId: uuid('postId')
             .notNull()
             .references(() => posts.id, { onDelete: 'cascade' }),
@@ -709,10 +662,7 @@ export const comments = pgTable(
 export const reactions = pgTable(
     'reactions',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         userId: uuid('userId')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
@@ -747,10 +697,7 @@ export const reactions = pgTable(
 export const follows = pgTable(
     'follows',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         followerId: uuid('followerId')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
@@ -774,10 +721,7 @@ export const follows = pgTable(
 export const profileViews = pgTable(
     'profileViews',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         profileId: uuid('profileId')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
@@ -799,10 +743,7 @@ export const profileViews = pgTable(
 export const reports = pgTable(
     'reports',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         reporterId: uuid('reporterId')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
@@ -834,10 +775,7 @@ export const reports = pgTable(
 export const runnerLeaderboard = pgTable(
     'runnerLeaderboard',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         runnerId: uuid('runnerId')
             .notNull()
             .references(() => runners.id, { onDelete: 'cascade' }),
@@ -858,10 +796,7 @@ export const runnerLeaderboard = pgTable(
 export const managerLeaderboard = pgTable(
     'managerLeaderboard',
     {
-        id: uuid('id')
-            .primaryKey()
-            .default(sql`uuid_generate_v7()`)
-            .notNull(),
+        id: uuid('id').primaryKey().notNull(),
         userId: uuid('userId')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
