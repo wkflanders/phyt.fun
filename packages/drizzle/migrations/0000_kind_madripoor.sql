@@ -14,7 +14,7 @@ CREATE TYPE "public"."enumSeasons" AS ENUM('season_0');--> statement-breakpoint
 CREATE TYPE "public"."enumTransactionsTransactionType" AS ENUM('packPurchase', 'marketplaceSale', 'marketplaceOffer', 'marketplaceListing', 'rewardPayout');--> statement-breakpoint
 CREATE TYPE "public"."enumUsersRole" AS ENUM('admin', 'user', 'runner');--> statement-breakpoint
 CREATE TABLE "bids" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"listingId" uuid,
 	"cardId" uuid NOT NULL,
 	"bidderId" uuid NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE "cardMetadata" (
 );
 --> statement-breakpoint
 CREATE TABLE "cards" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"ownerId" uuid NOT NULL,
 	"packPurchaseId" uuid,
 	"tokenId" integer NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE "cards" (
 );
 --> statement-breakpoint
 CREATE TABLE "comments" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"postId" uuid NOT NULL,
 	"userId" uuid NOT NULL,
 	"content" varchar NOT NULL,
@@ -66,7 +66,7 @@ CREATE TABLE "comments" (
 );
 --> statement-breakpoint
 CREATE TABLE "competitions" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"eventName" varchar NOT NULL,
 	"startTime" timestamp (3) NOT NULL,
 	"endTime" timestamp (3) NOT NULL,
@@ -78,14 +78,14 @@ CREATE TABLE "competitions" (
 );
 --> statement-breakpoint
 CREATE TABLE "follows" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"followerId" uuid NOT NULL,
 	"followTargetId" uuid NOT NULL,
 	"createdAt" timestamp (3) DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "lineupCards" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"lineupId" uuid NOT NULL,
 	"cardId" uuid NOT NULL,
 	"position" integer NOT NULL,
@@ -94,7 +94,7 @@ CREATE TABLE "lineupCards" (
 );
 --> statement-breakpoint
 CREATE TABLE "lineups" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"competitionId" uuid NOT NULL,
 	"managerId" uuid NOT NULL,
 	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
@@ -102,7 +102,7 @@ CREATE TABLE "lineups" (
 );
 --> statement-breakpoint
 CREATE TABLE "listings" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"buyerId" uuid,
 	"sellerId" uuid NOT NULL,
 	"cardId" uuid NOT NULL,
@@ -121,7 +121,7 @@ CREATE TABLE "listings" (
 );
 --> statement-breakpoint
 CREATE TABLE "managerLeaderboard" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"userId" uuid NOT NULL,
 	"ranking" integer NOT NULL,
 	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
@@ -129,7 +129,7 @@ CREATE TABLE "managerLeaderboard" (
 );
 --> statement-breakpoint
 CREATE TABLE "managerResults" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"lineupId" uuid NOT NULL,
 	"totalScore" double precision NOT NULL,
 	"finalPlacement" integer,
@@ -139,7 +139,7 @@ CREATE TABLE "managerResults" (
 );
 --> statement-breakpoint
 CREATE TABLE "packPurchases" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"buyerId" uuid NOT NULL,
 	"purchasePrice" numeric(78, 0) NOT NULL,
 	"packType" "enumPackType" NOT NULL,
@@ -148,16 +148,18 @@ CREATE TABLE "packPurchases" (
 );
 --> statement-breakpoint
 CREATE TABLE "posts" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"userId" uuid NOT NULL,
-	"runId" uuid NOT NULL,
+	"runId" uuid,
+	"title" varchar NOT NULL,
+	"content" text NOT NULL,
 	"status" "enumPostsStatus" DEFAULT 'visible' NOT NULL,
 	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
 	"createdAt" timestamp (3) DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "profileViews" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"profileId" uuid NOT NULL,
 	"viewerId" uuid,
 	"ipAddress" varchar,
@@ -165,7 +167,7 @@ CREATE TABLE "profileViews" (
 );
 --> statement-breakpoint
 CREATE TABLE "reactions" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"userId" uuid NOT NULL,
 	"postId" uuid,
 	"commentId" uuid,
@@ -174,7 +176,7 @@ CREATE TABLE "reactions" (
 );
 --> statement-breakpoint
 CREATE TABLE "reports" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"reporterId" uuid NOT NULL,
 	"postId" uuid,
 	"commentId" uuid,
@@ -187,7 +189,7 @@ CREATE TABLE "reports" (
 );
 --> statement-breakpoint
 CREATE TABLE "runnerLeaderboard" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"runnerId" uuid NOT NULL,
 	"ranking" integer NOT NULL,
 	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
@@ -195,7 +197,7 @@ CREATE TABLE "runnerLeaderboard" (
 );
 --> statement-breakpoint
 CREATE TABLE "runnerResults" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"competitionId" uuid NOT NULL,
 	"runnerId" uuid NOT NULL,
 	"sessionId" uuid NOT NULL,
@@ -206,7 +208,7 @@ CREATE TABLE "runnerResults" (
 );
 --> statement-breakpoint
 CREATE TABLE "runners" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"userId" uuid NOT NULL,
 	"averagePace" double precision,
 	"totalDistance" double precision DEFAULT 0 NOT NULL,
@@ -221,7 +223,7 @@ CREATE TABLE "runners" (
 );
 --> statement-breakpoint
 CREATE TABLE "runs" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"runnerId" uuid NOT NULL,
 	"startTime" timestamp (3) NOT NULL,
 	"endTime" timestamp (3) NOT NULL,
@@ -243,7 +245,7 @@ CREATE TABLE "runs" (
 );
 --> statement-breakpoint
 CREATE TABLE "transactions" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"fromUserId" uuid,
 	"toUserId" uuid,
 	"cardId" uuid,
@@ -257,7 +259,7 @@ CREATE TABLE "transactions" (
 );
 --> statement-breakpoint
 CREATE TABLE "userDeviceAuthorizations" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"userId" uuid NOT NULL,
 	"deviceType" varchar NOT NULL,
 	"accessToken" varchar,
@@ -269,7 +271,7 @@ CREATE TABLE "userDeviceAuthorizations" (
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
 	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
 	"email" varchar NOT NULL,
@@ -280,7 +282,7 @@ CREATE TABLE "users" (
 	"twitterHandle" varchar,
 	"stravaHandle" varchar,
 	"avatarUrl" varchar DEFAULT 'https://rsg5uys7zq.ufs.sh/f/AMgtrA9DGKkFuVELmbdSRBPUEIciTL7a2xg1vJ8ZDQh5ejut' NOT NULL,
-	"phytnessPoints" integer DEFAULT 0,
+	"phytnessPoints" integer DEFAULT 0 NOT NULL,
 	CONSTRAINT "users_walletAddress_unique" UNIQUE("walletAddress")
 );
 --> statement-breakpoint

@@ -1,5 +1,5 @@
 {
-  "id": "e43a6b2d-35cf-448b-9371-b138d897cc55",
+  "id": "728dda78-0da2-4a5a-911e-0e1a26799643",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -12,8 +12,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "listingId": {
           "name": "listingId",
@@ -413,8 +412,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "ownerId": {
           "name": "ownerId",
@@ -576,8 +574,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "postId": {
           "name": "postId",
@@ -735,8 +732,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "eventName": {
           "name": "eventName",
@@ -837,8 +833,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "followerId": {
           "name": "followerId",
@@ -955,8 +950,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "lineupId": {
           "name": "lineupId",
@@ -1095,8 +1089,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "competitionId": {
           "name": "competitionId",
@@ -1229,8 +1222,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "buyerId": {
           "name": "buyerId",
@@ -1489,8 +1481,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "userId": {
           "name": "userId",
@@ -1580,8 +1571,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "lineupId": {
           "name": "lineupId",
@@ -1698,8 +1688,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "buyerId": {
           "name": "buyerId",
@@ -1811,8 +1800,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "userId": {
           "name": "userId",
@@ -1823,6 +1811,18 @@
         "runId": {
           "name": "runId",
           "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -1953,8 +1953,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "profileId": {
           "name": "profileId",
@@ -2077,8 +2076,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "userId": {
           "name": "userId",
@@ -2269,8 +2267,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "reporterId": {
           "name": "reporterId",
@@ -2461,8 +2458,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "runnerId": {
           "name": "runnerId",
@@ -2552,8 +2548,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "competitionId": {
           "name": "competitionId",
@@ -2732,8 +2727,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "userId": {
           "name": "userId",
@@ -2900,8 +2894,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "runnerId": {
           "name": "runnerId",
@@ -3093,8 +3086,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "fromUserId": {
           "name": "fromUserId",
@@ -3348,8 +3340,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "userId": {
           "name": "userId",
@@ -3478,8 +3469,7 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v7()"
+          "notNull": true
         },
         "updatedAt": {
           "name": "updatedAt",
@@ -3550,7 +3540,7 @@
           "name": "phytnessPoints",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": 0
         }
       },
