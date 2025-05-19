@@ -83,6 +83,13 @@ export const makeReactionsRepository = (ops: ReactionsDrizzleOps) => {
         return data.map((reaction) => ReactionVO.fromWithUser(reaction));
     };
 
+    const calculateTrendingScore = async (
+        postId: UUIDv7,
+        daysAgo: number
+    ): Promise<number> => {
+        return ops.calculateTrendingScore(postId, daysAgo);
+    };
+
     return {
         create,
         findById,
@@ -93,6 +100,7 @@ export const makeReactionsRepository = (ops: ReactionsDrizzleOps) => {
         getReactionCountForPost,
         getReactionCountForComment,
         findUserReactions,
-        findReactionsWithUsers
+        findReactionsWithUsers,
+        calculateTrendingScore
     };
 };

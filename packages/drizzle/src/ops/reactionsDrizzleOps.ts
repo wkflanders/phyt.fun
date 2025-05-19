@@ -1,4 +1,4 @@
-import { and, count, eq } from 'drizzle-orm';
+import { and, count, eq, gt } from 'drizzle-orm';
 import { uuidv7 } from 'uuidv7';
 
 import { NotFoundError } from '@phyt/models';
@@ -6,7 +6,7 @@ import { NotFoundError } from '@phyt/models';
 // eslint-disable-next-line no-restricted-imports
 import { DrizzleDB } from '../db.js';
 // eslint-disable-next-line no-restricted-imports
-import { reactions, users } from '../schema.js';
+import { reactions, users, comments } from '../schema.js';
 
 import type {
     UUIDv7,
@@ -216,6 +216,44 @@ export const makeReactionsDrizzleOps = (db: DrizzleDB) => {
         );
     };
 
+    /**
+     * Calculate trending score for a post based on recent reactions and comments
+     */
+    const calculateTrendingScore = async (
+        postId: UUIDv7,
+        daysAgo: number
+    ): Promise<number> => {
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - daysAgo);
+
+        // Get count of recent reactions for this post
+        const reactionRows = await db
+            .select({ count: count() })
+            .from(reactions)
+            .where(
+                and(
+                    eq(reactions.postId, postId),
+                    gt(reactions.createdAt, cutoffDate)
+                )
+            );
+        const reactionResult = reactionRows[0] as { count: number };
+
+        // Get count of recent comments for this post
+        const commentRows = await db
+            .select({ count: count() })
+            .from(comments)
+            .where(
+                and(
+                    eq(comments.postId, postId),
+                    gt(comments.createdAt, cutoffDate)
+                )
+            );
+        const commentResult = commentRows[0] as { count: number };
+
+        // Return the sum of counts
+        return reactionResult.count + commentResult.count;
+    };
+
     return {
         create,
         findById,
@@ -224,6 +262,7 @@ export const makeReactionsDrizzleOps = (db: DrizzleDB) => {
         getReactionCountForPost,
         getReactionCountForComment,
         findUserReactions,
-        findReactionsWithUsers
+        findReactionsWithUsers,
+        calculateTrendingScore
     };
 };

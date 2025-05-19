@@ -116,10 +116,18 @@ export const makeReactionsService = (repo: ReactionsRepository) => {
         );
     };
 
+    const calculateTrendingScore = async (
+        postId: UUIDv7,
+        daysAgo: number
+    ): Promise<number> => {
+        return repo.calculateTrendingScore(postId, daysAgo);
+    };
+
     return Object.freeze({
         toggleReaction,
         getReactionCounts,
         getUserReactions,
-        getReactionsWithUsers
+        getReactionsWithUsers,
+        calculateTrendingScore
     });
 };
