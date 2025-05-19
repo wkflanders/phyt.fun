@@ -18,6 +18,7 @@
         "db:stop": "docker compose stop",
         "db:clean": "docker compose down -v",
         "db:generate": "pnpm --filter @phyt/drizzle run db:generate",
+        "db:push": "pnpm --filter @phyt/drizzle run db:push",
         "db:migrate": "pnpm --filter @phyt/drizzle run db:migrate",
         "db:studio": "pnpm --filter @phyt/drizzle run db:studio",
         "db:seed": "pnpm --filter @phyt/drizzle run db:seed",
@@ -32,7 +33,8 @@
         "typescript": "5.7.3"
     },
     "dependencies": {
-        "dotenv": "^16.4.7"
+        "dotenv": "^16.4.7",
+        "uuidv7": "^1.0.2"
     },
     "packageManager": "pnpm@10.11.0",
     "engines": {
