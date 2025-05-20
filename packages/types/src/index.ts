@@ -16,6 +16,8 @@ export * from './transactions.js';
 export * from './aws.js';
 export * from './reaction.js';
 export * from './post.js';
+export * from './runs.js';
+export * from './admin.js';
 
 // export type RunVerificationStatus = 'pending' | 'verified' | 'flagged';
 // export type RunnerApplicationStatus =

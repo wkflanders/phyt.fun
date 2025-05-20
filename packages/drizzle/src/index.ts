@@ -5,3 +5,6 @@ export * from './ops/commentsDrizzleOps.js';
 export * from './ops/usersDrizzleOps.js';
 export * from './ops/reactionsDrizzleOps.js';
 export * from './ops/postsDrizzleOps.js';
+export * from './ops/adminDrizzleOps.js';
+export * from './ops/runnersDrizzleOps.js';
+export * from './ops/runsDrizzleOps.js';

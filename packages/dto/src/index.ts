@@ -5,3 +5,5 @@ export * from './runnersDTO.js';
 export * from './postsDTO.js';
 export * from './reactionsDTO.js';
 export * from './transactionsDTO.js';
+export * from './adminDTO.js';
+export * from './runsDTO.js';
