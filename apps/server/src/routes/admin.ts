@@ -1,75 +1,19 @@
-import express, { Router, Request, Response } from 'express';
+import express, { Router } from 'express';
 
-import {
-    UUIDv7,
-    Run,
-    DatabaseError,
-    NotFoundError,
-    ValidationError
-} from '@phyt/types';
-
-import { validateAdmin } from '@/middleware/admin.js';
-import { validateAuth } from '@/middleware/auth.js';
-import { adminService } from '@/services/adminServices.js';
-interface VerifyRunStatus {
-    status: 'verified' | 'flagged';
-}
+import { controller } from '@/container.js';
 
 const router: Router = express.Router();
 
-router.use(validateAuth);
-router.use(validateAdmin);
-
 // Get pending runners
-router.get('/pending-runners', async (req: Request, res: Response) => {
-    const runners = await adminService.getPendingRunners();
-    res.status(200).json(runners);
-});
+router.get('/pending-runners', ...controller.admin.getPendingRunners);
 
 // Get pending runs
-router.get('/pending-runs', async (req: Request, res: Response) => {
-    const runs = await adminService.getPendingRuns();
-    res.status(200).json(runs);
-});
+router.get('/pending-runs', ...controller.admin.getPendingRuns);
 
 // Approve runner
-router.post(
-    '/runners/:id/approve',
-    async (req: Request<{ id: UUIDv7 }>, res: Response) => {
-        const userId = req.params.id;
-        if (!userId) {
-            throw new ValidationError('Invalid user ID');
-        }
-
-        const updatedUser = await adminService.approveRunner(userId);
-        res.status(200).json(updatedUser);
-    }
-);
+router.post('/runners/:id/approve', ...controller.admin.approveRunner);
 
 // Update run verification status
-router.patch(
-    '/runs/:id/verify',
-    async (
-        req: Request<{ id: UUIDv7 }, Run, VerifyRunStatus>,
-        res: Response
-    ) => {
-        const runId = req.params.id;
-        const { status } = req.body;
-
-        if (!runId) {
-            throw new ValidationError('Invalid run ID');
-        }
-
-        if (!['verified', 'flagged'].includes(status)) {
-            throw new ValidationError('Invalid status');
-        }
-
-        const updatedRun = await adminService.updateRunVerification(
-            runId,
-            status
-        );
-        res.status(200).json(updatedRun);
-    }
-);
+router.patch('/runs/:id/verify', ...controller.admin.updateRunVerification);
 
 export { router as adminRouter };
