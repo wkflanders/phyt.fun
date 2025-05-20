@@ -203,7 +203,7 @@ export const runs = pgTable(
         deviceId: varchar('deviceId'),
         gpsRouteData: varchar('gpsRouteData'),
         isPosted: boolean('isPosted').default(false),
-        verificationStatus: enumRunsVerificationStatus('verificationSatus')
+        verificationStatus: enumRunsVerificationStatus('verificationStatus')
             .default('pending')
             .notNull(),
         rawDataJson: jsonb('rawDataJson'),
