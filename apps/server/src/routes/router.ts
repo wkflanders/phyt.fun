@@ -1,9 +1,11 @@
-import { Router } from 'express';
+import express, { Router } from 'express';
 
+import { adminRouter } from './admin.js';
 import { commentsRouter } from './comments.js';
 import { competitionsRouter } from './competitions.js';
 import { leaderboardRouter } from './leaderboard.js';
 import { marketplaceRouter } from './marketplace.js';
+import { metadataRouter } from './metadata.js';
 import { packRouter } from './packs.js';
 import { postsRouter } from './posts.js';
 import { reactionsRouter } from './reactions.js';
@@ -11,7 +13,8 @@ import { runnerRouter } from './runners.js';
 import { runRouter } from './runs.js';
 import { usersRouter } from './users.js';
 
-const router: Router = Router();
+// Create the router
+const router: Router = express.Router();
 
 /**
  * @swagger
@@ -36,23 +39,18 @@ router.get('/health', (_, res) => {
 });
 
 // API Routes
+router.use('/admin', adminRouter);
 router.use('/comments', commentsRouter);
+router.use('/competitions', competitionsRouter);
+router.use('/leaderboard', leaderboardRouter);
+router.use('/marketplace', marketplaceRouter);
+router.use('/metadata', metadataRouter);
+router.use('/packs', packRouter);
+router.use('/posts', postsRouter);
+router.use('/reactions', reactionsRouter);
+router.use('/runners', runnerRouter);
+router.use('/runs', runRouter);
 router.use('/users', usersRouter);
 
-router.use('/packs', packRouter);
-
-router.use('/marketplace', marketplaceRouter);
-
-router.use('/workouts/runs', runRouter);
-
-router.use('/runners', runnerRouter);
-
-router.use('/competitions', competitionsRouter);
-
-router.use('/posts', postsRouter);
-
-router.use('/reactions', reactionsRouter);
-
-router.use('/leaderboard', leaderboardRouter);
-
+// Exports
 export { router };
