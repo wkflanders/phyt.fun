@@ -60,6 +60,7 @@ export const TransactionsVO = (() => {
                 competitionId: input.competitionId ?? null,
                 price: input.price ?? null,
                 transactionType: input.transactionType,
+                status: input.status,
                 packPurchaseId: input.packPurchaseId ?? null,
                 hash: input.hash,
                 createdAt: new Date(),
