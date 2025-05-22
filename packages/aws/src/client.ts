@@ -21,3 +21,8 @@ export const metadataConfig = {
     bucketName: env.AWS_METADATA_BUCKET,
     cloudFrontUrl: env.AWS_CLOUDFRONT_METADATA_URL
 };
+
+export const imagesConfig = {
+    bucketName: env.AWS_IMAGES_BUCKET,
+    cloudFrontURL: env.AWS_CLOUDFRONT_IMAGES_URL
+};
