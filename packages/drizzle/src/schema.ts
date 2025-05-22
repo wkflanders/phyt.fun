@@ -53,6 +53,12 @@ export const enumTransactionsTransactionType = pgEnum(
     ]
 );
 
+export const enumTransactionStatus = pgEnum('enumTransactionStatus', [
+    'pending',
+    'completed',
+    'failed'
+]);
+
 export const enumBidType = pgEnum('enumBidType', ['listing', 'open']);
 
 export const enumBidStatus = pgEnum('enumBidStatus', [
@@ -555,7 +561,8 @@ export const transactions = pgTable(
             () => packPurchases.id,
             { onDelete: 'set null' }
         ),
-        hash: varchar('hash', { length: 66 }), // 0x + 64 characters for hash
+        status: enumTransactionStatus('status').notNull(),
+        hash: varchar('hash', { length: 66 }).notNull(), // 0x + 64 characters for hash
         updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull(),
