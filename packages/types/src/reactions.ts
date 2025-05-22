@@ -20,6 +20,7 @@ export interface ReactionInsert {
 }
 
 export interface ReactionUpdate {
+    action: ReactionAction;
     type: ReactionType;
 }
 
@@ -31,11 +32,3 @@ export interface ReactionCount {
 }
 
 export type ReactionAction = 'added' | 'removed';
-
-export interface ReactionToggle {
-    action: ReactionAction;
-    reaction: ReactionType;
-    counts: ReactionCount;
-}
-
-// Deal with this later

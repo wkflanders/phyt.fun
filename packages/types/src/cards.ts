@@ -34,8 +34,8 @@ export interface Card {
     tokenId: number;
     isBurned: boolean;
     acquisitionType: AcquisitionType;
-    updatedAt: Date;
     createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface CardInsert {

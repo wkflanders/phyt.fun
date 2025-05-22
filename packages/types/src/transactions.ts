@@ -9,6 +9,8 @@ export type TransactionType =
     | 'marketplaceListing'
     | 'rewardPayout';
 
+export type TransactionStatus = 'pending' | 'confirmed' | 'failed';
+
 export interface Transaction {
     id: UUIDv7;
     fromUserId: UUIDv7 | null;
@@ -18,6 +20,7 @@ export interface Transaction {
     price: string | null;
     transactionType: TransactionType;
     packPurchaseId: UUIDv7 | null;
+    status: TransactionStatus;
     hash: string;
     createdAt: Date;
     updatedAt: Date;
@@ -31,6 +34,7 @@ export interface TransactionInsert {
     price: string | null;
     transactionType: TransactionType;
     packPurchaseId: UUIDv7 | null;
+    status: TransactionStatus;
     hash: string;
 }
 
@@ -39,6 +43,7 @@ export interface TransactionUpdate {
     toUserId: UUIDv7 | null;
     cardId: UUIDv7 | null;
     transactionType: TransactionType;
+    status: TransactionStatus;
     hash: string;
 }
 
@@ -46,6 +51,7 @@ export interface TransactionQueryParams {
     page?: number;
     limit?: number;
     parentOnly?: boolean;
+    status?: TransactionStatus;
 }
 
 export interface PaginatedTransactions<T = Transaction> {

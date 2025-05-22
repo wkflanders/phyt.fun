@@ -1,4 +1,4 @@
-import type { UUIDv7 } from './core.js';
+import type { UUIDv7, Pagination } from './core.js';
 
 export type RunnerStatus = 'pending' | 'active' | 'inactive';
 
@@ -37,11 +37,6 @@ export interface RunnerUpdate {
     runnerWallet?: string;
 }
 
-export interface RunnerProfile extends Runner {
-    username: string;
-    avatarUrl: string;
-}
-
 export type RunnerSortFields =
     | 'username'
     | 'totalDistance'
@@ -56,20 +51,11 @@ export interface RunnerQueryParams {
     search?: string;
     sortBy?: RunnerSortFields;
     sortOrder?: RunnerSortOrder;
+    page?: number;
+    limit?: number;
 }
 
-export interface RunnerActivity {
-    id: UUIDv7;
-    runnerId: UUIDv7;
-    username: string;
-    avatarUrl: string;
-    distance: number;
-    completedAt: string;
-    isPooled: boolean;
-    timeAgo: string;
-}
-
-export interface RunnerPoolStatus {
-    status: RunnerStatus;
-    isPooled: boolean;
+export interface PaginatedRunners<T = Runner> {
+    runners: T[];
+    pagination?: Pagination;
 }
