@@ -1,75 +1,87 @@
+import { uuidv7 } from 'uuidv7';
+
 import { InputError } from './errors.js';
 
 import type {
+    UUIDv7,
     Post,
     PostInsert,
     PostUpdate,
-    PostWithUser,
-    PostRecord,
-    ISODate
+    PostStatus,
+    PostStats,
+    Run
 } from '@phyt/types';
 
 export interface PostsVO extends Post {
-    status: 'visible' | 'hidden' | 'deleted';
-    username?: string;
-    avatarUrl?: string | null;
     update(update: PostUpdate): PostsVO;
-    withUserInfo(username: string, avatarUrl: string | null): PostsVO;
+    with(options: { username?: string; avatarUrl?: string }): PostsVO;
     toDTO<T extends Post = Post>(options?: { [K in keyof T]?: T[K] }): T;
-    toJSON(): PostRecord;
+    toJSON(): Post;
 }
 
 export const PostsVO = (() => {
     const make = (
-        record: PostRecord & {
-            status: 'visible' | 'hidden' | 'deleted';
-            username?: string | null;
-            avatarUrl?: string | null;
+        record: Post & {
+            username?: string;
+            avatarUrl?: string;
+            stats?: PostStats;
+            run?: Run;
+            status?: PostStatus;
         }
     ): PostsVO => {
         const update = (updateData: PostUpdate): PostsVO => {
+            PostsVO.validateUpdate(updateData);
             return make({
                 ...record,
                 ...updateData,
-                updatedAt: new Date().toISOString() as ISODate
+                updatedAt: new Date()
             });
         };
 
-        const withUserInfo = (
-            username: string | null,
-            avatarUrl: string | null
-        ): PostsVO => {
-            return make({ ...record, username, avatarUrl });
+        const withOptions = (options: {
+            username?: string;
+            avatarUrl?: string;
+            stats?: PostStats;
+            run?: Run;
+            status?: PostStatus;
+        }): PostsVO => {
+            return make({
+                ...record,
+                ...(options.status !== undefined
+                    ? { status: options.status }
+                    : {}),
+                ...(options.username !== undefined
+                    ? { username: options.username }
+                    : {}),
+                ...(options.avatarUrl !== undefined
+                    ? { avatarUrl: options.avatarUrl }
+                    : {}),
+                ...(options.stats !== undefined
+                    ? { stats: options.stats }
+                    : {}),
+                ...(options.run !== undefined ? { run: options.run } : {})
+            });
         };
 
         const toDTO = <T extends Post = Post>(options?: {
             [K in keyof T]?: T[K];
         }): T => {
             return {
-                id: record.id,
-                userId: record.userId,
-                title: record.title,
-                content: record.content,
-                status: record.status,
-                createdAt: record.createdAt,
-                updatedAt: record.updatedAt,
+                ...record,
+                createdAt: new Date(record.createdAt),
+                updatedAt: new Date(record.updatedAt),
                 ...(record.username ? { username: record.username } : {}),
-                ...(record.avatarUrl !== undefined
-                    ? { avatarUrl: record.avatarUrl }
-                    : {}),
+                ...(record.avatarUrl ? { avatarUrl: record.avatarUrl } : {}),
                 ...(options ?? {})
             } as T;
         };
 
-        const toJSON = (): PostRecord => ({ ...record });
+        const toJSON = (): Post => ({ ...record });
 
         return Object.freeze({
             ...toDTO(),
-            status: record.status,
-            username: record.username,
-            avatarUrl: record.avatarUrl,
             update,
-            withUserInfo,
+            with: withOptions,
             toDTO,
             toJSON
         }) as PostsVO;
@@ -79,35 +91,45 @@ export const PostsVO = (() => {
         create(input: PostInsert): PostsVO {
             PostsVO.validateInput(input);
             return make({
-                id: undefined,
+                id: uuidv7() as UUIDv7,
                 userId: input.userId,
                 title: input.title,
                 content: input.content,
                 status: input.status ?? 'visible',
-                createdAt: new Date().toISOString() as ISODate,
-                updatedAt: new Date().toISOString() as ISODate
+                createdAt: new Date(),
+                updatedAt: new Date()
             });
         },
 
-        fromRecord(record: PostRecord): PostsVO {
-            return make(record);
-        },
+        from(
+            data: Post,
+            options?: {
+                username?: string;
+                avatarUrl?: string;
+                stats?: PostStats;
+                run?: Run;
+                status?: PostStatus;
+            }
+        ): PostsVO {
+            if (!options) {
+                return make(data);
+            }
 
-        fromWithUser(data: PostWithUser): PostsVO {
             return make({
-                id: data.id,
-                userId: data.userId,
-                title: data.title,
-                content: data.content,
-                status: data.status,
-                createdAt: (data.createdAt instanceof Date
-                    ? data.createdAt.toISOString()
-                    : data.createdAt) as ISODate,
-                updatedAt: (data.updatedAt instanceof Date
-                    ? data.updatedAt.toISOString()
-                    : data.updatedAt) as ISODate,
-                username: data.username,
-                avatarUrl: data.avatarUrl
+                ...data,
+                ...(options.username !== undefined
+                    ? { username: options.username }
+                    : {}),
+                ...(options.avatarUrl !== undefined
+                    ? { avatarUrl: options.avatarUrl }
+                    : {}),
+                ...(options.stats !== undefined
+                    ? { stats: options.stats }
+                    : {}),
+                ...(options.run !== undefined ? { run: options.run } : {}),
+                ...(options.status !== undefined
+                    ? { status: options.status }
+                    : {})
             });
         },
 
@@ -123,6 +145,14 @@ export const PostsVO = (() => {
             if (!input.content || input.content.trim() === '') {
                 throw new InputError('Post content cannot be empty');
             }
+
+            if (
+                input.status !== undefined &&
+                input.status !== 'visible' &&
+                input.status !== 'hidden'
+            ) {
+                throw new InputError('Invalid post status');
+            }
         },
 
         validateUpdate(input: PostUpdate): void {
@@ -132,6 +162,14 @@ export const PostsVO = (() => {
 
             if (input.content !== undefined && input.content.trim() === '') {
                 throw new InputError('Post content cannot be empty');
+            }
+
+            if (
+                input.status !== undefined &&
+                input.status !== 'visible' &&
+                input.status !== 'hidden'
+            ) {
+                throw new InputError('Invalid post status');
             }
         }
     };

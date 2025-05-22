@@ -2,34 +2,19 @@ import { CommentsVO } from '@phyt/models';
 
 import type { CommentsDrizzleOps } from '@phyt/drizzle';
 import type {
+    Comment,
     UUIDv7,
-    ISODate,
     CommentInsert,
     CommentUpdate,
     CommentQueryParams,
-    PaginatedComments,
-    CommentRecord
+    PaginatedComments
 } from '@phyt/types';
 
 export type CommentsRepository = ReturnType<typeof makeCommentsRepository>;
 
 export const makeCommentsRepository = (ops: CommentsDrizzleOps) => {
-    function isDate(val: unknown): val is Date {
-        return val instanceof Date;
-    }
-
-    function mapRecord(
-        data: CommentRecord | import('@phyt/types').Comment
-    ): CommentsVO {
-        return CommentsVO.fromRecord({
-            ...data,
-            createdAt: (isDate(data.createdAt)
-                ? data.createdAt.toISOString()
-                : data.createdAt) as ISODate,
-            updatedAt: (isDate(data.updatedAt)
-                ? data.updatedAt.toISOString()
-                : data.updatedAt) as ISODate
-        });
+    function mapRecord(data: Comment): CommentsVO {
+        return CommentsVO.fromRecord(data);
     }
 
     const create = async (input: CommentInsert): Promise<CommentsVO> => {

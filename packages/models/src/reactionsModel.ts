@@ -1,27 +1,22 @@
+import { uuidv7 } from 'uuidv7';
+
 import { InputError } from './errors.js';
 
 import type {
     UUIDv7,
-    ReactionType,
     Reaction,
     ReactionInsert,
-    ReactionWithUser,
-    ReactionCount
+    ReactionCount,
+    ReactionUpdate
 } from '@phyt/types';
 
 export interface ReactionVO extends Reaction {
-    readonly id: UUIDv7;
-    readonly userId: UUIDv7;
-    readonly postId?: UUIDv7;
-    readonly commentId?: UUIDv7;
-    readonly type: ReactionType;
-    readonly createdAt: Date;
-    readonly username?: string;
-    readonly avatarUrl?: string | null;
-    readonly counts?: ReactionCount;
-
-    withUserInfo(username: string, avatarUrl: string | null): ReactionVO;
-    withCounts(counts: Partial<ReactionCount>): ReactionVO;
+    update(update: ReactionUpdate): ReactionVO;
+    with(options: {
+        username?: string;
+        avatarUrl?: string;
+        counts?: ReactionCount;
+    }): ReactionVO;
     toDTO<T extends Reaction = Reaction>(options?: {
         [K in keyof T]?: T[K];
     }): T;
@@ -32,74 +27,58 @@ export const ReactionVO = (() => {
     const make = (
         record: Reaction & {
             username?: string;
-            avatarUrl?: string | null;
+            avatarUrl?: string;
             counts?: ReactionCount;
         }
     ): ReactionVO => {
-        const withUserInfo = (
-            username: string,
-            avatarUrl: string | null
-        ): ReactionVO => {
-            return make({ ...record, username, avatarUrl });
+        const update = (updateData: ReactionUpdate): ReactionVO => {
+            ReactionVO.validateUpdate(updateData);
+            return make({
+                ...record,
+                ...updateData,
+                updatedAt: new Date()
+            });
         };
 
-        const withCounts = (counts: Partial<ReactionCount>): ReactionVO => {
-            const normalizedCounts: ReactionCount = {
-                like: typeof counts.like === 'number' ? counts.like : 0,
-                funny: typeof counts.funny === 'number' ? counts.funny : 0,
-                insightful:
-                    typeof counts.insightful === 'number'
-                        ? counts.insightful
-                        : 0,
-                fire: typeof counts.fire === 'number' ? counts.fire : 0
-            };
-            return make({ ...record, counts: normalizedCounts });
+        const withOptions = (options: {
+            username?: string;
+            avatarUrl?: string;
+            counts?: ReactionCount;
+        }): ReactionVO => {
+            return make({
+                ...record,
+                ...(options.username !== undefined
+                    ? { username: options.username }
+                    : {}),
+                ...(options.avatarUrl !== undefined
+                    ? { avatarUrl: options.avatarUrl }
+                    : {}),
+                ...(options.counts !== undefined
+                    ? { counts: options.counts }
+                    : {})
+            });
         };
 
         const toDTO = <T extends Reaction = Reaction>(options?: {
             [K in keyof T]?: T[K];
         }): T => {
-            const base = {
-                id: record.id,
-                userId: record.userId,
-                postId: record.postId,
-                commentId: record.commentId,
-                type: record.type,
-                createdAt: record.createdAt
-            };
-
-            const withUsername = record.username
-                ? { ...base, username: record.username }
-                : base;
-
-            const withAvatar =
-                record.avatarUrl !== undefined
-                    ? { ...withUsername, avatarUrl: record.avatarUrl }
-                    : withUsername;
-
-            const withReactionCounts = record.counts
-                ? { ...withAvatar, counts: record.counts }
-                : withAvatar;
-
             return {
-                ...withReactionCounts,
+                ...record,
+                createdAt: new Date(record.createdAt),
+                updatedAt: new Date(record.updatedAt),
+                ...(record.username ? { username: record.username } : {}),
+                ...(record.avatarUrl ? { avatarUrl: record.avatarUrl } : {}),
+                ...(record.counts ? { counts: record.counts } : {}),
                 ...(options ?? {})
             } as T;
         };
 
-        const toJSON = (): Reaction => ({
-            id: record.id,
-            userId: record.userId,
-            postId: record.postId,
-            commentId: record.commentId,
-            type: record.type,
-            createdAt: record.createdAt
-        });
+        const toJSON = (): Reaction => ({ ...record });
 
         return Object.freeze({
             ...toDTO(),
-            withUserInfo,
-            withCounts,
+            update,
+            with: withOptions,
             toDTO,
             toJSON
         }) as ReactionVO;
@@ -108,43 +87,40 @@ export const ReactionVO = (() => {
     return {
         create(input: ReactionInsert): ReactionVO {
             ReactionVO.validateInput(input);
-
             return make({
-                id: crypto.randomUUID() as UUIDv7,
+                id: uuidv7() as UUIDv7,
                 userId: input.userId,
                 postId: input.postId,
                 commentId: input.commentId,
                 type: input.type,
-                createdAt: new Date()
-            });
-        },
-
-        fromRecord(record: Reaction): ReactionVO {
-            return make(record);
-        },
-
-        fromWithUser(data: ReactionWithUser): ReactionVO {
-            return make({
-                ...data
-            });
-        },
-
-        fromCount(counts: Partial<ReactionCount>): ReactionVO {
-            // Create a minimal reaction object with counts
-            return make({
-                id: 'count' as UUIDv7, // Placeholder
-                userId: 'system' as UUIDv7, // Placeholder
-                type: 'like', // Placeholder
                 createdAt: new Date(),
-                counts: {
-                    like: typeof counts.like === 'number' ? counts.like : 0,
-                    funny: typeof counts.funny === 'number' ? counts.funny : 0,
-                    insightful:
-                        typeof counts.insightful === 'number'
-                            ? counts.insightful
-                            : 0,
-                    fire: typeof counts.fire === 'number' ? counts.fire : 0
-                }
+                updatedAt: new Date()
+            });
+        },
+
+        from(
+            data: Reaction,
+            options?: {
+                username?: string;
+                avatarUrl?: string;
+                counts?: ReactionCount;
+            }
+        ): ReactionVO {
+            if (!options) {
+                return make(data);
+            }
+
+            return make({
+                ...data,
+                ...(options.username !== undefined
+                    ? { username: options.username }
+                    : {}),
+                ...(options.avatarUrl !== undefined
+                    ? { avatarUrl: options.avatarUrl }
+                    : {}),
+                ...(options.counts !== undefined
+                    ? { counts: options.counts }
+                    : {})
             });
         },
 
@@ -153,17 +129,20 @@ export const ReactionVO = (() => {
                 throw new InputError('User ID is required');
             }
 
-            const hasPostId = Boolean(input.postId);
-            const hasCommentId = Boolean(input.commentId);
-
-            if (!hasPostId && !hasCommentId) {
+            if (!input.postId && !input.commentId) {
                 throw new InputError(
                     'Either post ID or comment ID is required'
                 );
             }
+        },
 
-            if (hasPostId && hasCommentId) {
-                throw new InputError('Cannot have both post ID and comment ID');
+        validateUpdate(input: ReactionUpdate): void {
+            if (
+                input.type !== 'like' &&
+                input.type !== 'funny' &&
+                input.type !== 'insightful'
+            ) {
+                throw new InputError('Invalid reaction type');
             }
         }
     };
