@@ -675,6 +675,9 @@ export const reactions = pgTable(
         type: enumReactionType('type').notNull(),
         createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
+            .notNull(),
+        updatedAt: timestamp('updatedAt', { precision: 3 })
+            .defaultNow()
             .notNull()
     },
     (table) => [

@@ -8,6 +8,20 @@
       "when": 1747617182980,
       "tag": "0000_kind_madripoor",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1747850320310,
+      "tag": "0001_marvelous_nehzno",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1747861034154,
+      "tag": "0002_many_apocalypse",
+      "breakpoints": true
     }
   ]
 }

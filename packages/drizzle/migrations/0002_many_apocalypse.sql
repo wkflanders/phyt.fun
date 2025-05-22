@@ -1,0 +1,1 @@
+ALTER TABLE "reactions" ADD COLUMN "updatedAt" timestamp (3) DEFAULT now() NOT NULL;
