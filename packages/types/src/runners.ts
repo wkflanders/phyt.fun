@@ -16,6 +16,27 @@ export interface Runner {
     updatedAt: Date;
 }
 
+export interface RunnerInsert {
+    userId: UUIDv7;
+    totalDistance: number;
+    averagePace: number | null;
+    totalRuns: number;
+    bestMileTime: number | null;
+    status: RunnerStatus;
+    isPooled: boolean;
+    runnerWallet: string;
+}
+
+export interface RunnerUpdate {
+    totalDistance?: number;
+    averagePace?: number | null;
+    totalRuns?: number;
+    bestMileTime?: number | null;
+    status?: RunnerStatus;
+    isPooled?: boolean;
+    runnerWallet?: string;
+}
+
 export interface RunnerProfile extends Runner {
     username: string;
     avatarUrl: string;

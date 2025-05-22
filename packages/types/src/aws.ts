@@ -5,4 +5,5 @@ export interface AvatarConfig {
 
 export interface MetadataConfig {
     bucketName: string;
+    cloudFrontUrl: string;
 }

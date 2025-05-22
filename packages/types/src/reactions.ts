@@ -9,6 +9,7 @@ export interface Reaction {
     commentId?: UUIDv7;
     type: ReactionType;
     createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface ReactionInsert {
@@ -18,9 +19,8 @@ export interface ReactionInsert {
     type: ReactionType;
 }
 
-export interface ReactionWithUser extends Reaction {
-    username: string;
-    avatarUrl: string | null;
+export interface ReactionUpdate {
+    type: ReactionType;
 }
 
 export interface ReactionCount {
@@ -37,3 +37,5 @@ export interface ReactionToggle {
     reaction: ReactionType;
     counts: ReactionCount;
 }
+
+// Deal with this later

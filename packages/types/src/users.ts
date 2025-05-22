@@ -1,4 +1,4 @@
-import { UUIDv7, Pagination, ISODate } from './core.js';
+import { UUIDv7, Pagination } from './core.js';
 import { RunnerStatus } from './runners.js';
 
 export type UserRole = 'admin' | 'user' | 'runner';
@@ -24,10 +24,6 @@ export interface User {
     updatedAt: Date;
 }
 
-export interface UserWithStatus extends User {
-    status?: RunnerStatus;
-}
-
 export interface UserQueryParams {
     page?: number;
     limit?: number;
@@ -46,17 +42,19 @@ export interface UserInsert {
     stravaHandle?: string | null;
 }
 
+export interface UserUpdate {
+    email?: string;
+    username?: string;
+    privyId?: string;
+    walletAddress?: WalletAddress;
+    avatarUrl?: string;
+    role?: UserRole;
+    phytnessPoints?: number;
+    twitterHandle?: string | null;
+    stravaHandle?: string | null;
+}
+
 export interface PaginatedUsers<T = User> {
     users: T[];
     pagination?: Pagination;
 }
-
-export type UserRecord = Omit<
-    User,
-    'createdAt' | 'updatedAt' | 'phytnessPoints'
-> & {
-    id?: UUIDv7;
-    createdAt: ISODate;
-    updatedAt: ISODate;
-    phytnessPoints: number;
-};
