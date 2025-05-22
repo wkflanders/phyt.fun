@@ -260,10 +260,9 @@ export const cards = pgTable(
         ownerId: uuid('ownerId')
             .notNull()
             .references(() => users.id, { onDelete: 'set null' }),
-        packPurchaseId: uuid('packPurchaseId').references(
-            () => packPurchases.id,
-            { onDelete: 'set null' }
-        ),
+        packPurchaseId: uuid('packPurchaseId')
+            .notNull()
+            .references(() => packPurchases.id, { onDelete: 'set null' }),
         tokenId: integer('tokenId').notNull().unique(),
         acquisitionType: enumAcquisitionType('acquisitionType')
             .notNull()
