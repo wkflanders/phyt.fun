@@ -542,19 +542,28 @@ export const transactions = pgTable(
     'transactions',
     {
         id: uuid('id').primaryKey().notNull(),
-        fromUserId: uuid('fromUserId').references(() => users.id, {
-            onDelete: 'set null'
-        }),
-        toUserId: uuid('toUserId').references(() => users.id, {
-            onDelete: 'set null'
-        }),
-        cardId: uuid('cardId').references(() => cards.id, {
-            onDelete: 'set null'
-        }),
+        fromUserId: uuid('fromUserId')
+            .references(() => users.id, {
+                onDelete: 'set null'
+            })
+            .notNull(),
+        toUserId: uuid('toUserId')
+            .references(() => users.id, {
+                onDelete: 'set null'
+            })
+            .notNull(),
+        cardId: uuid('cardId')
+            .references(() => cards.id, {
+                onDelete: 'set null'
+            })
+            .notNull(),
         competitionId: uuid('competitionId').references(() => competitions.id, {
             onDelete: 'set null'
         }),
-        price: decimal('price', { precision: ethValuePrecision, scale: 0 }),
+        price: decimal('price', {
+            precision: ethValuePrecision,
+            scale: 0
+        }).notNull(),
         transactionType:
             enumTransactionsTransactionType('transactionType').notNull(),
         packPurchaseId: uuid('packPurchaseId').references(
@@ -562,7 +571,7 @@ export const transactions = pgTable(
             { onDelete: 'set null' }
         ),
         status: enumTransactionStatus('status').notNull(),
-        hash: varchar('hash', { length: 66 }).notNull(), // 0x + 64 characters for hash
+        hash: varchar('hash', { length: 66 }).notNull(),
         updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
             .notNull(),
