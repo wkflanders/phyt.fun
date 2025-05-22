@@ -1,27 +1,30 @@
 import { z } from 'zod';
 
 import { uuidv7, PaginationSchema } from './core.js';
+import { PostIdSchema } from './postsDTO.js';
+import { UserIdSchema } from './usersDTO.js';
 
 import type {
-    CommentQueryParams,
+    UUIDv7,
     Comment,
-    PaginatedComments,
+    CommentInsert,
     CommentUpdate,
-    CommentInsert
+    CommentQueryParams,
+    PaginatedComments
 } from '@phyt/types';
 
 /* ---------- Inbound DTOs ---------- */
 export const CommentIdSchema = z.object({
     commentId: uuidv7()
 });
-export type CommentIdDTO = z.infer<typeof CommentIdSchema>;
+export type CommentIdDTO = z.infer<typeof CommentIdSchema> & UUIDv7;
 
 export const CreateCommentSchema = z
     .object({
-        userId: uuidv7(), // usually injected by auth
-        postId: uuidv7(),
+        userId: UserIdSchema,
+        postId: PostIdSchema,
         content: z.string().min(1),
-        parentCommentId: uuidv7().nullable()
+        parentCommentId: CommentIdSchema.nullable()
     })
     .strict();
 export type CreateCommentDTO = z.infer<typeof CreateCommentSchema> &
@@ -48,35 +51,20 @@ export type CommentQueryParamsDTO = z.infer<typeof CommentQueryParamsSchema> &
 /* ---------- Outbound DTOs ---------- */
 export const CommentSchema = z
     .object({
-        id: uuidv7(),
-        postId: uuidv7(),
-        userId: uuidv7(),
+        id: CommentIdSchema,
+        postId: PostIdSchema,
+        userId: UserIdSchema,
         content: z.string(),
-        parentCommentId: uuidv7().nullable(),
+        parentCommentId: CommentIdSchema.nullable(),
         createdAt: z.coerce.date(),
         updatedAt: z.coerce.date()
     })
     .strict();
 export type CommentDTO = z.infer<typeof CommentSchema> & Comment;
 
-export const CommentWithUserSchema = z
-    .object({
-        id: uuidv7(),
-        postId: uuidv7(),
-        userId: uuidv7(),
-        content: z.string(),
-        parentCommentId: uuidv7().nullable(),
-        createdAt: z.coerce.date(),
-        updatedAt: z.coerce.date(),
-        username: z.string(),
-        avatarUrl: z.string()
-    })
-    .strict();
-export type CommentWithUserDTO = z.infer<typeof CommentWithUserSchema>;
-
 export const CommentsPageSchema = z
     .object({
-        comments: z.array(CommentWithUserSchema),
+        comments: z.array(CommentSchema),
         pagination: PaginationSchema.optional()
     })
     .strict();

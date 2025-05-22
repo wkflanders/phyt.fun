@@ -7,3 +7,7 @@ export * from './reactionsDTO.js';
 export * from './transactionsDTO.js';
 export * from './adminDTO.js';
 export * from './runsDTO.js';
+export * from './packsDTO.js';
+export * from './metadataDTO.js';
+export * from './competitionsDTO.js';
+export * from './cardsDTO.js';

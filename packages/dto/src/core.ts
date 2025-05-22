@@ -16,3 +16,10 @@ export const uuidv7 = () =>
         .string()
         .refine(isUUIDv7, { message: 'Invalid UUIDv7' })
         .transform((s) => s);
+
+export const WalletAddressSchema = z
+    .string()
+    .regex(/^0x[a-fA-F0-9]{40}$/)
+    .transform((val) => val as `0x${string}`);
+
+export const DeviceIdSchema = z.string().regex(/^[a-zA-Z0-9_-]{1,255}$/);
