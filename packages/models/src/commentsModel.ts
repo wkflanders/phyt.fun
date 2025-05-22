@@ -1,28 +1,26 @@
+import { uuidv7 } from 'uuidv7';
+
 import { InputError } from './errors.js';
 
 import type {
+    UUIDv7,
     Comment,
     CommentInsert,
-    CommentUpdate,
-    CommentWithUser,
-    CommentRecord,
-    ISODate
+    CommentUpdate
 } from '@phyt/types';
 
 export interface CommentsVO extends Comment {
-    username?: string;
-    avatarUrl?: string | null;
     update(update: CommentUpdate): CommentsVO;
-    withUserInfo(username: string, avatarUrl: string | null): CommentsVO;
+    with(options: { username?: string; avatarUrl?: string }): CommentsVO;
     toDTO<T extends Comment = Comment>(options?: { [K in keyof T]?: T[K] }): T;
-    toJSON(): CommentRecord;
+    toJSON(): Comment;
 }
 
 export const CommentsVO = (() => {
     const make = (
-        record: CommentRecord & {
-            username?: string | null;
-            avatarUrl?: string | null;
+        record: Comment & {
+            username?: string;
+            avatarUrl?: string;
         }
     ): CommentsVO => {
         const update = (updateData: CommentUpdate): CommentsVO => {
@@ -30,44 +28,44 @@ export const CommentsVO = (() => {
             return make({
                 ...record,
                 ...updateData,
-                updatedAt: new Date().toISOString() as ISODate
+                updatedAt: new Date()
             });
         };
 
-        const withUserInfo = (
-            username: string | null,
-            avatarUrl: string | null
-        ): CommentsVO => {
-            return make({ ...record, username, avatarUrl });
+        const withOptions = (options: {
+            username?: string;
+            avatarUrl?: string;
+        }): CommentsVO => {
+            return make({
+                ...record,
+                ...(options.username !== undefined
+                    ? { username: options.username }
+                    : {}),
+                ...(options.avatarUrl !== undefined
+                    ? { avatarUrl: options.avatarUrl }
+                    : {})
+            });
         };
 
         const toDTO = <T extends Comment = Comment>(options?: {
             [K in keyof T]?: T[K];
         }): T => {
             return {
-                id: record.id,
-                postId: record.postId,
-                userId: record.userId,
-                content: record.content,
-                parentCommentId: record.parentCommentId,
-                createdAt: record.createdAt,
-                updatedAt: record.updatedAt,
+                ...record,
+                createdAt: new Date(record.createdAt),
+                updatedAt: new Date(record.updatedAt),
                 ...(record.username ? { username: record.username } : {}),
-                ...(record.avatarUrl !== undefined
-                    ? { avatarUrl: record.avatarUrl }
-                    : {}),
+                ...(record.avatarUrl ? { avatarUrl: record.avatarUrl } : {}),
                 ...(options ?? {})
             } as T;
         };
 
-        const toJSON = (): CommentRecord => ({ ...record });
+        const toJSON = (): Comment => ({ ...record });
 
         return Object.freeze({
             ...toDTO(),
-            username: record.username,
-            avatarUrl: record.avatarUrl,
             update,
-            withUserInfo,
+            with: withOptions,
             toDTO,
             toJSON
         }) as CommentsVO;
@@ -77,35 +75,32 @@ export const CommentsVO = (() => {
         create(input: CommentInsert): CommentsVO {
             CommentsVO.validateInput(input);
             return make({
-                id: undefined,
+                id: uuidv7() as UUIDv7,
                 postId: input.postId,
                 userId: input.userId,
                 content: input.content,
                 parentCommentId: input.parentCommentId,
-                createdAt: new Date().toISOString() as ISODate,
-                updatedAt: new Date().toISOString() as ISODate
+                createdAt: new Date(),
+                updatedAt: new Date()
             });
         },
 
-        fromRecord(record: CommentRecord): CommentsVO {
-            return make(record);
-        },
+        from(
+            data: Comment,
+            options?: { username?: string; avatarUrl?: string }
+        ): CommentsVO {
+            if (!options) {
+                return make(data);
+            }
 
-        fromWithUser(data: CommentWithUser): CommentsVO {
             return make({
-                id: data.id,
-                postId: data.postId,
-                userId: data.userId,
-                content: data.content,
-                parentCommentId: data.parentCommentId,
-                createdAt: (data.createdAt instanceof Date
-                    ? data.createdAt.toISOString()
-                    : data.createdAt) as ISODate,
-                updatedAt: (data.updatedAt instanceof Date
-                    ? data.updatedAt.toISOString()
-                    : data.updatedAt) as ISODate,
-                username: data.username,
-                avatarUrl: data.avatarUrl
+                ...data,
+                ...(options.username !== undefined
+                    ? { username: options.username }
+                    : {}),
+                ...(options.avatarUrl !== undefined
+                    ? { avatarUrl: options.avatarUrl }
+                    : {})
             });
         },
 
