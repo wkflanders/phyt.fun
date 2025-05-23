@@ -9,17 +9,17 @@ export type TransactionType =
     | 'marketplaceListing'
     | 'rewardPayout';
 
-export type TransactionStatus = 'pending' | 'confirmed' | 'failed';
+export type TransactionStatus = 'pending' | 'completed' | 'failed';
 
 export interface Transaction {
     id: UUIDv7;
-    fromUserId: UUIDv7 | null;
-    toUserId: UUIDv7 | null;
-    cardId: UUIDv7 | null;
+    fromUserId: UUIDv7;
+    toUserId: UUIDv7;
+    cardId: UUIDv7;
     competitionId: UUIDv7 | null;
-    price: string | null;
-    transactionType: TransactionType;
     packPurchaseId: UUIDv7 | null;
+    price: string;
+    transactionType: TransactionType;
     status: TransactionStatus;
     hash: string;
     createdAt: Date;
@@ -27,23 +27,20 @@ export interface Transaction {
 }
 
 export interface TransactionInsert {
-    fromUserId: UUIDv7 | null;
-    toUserId: UUIDv7 | null;
-    cardId: UUIDv7 | null;
-    competitionId: UUIDv7 | null;
-    price: string | null;
+    fromUserId: UUIDv7;
+    toUserId: UUIDv7;
+    cardId: UUIDv7;
+    competitionId?: UUIDv7 | null;
+    packPurchaseId?: UUIDv7 | null;
+    price: string;
     transactionType: TransactionType;
-    packPurchaseId: UUIDv7 | null;
     status: TransactionStatus;
     hash: string;
 }
 
 export interface TransactionUpdate {
-    fromUserId: UUIDv7 | null;
-    toUserId: UUIDv7 | null;
-    cardId: UUIDv7 | null;
-    transactionType: TransactionType;
-    status: TransactionStatus;
+    price?: string;
+    status?: TransactionStatus;
     hash: string;
 }
 

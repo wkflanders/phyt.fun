@@ -16,6 +16,11 @@ export interface Runner {
     updatedAt: Date;
 }
 
+export interface RunnerProfile extends Runner {
+    username: string;
+    avatarUrl: string;
+}
+
 export interface RunnerInsert {
     userId: UUIDv7;
     totalDistance: number;

@@ -10,6 +10,11 @@ export interface Comment {
     updatedAt: Date;
 }
 
+export interface CommentWithUser extends Comment {
+    username: string;
+    avatarUrl: string;
+}
+
 export interface CommentInsert {
     postId: UUIDv7;
     userId: UUIDv7;

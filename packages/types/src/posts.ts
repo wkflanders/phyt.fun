@@ -6,6 +6,7 @@ export type PostFilter = 'all' | 'following' | 'trending';
 export interface Post {
     id: UUIDv7;
     userId: UUIDv7;
+    runId: UUIDv7 | null;
     title: string;
     content: string;
     status: PostStatus;
@@ -13,8 +14,14 @@ export interface Post {
     updatedAt: Date;
 }
 
+export interface PostWithUser extends Post {
+    username: string;
+    avatarUrl: string | null;
+}
+
 export interface PostInsert {
     userId: UUIDv7;
+    runId?: UUIDv7 | null;
     title: string;
     content: string;
     status?: PostStatus;

@@ -5,17 +5,22 @@ export type ReactionType = 'like' | 'funny' | 'insightful' | 'fire';
 export interface Reaction {
     id: UUIDv7;
     userId: UUIDv7;
-    postId?: UUIDv7;
-    commentId?: UUIDv7;
+    postId: UUIDv7 | null;
+    commentId: UUIDv7 | null;
     type: ReactionType;
     createdAt: Date;
     updatedAt: Date;
 }
 
+export interface ReactionWithUser extends Reaction {
+    username: string;
+    avatarUrl: string | null;
+}
+
 export interface ReactionInsert {
     userId: UUIDv7;
-    postId?: UUIDv7;
-    commentId?: UUIDv7;
+    postId?: UUIDv7 | null;
+    commentId?: UUIDv7 | null;
     type: ReactionType;
 }
 

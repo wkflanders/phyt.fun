@@ -24,6 +24,10 @@ export interface User {
     updatedAt: Date;
 }
 
+export interface UserWithStatus extends User {
+    status: RunnerStatus;
+}
+
 export interface UserQueryParams {
     page?: number;
     limit?: number;
