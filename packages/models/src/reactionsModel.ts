@@ -90,8 +90,8 @@ export const ReactionVO = (() => {
             return make({
                 id: uuidv7() as UUIDv7,
                 userId: input.userId,
-                postId: input.postId,
-                commentId: input.commentId,
+                postId: input.postId ?? null,
+                commentId: input.commentId ?? null,
                 type: input.type,
                 createdAt: new Date(),
                 updatedAt: new Date()

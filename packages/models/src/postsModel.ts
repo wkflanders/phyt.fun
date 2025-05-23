@@ -95,6 +95,7 @@ export const PostsVO = (() => {
                 userId: input.userId,
                 title: input.title,
                 content: input.content,
+                runId: input.runId ?? null,
                 status: input.status ?? 'visible',
                 createdAt: new Date(),
                 updatedAt: new Date()

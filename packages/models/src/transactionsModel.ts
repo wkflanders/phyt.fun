@@ -54,11 +54,11 @@ export const TransactionsVO = (() => {
             TransactionsVO.validateInput(input);
             return make({
                 id: uuidv7() as UUIDv7,
-                fromUserId: input.fromUserId ?? null,
-                toUserId: input.toUserId ?? null,
-                cardId: input.cardId ?? null,
+                fromUserId: input.fromUserId,
+                toUserId: input.toUserId,
+                cardId: input.cardId,
                 competitionId: input.competitionId ?? null,
-                price: input.price ?? null,
+                price: input.price,
                 transactionType: input.transactionType,
                 status: input.status,
                 packPurchaseId: input.packPurchaseId ?? null,
@@ -84,9 +84,23 @@ export const TransactionsVO = (() => {
             if (!input.toUserId) {
                 throw new InputError('To user ID is required');
             }
+
+            if (!input.cardId) {
+                throw new InputError('Card ID is required');
+            }
+
+            if (!input.price) {
+                throw new InputError('Price is required');
+            }
         },
 
         validateUpdate(input: TransactionUpdate): void {
+            if (input.price) {
+                if (typeof input.price !== 'string') {
+                    throw new InputError('Price must be a string');
+                }
+            }
+
             if (!input.hash) {
                 throw new InputError('Transaction hash is required');
             }
