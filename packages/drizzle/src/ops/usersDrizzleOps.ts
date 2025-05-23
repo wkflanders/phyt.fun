@@ -1,8 +1,6 @@
 import { eq, or, desc, count } from 'drizzle-orm';
 import { uuidv7 } from 'uuidv7';
 
-import { NotFoundError } from '@phyt/models';
-
 // eslint-disable-next-line no-restricted-imports
 import { DrizzleDB } from '../db.js';
 // eslint-disable-next-line no-restricted-imports
@@ -15,40 +13,69 @@ import {
 } from '../schema.js';
 
 import type {
-    User,
-    UserInsert,
     UUIDv7,
-    WalletAddress,
+    User,
+    UserWithStatus,
+    UserInsert,
+    UserUpdate,
     UserQueryParams,
     PaginatedUsers,
-    UserWithStatus,
+    WalletAddress,
+    Transaction,
+    Card,
     RunnerStatus
 } from '@phyt/types';
 
-const toData = (userRow: typeof users.$inferSelect): User => ({
-    id: userRow.id as UUIDv7,
-    email: userRow.email,
-    username: userRow.username,
-    role: userRow.role,
-    privyId: userRow.privyId,
-    avatarUrl: userRow.avatarUrl,
-    walletAddress: userRow.walletAddress as WalletAddress,
-    phytnessPoints: userRow.phytnessPoints,
-    twitterHandle: userRow.twitterHandle,
-    stravaHandle: userRow.stravaHandle,
-    createdAt: userRow.createdAt,
-    updatedAt: userRow.updatedAt
-});
+const toUser = (userRow: typeof users.$inferSelect): User => {
+    return {
+        id: userRow.id as UUIDv7,
+        email: userRow.email,
+        username: userRow.username,
+        role: userRow.role,
+        privyId: userRow.privyId,
+        avatarUrl: userRow.avatarUrl,
+        walletAddress: userRow.walletAddress as WalletAddress,
+        phytnessPoints: userRow.phytnessPoints,
+        twitterHandle: userRow.twitterHandle,
+        stravaHandle: userRow.stravaHandle,
+        createdAt: userRow.createdAt,
+        updatedAt: userRow.updatedAt
+    };
+};
+
+const toUserWithStatus = (
+    userRow: typeof users.$inferSelect,
+    status: RunnerStatus
+): UserWithStatus => {
+    return {
+        ...toUser(userRow),
+        status
+    };
+};
 
 export type UsersDrizzleOps = ReturnType<typeof makeUsersDrizzleOps>;
 
 export const makeUsersDrizzleOps = (db: DrizzleDB) => {
-    const create = async (input: UserInsert): Promise<User> => {
+    const create = async (data: UserInsert): Promise<User> => {
         const [row] = await db
             .insert(users)
-            .values({ ...input, id: uuidv7() })
+            .values({ ...data, id: uuidv7() })
             .returning();
-        return toData(row);
+
+        return toUser(row);
+    };
+
+    const update = async (userId: UUIDv7, data: UserUpdate): Promise<User> => {
+        const [row] = await db
+            .update(users)
+            .set({
+                ...data,
+                updatedAt: new Date()
+            })
+            .where(eq(users.id, userId))
+            .returning();
+
+        return toUser(row);
     };
 
     const findByPrivyId = async (privyId: string): Promise<User> => {
@@ -56,8 +83,8 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
             .select()
             .from(users)
             .where(eq(users.privyId, privyId));
-        if (!row) throw new NotFoundError('User not found');
-        return toData(row);
+
+        return toUser(row);
     };
 
     const findByPrivyIdWithStatus = async (
@@ -72,15 +99,18 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
             .leftJoin(runners, eq(users.id, runners.userId))
             .where(eq(users.privyId, privyId));
 
-        if (!row) throw new NotFoundError('User not found');
-
-        return {
-            ...toData(row.user),
-            status: row.status as RunnerStatus | undefined
-        };
+        return toUserWithStatus(row.user, row.status ?? 'inactive');
     };
 
-    const findByIdWithStatus = async (userId: UUIDv7) => {
+    const findById = async (userId: UUIDv7): Promise<User> => {
+        const [row] = await db.select().from(users).where(eq(users.id, userId));
+
+        return toUser(row);
+    };
+
+    const findByIdWithStatus = async (
+        userId: UUIDv7
+    ): Promise<UserWithStatus> => {
         const [row] = await db
             .select({
                 user: users,
@@ -90,48 +120,41 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
             .leftJoin(runners, eq(users.id, runners.userId))
             .where(eq(users.id, userId));
 
-        if (!row) throw new NotFoundError('User not found');
-
-        return {
-            ...toData(row.user),
-            status: row.status as RunnerStatus | undefined
-        };
+        return toUserWithStatus(row.user, row.status ?? 'inactive');
     };
 
-    const findByWalletAddress = async (walletAddress: string) => {
+    const findByWalletAddress = async (
+        walletAddress: string
+    ): Promise<User> => {
         const [row] = await db
             .select()
             .from(users)
             .where(eq(users.walletAddress, walletAddress));
-        if (!row) throw new NotFoundError('User not found');
-        return toData(row);
+
+        return toUser(row);
     };
 
-    const findById = async (userId: UUIDv7) => {
-        const [row] = await db.select().from(users).where(eq(users.id, userId));
-        if (!row) throw new NotFoundError('User not found');
-        return toData(row);
-    };
-
-    const findByEmail = async (email: string) => {
+    const findByEmail = async (email: string): Promise<User> => {
         const [row] = await db
             .select()
             .from(users)
             .where(eq(users.email, email));
-        if (!row) throw new NotFoundError('User not found');
-        return toData(row);
+
+        return toUser(row);
     };
 
-    const findByUsername = async (username: string) => {
+    const findByUsername = async (username: string): Promise<User> => {
         const [row] = await db
             .select()
             .from(users)
             .where(eq(users.username, username));
-        if (!row) throw new NotFoundError('User not found');
-        return toData(row);
+
+        return toUser(row);
     };
 
-    const findTransactionById = async (userId: UUIDv7) => {
+    const findTransactionById = async (
+        userId: UUIDv7
+    ): Promise<Transaction[]> => {
         const rows = await db
             .select()
             .from(transactions)
@@ -148,57 +171,63 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
                     eq(transactions.fromUserId, userId)
                 )
             );
-        return rows;
+        return rows.map((row) => ({
+            id: row.transactions.id as UUIDv7,
+            fromUserId: row.transactions.fromUserId as UUIDv7,
+            toUserId: row.transactions.toUserId as UUIDv7,
+            cardId: row.transactions.cardId as UUIDv7,
+            competitionId: row.transactions.competitionId as UUIDv7 | null,
+            packPurchaseId: row.transactions.packPurchaseId as UUIDv7 | null,
+            price: row.transactions.price,
+            transactionType: row.transactions.transactionType,
+            status: row.transactions.status,
+            hash: row.transactions.hash,
+            createdAt: row.transactions.createdAt,
+            updatedAt: row.transactions.updatedAt
+        }));
     };
 
-    const findCardsById = async (userId: string) => {
+    const findCardsById = async (userId: string): Promise<Card[]> => {
         const rows = await db
             .select()
             .from(cards)
             .where(eq(cards.ownerId, userId));
-        return rows;
-    };
-
-    const updateProfile = async (
-        userId: UUIDv7,
-        data: { twitterHandle?: string | null; stravaHandle?: string | null }
-    ) => {
-        const [row] = await db
-            .update(users)
-            .set({
-                ...data,
-                updatedAt: new Date()
-            })
-            .where(eq(users.id, userId))
-            .returning();
-
-        if (!row) throw new NotFoundError('User not found');
-        return toData(row);
-    };
-
-    const updateAvatar = async (userId: UUIDv7, avatarUrl: string) => {
-        const [row] = await db
-            .update(users)
-            .set({
-                avatarUrl,
-                updatedAt: new Date()
-            })
-            .where(eq(users.id, userId))
-            .returning();
-
-        if (!row) throw new NotFoundError('User not found');
-        return toData(row);
+        return rows.map((row) => ({
+            id: row.id as UUIDv7,
+            ownerId: row.ownerId as UUIDv7,
+            packPurchaseId: row.packPurchaseId as UUIDv7,
+            tokenId: row.tokenId,
+            acquisitionType: row.acquisitionType,
+            isBurned: row.isBurned,
+            createdAt: row.createdAt,
+            updatedAt: row.updatedAt
+        }));
     };
 
     const listUsers = async (
         params: UserQueryParams
     ): Promise<PaginatedUsers> => {
+        return paginate(eq(users.id, users.id), params);
+    };
+
+    const findWhitelistedWallets = async (): Promise<WalletAddress[]> => {
+        const rows = await db
+            .select({ walletAddress: users.walletAddress })
+            .from(users);
+        return rows.map((row) => row.walletAddress as WalletAddress);
+    };
+
+    const paginate = async (
+        cond: ReturnType<typeof eq> | ReturnType<typeof or>,
+        params: UserQueryParams
+    ): Promise<PaginatedUsers> => {
         const { page = 1, limit = 20 } = params;
         const offset = (page - 1) * limit;
 
-        const [{ value: total }] = await db
-            .select({ value: count() })
-            .from(users);
+        const [{ total }] = await db
+            .select({ total: count() })
+            .from(users)
+            .where(cond);
 
         const rows = await db
             .select({
@@ -207,47 +236,37 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
             })
             .from(users)
             .leftJoin(runners, eq(users.id, runners.userId))
+            .where(cond)
+            .orderBy(desc(users.createdAt))
             .limit(limit)
-            .offset(offset)
-            .orderBy(desc(users.createdAt));
-
-        const totalPages = Math.ceil(total / limit);
+            .offset(offset);
 
         return {
-            users: rows.map((row) => ({
-                ...toData(row.user),
-                status: row.status as RunnerStatus | undefined
-            })),
+            users: rows.map((row) =>
+                toUserWithStatus(row.user, row.status ?? 'inactive')
+            ),
             pagination: {
-                total: total as number,
                 page,
                 limit,
-                totalPages
+                total: Number(total),
+                totalPages: Math.max(1, Math.ceil(Number(total) / limit))
             }
         };
     };
 
-    const findWhitelistedWallets = async (): Promise<string[]> => {
-        const records = await db
-            .select({ walletAddress: users.walletAddress })
-            .from(users);
-        return records.map((r) => r.walletAddress.toLowerCase());
-    };
-
     return {
         create,
+        update,
         findByPrivyId,
         findByPrivyIdWithStatus,
         findByWalletAddress,
-        findById,
         findByEmail,
         findByUsername,
+        findById,
+        findByIdWithStatus,
         findTransactionById,
         findCardsById,
-        updateProfile,
-        updateAvatar,
         listUsers,
-        findByIdWithStatus,
         findWhitelistedWallets
     };
 };

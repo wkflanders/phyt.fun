@@ -1,8 +1,6 @@
 import { eq, desc, count } from 'drizzle-orm';
 import { uuidv7 } from 'uuidv7';
 
-import { NotFoundError } from '@phyt/models';
-
 // eslint-disable-next-line no-restricted-imports
 import { DrizzleDB } from '../db.js';
 // eslint-disable-next-line no-restricted-imports
@@ -19,9 +17,10 @@ import type {
     PostStatus
 } from '@phyt/types';
 
-const toData = (postRow: typeof posts.$inferSelect): Post => ({
+const toPost = (postRow: typeof posts.$inferSelect): Post => ({
     id: postRow.id as UUIDv7,
     userId: postRow.userId as UUIDv7,
+    runId: postRow.runId as UUIDv7 | null,
     title: postRow.title,
     content: postRow.content,
     status: postRow.status as PostStatus,
@@ -33,7 +32,7 @@ const toPostWithUser = (
     post: typeof posts.$inferSelect,
     user: typeof users.$inferSelect | null
 ): PostWithUser => ({
-    ...toData(post),
+    ...toPost(post),
     username: user?.username ?? '',
     avatarUrl: user?.avatarUrl ?? ''
 });
@@ -41,36 +40,65 @@ const toPostWithUser = (
 export type PostsDrizzleOps = ReturnType<typeof makePostsDrizzleOps>;
 
 export const makePostsDrizzleOps = (db: DrizzleDB) => {
-    const create = async (input: PostInsert) => {
+    const create = async (data: PostInsert): Promise<Post> => {
         const [row] = await db
             .insert(posts)
             .values({
-                id: uuidv7(),
-                userId: input.userId,
-                title: input.title,
-                content: input.content,
-                status: input.status ?? 'visible'
+                ...data,
+                id: uuidv7()
             })
             .returning();
-        return toData(row);
+
+        return toPost(row);
     };
 
-    const findById = async (postId: UUIDv7) => {
+    const findById = async (postId: UUIDv7): Promise<Post> => {
         const [row] = await db
             .select()
             .from(posts)
             .where(eq(posts.id, postId))
             .limit(1);
-        if (!row) {
-            throw new NotFoundError('Post not found');
-        }
-        return toData(row);
+
+        return toPost(row);
+    };
+
+    const list = (
+        params: PostQueryParams
+    ): Promise<PaginatedPosts<PostWithUser>> =>
+        paginate(eq(posts.status, 'visible'), params);
+
+    const listByUser = (
+        userId: UUIDv7,
+        params: PostQueryParams
+    ): Promise<PaginatedPosts<PostWithUser>> =>
+        paginate(eq(posts.userId, userId), params);
+
+    const update = async (postId: UUIDv7, data: PostUpdate): Promise<Post> => {
+        const [row] = await db
+            .update(posts)
+            .set({
+                ...data,
+                updatedAt: new Date()
+            })
+            .where(eq(posts.id, postId))
+            .returning();
+
+        return toPost(row);
+    };
+
+    const remove = async (postId: UUIDv7): Promise<Post> => {
+        const [row] = await db
+            .delete(posts)
+            .where(eq(posts.id, postId))
+            .returning();
+
+        return toPost(row);
     };
 
     const paginate = async (
         cond: ReturnType<typeof eq> | null,
         params: PostQueryParams
-    ): Promise<PaginatedPosts> => {
+    ): Promise<PaginatedPosts<PostWithUser>> => {
         const { page = 1, limit = 20 } = params;
         const offset = (page - 1) * limit;
 
@@ -99,40 +127,6 @@ export const makePostsDrizzleOps = (db: DrizzleDB) => {
                 totalPages: Math.max(1, Math.ceil(Number(total) / limit))
             }
         };
-    };
-
-    const list = (params: PostQueryParams) =>
-        paginate(eq(posts.status, 'visible'), params);
-
-    const listByUser = (userId: UUIDv7, params: PostQueryParams) =>
-        paginate(eq(posts.userId, userId), params);
-
-    const update = async (postId: UUIDv7, input: PostUpdate) => {
-        const [row] = await db
-            .update(posts)
-            .set({
-                ...(input.title && { title: input.title }),
-                ...(input.content && { content: input.content }),
-                ...(input.status && { status: input.status }),
-                updatedAt: new Date()
-            })
-            .where(eq(posts.id, postId))
-            .returning();
-        if (!row) {
-            throw new NotFoundError('Post not found');
-        }
-        return toData(row);
-    };
-
-    const remove = async (postId: UUIDv7) => {
-        const [row] = await db
-            .delete(posts)
-            .where(eq(posts.id, postId))
-            .returning();
-        if (!row) {
-            throw new NotFoundError('Post not found');
-        }
-        return toData(row);
     };
 
     return { create, findById, list, listByUser, update, remove };

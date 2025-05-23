@@ -1,8 +1,6 @@
 import { and, count, eq, gt } from 'drizzle-orm';
 import { uuidv7 } from 'uuidv7';
 
-import { NotFoundError } from '@phyt/models';
-
 // eslint-disable-next-line no-restricted-imports
 import { DrizzleDB } from '../db.js';
 // eslint-disable-next-line no-restricted-imports
@@ -17,31 +15,24 @@ import type {
     ReactionType
 } from '@phyt/types';
 
-const toData = (record: typeof reactions.$inferSelect): Reaction => ({
+const toReaction = (record: typeof reactions.$inferSelect): Reaction => ({
     id: record.id as UUIDv7,
     userId: record.userId as UUIDv7,
-    postId: record.postId as UUIDv7 | undefined,
-    commentId: record.commentId as UUIDv7 | undefined,
+    postId: record.postId as UUIDv7 | null,
+    commentId: record.commentId as UUIDv7 | null,
     type: record.type,
-    createdAt: record.createdAt
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt
 });
 
 const toReactionWithUser = (
     reaction: typeof reactions.$inferSelect,
     user: typeof users.$inferSelect | null
 ): ReactionWithUser => ({
-    ...toData(reaction),
+    ...toReaction(reaction),
     username: user?.username ?? '',
-    avatarUrl: user?.avatarUrl ?? null
+    avatarUrl: user?.avatarUrl ?? ''
 });
-
-// Default empty reaction count with zeros for all types
-const defaultReactionCount: ReactionCount = {
-    like: 0,
-    funny: 0,
-    insightful: 0,
-    fire: 0
-};
 
 export type ReactionsDrizzleOps = ReturnType<typeof makeReactionsDrizzleOps>;
 
@@ -50,36 +41,30 @@ export const makeReactionsDrizzleOps = (db: DrizzleDB) => {
         const [record] = await db
             .insert(reactions)
             .values({
-                id: uuidv7(),
-                userId: data.userId,
-                postId: data.postId,
-                commentId: data.commentId,
-                type: data.type
+                ...data,
+                id: uuidv7()
             })
             .returning();
 
-        return toData(record);
+        return toReaction(record);
     };
 
-    const findById = async (reactionId: UUIDv7) => {
+    const findById = async (reactionId: UUIDv7): Promise<Reaction> => {
         const [record] = await db
             .select()
             .from(reactions)
-            .where(eq(reactions.id, reactionId));
+            .where(eq(reactions.id, reactionId))
+            .limit(1);
 
-        if (!record) {
-            throw new NotFoundError(`Reaction not found: ${reactionId}`);
-        }
-
-        return toData(record);
+        return toReaction(record);
     };
 
-    const findExisting = async (
+    const findByUserId = async (
         userId: UUIDv7,
         postId?: UUIDv7,
         commentId?: UUIDv7,
         type?: ReactionType
-    ) => {
+    ): Promise<Reaction> => {
         const conditions = [eq(reactions.userId, userId)];
 
         if (postId) {
@@ -95,32 +80,24 @@ export const makeReactionsDrizzleOps = (db: DrizzleDB) => {
         const [record] = await db
             .select()
             .from(reactions)
-            .where(and(...conditions));
+            .where(and(...conditions))
+            .limit(1);
 
-        if (!record) {
-            throw new NotFoundError(`Reaction not found: ${userId}`);
-        }
-
-        return toData(record);
+        return toReaction(record);
     };
 
-    const remove = async (reactionId: UUIDv7) => {
+    const remove = async (reactionId: UUIDv7): Promise<Reaction> => {
         const [record] = await db
             .delete(reactions)
             .where(eq(reactions.id, reactionId))
             .returning();
 
-        if (!record) {
-            throw new NotFoundError(`Reaction not found: ${reactionId}`);
-        }
-
-        return toData(record);
+        return toReaction(record);
     };
 
-    const getReactionCountForPost = async (
+    const findReactionCountByPost = async (
         postId: UUIDv7
     ): Promise<ReactionCount> => {
-        // Get all reaction types and counts
         const reactionCounts = await db
             .select({
                 type: reactions.type,
@@ -137,7 +114,6 @@ export const makeReactionsDrizzleOps = (db: DrizzleDB) => {
             fire: 0
         };
 
-        // Update counts from the database results
         for (const row of reactionCounts) {
             result[row.type as keyof ReactionCount] = Number(row.count);
         }
@@ -145,10 +121,9 @@ export const makeReactionsDrizzleOps = (db: DrizzleDB) => {
         return result;
     };
 
-    const getReactionCountForComment = async (
+    const findReactionCountByComment = async (
         commentId: UUIDv7
     ): Promise<ReactionCount> => {
-        // Get all reaction types and counts
         const reactionCounts = await db
             .select({
                 type: reactions.type,
@@ -176,7 +151,7 @@ export const makeReactionsDrizzleOps = (db: DrizzleDB) => {
         userId: UUIDv7,
         postId?: UUIDv7,
         commentId?: UUIDv7
-    ) => {
+    ): Promise<Reaction[]> => {
         const conditions = [eq(reactions.userId, userId)];
 
         if (postId) {
@@ -190,13 +165,13 @@ export const makeReactionsDrizzleOps = (db: DrizzleDB) => {
             .from(reactions)
             .where(and(...conditions));
 
-        return records.map(toData);
+        return records.map(toReaction);
     };
 
     const findReactionsWithUsers = async (
         postId?: UUIDv7,
         commentId?: UUIDv7
-    ) => {
+    ): Promise<ReactionWithUser[]> => {
         const conditions = [];
 
         if (postId) {
@@ -216,9 +191,6 @@ export const makeReactionsDrizzleOps = (db: DrizzleDB) => {
         );
     };
 
-    /**
-     * Calculate trending score for a post based on recent reactions and comments
-     */
     const calculateTrendingScore = async (
         postId: UUIDv7,
         daysAgo: number
@@ -226,7 +198,6 @@ export const makeReactionsDrizzleOps = (db: DrizzleDB) => {
         const cutoffDate = new Date();
         cutoffDate.setDate(cutoffDate.getDate() - daysAgo);
 
-        // Get count of recent reactions for this post
         const reactionRows = await db
             .select({ count: count() })
             .from(reactions)
@@ -238,7 +209,6 @@ export const makeReactionsDrizzleOps = (db: DrizzleDB) => {
             );
         const reactionResult = reactionRows[0] as { count: number };
 
-        // Get count of recent comments for this post
         const commentRows = await db
             .select({ count: count() })
             .from(comments)
@@ -250,17 +220,16 @@ export const makeReactionsDrizzleOps = (db: DrizzleDB) => {
             );
         const commentResult = commentRows[0] as { count: number };
 
-        // Return the sum of counts
         return reactionResult.count + commentResult.count;
     };
 
     return {
         create,
         findById,
-        findExisting,
+        findByUserId,
         remove,
-        getReactionCountForPost,
-        getReactionCountForComment,
+        findReactionCountByPost,
+        findReactionCountByComment,
         findUserReactions,
         findReactionsWithUsers,
         calculateTrendingScore
