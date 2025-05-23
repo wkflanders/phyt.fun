@@ -8,3 +8,5 @@ export * from './ops/postsDrizzleOps.js';
 export * from './ops/adminDrizzleOps.js';
 export * from './ops/runnersDrizzleOps.js';
 export * from './ops/runsDrizzleOps.js';
+export * from './ops/packsDrizzleOps.js';
+export * from './ops/metadataDrizzleOps.js';
