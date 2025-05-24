@@ -22,6 +22,8 @@
     },
     "dependencies": {
         "@phyt/aws": "workspace:*",
+        "@phyt/contracts": "workspace:*",
+        "@phyt/infra": "workspace:*",
         "@phyt/models": "workspace:*",
         "merkletreejs": "^0.4.1",
         "viem": "^2.29.3"
