@@ -92,7 +92,7 @@ export const makeReactionsRepository = (ops: ReactionsDrizzleOps) => {
     };
 
     const remove = async (reactionId: UUIDv7): Promise<ReactionVO> => {
-        const data = await ops.remove(reactionId);
+        const data = await ops.unsafeRemove(reactionId);
         return ReactionVO.from(data);
     };
 
