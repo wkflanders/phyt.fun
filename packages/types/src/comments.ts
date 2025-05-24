@@ -34,5 +34,5 @@ export interface CommentQueryParams {
 
 export interface PaginatedComments<T = Comment> {
     comments: T[];
-    pagination?: Pagination;
+    pagination: Pagination;
 }

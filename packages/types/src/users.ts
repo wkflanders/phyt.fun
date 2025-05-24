@@ -60,5 +60,5 @@ export interface UserUpdate {
 
 export interface PaginatedUsers<T = User> {
     users: T[];
-    pagination?: Pagination;
+    pagination: Pagination;
 }

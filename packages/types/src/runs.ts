@@ -76,5 +76,5 @@ export interface RunQueryParams {
 
 export interface PaginatedRuns<T = Run> {
     runs: T[];
-    pagination?: Pagination;
+    pagination: Pagination;
 }

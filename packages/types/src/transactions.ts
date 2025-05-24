@@ -53,5 +53,5 @@ export interface TransactionQueryParams {
 
 export interface PaginatedTransactions<T = Transaction> {
     transactions: T[];
-    pagination?: Pagination;
+    pagination: Pagination;
 }

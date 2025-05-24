@@ -1,6 +1,6 @@
 import { SeasonCollection, CardRarity } from './cards.js';
 
-import type { UUIDv7 } from './core.js';
+import type { Pagination, UUIDv7 } from './core.js';
 
 export type PackType = 'scrawny' | 'toned' | 'swole' | 'phyt';
 
@@ -61,10 +61,5 @@ export interface PackQueryParams {
 
 export interface PaginatedPacks<T = Pack> {
     packs: T[];
-    pagination: {
-        total: number;
-        limit: number;
-        offset: number;
-        hasMore: boolean;
-    };
+    pagination: Pagination;
 }

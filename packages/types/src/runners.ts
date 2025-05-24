@@ -62,5 +62,5 @@ export interface RunnerQueryParams {
 
 export interface PaginatedRunners<T = Runner> {
     runners: T[];
-    pagination?: Pagination;
+    pagination: Pagination;
 }

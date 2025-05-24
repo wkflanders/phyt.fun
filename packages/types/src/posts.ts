@@ -47,5 +47,5 @@ export interface PostQueryParams {
 
 export interface PaginatedPosts<T = Post> {
     posts: T[];
-    pagination?: Pagination;
+    pagination: Pagination;
 }
