@@ -16,7 +16,7 @@ export interface Post {
 
 export interface PostWithUser extends Post {
     username: string;
-    avatarUrl: string | null;
+    avatarUrl: string;
 }
 
 export interface PostInsert {

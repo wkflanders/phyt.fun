@@ -14,7 +14,7 @@ export interface Reaction {
 
 export interface ReactionWithUser extends Reaction {
     username: string;
-    avatarUrl: string | null;
+    avatarUrl: string;
 }
 
 export interface ReactionInsert {
