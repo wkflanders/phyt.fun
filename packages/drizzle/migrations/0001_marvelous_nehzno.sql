@@ -1,1 +1,0 @@
-ALTER TABLE "runs" RENAME COLUMN "verificationSatus" TO "verificationStatus";

@@ -1,55 +1,13 @@
 {
-  "version": "0",
-  "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1747617182980,
-      "tag": "0000_kind_madripoor",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1747850320310,
-      "tag": "0001_marvelous_nehzno",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1747861034154,
-      "tag": "0002_many_apocalypse",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1747906107387,
-      "tag": "0003_sleepy_omega_red",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1747906663021,
-      "tag": "0004_common_nightshade",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1747907933330,
-      "tag": "0005_light_grey_gargoyle",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1748079891463,
-      "tag": "0006_aberrant_vin_gonzales",
-      "breakpoints": true
-    }
-  ]
+    "version": "0",
+    "dialect": "postgresql",
+    "entries": [
+        {
+            "idx": 0,
+            "version": "7",
+            "when": 1747617182980,
+            "tag": "0000_kind_madripoor",
+            "breakpoints": true
+        }
+    ]
 }
