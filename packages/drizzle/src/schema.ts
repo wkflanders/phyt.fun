@@ -1,5 +1,3 @@
-import { sql } from 'drizzle-orm';
-
 import {
     pgTable,
     index,
@@ -135,6 +133,7 @@ export const users = pgTable(
         createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
             .notNull(),
+        deletedAt: timestamp('deletedAt', { precision: 3 }),
         email: varchar('email').notNull(),
         username: varchar('username').notNull(),
         role: enumUsersRole('role').default('user').notNull(),
@@ -180,7 +179,8 @@ export const runners = pgTable(
             .notNull(),
         createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
-            .notNull()
+            .notNull(),
+        deletedAt: timestamp('deletedAt', { precision: 3 })
     },
     (table) => [
         uniqueIndex('runnersUserIdx').on(table.userId),
@@ -218,7 +218,8 @@ export const runs = pgTable(
             .notNull(),
         createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
-            .notNull()
+            .notNull(),
+        deletedAt: timestamp('deletedAt', { precision: 3 })
     },
     (table) => [
         index('runsRunnerIdx').on(table.runnerId),
@@ -326,7 +327,8 @@ export const competitions = pgTable(
             .notNull(),
         createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
-            .notNull()
+            .notNull(),
+        deletedAt: timestamp('deletedAt', { precision: 3 })
     },
     (table) => [
         index('competitionsCreatedAtIdx').on(table.createdAt),
@@ -349,7 +351,8 @@ export const lineups = pgTable(
             .notNull(),
         createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
-            .notNull()
+            .notNull(),
+        deletedAt: timestamp('deletedAt', { precision: 3 })
     },
     (table) => [
         index('lineupsCompetitionIdx').on(table.competitionId),
@@ -477,7 +480,8 @@ export const listings = pgTable(
             .notNull(),
         updatedAt: timestamp('updatedAt', { precision: 3 })
             .defaultNow()
-            .notNull()
+            .notNull(),
+        deletedAt: timestamp('deletedAt', { precision: 3 })
     },
     (table) => [
         index('listingsCardIdx').on(table.cardId),
@@ -524,7 +528,8 @@ export const bids = pgTable(
             .notNull(),
         createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
-            .notNull()
+            .notNull(),
+        deletedAt: timestamp('deletedAt', { precision: 3 })
     },
     (table) => [
         index('bidsListingIdx').on(table.listingId),
@@ -631,7 +636,8 @@ export const posts = pgTable(
             .notNull(),
         createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
-            .notNull()
+            .notNull(),
+        deletedAt: timestamp('deletedAt', { precision: 3 })
     },
     (table) => [
         index('postsUserIdx').on(table.userId),
@@ -659,7 +665,8 @@ export const comments = pgTable(
             .notNull(),
         createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
-            .notNull()
+            .notNull(),
+        deletedAt: timestamp('deletedAt', { precision: 3 })
     },
     (table) => [
         // Self-referencing FK:
@@ -724,7 +731,8 @@ export const follows = pgTable(
             .references(() => users.id, { onDelete: 'cascade' }),
         createdAt: timestamp('createdAt', { precision: 3 })
             .defaultNow()
-            .notNull()
+            .notNull(),
+        deletedAt: timestamp('deletedAt', { precision: 3 })
     },
     (table) => [
         index('followsFollowerIdx').on(table.followerId),
