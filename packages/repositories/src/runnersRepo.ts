@@ -1,107 +1,88 @@
-import { RunnerVO, NotFoundError } from '@phyt/models';
+import { RunnerVO } from '@phyt/models';
 
 import type { RunnersDrizzleOps } from '@phyt/drizzle';
 import type {
     UUIDv7,
-    Runner,
-    RunnerProfile,
+    RunnerInsert,
+    RunnerUpdate,
     RunnerQueryParams,
-    ISODate
+    PaginatedRunners
 } from '@phyt/types';
 
 export type RunnersRepository = ReturnType<typeof makeRunnersRepository>;
 
 export const makeRunnersRepository = (ops: RunnersDrizzleOps) => {
-    function isDate(val: unknown): val is Date {
-        return val instanceof Date;
-    }
+    const save = async (input: RunnerInsert): Promise<RunnerVO> => {
+        const data = await ops.create(input);
+        return RunnerVO.from(data);
+    };
 
-    function mapRecord(data: Runner): RunnerVO {
-        return RunnerVO.fromRecord({
-            ...data,
-            createdAt: (isDate(data.createdAt)
-                ? data.createdAt.toISOString()
-                : data.createdAt) as ISODate,
-            updatedAt: (isDate(data.updatedAt)
-                ? data.updatedAt.toISOString()
-                : data.updatedAt) as ISODate
+    const findById = async (runnerId: UUIDv7): Promise<RunnerVO> => {
+        const data = await ops.findById(runnerId);
+        return RunnerVO.from(data, {
+            username: data.username,
+            avatarUrl: data.avatarUrl
         });
-    }
+    };
 
-    const getAllRunners = async (
+    const findByUserId = async (userId: UUIDv7): Promise<RunnerVO> => {
+        const data = await ops.findByUserId(userId);
+        return RunnerVO.from(data);
+    };
+
+    const findByPrivyId = async (privyId: string): Promise<RunnerVO> => {
+        const data = await ops.findByPrivyId(privyId);
+        return RunnerVO.from(data, {
+            username: data.username,
+            avatarUrl: data.avatarUrl
+        });
+    };
+
+    const findAll = async (
         params: RunnerQueryParams
-    ): Promise<RunnerVO[]> => {
-        const runners = await ops.getAllRunners(params);
-        return runners.map((runner) => RunnerVO.fromProfile(runner));
+    ): Promise<PaginatedRunners<RunnerVO>> => {
+        const paginatedData = await ops.list(params);
+
+        return {
+            runners: paginatedData.runners.map((runner) =>
+                RunnerVO.from(runner, {
+                    username: runner.username,
+                    avatarUrl: runner.avatarUrl
+                })
+            ),
+            pagination: paginatedData.pagination
+        };
     };
 
-    const getRunnerById = async (id: UUIDv7): Promise<RunnerVO> => {
-        const runner = await ops.getRunnerById(id);
-        return RunnerVO.fromProfile(runner);
+    const findRandom = async (): Promise<RunnerVO> => {
+        const data = await ops.findRandomRunner();
+        return RunnerVO.from(data);
     };
 
-    const getRunnerByPrivyId = async (privyId: string): Promise<RunnerVO> => {
-        const runner = await ops.getRunnerByPrivyId(privyId);
-        return RunnerVO.fromProfile(runner);
+    const remove = async (runnerId: UUIDv7): Promise<RunnerVO> => {
+        const data = await ops.remove(runnerId);
+        return RunnerVO.from(data);
     };
 
-    const getRunnerStatusByPrivyId = async (
-        privyId: string
-    ): Promise<RunnerVO> => {
-        return await getRunnerByPrivyId(privyId);
-    };
-
-    const getRecentActivities = async (
-        filter?: string
-    ): Promise<RunnerVO[]> => {
-        return await getAllRunners({
-            sortBy: 'createdAt',
-            sortOrder: 'desc'
-        });
-    };
-
-    const getRunnerActivities = async (runnerId: UUIDv7): Promise<RunnerVO> => {
-        return await getRunnerById(runnerId);
-    };
-
-    const createRunner = async (
-        userId: UUIDv7,
-        walletAddress: string
-    ): Promise<RunnerVO> => {
-        const runner = await ops.createRunner(userId, walletAddress);
-        return mapRecord(runner);
-    };
-
-    const updateRunnerStats = async (
-        runnerId: UUIDv7,
-        stats: {
-            totalDistance?: number;
-            totalRuns?: number;
-            averagePace?: number | null;
-            bestMileTime?: number | null;
-        }
-    ): Promise<RunnerVO> => {
-        const runner = await ops.updateRunnerStats(runnerId, stats);
-        return mapRecord(runner);
-    };
-
-    const updateRunnerPoolStatus = async (
-        runnerId: UUIDv7,
-        isPooled: boolean
-    ): Promise<RunnerVO> => {
-        const runner = await ops.updateRunnerPoolStatus(runnerId, isPooled);
-        return mapRecord(runner);
-    };
+    // Performance optimization: direct update without domain validation
+    // const update = async (
+    //     runnerId: UUIDv7,
+    //     update: RunnerUpdate
+    // ): Promise<RunnerVO> => {
+    //     const data = await ops.update(runnerId, update);
+    //     return RunnerVO.from(data);
+    // };
 
     return {
-        getAllRunners,
-        getRunnerById,
-        getRunnerByPrivyId,
-        getRunnerStatusByPrivyId,
-        getRecentActivities,
-        getRunnerActivities,
-        createRunner,
-        updateRunnerStats,
-        updateRunnerPoolStatus
+        save,
+        findById,
+        findByUserId,
+        findByPrivyId,
+        findAll,
+        findRandom,
+        remove
+
+        // Performance methods (skip domain validation)
+        // update
     };
 };

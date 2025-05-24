@@ -1,18 +1,13 @@
-import { UserVO, UserWithStatusVO } from '@phyt/models';
+import { UserVO } from '@phyt/models';
 
 import type { UserAWSOps } from '@phyt/aws';
 import type { UsersDrizzleOps } from '@phyt/drizzle';
 import type {
     UUIDv7,
-    User,
     UserInsert,
-    ISODate,
+    UserUpdate,
     UserQueryParams,
-    PaginatedUsers,
-    Transaction,
-    TransactionType,
-    Card,
-    AcquisitionType
+    PaginatedUsers
 } from '@phyt/types';
 
 export type UsersRepository = ReturnType<typeof makeUsersRepository>;
@@ -21,85 +16,53 @@ export const makeUsersRepository = (
     drizzleOps: UsersDrizzleOps,
     awsOps: UserAWSOps
 ) => {
-    function isDate(val: unknown): val is Date {
-        return val instanceof Date;
-    }
-
-    function mapRecord(data: User): UserVO {
-        return UserVO.fromRecord({
-            ...data,
-            createdAt: (isDate(data.createdAt)
-                ? data.createdAt.toISOString()
-                : data.createdAt) as ISODate,
-            updatedAt: (isDate(data.updatedAt)
-                ? data.updatedAt.toISOString()
-                : data.updatedAt) as ISODate
-        });
-    }
-
-    const create = async (input: UserInsert): Promise<UserVO> => {
+    const save = async (input: UserInsert): Promise<UserVO> => {
         const data = await drizzleOps.create(input);
-        return mapRecord(data);
+        return UserVO.from(data);
+    };
+
+    const findById = async (userId: UUIDv7): Promise<UserVO> => {
+        const data = await drizzleOps.findById(userId);
+        return UserVO.from(data);
     };
 
     const findByPrivyId = async (privyId: string): Promise<UserVO> => {
         const data = await drizzleOps.findByPrivyId(privyId);
-        return mapRecord(data);
-    };
-
-    const findByPrivyIdWithStatus = async (
-        privyId: string
-    ): Promise<UserWithStatusVO> => {
-        const data = await drizzleOps.findByPrivyIdWithStatus(privyId);
-        return UserVO.fromWithStatus(data);
-    };
-
-    const findByIdWithStatus = async (
-        userId: UUIDv7
-    ): Promise<UserWithStatusVO> => {
-        const data = await drizzleOps.findByIdWithStatus(userId);
-        return UserVO.fromWithStatus(data);
+        return UserVO.from(data);
     };
 
     const findByWalletAddress = async (
         walletAddress: string
     ): Promise<UserVO> => {
         const data = await drizzleOps.findByWalletAddress(walletAddress);
-        return mapRecord(data);
-    };
-
-    const findById = async (id: UUIDv7): Promise<UserVO> => {
-        const data = await drizzleOps.findById(id);
-        return mapRecord(data);
+        return UserVO.from(data);
     };
 
     const findByEmail = async (email: string): Promise<UserVO> => {
         const data = await drizzleOps.findByEmail(email);
-        return mapRecord(data);
+        return UserVO.from(data);
     };
 
     const findByUsername = async (username: string): Promise<UserVO> => {
         const data = await drizzleOps.findByUsername(username);
-        return mapRecord(data);
+        return UserVO.from(data);
     };
 
-    const updateProfile = async (
-        userId: UUIDv7,
-        data: { twitterHandle?: string | null; stravaHandle?: string | null }
-    ): Promise<UserVO> => {
-        const updated = await drizzleOps.updateProfile(userId, data);
-        return mapRecord(updated);
+    const findAll = async (
+        params: UserQueryParams
+    ): Promise<PaginatedUsers<UserVO>> => {
+        const paginatedData = await drizzleOps.listUsers(params);
+
+        return {
+            users: paginatedData.users.map((user) => UserVO.from(user)),
+            pagination: paginatedData.pagination
+        };
     };
 
-    const updateAvatar = async (
-        userId: UUIDv7,
-        avatarUrl: string
-    ): Promise<UserVO> => {
-        const updated = await drizzleOps.updateAvatar(userId, avatarUrl);
-        return mapRecord(updated);
+    const findWhitelistedWallets = async (): Promise<string[]> => {
+        return await drizzleOps.findWhitelistedWallets();
     };
 
-    // Add AWS avatar operations
     const uploadAvatar = async (buffer: Buffer): Promise<string> => {
         const fileKey = await awsOps.uploadAvatar(buffer);
         return awsOps.generateAvatarUrl(fileKey);
@@ -124,7 +87,7 @@ export const makeUsersRepository = (
         const avatarUrl = await uploadAvatar(buffer);
 
         // Update the user with the new avatar URL
-        const updatedUser = await updateAvatar(userId, avatarUrl);
+        const updatedUser = await update(userId, { avatarUrl });
 
         // Clean up old avatar if exists
         if (currentUser.avatarUrl) {
@@ -142,91 +105,80 @@ export const makeUsersRepository = (
         return updatedUser;
     };
 
-    const listUsers = async (
-        params: UserQueryParams
-    ): Promise<PaginatedUsers<UserVO>> => {
-        const result = await drizzleOps.listUsers(params);
-
-        return {
-            users: result.users.map((user) =>
-                mapRecord({
-                    ...user,
-                    // Filter out status to create clean UserVO objects
-                    status: undefined
-                } as User)
-            ),
-            pagination: result.pagination
-        };
-    };
-
     // This is a placeholder. Since we don't have TransactionVO,
     // we'll need to properly implement this later
-    const findTransactionById = async (
-        userId: UUIDv7
-    ): Promise<Transaction[]> => {
-        const rawTransactions = await drizzleOps.findTransactionById(userId);
+    // const findTransactionById = async (
+    //     userId: UUIDv7
+    // ): Promise<TransactionVO> => {
+    //     const rawTransactions = await drizzleOps.findTransactionById(userId);
 
-        // In a real implementation, we would map these to TransactionVO objects
-        return rawTransactions.map((tx) => {
-            const transaction = tx.transactions;
+    //     // In a real implementation, we would map these to TransactionVO objects
+    //     return rawTransactions.map((tx) => {
+    //         const transaction = tx.transactions;
 
-            return {
-                id: transaction.id as UUIDv7,
-                fromUserId: transaction.fromUserId as UUIDv7 | null,
-                toUserId: transaction.toUserId as UUIDv7 | null,
-                cardId: transaction.cardId as UUIDv7 | null,
-                competitionId: transaction.competitionId as UUIDv7 | null,
-                price: transaction.price,
-                transactionType: transaction.transactionType as TransactionType,
-                packPurchaseId: transaction.packPurchaseId as UUIDv7 | null,
-                hash: transaction.hash,
-                createdAt: new Date(transaction.createdAt),
-                updatedAt: new Date(transaction.updatedAt)
-            };
-        });
+    //         return {
+    //             id: transaction.id as UUIDv7,
+    //             fromUserId: transaction.fromUserId as UUIDv7 | null,
+    //             toUserId: transaction.toUserId as UUIDv7 | null,
+    //             cardId: transaction.cardId as UUIDv7 | null,
+    //             competitionId: transaction.competitionId as UUIDv7 | null,
+    //             price: transaction.price,
+    //             transactionType: transaction.transactionType as TransactionType,
+    //             packPurchaseId: transaction.packPurchaseId as UUIDv7 | null,
+    //             hash: transaction.hash,
+    //             createdAt: new Date(transaction.createdAt),
+    //             updatedAt: new Date(transaction.updatedAt)
+    //         };
+    //     });
+    // };
+
+    // // This is a placeholder. Since we don't have CardVO,
+    // // we'll need to properly implement this later
+    // const findCardsById = async (userId: UUIDv7): Promise<CardVO> => {
+    //     const rawCards = await drizzleOps.findCardsById(userId);
+
+    //     // In a real implementation, we would map these to CardVO objects
+    //     return rawCards.map((card) => ({
+    //         id: card.id,
+    //         ownerId: card.ownerId,
+    //         packPurchaseId: card.packPurchaseId,
+    //         tokenId: card.tokenId,
+    //         acquisitionType: card.acquisitionType,
+    //         isBurned: card.isBurned,
+    //         createdAt: new Date(card.createdAt),
+    //         updatedAt: new Date(card.updatedAt)
+    //     }));
+    // };
+
+    const remove = async (userId: UUIDv7): Promise<UserVO> => {
+        const data = await drizzleOps.remove(userId);
+        return UserVO.from(data);
     };
 
-    // This is a placeholder. Since we don't have CardVO,
-    // we'll need to properly implement this later
-    const findCardsById = async (userId: UUIDv7): Promise<Card[]> => {
-        const rawCards = await drizzleOps.findCardsById(userId);
-
-        // In a real implementation, we would map these to CardVO objects
-        return rawCards.map((card) => ({
-            id: card.id as UUIDv7,
-            ownerId: card.ownerId as UUIDv7,
-            packPurchaseId: card.packPurchaseId as UUIDv7 | null,
-            tokenId: card.tokenId,
-            acquisitionType: card.acquisitionType as AcquisitionType,
-            isBurned: card.isBurned,
-            createdAt: new Date(card.createdAt),
-            updatedAt: new Date(card.updatedAt)
-        }));
-    };
-
-    const findWhitelistedWallets = async (): Promise<string[]> => {
-        const records = await drizzleOps.findWhitelistedWallets();
-        return records;
+    // Performance optimization: direct update without domain validation
+    const update = async (
+        userId: UUIDv7,
+        update: UserUpdate
+    ): Promise<UserVO> => {
+        const updated = await drizzleOps.update(userId, update);
+        return UserVO.from(updated);
     };
 
     return {
-        create,
-        findByPrivyId,
-        findByPrivyIdWithStatus,
-        findByIdWithStatus,
-        findByWalletAddress,
+        save,
         findById,
+        findByPrivyId,
+        findByWalletAddress,
         findByEmail,
         findByUsername,
-        updateProfile,
-        updateAvatar,
+        findAll,
+        findWhitelistedWallets,
+
+        // AWS operations
         updateAvatarWithFile,
         uploadAvatar,
         deleteAvatar,
         extractFileKeyFromUrl,
-        listUsers,
-        findTransactionById,
-        findCardsById,
-        findWhitelistedWallets
+        remove
     };
 };

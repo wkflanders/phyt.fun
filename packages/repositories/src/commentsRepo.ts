@@ -2,10 +2,8 @@ import { CommentsVO } from '@phyt/models';
 
 import type { CommentsDrizzleOps } from '@phyt/drizzle';
 import type {
-    Comment,
     UUIDv7,
     CommentInsert,
-    CommentUpdate,
     CommentQueryParams,
     PaginatedComments
 } from '@phyt/types';
@@ -13,21 +11,17 @@ import type {
 export type CommentsRepository = ReturnType<typeof makeCommentsRepository>;
 
 export const makeCommentsRepository = (ops: CommentsDrizzleOps) => {
-    function mapRecord(data: Comment): CommentsVO {
-        return CommentsVO.fromRecord(data);
-    }
-
-    const create = async (input: CommentInsert): Promise<CommentsVO> => {
+    const save = async (input: CommentInsert): Promise<CommentsVO> => {
         const data = await ops.create(input);
-        return mapRecord(data);
+        return CommentsVO.from(data);
     };
 
     const findById = async (commentId: UUIDv7): Promise<CommentsVO> => {
         const data = await ops.findById(commentId);
-        return mapRecord(data);
+        return CommentsVO.from(data);
     };
 
-    const listForPost = async (
+    const findByPost = async (
         postId: UUIDv7,
         params: CommentQueryParams
     ): Promise<PaginatedComments<CommentsVO>> => {
@@ -35,13 +29,16 @@ export const makeCommentsRepository = (ops: CommentsDrizzleOps) => {
 
         return {
             comments: paginatedData.comments.map((c) =>
-                CommentsVO.fromWithUser(c)
+                CommentsVO.from(c, {
+                    username: c.username,
+                    avatarUrl: c.avatarUrl
+                })
             ),
             pagination: paginatedData.pagination
         };
     };
 
-    const listReplies = async (
+    const findReplies = async (
         parentId: UUIDv7,
         params: CommentQueryParams
     ): Promise<PaginatedComments<CommentsVO>> => {
@@ -49,31 +46,35 @@ export const makeCommentsRepository = (ops: CommentsDrizzleOps) => {
 
         return {
             comments: paginatedData.comments.map((c) =>
-                CommentsVO.fromWithUser(c)
+                CommentsVO.from(c, {
+                    username: c.username,
+                    avatarUrl: c.avatarUrl
+                })
             ),
             pagination: paginatedData.pagination
         };
     };
 
-    const update = async (
-        commentId: UUIDv7,
-        input: CommentUpdate
-    ): Promise<CommentsVO> => {
-        const data = await ops.update(commentId, input);
-        return mapRecord(data);
+    const deleteById = async (commentId: UUIDv7): Promise<CommentsVO> => {
+        const data = await ops.remove(commentId);
+        return CommentsVO.from(data);
     };
 
-    const remove = async (commentId: UUIDv7): Promise<CommentsVO> => {
-        const data = await ops.remove(commentId);
-        return mapRecord(data);
-    };
+    // Performance optimization: direct update without domain validation
+    // const update = async (
+    //     commentId: UUIDv7,
+    //     update: CommentUpdate
+    // ): Promise<CommentsVO> => {
+    //     const data = await ops.update(commentId, update);
+    //     return CommentsVO.from(data);
+    // };
 
     return {
-        create,
+        save,
         findById,
-        listForPost,
-        listReplies,
-        update,
-        remove
+        findByPost,
+        findReplies,
+        deleteById
+        // update
     };
 };
