@@ -58,7 +58,7 @@ export const makeCommentsDrizzleOps = (db: DrizzleDB) => {
         const [row] = await db
             .select()
             .from(comments)
-            .where(eq(comments.id, commentId))
+            .where(and(eq(comments.id, commentId), isNull(comments.deletedAt)))
             .limit(1);
 
         return toComment(row);
@@ -67,22 +67,29 @@ export const makeCommentsDrizzleOps = (db: DrizzleDB) => {
     const listForPost = (
         postId: UUIDv7,
         params: CommentQueryParams
-    ): Promise<PaginatedComments> =>
+    ): Promise<PaginatedComments<CommentWithUser>> =>
         paginate(
             params.parentOnly
                 ? and(
                       eq(comments.postId, postId),
-                      isNull(comments.parentCommentId)
+                      isNull(comments.parentCommentId),
+                      isNull(comments.deletedAt)
                   )
-                : eq(comments.postId, postId),
+                : and(eq(comments.postId, postId), isNull(comments.deletedAt)),
             params
         );
 
     const listReplies = (
         parent: UUIDv7,
         params: CommentQueryParams
-    ): Promise<PaginatedComments> =>
-        paginate(eq(comments.parentCommentId, parent), params);
+    ): Promise<PaginatedComments<CommentWithUser>> =>
+        paginate(
+            and(
+                eq(comments.parentCommentId, parent),
+                isNull(comments.deletedAt)
+            ),
+            params
+        );
 
     const update = async (
         commentId: UUIDv7,
@@ -109,7 +116,7 @@ export const makeCommentsDrizzleOps = (db: DrizzleDB) => {
     const paginate = async (
         cond: ReturnType<typeof eq> | ReturnType<typeof and>,
         params: CommentQueryParams
-    ): Promise<PaginatedComments> => {
+    ): Promise<PaginatedComments<CommentWithUser>> => {
         const { page = 1, limit = 20 } = params;
         const offset = (page - 1) * limit;
 

@@ -1,4 +1,4 @@
-import { eq, or, desc, count } from 'drizzle-orm';
+import { eq, or, desc, count, isNull, and } from 'drizzle-orm';
 import { uuidv7 } from 'uuidv7';
 
 // eslint-disable-next-line no-restricted-imports
@@ -82,7 +82,7 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
         const [row] = await db
             .select()
             .from(users)
-            .where(eq(users.privyId, privyId));
+            .where(and(eq(users.privyId, privyId), isNull(users.deletedAt)));
 
         return toUser(row);
     };
@@ -97,13 +97,16 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
             })
             .from(users)
             .leftJoin(runners, eq(users.id, runners.userId))
-            .where(eq(users.privyId, privyId));
+            .where(and(eq(users.privyId, privyId), isNull(users.deletedAt)));
 
         return toUserWithStatus(row.user, row.status ?? 'inactive');
     };
 
     const findById = async (userId: UUIDv7): Promise<User> => {
-        const [row] = await db.select().from(users).where(eq(users.id, userId));
+        const [row] = await db
+            .select()
+            .from(users)
+            .where(and(eq(users.id, userId), isNull(users.deletedAt)));
 
         return toUser(row);
     };
@@ -118,7 +121,7 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
             })
             .from(users)
             .leftJoin(runners, eq(users.id, runners.userId))
-            .where(eq(users.id, userId));
+            .where(and(eq(users.id, userId), isNull(users.deletedAt)));
 
         return toUserWithStatus(row.user, row.status ?? 'inactive');
     };
@@ -129,7 +132,12 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
         const [row] = await db
             .select()
             .from(users)
-            .where(eq(users.walletAddress, walletAddress));
+            .where(
+                and(
+                    eq(users.walletAddress, walletAddress),
+                    isNull(users.deletedAt)
+                )
+            );
 
         return toUser(row);
     };
@@ -138,7 +146,7 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
         const [row] = await db
             .select()
             .from(users)
-            .where(eq(users.email, email));
+            .where(and(eq(users.email, email), isNull(users.deletedAt)));
 
         return toUser(row);
     };
@@ -147,7 +155,7 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
         const [row] = await db
             .select()
             .from(users)
-            .where(eq(users.username, username));
+            .where(and(eq(users.username, username), isNull(users.deletedAt)));
 
         return toUser(row);
     };
@@ -207,13 +215,14 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
     const listUsers = async (
         params: UserQueryParams
     ): Promise<PaginatedUsers> => {
-        return paginate(eq(users.id, users.id), params);
+        return paginate(isNull(users.deletedAt), params);
     };
 
     const findWhitelistedWallets = async (): Promise<WalletAddress[]> => {
         const rows = await db
             .select({ walletAddress: users.walletAddress })
-            .from(users);
+            .from(users)
+            .where(isNull(users.deletedAt));
         return rows.map((row) => row.walletAddress as WalletAddress);
     };
 
@@ -254,6 +263,23 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
         };
     };
 
+    const remove = async (userId: UUIDv7): Promise<User> => {
+        const [row] = await db
+            .update(users)
+            .set({ deletedAt: new Date() })
+            .where(eq(users.id, userId))
+            .returning();
+        return toUser(row);
+    };
+
+    const unsafeRemove = async (userId: UUIDv7): Promise<User> => {
+        const [row] = await db
+            .delete(users)
+            .where(eq(users.id, userId))
+            .returning();
+        return toUser(row);
+    };
+
     return {
         create,
         update,
@@ -267,6 +293,8 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
         findTransactionById,
         findCardsById,
         listUsers,
-        findWhitelistedWallets
+        findWhitelistedWallets,
+        remove,
+        unsafeRemove
     };
 };

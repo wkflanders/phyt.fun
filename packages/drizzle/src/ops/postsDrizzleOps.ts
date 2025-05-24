@@ -1,4 +1,4 @@
-import { eq, desc, count } from 'drizzle-orm';
+import { eq, desc, count, isNull, and } from 'drizzle-orm';
 import { uuidv7 } from 'uuidv7';
 
 // eslint-disable-next-line no-restricted-imports
@@ -56,7 +56,7 @@ export const makePostsDrizzleOps = (db: DrizzleDB) => {
         const [row] = await db
             .select()
             .from(posts)
-            .where(eq(posts.id, postId))
+            .where(and(eq(posts.id, postId), isNull(posts.deletedAt)))
             .limit(1);
 
         return toPost(row);
@@ -65,13 +65,19 @@ export const makePostsDrizzleOps = (db: DrizzleDB) => {
     const list = (
         params: PostQueryParams
     ): Promise<PaginatedPosts<PostWithUser>> =>
-        paginate(eq(posts.status, 'visible'), params);
+        paginate(
+            and(eq(posts.status, 'visible'), isNull(posts.deletedAt)),
+            params
+        );
 
     const listByUser = (
         userId: UUIDv7,
         params: PostQueryParams
     ): Promise<PaginatedPosts<PostWithUser>> =>
-        paginate(eq(posts.userId, userId), params);
+        paginate(
+            and(eq(posts.userId, userId), isNull(posts.deletedAt)),
+            params
+        );
 
     const update = async (postId: UUIDv7, data: PostUpdate): Promise<Post> => {
         const [row] = await db
@@ -96,7 +102,7 @@ export const makePostsDrizzleOps = (db: DrizzleDB) => {
     };
 
     const paginate = async (
-        cond: ReturnType<typeof eq> | null,
+        cond: ReturnType<typeof eq> | ReturnType<typeof and>,
         params: PostQueryParams
     ): Promise<PaginatedPosts<PostWithUser>> => {
         const { page = 1, limit = 20 } = params;

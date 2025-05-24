@@ -1,4 +1,4 @@
-import { eq, and, desc, count } from 'drizzle-orm';
+import { eq, and, desc, count, isNull } from 'drizzle-orm';
 import { uuidv7 } from 'uuidv7';
 
 // eslint-disable-next-line no-restricted-imports
@@ -112,7 +112,7 @@ export const makeRunsDrizzleOps = (db: DrizzleDB) => {
         const [row] = await db
             .select()
             .from(runs)
-            .where(eq(runs.id, id))
+            .where(and(eq(runs.id, id), isNull(runs.deletedAt)))
             .limit(1);
 
         return toRun(row);
@@ -122,19 +122,28 @@ export const makeRunsDrizzleOps = (db: DrizzleDB) => {
         runnerId: UUIDv7,
         params: RunQueryParams = { page: 1, limit: 20 }
     ): Promise<PaginatedRuns> => {
-        return paginate(eq(runs.runnerId, runnerId), params);
+        return paginate(
+            and(eq(runs.runnerId, runnerId), isNull(runs.deletedAt)),
+            params
+        );
     };
 
     const listRunsWithRunnerInfo = async (
         runnerId: UUIDv7,
         params: RunQueryParams = { page: 1, limit: 20 }
     ): Promise<PaginatedRuns> => {
-        return paginate(eq(runs.runnerId, runnerId), params);
+        return paginate(
+            and(eq(runs.runnerId, runnerId), isNull(runs.deletedAt)),
+            params
+        );
     };
 
     const listPendingRuns = async (): Promise<Run[]> => {
         const pendingRuns = await db.query.runs.findMany({
-            where: eq(runs.verificationStatus, 'pending')
+            where: and(
+                eq(runs.verificationStatus, 'pending'),
+                isNull(runs.deletedAt)
+            )
         });
 
         return pendingRuns.map(toRun);

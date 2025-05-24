@@ -1,6 +1,6 @@
 import { randomInt } from 'node:crypto';
 
-import { eq, and, like, desc, asc, count } from 'drizzle-orm';
+import { eq, and, like, desc, asc, count, isNull } from 'drizzle-orm';
 import { uuidv7 } from 'uuidv7';
 
 // eslint-disable-next-line no-restricted-imports
@@ -64,7 +64,13 @@ export const makeRunnersDrizzleOps = (db: DrizzleDB) => {
             })
             .from(runners)
             .innerJoin(users, eq(runners.userId, users.id))
-            .where(eq(runners.id, runnerId))
+            .where(
+                and(
+                    eq(runners.id, runnerId),
+                    isNull(runners.deletedAt),
+                    isNull(users.deletedAt)
+                )
+            )
             .limit(1);
 
         return toRunnerProfile(result.runner, result.user);
@@ -74,7 +80,7 @@ export const makeRunnersDrizzleOps = (db: DrizzleDB) => {
         const [row] = await db
             .select()
             .from(runners)
-            .where(eq(runners.userId, userId))
+            .where(and(eq(runners.userId, userId), isNull(runners.deletedAt)))
             .limit(1);
 
         return toRunner(row);
@@ -84,7 +90,7 @@ export const makeRunnersDrizzleOps = (db: DrizzleDB) => {
         const [user] = await db
             .select()
             .from(users)
-            .where(eq(users.privyId, privyId))
+            .where(and(eq(users.privyId, privyId), isNull(users.deletedAt)))
             .limit(1);
 
         const [result] = await db
@@ -94,7 +100,13 @@ export const makeRunnersDrizzleOps = (db: DrizzleDB) => {
             })
             .from(runners)
             .innerJoin(users, eq(runners.userId, users.id))
-            .where(eq(runners.userId, user.id))
+            .where(
+                and(
+                    eq(runners.userId, user.id),
+                    isNull(runners.deletedAt),
+                    isNull(users.deletedAt)
+                )
+            )
             .limit(1);
 
         return toRunnerProfile(result.runner, result.user);
@@ -103,7 +115,11 @@ export const makeRunnersDrizzleOps = (db: DrizzleDB) => {
     const list = async (
         params: RunnerQueryParams
     ): Promise<PaginatedRunners<RunnerProfile>> => {
-        const conditions = [eq(runners.status, 'active')];
+        const conditions = [
+            eq(runners.status, 'active'),
+            isNull(runners.deletedAt),
+            isNull(users.deletedAt)
+        ];
         if (params.search) {
             conditions.push(like(users.username, `%${String(params.search)}%`));
         }
@@ -140,7 +156,10 @@ export const makeRunnersDrizzleOps = (db: DrizzleDB) => {
     };
 
     const findRandomRunner = async (): Promise<Runner> => {
-        const allRunners = await db.select().from(runners);
+        const allRunners = await db
+            .select()
+            .from(runners)
+            .where(isNull(runners.deletedAt));
         const randomIndex = randomInt(allRunners.length);
         const randomRunner = allRunners[randomIndex];
 
