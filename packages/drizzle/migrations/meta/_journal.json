@@ -43,6 +43,13 @@
       "when": 1747907933330,
       "tag": "0005_light_grey_gargoyle",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1748079891463,
+      "tag": "0006_aberrant_vin_gonzales",
+      "breakpoints": true
     }
   ]
 }
