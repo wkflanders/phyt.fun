@@ -86,15 +86,6 @@ export const makeReactionsDrizzleOps = (db: DrizzleDB) => {
         return toReaction(record);
     };
 
-    const remove = async (reactionId: UUIDv7): Promise<Reaction> => {
-        const [record] = await db
-            .delete(reactions)
-            .where(eq(reactions.id, reactionId))
-            .returning();
-
-        return toReaction(record);
-    };
-
     const findReactionCountByPost = async (
         postId: UUIDv7
     ): Promise<ReactionCount> => {
@@ -223,15 +214,24 @@ export const makeReactionsDrizzleOps = (db: DrizzleDB) => {
         return reactionResult.count + commentResult.count;
     };
 
+    const unsafeRemove = async (reactionId: UUIDv7): Promise<Reaction> => {
+        const [record] = await db
+            .delete(reactions)
+            .where(eq(reactions.id, reactionId))
+            .returning();
+
+        return toReaction(record);
+    };
+
     return {
         create,
         findById,
         findByUserId,
-        remove,
         findReactionCountByPost,
         findReactionCountByComment,
         findUserReactions,
         findReactionsWithUsers,
-        calculateTrendingScore
+        calculateTrendingScore,
+        unsafeRemove
     };
 };

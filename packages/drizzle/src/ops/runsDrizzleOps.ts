@@ -164,6 +164,16 @@ export const makeRunsDrizzleOps = (db: DrizzleDB) => {
 
     const remove = async (runId: UUIDv7): Promise<Run> => {
         const [result] = await db
+            .update(runs)
+            .set({ deletedAt: new Date() })
+            .where(eq(runs.id, runId))
+            .returning();
+
+        return toRun(result);
+    };
+
+    const unsafeRemove = async (runId: UUIDv7): Promise<Run> => {
+        const [result] = await db
             .delete(runs)
             .where(eq(runs.id, runId))
             .returning();
@@ -223,6 +233,7 @@ export const makeRunsDrizzleOps = (db: DrizzleDB) => {
         listPendingRuns,
         createBatch,
         update,
-        remove
+        remove,
+        unsafeRemove
     };
 };

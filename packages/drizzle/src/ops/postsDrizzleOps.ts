@@ -94,6 +94,18 @@ export const makePostsDrizzleOps = (db: DrizzleDB) => {
 
     const remove = async (postId: UUIDv7): Promise<Post> => {
         const [row] = await db
+            .update(posts)
+            .set({
+                deletedAt: new Date()
+            })
+            .where(eq(posts.id, postId))
+            .returning();
+
+        return toPost(row);
+    };
+
+    const unsafeRemove = async (postId: UUIDv7): Promise<Post> => {
+        const [row] = await db
             .delete(posts)
             .where(eq(posts.id, postId))
             .returning();
@@ -135,5 +147,13 @@ export const makePostsDrizzleOps = (db: DrizzleDB) => {
         };
     };
 
-    return { create, findById, list, listByUser, update, remove };
+    return {
+        create,
+        findById,
+        list,
+        listByUser,
+        update,
+        remove,
+        unsafeRemove
+    };
 };

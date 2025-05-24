@@ -146,15 +146,6 @@ export const makeRunnersDrizzleOps = (db: DrizzleDB) => {
         return toRunner(row);
     };
 
-    const remove = async (runnerId: UUIDv7): Promise<Runner> => {
-        const [row] = await db
-            .delete(runners)
-            .where(eq(runners.id, runnerId))
-            .returning();
-
-        return toRunner(row);
-    };
-
     const findRandomRunner = async (): Promise<Runner> => {
         const allRunners = await db
             .select()
@@ -164,6 +155,25 @@ export const makeRunnersDrizzleOps = (db: DrizzleDB) => {
         const randomRunner = allRunners[randomIndex];
 
         return toRunner(randomRunner);
+    };
+
+    const remove = async (runnerId: UUIDv7): Promise<Runner> => {
+        const [row] = await db
+            .update(runners)
+            .set({ deletedAt: new Date() })
+            .where(eq(runners.id, runnerId))
+            .returning();
+
+        return toRunner(row);
+    };
+
+    const unsafeRemove = async (runnerId: UUIDv7): Promise<Runner> => {
+        const [row] = await db
+            .delete(runners)
+            .where(eq(runners.id, runnerId))
+            .returning();
+
+        return toRunner(row);
     };
 
     const paginate = async (
@@ -261,7 +271,8 @@ export const makeRunnersDrizzleOps = (db: DrizzleDB) => {
         findByPrivyId,
         list,
         update,
+        findRandomRunner,
         remove,
-        findRandomRunner
+        unsafeRemove
     };
 };

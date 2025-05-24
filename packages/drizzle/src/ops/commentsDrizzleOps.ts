@@ -106,6 +106,16 @@ export const makeCommentsDrizzleOps = (db: DrizzleDB) => {
 
     const remove = async (commentId: UUIDv7): Promise<Comment> => {
         const [row] = await db
+            .update(comments)
+            .set({ deletedAt: new Date() })
+            .where(eq(comments.id, commentId))
+            .returning();
+
+        return toComment(row);
+    };
+
+    const unsafeRemove = async (commentId: UUIDv7): Promise<Comment> => {
+        const [row] = await db
             .delete(comments)
             .where(eq(comments.id, commentId))
             .returning();
@@ -147,5 +157,13 @@ export const makeCommentsDrizzleOps = (db: DrizzleDB) => {
         };
     };
 
-    return { create, findById, listForPost, listReplies, update, remove };
+    return {
+        create,
+        findById,
+        listForPost,
+        listReplies,
+        update,
+        remove,
+        unsafeRemove
+    };
 };
