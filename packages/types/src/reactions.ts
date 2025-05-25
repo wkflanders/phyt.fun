@@ -1,4 +1,4 @@
-import { UUIDv7 } from './core.js';
+import { AvatarUrl, UUIDv7 } from './core.js';
 
 export type ReactionType = 'like' | 'funny' | 'insightful' | 'fire';
 
@@ -14,7 +14,7 @@ export interface Reaction {
 
 export interface ReactionWithUser extends Reaction {
     username: string;
-    avatarUrl: string;
+    avatarUrl: AvatarUrl;
 }
 
 export interface ReactionInsert {

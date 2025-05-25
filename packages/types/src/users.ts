@@ -1,4 +1,4 @@
-import { UUIDv7, Pagination } from './core.js';
+import { UUIDv7, Pagination, AvatarUrl, WalletAddress } from './core.js';
 import { RunnerStatus } from './runners.js';
 
 export type UserRole = 'admin' | 'user' | 'runner';
@@ -7,7 +7,6 @@ export type UserRole = 'admin' | 'user' | 'runner';
  * EVM addresses are always 20 bytes → 40 hex chars → 42 chars incl. “0x”.
  * Tighten the template literal so the compiler yells early.
  */
-export type WalletAddress = `0x${string & { length: 40 }}`;
 
 export interface User {
     id: UUIDv7;
@@ -15,7 +14,7 @@ export interface User {
     username: string;
     role: UserRole;
     privyId: string;
-    avatarUrl: string;
+    avatarUrl: AvatarUrl;
     walletAddress: WalletAddress;
     phytnessPoints: number;
     twitterHandle: string | null;
@@ -39,7 +38,7 @@ export interface UserInsert {
     username: string;
     privyId: string;
     walletAddress: WalletAddress;
-    avatarUrl?: string;
+    avatarUrl?: AvatarUrl;
     role?: UserRole;
     phytnessPoints?: number;
     twitterHandle?: string | null;
@@ -51,7 +50,7 @@ export interface UserUpdate {
     username?: string;
     privyId?: string;
     walletAddress?: WalletAddress;
-    avatarUrl?: string;
+    avatarUrl?: AvatarUrl;
     role?: UserRole;
     phytnessPoints?: number;
     twitterHandle?: string | null;

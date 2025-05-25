@@ -1,4 +1,4 @@
-import type { UUIDv7, Pagination } from './core.js';
+import type { UUIDv7, Pagination, AvatarUrl } from './core.js';
 
 export type RunnerStatus = 'pending' | 'active' | 'inactive';
 
@@ -18,7 +18,7 @@ export interface Runner {
 
 export interface RunnerProfile extends Runner {
     username: string;
-    avatarUrl: string;
+    avatarUrl: AvatarUrl;
 }
 
 export interface RunnerInsert {

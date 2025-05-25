@@ -1,4 +1,4 @@
-import { UUIDv7, Pagination } from './core.js';
+import { UUIDv7, Pagination, AvatarUrl } from './core.js';
 
 export type PostStatus = 'visible' | 'hidden' | 'deleted';
 export type PostFilter = 'all' | 'following' | 'trending';
@@ -16,7 +16,7 @@ export interface Post {
 
 export interface PostWithUser extends Post {
     username: string;
-    avatarUrl: string;
+    avatarUrl: AvatarUrl;
 }
 
 export interface PostInsert {

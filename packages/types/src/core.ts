@@ -6,3 +6,7 @@ export interface Pagination {
     limit: number;
     totalPages: number;
 }
+
+export type WalletAddress = `0x${string & { length: 40 }}`;
+
+export type AvatarUrl = string;

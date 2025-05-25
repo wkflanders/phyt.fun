@@ -1,6 +1,6 @@
 import { SeasonCollection, CardRarity } from './cards.js';
 
-import type { Pagination, UUIDv7 } from './core.js';
+import type { AvatarUrl, Pagination, UUIDv7 } from './core.js';
 
 export type PackType = 'scrawny' | 'toned' | 'swole' | 'phyt';
 
@@ -48,7 +48,7 @@ export interface PackInsert {
 
 export interface PackWithUser extends Pack {
     username: string;
-    avatarUrl: string;
+    avatarUrl: AvatarUrl;
 }
 
 export interface PackQueryParams {

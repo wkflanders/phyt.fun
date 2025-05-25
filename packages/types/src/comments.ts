@@ -1,4 +1,4 @@
-import { UUIDv7, Pagination } from './core.js';
+import { UUIDv7, Pagination, AvatarUrl } from './core.js';
 
 export interface Comment {
     id: UUIDv7;
@@ -12,7 +12,7 @@ export interface Comment {
 
 export interface CommentWithUser extends Comment {
     username: string;
-    avatarUrl: string;
+    avatarUrl: AvatarUrl;
 }
 
 export interface CommentInsert {

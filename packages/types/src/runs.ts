@@ -1,6 +1,5 @@
-import type { UUIDv7, Pagination } from './core.js';
+import type { UUIDv7, Pagination, AvatarUrl } from './core.js';
 import type { Runner } from './runners.js';
-import type { User } from './users.js';
 
 export interface Run {
     id: UUIDv7;
@@ -27,7 +26,7 @@ export interface Run {
 export interface RunWithRunnerInfo extends Run {
     runner: Runner;
     username: string;
-    avatarUrl: string;
+    avatarUrl: AvatarUrl;
 }
 
 export interface RunInsert {
