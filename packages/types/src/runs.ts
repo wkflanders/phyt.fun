@@ -21,6 +21,7 @@ export interface Run {
     rawDataJson: Record<string, unknown> | null;
     createdAt: Date;
     updatedAt: Date;
+    deletedAt: Date | null;
 }
 
 export interface RunWithRunnerInfo extends Run {

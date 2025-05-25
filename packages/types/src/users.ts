@@ -21,6 +21,7 @@ export interface User {
     stravaHandle: string | null;
     createdAt: Date;
     updatedAt: Date;
+    deletedAt: Date | null;
 }
 
 export interface UserWithStatus extends User {

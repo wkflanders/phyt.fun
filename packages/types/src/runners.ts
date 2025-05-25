@@ -14,6 +14,7 @@ export interface Runner {
     runnerWallet: string;
     createdAt: Date;
     updatedAt: Date;
+    deletedAt: Date | null;
 }
 
 export interface RunnerProfile extends Runner {

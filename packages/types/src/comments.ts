@@ -8,6 +8,7 @@ export interface Comment {
     content: string;
     createdAt: Date;
     updatedAt: Date;
+    deletedAt: Date | null;
 }
 
 export interface CommentWithUser extends Comment {

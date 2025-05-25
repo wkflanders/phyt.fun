@@ -12,6 +12,7 @@ export interface Post {
     status: PostStatus;
     createdAt: Date;
     updatedAt: Date;
+    deletedAt: Date | null;
 }
 
 export interface PostWithUser extends Post {
