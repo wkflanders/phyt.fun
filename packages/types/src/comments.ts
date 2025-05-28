@@ -9,12 +9,15 @@ export interface Comment {
     createdAt: Date;
     updatedAt: Date;
     deletedAt: Date | null;
+    // Below are not included in the database table, but used in the API
+    username?: string;
+    avatarUrl?: AvatarUrl;
 }
 
-export interface CommentWithUser extends Comment {
-    username: string;
-    avatarUrl: AvatarUrl;
-}
+// export interface CommentWithUser extends Comment {
+//     username: string;
+//     avatarUrl: AvatarUrl;
+// }
 
 export interface CommentInsert {
     postId: UUIDv7;

@@ -1,19 +1,20 @@
-import { UUIDv7, Pagination, AvatarUrl, WalletAddress } from './core.js';
+import {
+    UUIDv7,
+    Pagination,
+    AvatarUrl,
+    WalletAddress,
+    PrivyId
+} from './core.js';
 import { RunnerStatus } from './runners.js';
 
 export type UserRole = 'admin' | 'user' | 'runner';
-
-/**
- * EVM addresses are always 20 bytes → 40 hex chars → 42 chars incl. “0x”.
- * Tighten the template literal so the compiler yells early.
- */
 
 export interface User {
     id: UUIDv7;
     email: string;
     username: string;
     role: UserRole;
-    privyId: string;
+    privyId: PrivyId;
     avatarUrl: AvatarUrl;
     walletAddress: WalletAddress;
     phytnessPoints: number;
@@ -22,10 +23,8 @@ export interface User {
     createdAt: Date;
     updatedAt: Date;
     deletedAt: Date | null;
-}
-
-export interface UserWithStatus extends User {
-    status: RunnerStatus;
+    // Below is not included in the database table, but used in the API
+    status?: RunnerStatus;
 }
 
 export interface UserQueryParams {

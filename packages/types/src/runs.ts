@@ -22,12 +22,10 @@ export interface Run {
     createdAt: Date;
     updatedAt: Date;
     deletedAt: Date | null;
-}
-
-export interface RunWithRunnerInfo extends Run {
-    runner: Runner;
-    username: string;
-    avatarUrl: AvatarUrl;
+    // Below are not included in the database table, but used in the API
+    runner?: Runner;
+    username?: string;
+    avatarUrl?: AvatarUrl;
 }
 
 export interface RunInsert {

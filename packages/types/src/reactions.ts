@@ -1,6 +1,8 @@
-import { AvatarUrl, UUIDv7 } from './core.js';
+import { AvatarUrl, Pagination, UUIDv7 } from './core.js';
 
 export type ReactionType = 'like' | 'funny' | 'insightful' | 'fire';
+
+export type ReactionAction = 'added' | 'removed';
 
 export interface Reaction {
     id: UUIDv7;
@@ -10,11 +12,10 @@ export interface Reaction {
     type: ReactionType;
     createdAt: Date;
     updatedAt: Date;
-}
-
-export interface ReactionWithUser extends Reaction {
-    username: string;
-    avatarUrl: AvatarUrl;
+    // Below are not included in the database table, but used in the API
+    username?: string;
+    avatarUrl?: AvatarUrl;
+    counts?: ReactionCount;
 }
 
 export interface ReactionInsert {
@@ -25,6 +26,7 @@ export interface ReactionInsert {
 }
 
 export interface ReactionUpdate {
+    id?: UUIDv7;
     action: ReactionAction;
     type: ReactionType;
 }
@@ -36,4 +38,14 @@ export interface ReactionCount {
     fire: number;
 }
 
-export type ReactionAction = 'added' | 'removed';
+export interface ReactionQueryParams {
+    page?: number;
+    limit?: number;
+    sortBy?: 'createdAt';
+    sortOrder?: 'asc' | 'desc';
+}
+
+export interface PaginatedReactions<T = Reaction> {
+    reactions: T[];
+    pagination: Pagination;
+}

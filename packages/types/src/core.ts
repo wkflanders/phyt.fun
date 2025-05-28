@@ -1,5 +1,9 @@
 export type UUIDv7 = string & { __uuidv7: true };
 
+// export type PrivyId = `did:privy:${string}`;
+// Need to find out format of privy id's
+export type PrivyId = string;
+
 export interface Pagination {
     total: number;
     page: number;
@@ -7,6 +11,6 @@ export interface Pagination {
     totalPages: number;
 }
 
-export type WalletAddress = `0x${string & { length: 40 }}`;
+export type WalletAddress = `0x${string}`;
 
 export type AvatarUrl = string;

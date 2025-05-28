@@ -1,4 +1,4 @@
-import type { UUIDv7, Pagination, AvatarUrl } from './core.js';
+import type { UUIDv7, Pagination, AvatarUrl, WalletAddress } from './core.js';
 
 export type RunnerStatus = 'pending' | 'active' | 'inactive';
 
@@ -11,15 +11,13 @@ export interface Runner {
     bestMileTime: number | null;
     status: RunnerStatus;
     isPooled: boolean;
-    runnerWallet: string;
+    runnerWallet: WalletAddress;
     createdAt: Date;
     updatedAt: Date;
     deletedAt: Date | null;
-}
-
-export interface RunnerProfile extends Runner {
-    username: string;
-    avatarUrl: AvatarUrl;
+    // Below are not included in the database table, but used in the API
+    username?: string;
+    avatarUrl?: AvatarUrl;
 }
 
 export interface RunnerInsert {
@@ -30,7 +28,7 @@ export interface RunnerInsert {
     bestMileTime: number | null;
     status: RunnerStatus;
     isPooled: boolean;
-    runnerWallet: string;
+    runnerWallet: WalletAddress;
 }
 
 export interface RunnerUpdate {
@@ -40,7 +38,7 @@ export interface RunnerUpdate {
     bestMileTime?: number | null;
     status?: RunnerStatus;
     isPooled?: boolean;
-    runnerWallet?: string;
+    runnerWallet?: WalletAddress;
 }
 
 export type RunnerSortFields =
