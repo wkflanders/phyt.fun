@@ -91,15 +91,80 @@ export const baseConfig: import('eslint').Linter.Config[] = [
                 'error',
                 {
                     groups: [
+                        'internal',
                         'builtin',
                         'external',
-                        'internal',
                         ['parent', 'sibling'],
                         'index',
                         'object',
                         'type'
                     ],
                     pathGroups: [
+                        {
+                            pattern: '@phyt/web',
+                            group: 'internal',
+                            position: 'before'
+                        },
+                        {
+                            pattern: '@phyt/server',
+                            group: 'internal',
+                            position: 'before'
+                        },
+                        {
+                            pattern: '@phyt/models',
+                            group: 'internal',
+                            position: 'before'
+                        },
+                        {
+                            pattern: '@phyt/dto',
+                            group: 'internal',
+                            position: 'before'
+                        },
+                        {
+                            pattern: '@phyt/aws',
+                            group: 'internal',
+                            position: 'before'
+                        },
+                        {
+                            pattern: '@phyt/drizzle',
+                            group: 'internal',
+                            position: 'before'
+                        },
+                        {
+                            pattern: '@phyt/repositories',
+                            group: 'internal',
+                            position: 'before'
+                        },
+                        {
+                            pattern: '@phyt/services',
+                            group: 'internal',
+                            position: 'before'
+                        },
+                        {
+                            pattern: '@phyt/contracts',
+                            group: 'internal',
+                            position: 'before'
+                        },
+                        {
+                            pattern: '@phyt/infra',
+                            group: 'internal',
+                            position: 'before'
+                        },
+                        {
+                            pattern: '@phyt/eslint',
+                            group: 'internal',
+                            position: 'before'
+                        },
+                        {
+                            pattern: '@phyt/tsconfig',
+                            group: 'internal',
+                            position: 'before'
+                        },
+                        {
+                            pattern: '@phyt/types',
+                            group: 'internal',
+                            position: 'before'
+                        },
                         {
                             pattern: '@phyt/**',
                             group: 'internal',
