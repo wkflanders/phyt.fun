@@ -5,7 +5,7 @@ import { createPublicClient, createWalletClient, http } from 'viem';
 
 import { env } from './env.js';
 
-import type { WalletClient } from 'viem';
+import type { WalletClient, PrivateKeyAccount } from 'viem';
 
 const transport = http(env.BASE_RPC_URL);
 
@@ -14,7 +14,9 @@ const publicClient = createPublicClient({
     transport
 });
 
-const account = privateKeyToAccount(env.SERVER_PRIVATE_KEY as `0x${string}`);
+const account: PrivateKeyAccount = privateKeyToAccount(
+    env.SERVER_PRIVATE_KEY as `0x${string}`
+);
 
 const walletClient: WalletClient = createWalletClient({
     account,
