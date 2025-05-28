@@ -1,11 +1,6 @@
 {
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
-  "id": "728dda78-0da2-4a5a-911e-0e1a26799643",
+  "id": "5959553f-809f-4c8c-bd21-9ba0d05c9f45",
   "prevId": "00000000-0000-0000-0000-000000000000",
-========
-  "id": "8ad77861-2867-4c3a-8fab-72b23371678f",
-  "prevId": "5fe3052e-efe2-4e49-a032-5952c9d2d9b5",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -15,41 +10,25 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
         "listingId": {
           "name": "listingId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": false
         },
         "cardId": {
           "name": "cardId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
         "bidderId": {
           "name": "bidderId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
@@ -124,6 +103,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "deletedAt": {
+          "name": "deletedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -300,11 +285,7 @@
         },
         "runnerId": {
           "name": "runnerId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
@@ -435,33 +416,21 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
         "ownerId": {
           "name": "ownerId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
         "packPurchaseId": {
           "name": "packPurchaseId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "tokenId": {
           "name": "tokenId",
@@ -609,31 +578,19 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
         "postId": {
           "name": "postId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
         "userId": {
           "name": "userId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
@@ -645,11 +602,7 @@
         },
         "parentCommentId": {
           "name": "parentCommentId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": false
         },
@@ -666,6 +619,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "deletedAt": {
+          "name": "deletedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -783,11 +742,7 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
@@ -841,6 +796,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "deletedAt": {
+          "name": "deletedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -888,31 +849,19 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
         "followerId": {
           "name": "followerId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
         "followTargetId": {
           "name": "followTargetId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
@@ -922,6 +871,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "deletedAt": {
+          "name": "deletedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -1017,31 +972,19 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
         "lineupId": {
           "name": "lineupId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
         "cardId": {
           "name": "cardId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
@@ -1168,31 +1111,19 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
         "competitionId": {
           "name": "competitionId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
         "managerId": {
           "name": "managerId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
@@ -1209,6 +1140,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "deletedAt": {
+          "name": "deletedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -1313,41 +1250,25 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
         "buyerId": {
           "name": "buyerId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": false
         },
         "sellerId": {
           "name": "sellerId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
         "cardId": {
           "name": "cardId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
@@ -1365,11 +1286,7 @@
         },
         "highestBidderId": {
           "name": "highestBidderId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": false
         },
@@ -1424,6 +1341,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "deletedAt": {
+          "name": "deletedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -1592,21 +1515,13 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
         "userId": {
           "name": "userId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
@@ -1690,21 +1605,13 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
         "lineupId": {
           "name": "lineupId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
@@ -1815,21 +1722,13 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
         "buyerId": {
           "name": "buyerId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
@@ -1935,27 +1834,18 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
         "userId": {
           "name": "userId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
         "runId": {
           "name": "runId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
@@ -1968,8 +1858,6 @@
         },
         "content": {
           "name": "content",
-========
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -1995,6 +1883,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "deletedAt": {
+          "name": "deletedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -2099,31 +1993,19 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
         "profileId": {
           "name": "profileId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
         "viewerId": {
           "name": "viewerId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": false
         },
@@ -2234,41 +2116,25 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
         "userId": {
           "name": "userId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
         "postId": {
           "name": "postId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": false
         },
         "commentId": {
           "name": "commentId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": false
         },
@@ -2281,6 +2147,13 @@
         },
         "createdAt": {
           "name": "createdAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
           "type": "timestamp (3)",
           "primaryKey": false,
           "notNull": true,
@@ -2441,41 +2314,25 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
         "reporterId": {
           "name": "reporterId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
         "postId": {
           "name": "postId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": false
         },
         "commentId": {
           "name": "commentId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": false
         },
@@ -2502,11 +2359,7 @@
         },
         "reviewedBy": {
           "name": "reviewedBy",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": false
         },
@@ -2652,21 +2505,13 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
         "runnerId": {
           "name": "runnerId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
@@ -2750,41 +2595,25 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
         "competitionId": {
           "name": "competitionId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
         "runnerId": {
           "name": "runnerId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
         "sessionId": {
           "name": "sessionId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
@@ -2945,21 +2774,13 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
         "userId": {
           "name": "userId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
@@ -3023,6 +2844,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "deletedAt": {
+          "name": "deletedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -3120,21 +2947,13 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
         "runnerId": {
           "name": "runnerId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
@@ -3217,8 +3036,8 @@
           "notNull": false,
           "default": false
         },
-        "verificationSatus": {
-          "name": "verificationSatus",
+        "verificationStatus": {
+          "name": "verificationStatus",
           "type": "enumRunsVerificationStatus",
           "typeSchema": "public",
           "primaryKey": false,
@@ -3244,6 +3063,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "deletedAt": {
+          "name": "deletedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -3320,51 +3145,31 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
         "fromUserId": {
           "name": "fromUserId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "toUserId": {
           "name": "toUserId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "cardId": {
           "name": "cardId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "competitionId": {
           "name": "competitionId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": false
         },
@@ -3372,7 +3177,7 @@
           "name": "price",
           "type": "numeric(78, 0)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "transactionType": {
           "name": "transactionType",
@@ -3383,19 +3188,22 @@
         },
         "packPurchaseId": {
           "name": "packPurchaseId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "enumTransactionStatus",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
         },
         "hash": {
           "name": "hash",
           "type": "varchar(66)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "updatedAt": {
           "name": "updatedAt",
@@ -3598,21 +3406,13 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
         "userId": {
           "name": "userId",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": false,
           "notNull": true
         },
@@ -3735,11 +3535,7 @@
       "columns": {
         "id": {
           "name": "id",
-<<<<<<<< HEAD:packages/drizzle/migrations/meta/0000_snapshot.json
           "type": "uuid",
-========
-          "type": "text",
->>>>>>>> server:packages/drizzle/migrations/meta/0013_snapshot.json
           "primaryKey": true,
           "notNull": true
         },
@@ -3756,6 +3552,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "deletedAt": {
+          "name": "deletedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
         },
         "email": {
           "name": "email",
@@ -4033,6 +3835,15 @@
       "schema": "public",
       "values": [
         "season_0"
+      ]
+    },
+    "public.enumTransactionStatus": {
+      "name": "enumTransactionStatus",
+      "schema": "public",
+      "values": [
+        "pending",
+        "completed",
+        "failed"
       ]
     },
     "public.enumTransactionsTransactionType": {

@@ -11,6 +11,7 @@ CREATE TYPE "public"."enumReportStatus" AS ENUM('pending', 'reviewed', 'dismisse
 CREATE TYPE "public"."enumRunnerStatus" AS ENUM('pending', 'active', 'inactive');--> statement-breakpoint
 CREATE TYPE "public"."enumRunsVerificationStatus" AS ENUM('pending', 'verified', 'flagged');--> statement-breakpoint
 CREATE TYPE "public"."enumSeasons" AS ENUM('season_0');--> statement-breakpoint
+CREATE TYPE "public"."enumTransactionStatus" AS ENUM('pending', 'completed', 'failed');--> statement-breakpoint
 CREATE TYPE "public"."enumTransactionsTransactionType" AS ENUM('packPurchase', 'marketplaceSale', 'marketplaceOffer', 'marketplaceListing', 'rewardPayout');--> statement-breakpoint
 CREATE TYPE "public"."enumUsersRole" AS ENUM('admin', 'user', 'runner');--> statement-breakpoint
 CREATE TABLE "bids" (
@@ -29,6 +30,7 @@ CREATE TABLE "bids" (
 	"acceptedAt" timestamp (3),
 	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
 	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"deletedAt" timestamp (3),
 	CONSTRAINT "bids_orderHash_unique" UNIQUE("orderHash")
 );
 --> statement-breakpoint
@@ -46,7 +48,7 @@ CREATE TABLE "cardMetadata" (
 CREATE TABLE "cards" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"ownerId" uuid NOT NULL,
-	"packPurchaseId" uuid,
+	"packPurchaseId" uuid NOT NULL,
 	"tokenId" integer NOT NULL,
 	"acquisitionType" "enumAcquisitionType" DEFAULT 'mint' NOT NULL,
 	"isBurned" boolean DEFAULT false NOT NULL,
@@ -62,7 +64,8 @@ CREATE TABLE "comments" (
 	"content" varchar NOT NULL,
 	"parentCommentId" uuid,
 	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
-	"createdAt" timestamp (3) DEFAULT now() NOT NULL
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"deletedAt" timestamp (3)
 );
 --> statement-breakpoint
 CREATE TABLE "competitions" (
@@ -74,14 +77,16 @@ CREATE TABLE "competitions" (
 	"eventType" varchar,
 	"jackpot" numeric(78, 0) DEFAULT '0',
 	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
-	"createdAt" timestamp (3) DEFAULT now() NOT NULL
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"deletedAt" timestamp (3)
 );
 --> statement-breakpoint
 CREATE TABLE "follows" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"followerId" uuid NOT NULL,
 	"followTargetId" uuid NOT NULL,
-	"createdAt" timestamp (3) DEFAULT now() NOT NULL
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"deletedAt" timestamp (3)
 );
 --> statement-breakpoint
 CREATE TABLE "lineupCards" (
@@ -98,7 +103,8 @@ CREATE TABLE "lineups" (
 	"competitionId" uuid NOT NULL,
 	"managerId" uuid NOT NULL,
 	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
-	"createdAt" timestamp (3) DEFAULT now() NOT NULL
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"deletedAt" timestamp (3)
 );
 --> statement-breakpoint
 CREATE TABLE "listings" (
@@ -117,6 +123,7 @@ CREATE TABLE "listings" (
 	"status" "enumListingStatus" DEFAULT 'active' NOT NULL,
 	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
 	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
+	"deletedAt" timestamp (3),
 	CONSTRAINT "listings_orderHash_unique" UNIQUE("orderHash")
 );
 --> statement-breakpoint
@@ -155,7 +162,8 @@ CREATE TABLE "posts" (
 	"content" text NOT NULL,
 	"status" "enumPostsStatus" DEFAULT 'visible' NOT NULL,
 	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
-	"createdAt" timestamp (3) DEFAULT now() NOT NULL
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"deletedAt" timestamp (3)
 );
 --> statement-breakpoint
 CREATE TABLE "profileViews" (
@@ -172,7 +180,8 @@ CREATE TABLE "reactions" (
 	"postId" uuid,
 	"commentId" uuid,
 	"type" "enumReactionType" NOT NULL,
-	"createdAt" timestamp (3) DEFAULT now() NOT NULL
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"updatedAt" timestamp (3) DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "reports" (
@@ -219,6 +228,7 @@ CREATE TABLE "runners" (
 	"runnerWallet" varchar NOT NULL,
 	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
 	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"deletedAt" timestamp (3),
 	CONSTRAINT "runners_runnerWallet_unique" UNIQUE("runnerWallet")
 );
 --> statement-breakpoint
@@ -238,22 +248,24 @@ CREATE TABLE "runs" (
 	"deviceId" varchar,
 	"gpsRouteData" varchar,
 	"isPosted" boolean DEFAULT false,
-	"verificationSatus" "enumRunsVerificationStatus" DEFAULT 'pending' NOT NULL,
+	"verificationStatus" "enumRunsVerificationStatus" DEFAULT 'pending' NOT NULL,
 	"rawDataJson" jsonb,
 	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
-	"createdAt" timestamp (3) DEFAULT now() NOT NULL
+	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"deletedAt" timestamp (3)
 );
 --> statement-breakpoint
 CREATE TABLE "transactions" (
 	"id" uuid PRIMARY KEY NOT NULL,
-	"fromUserId" uuid,
-	"toUserId" uuid,
-	"cardId" uuid,
+	"fromUserId" uuid NOT NULL,
+	"toUserId" uuid NOT NULL,
+	"cardId" uuid NOT NULL,
 	"competitionId" uuid,
-	"price" numeric(78, 0),
+	"price" numeric(78, 0) NOT NULL,
 	"transactionType" "enumTransactionsTransactionType" NOT NULL,
 	"packPurchaseId" uuid,
-	"hash" varchar(66),
+	"status" "enumTransactionStatus" NOT NULL,
+	"hash" varchar(66) NOT NULL,
 	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
 	"createdAt" timestamp (3) DEFAULT now() NOT NULL
 );
@@ -274,6 +286,7 @@ CREATE TABLE "users" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"updatedAt" timestamp (3) DEFAULT now() NOT NULL,
 	"createdAt" timestamp (3) DEFAULT now() NOT NULL,
+	"deletedAt" timestamp (3),
 	"email" varchar NOT NULL,
 	"username" varchar NOT NULL,
 	"role" "enumUsersRole" DEFAULT 'user' NOT NULL,
