@@ -4,7 +4,7 @@
     "private": true,
     "scripts": {
         "dev": "turbo dev",
-        "prebuild": "turbo run clean --concurrency=1 && pnpm install --frozen-lockfile",
+        "prebuild": "turbo run clean --concurrency=1 && pnpm install",
         "build": "pnpm run prebuild && turbo run build",
         "lint": "turbo lint",
         "lint:fix": "turbo lint:fix",
@@ -17,11 +17,12 @@
         "db:start": "docker compose start",
         "db:stop": "docker compose stop",
         "db:clean": "docker compose down -v",
-        "db:generate": "pnpm --filter @phyt/database run db:generate",
-        "db:migrate": "pnpm --filter @phyt/database run db:migrate",
-        "db:studio": "pnpm --filter @phyt/database run db:studio",
-        "db:seed": "pnpm --filter @phyt/database run db:seed",
-        "db:reset": "pnpm --filter @phyt/database run db:reset"
+        "db:generate": "pnpm --filter @phyt/drizzle run db:generate",
+        "db:push": "pnpm --filter @phyt/drizzle run db:push",
+        "db:migrate": "pnpm --filter @phyt/drizzle run db:migrate",
+        "db:studio": "pnpm --filter @phyt/drizzle run db:studio",
+        "db:seed": "pnpm --filter @phyt/drizzle run db:seed",
+        "db:reset": "pnpm --filter @phyt/drizzle run db:reset"
     },
     "devDependencies": {
         "@types/express": "^5.0.1",
@@ -31,13 +32,15 @@
         "eslint": "^9.24.0",
         "prettier": "^3.5.3",
         "tsup": "^8.4.0",
-        "turbo": "^2.5.0",
+        "turbo": "^2.5.3",
         "typescript": "5.7.3"
     },
     "dependencies": {
-        "dotenv": "^16.4.7"
+        "date-fns": "^4.1.0",
+        "dotenv": "^16.4.7",
+        "uuidv7": "^1.0.2"
     },
-    "packageManager": "pnpm@10.8.1",
+    "packageManager": "pnpm@10.11.0",
     "engines": {
         "node": ">=18.0.0"
     }

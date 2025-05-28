@@ -1,0 +1,22 @@
+//  apps/server/tsconfig.json
+{
+    "extends": "@phyt/tsconfig/base.json",
+    "compilerOptions": {
+        "outDir": "dist",
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+        "baseUrl": ".",
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "paths": {
+            "@/*": ["./src/*"]
+        }
+    },
+    "include": [
+        "src/**/*",
+        "../../packages/infra/src/privyClient.ts",
+        "../../packages/infra/src/validation.ts",
+        "../../packages/infra/src/viemClient.ts"
+    ],
+    "exclude": ["node_modules", "dist"]
+}

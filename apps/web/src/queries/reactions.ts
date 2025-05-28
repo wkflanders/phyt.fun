@@ -1,4 +1,5 @@
 import {
+    UUIDv7,
     Reaction,
     ReactionCount,
     ReactionToggleRequest,
@@ -11,22 +12,22 @@ export const REACTION_QUERY_KEYS = {
     all: ['reactions'] as const,
     posts: {
         all: () => [...REACTION_QUERY_KEYS.all, 'posts'] as const,
-        byId: (postId: number) =>
+        byId: (postId: UUIDv7) =>
             [...REACTION_QUERY_KEYS.posts.all(), postId] as const,
-        byUser: (postId: number) =>
+        byUser: (postId: UUIDv7) =>
             [...REACTION_QUERY_KEYS.posts.all(), 'user', postId] as const
     },
     comments: {
         all: () => [...REACTION_QUERY_KEYS.all, 'comments'] as const,
-        byId: (commentId: number) =>
+        byId: (commentId: UUIDv7) =>
             [...REACTION_QUERY_KEYS.comments.all(), commentId] as const,
-        byUser: (commentId: number) =>
+        byUser: (commentId: UUIDv7) =>
             [...REACTION_QUERY_KEYS.comments.all(), 'user', commentId] as const
     }
 };
 
 export async function fetchPostReactions(
-    postId: number,
+    postId: UUIDv7,
     token: string
 ): Promise<ReactionCount> {
     const response = await api.get<ReactionCount>(
@@ -40,7 +41,7 @@ export async function fetchPostReactions(
 
 // Function to fetch reactions for a comment
 export async function fetchCommentReactions(
-    commentId: number,
+    commentId: UUIDv7,
     token: string
 ): Promise<ReactionCount> {
     const response = await api.get<ReactionCount>(
@@ -54,7 +55,7 @@ export async function fetchCommentReactions(
 
 // Function to fetch user's reactions for a post
 export async function fetchUserPostReactions(
-    postId: number,
+    postId: UUIDv7,
     token: string
 ): Promise<Reaction[]> {
     const response = await api.get<Reaction[]>(
@@ -68,7 +69,7 @@ export async function fetchUserPostReactions(
 
 // Function to fetch user's reactions for a comment
 export async function fetchUserCommentReactions(
-    commentId: number,
+    commentId: UUIDv7,
     token: string
 ): Promise<Reaction[]> {
     const response = await api.get<Reaction[]>(

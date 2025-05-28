@@ -1,0 +1,13 @@
+{
+    "version": "0",
+    "dialect": "postgresql",
+    "entries": [
+        {
+            "idx": 0,
+            "version": "7",
+            "when": 1747617182980,
+            "tag": "0000_kind_madripoor",
+            "breakpoints": true
+        }
+    ]
+}

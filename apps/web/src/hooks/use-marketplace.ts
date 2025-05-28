@@ -1,8 +1,11 @@
-import { env } from '@/env';
-import { MarketListing, Order, User, Listing } from '@phyt/types';
 import { usePrivy } from '@privy-io/react-auth';
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAccount } from 'wagmi';
+
+import { UUIDv7, MarketListing, Order, User, Listing } from '@phyt/types';
+
+import { env } from '@/env';
 
 import { useExchange } from './use-exchange';
 import { useToast } from './use-toast';
@@ -198,7 +201,7 @@ export function useCreateListing(user: User) {
             takePrice,
             expiration // added parameter
         }: {
-            cardId: number;
+            cardId: UUIDv7;
             tokenId: number;
             takePrice: bigint;
             expiration: string; // e.g. an ISO string or UNIX timestamp string
@@ -235,11 +238,11 @@ export function useCreateListing(user: User) {
                             trader: order.trader,
                             side: order.side,
                             collection: order.collection,
-                            token_id: order.token_id.toString(),
-                            payment_token: order.payment_token,
+                            tokenId: order.tokenId.toString(),
+                            paymentToken: order.paymentToken,
                             price: order.price.toString(),
                             expiration_time: expiration,
-                            merkle_root: order.merkle_root,
+                            merkleRoot: order.merkleRoot,
                             salt: order.salt.toString()
                         },
                         user: user
@@ -308,16 +311,16 @@ export function usePurchaseListing() {
 
             // Convert the listing data into the Order format
             const sellOrder: Order = {
-                trader: listing.order_data.trader,
+                trader: listing.orderData.trader,
                 side: 'sell', // 1 for sell
-                collection: listing.order_data.collection,
-                token_id: BigInt(listing.order_data.token_id),
-                payment_token: listing.order_data.payment_token,
-                price: BigInt(listing.order_data.price),
-                expiration_time: BigInt(listing.order_data.expiration_time),
-                merkle_root:
+                collection: listing.orderData.collection,
+                tokenId: BigInt(listing.orderData.tokenId),
+                paymentToken: listing.orderData.paymentToken,
+                price: BigInt(listing.orderData.price),
+                expirationTime: BigInt(listing.orderData.expirationTime),
+                merkleRoot:
                     '0x0000000000000000000000000000000000000000000000000000000000000000' as `0x${string}`,
-                salt: BigInt(listing.order_data.salt)
+                salt: BigInt(listing.orderData.salt)
             };
 
             // Execute the purchase transaction
@@ -378,8 +381,8 @@ export function usePlaceBid() {
             cardId,
             bidAmount
         }: {
-            listingId: number;
-            cardId: number;
+            listingId: UUIDv7;
+            cardId: UUIDv7;
             bidAmount: bigint;
         }) => {
             const token = await getAccessToken();

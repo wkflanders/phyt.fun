@@ -1,8 +1,9 @@
 'use client';
 
-import { Loader2, Calendar, TrophyIcon, Layers } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
+
+import { Loader2, Calendar, TrophyIcon, Layers } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { useGetMajorCompetitions } from '@/hooks/use-competitions';
@@ -37,8 +38,8 @@ export const CompetitionMast = () => {
     const featuredCompetition = majorCompetitions[0];
 
     // Format dates
-    const startDate = new Date(featuredCompetition.start_time);
-    const endDate = new Date(featuredCompetition.end_time);
+    const startDate = new Date(featuredCompetition.startTime);
+    const endDate = new Date(featuredCompetition.endTime);
 
     const formatDate = (date: Date) => {
         return date.toLocaleDateString('en-US', {
@@ -74,7 +75,7 @@ export const CompetitionMast = () => {
             <div className="absolute inset-0 z-0">
                 <Image
                     src={imageUrl}
-                    alt={featuredCompetition.event_name}
+                    alt={featuredCompetition.eventName}
                     fill
                     className="object-cover"
                     priority
@@ -95,7 +96,7 @@ export const CompetitionMast = () => {
                 </div>
 
                 <h1 className="mb-2 text-4xl font-bold text-white">
-                    {featuredCompetition.event_name}
+                    {featuredCompetition.eventName}
                 </h1>
 
                 <div className="flex items-center mb-4 text-text-dim">
@@ -113,9 +114,9 @@ export const CompetitionMast = () => {
                     <span className="ml-0.5">1,000</span>
                 </div>
 
-                {featuredCompetition.distance_m && (
+                {featuredCompetition.distance && (
                     <p className="mb-6 text-text-dim">
-                        {featuredCompetition.distance_m} Miles
+                        {featuredCompetition.distance} Miles
                     </p>
                 )}
 

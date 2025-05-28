@@ -1,13 +1,15 @@
-import { formatSeasonName } from '@/lib/utils';
+import Image from 'next/image';
+import React, { useState } from 'react';
+
+import { Loader2 } from 'lucide-react';
+
+import { parseEther } from 'viem';
+
 import {
     OrderBookEntry,
     ListingModalProps,
     ExpirationOption
 } from '@phyt/types';
-import { Loader2 } from 'lucide-react';
-import Image from 'next/image';
-import React, { useState } from 'react';
-import { parseEther } from 'viem';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -20,6 +22,7 @@ import { useGetRunnerStanding } from '@/hooks/use-leaderboard';
 import { useCreateListing, useListings } from '@/hooks/use-marketplace';
 import { useGetRunner } from '@/hooks/use-runners';
 import { useToast } from '@/hooks/use-toast';
+import { formatSeasonName } from '@/lib/utils';
 
 export const expirationOptions: ExpirationOption[] = [
     { value: '1', label: '1 Hour' },
@@ -47,12 +50,12 @@ export const ListingModal = ({
     const { data: marketListings = [], isLoading: isLoadingListings } =
         useListings({ sort: 'price_asc' });
     const { data: runnerStanding, isLoading: isLoadingRunnerStanding } =
-        useGetRunnerStanding(card.metadata.runner_id, { timeFrame: 'allTime' });
-    const { data: runner } = useGetRunner(card.metadata.runner_id);
+        useGetRunnerStanding(card.metadata.runnerId, { timeFrame: 'allTime' });
+    const { data: runner } = useGetRunner(card.metadata.runnerId);
 
     const cardListings = marketListings.filter(
         (marketListing) =>
-            marketListing.metadata.runner_id === card.metadata.runner_id &&
+            marketListing.metadata.runnerId === card.metadata.runnerId &&
             marketListing.metadata.rarity === card.metadata.rarity
     );
 
@@ -98,7 +101,7 @@ export const ListingModal = ({
 
             await createListing.mutateAsync({
                 cardId: card.id,
-                tokenId: card.metadata.token_id,
+                tokenId: card.metadata.tokenId,
                 takePrice: price,
                 expiration: expiration.toISOString()
             });
@@ -125,8 +128,8 @@ export const ListingModal = ({
                     <div className="flex items-center justify-center">
                         <div className="relative w-full max-h-[calc(100vh-200px)] aspect-[2/3]">
                             <Image
-                                src={card.metadata.image_url}
-                                alt={card.metadata.runner_name}
+                                src={card.metadata.imageUrl}
+                                alt={card.metadata.runnerName}
                                 fill
                                 className="object-contain"
                             />
@@ -142,14 +145,14 @@ export const ListingModal = ({
                                     {formatSeasonName(card.metadata.season)}
                                 </span>
                             </div>
-                            <h1 className="text-3xl font-bold">{`${card.metadata.runner_name} #${String(card.metadata.token_id)}`}</h1>
+                            <h1 className="text-3xl font-bold">{`${card.metadata.runnerName} #${String(card.metadata.tokenId)}`}</h1>
                             <div className="flex items-center gap-2">
                                 <span className="text-sm text-text-dim">
                                     Opened on
                                 </span>
                                 <span className="text-sm font-medium">
                                     {new Date(
-                                        card.created_at
+                                        card.createdAt
                                     ).toLocaleDateString()}
                                 </span>
                             </div>
@@ -158,13 +161,13 @@ export const ListingModal = ({
                             <div className="flex items-center justify-between py-4 border-b border-white/10">
                                 <div className="flex items-center gap-2">
                                     <a
-                                        href={`/page/${String(runner?.runner_wallet)}`}
+                                        href={`/page/${String(runner?.runnerWallet)}`}
                                         className="flex items-center gap-2 "
                                     >
                                         <div className="relative w-6 h-6 rounded-full overflow-hidden hover:text-text-dim hover:cursor-pointer">
                                             <Image
                                                 src={
-                                                    runner?.avatar_url ??
+                                                    runner?.avatarUrl ??
                                                     DEFAULT_AVATAR
                                                 }
                                                 alt={user.username}
@@ -181,7 +184,7 @@ export const ListingModal = ({
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <a
-                                        href={`https://twitter.com/${user.twitter_handle ?? ''}`}
+                                        href={`https://twitter.com/${user.twitterHandle ?? ''}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="text-text-dim hover:text-text transition-colors"
@@ -195,7 +198,7 @@ export const ListingModal = ({
                                         </svg>
                                     </a>
                                     <a
-                                        href={`https://strava.com/athletes/${user.strava_handle ?? ''}`}
+                                        href={`https://strava.com/athletes/${user.stravaHandle ?? ''}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="text-text-dim hover:text-text transition-colors"
@@ -259,7 +262,7 @@ export const ListingModal = ({
                                     TOKEN ID
                                 </div>
                                 <div className="font-medium">
-                                    {card.metadata.token_id}
+                                    {card.metadata.tokenId}
                                 </div>
                             </div>
 

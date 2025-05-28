@@ -1,13 +1,15 @@
 'use client';
 
-import { cn } from '@/lib/utils';
-import { RunnerActivity } from '@phyt/types';
-import { Zap, Users, ArrowDown, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
 
+import { Zap, Users, ArrowDown, Loader2 } from 'lucide-react';
+
+import { RunnerActivity } from '@phyt/types';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useGetRunnerActivities } from '@/hooks/use-runners';
+import { cn } from '@/lib/utils';
 
 type TabType = 'all' | 'pooled';
 
@@ -107,13 +109,13 @@ interface ActivityItemProps {
 }
 
 const ActivityItem: React.FC<ActivityItemProps> = ({ activity }) => {
-    const distanceKm = (activity.distance_m / 1000).toFixed(1);
+    const distanceKm = (activity.distance / 1000).toFixed(1);
 
     return (
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
                 <Image
-                    src={activity.avatar_url}
+                    src={activity.avatarUrl}
                     alt={activity.username}
                     width={40}
                     height={40}
@@ -127,11 +129,11 @@ const ActivityItem: React.FC<ActivityItemProps> = ({ activity }) => {
                         </span>
                     </p>
                     <p className="text-phyt_text_secondary text-xs">
-                        Ran {distanceKm} km • {activity.time_ago}
+                        Ran {distanceKm} km • {activity.timeAgo}
                     </p>
                 </div>
             </div>
-            {activity.is_pooled && (
+            {activity.isPooled && (
                 <span className="bg-phyt_form px-2 py-1 rounded-md text-xs text-phyt_blue">
                     Pooled
                 </span>

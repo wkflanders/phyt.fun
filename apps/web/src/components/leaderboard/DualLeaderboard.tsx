@@ -1,7 +1,8 @@
 'use client';
-import { Trophy, Medal, Timer, Activity, Wallet, Award, TrendingUp, Target } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
+
+import { Trophy, Medal, Timer, Activity, Wallet, Award, TrendingUp, Target } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 

@@ -1,7 +1,9 @@
-import { User, CardWithMetadata } from '@phyt/types';
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import Image from 'next/image';
 import React, { useState } from 'react';
+
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+
+import { User, CardWithMetadata } from '@phyt/types';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -41,8 +43,8 @@ export const CardModal = ({ user, isOpen, onClose, card }: CardModalProps) => {
                     {/* (1,1) Card Image */}
                     <div className="col-span-1 row-span-1 flex justify-center items-center">
                         <Image
-                            src={card.metadata.image_url}
-                            alt={`Card ${String(card.metadata.token_id)}`}
+                            src={card.metadata.imageUrl}
+                            alt={`Card ${String(card.metadata.tokenId)}`}
                             width={200}
                             height={300}
                             className="rounded-lg w-[300px] h-[500px]"

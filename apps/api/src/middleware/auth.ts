@@ -1,0 +1,36 @@
+import { AuthenticationError } from '@phyt/models';
+
+import { privy } from '@phyt/infra';
+
+import { env } from '@/env.js';
+
+import { Request, Response, NextFunction } from 'express';
+
+export const validateAuth = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> => {
+    const authorizationHeader = req.headers.authorization;
+    if (!authorizationHeader?.startsWith('Bearer ')) {
+        throw new AuthenticationError('Missing authorization header');
+    }
+
+    const token = authorizationHeader.split(' ')[1];
+    if (!token) {
+        throw new AuthenticationError('Missing authorization header payload');
+    }
+
+    // Verify and type the token claims
+    const claims: { userId?: string } = await privy.verifyAuthToken(
+        token,
+        env.PRIVY_VERIFICATION_KEY
+    );
+
+    if (!claims.userId) {
+        throw new AuthenticationError('Invalid token claims');
+    }
+
+    req.body = { privyId: claims.userId };
+    next();
+};

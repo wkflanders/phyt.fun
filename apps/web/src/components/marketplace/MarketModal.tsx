@@ -1,9 +1,13 @@
-import { CardRarity, Listing, MarketListing } from '@phyt/types';
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
-import { Loader2, Heart, MessageCircle, Share2 } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
+
+import { Loader2, Heart, MessageCircle, Share2 } from 'lucide-react';
+
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+
 import { formatEther } from 'viem';
+
+import { CardRarity, Listing, MarketListing } from '@phyt/types';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -61,8 +65,8 @@ export const MarketModal = ({
                     {/* (1,1) Card Image */}
                     <div className="col-span-1 row-span-1 flex justify-center items-center">
                         <Image
-                            src={marketListing.metadata.image_url}
-                            alt={`Card ${String(marketListing.listing.order_data.token_id)}`}
+                            src={marketListing.metadata.imageUrl}
+                            alt={`Card ${String(marketListing.listing.orderData.tokenId)}`}
                             width={200}
                             height={300}
                             className="rounded-lg w-[300px] h-[500px]"
@@ -101,7 +105,7 @@ export const MarketModal = ({
                                         {formatEther(
                                             BigInt(
                                                 marketListing.listing
-                                                    .highest_bid ?? 0
+                                                    .highestBid ?? 0
                                             )
                                         )}{' '}
                                         ETH

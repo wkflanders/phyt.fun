@@ -1,5 +1,6 @@
-import { Trophy, Users, Timer } from 'lucide-react';
 import React from 'react';
+
+import { Trophy, Users, Timer } from 'lucide-react';
 
 import CompetitionsList from '@/components/competitions/CompetitionsList';
 import { Card, CardContent } from '@/components/ui/card';

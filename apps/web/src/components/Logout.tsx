@@ -1,7 +1,8 @@
 'use client';
-import { usePrivy } from '@privy-io/react-auth';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+
+import { usePrivy } from '@privy-io/react-auth';
 
 import { Button } from './ui/button';
 

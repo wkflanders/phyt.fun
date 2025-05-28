@@ -1,4 +1,9 @@
+import { usePrivy } from '@privy-io/react-auth';
+
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
 import {
+    UUIDv7,
     ApiError,
     Reaction,
     ReactionCount,
@@ -6,8 +11,6 @@ import {
     ReactionToggleResponse,
     AuthenticationError
 } from '@phyt/types';
-import { usePrivy } from '@privy-io/react-auth';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { POST_QUERY_KEYS } from '@/queries/posts';
 import {
@@ -19,7 +22,7 @@ import {
     REACTION_QUERY_KEYS
 } from '@/queries/reactions';
 
-export function usePostReactions(postId: number) {
+export function usePostReactions(postId: UUIDv7) {
     const { getAccessToken } = usePrivy();
 
     return useQuery<ReactionCount, ApiError>({
@@ -37,7 +40,7 @@ export function usePostReactions(postId: number) {
     });
 }
 
-export function useCommentReactions(commentId: number) {
+export function useCommentReactions(commentId: UUIDv7) {
     const { getAccessToken } = usePrivy();
 
     return useQuery<ReactionCount, ApiError>({
@@ -55,7 +58,7 @@ export function useCommentReactions(commentId: number) {
     });
 }
 
-export function useUserPostReactions(postId: number) {
+export function useUserPostReactions(postId: UUIDv7) {
     const { getAccessToken } = usePrivy();
 
     return useQuery<Reaction[], ApiError>({
@@ -73,7 +76,7 @@ export function useUserPostReactions(postId: number) {
     });
 }
 
-export function useUserCommentReactions(commentId: number) {
+export function useUserCommentReactions(commentId: UUIDv7) {
     const { getAccessToken } = usePrivy();
 
     return useQuery<Reaction[], ApiError>({
@@ -108,15 +111,15 @@ export function useToggleReaction() {
             },
             onSuccess: (_, variables) => {
                 // Invalidate queries for reacting to a post
-                if (variables.post_id) {
+                if (variables.postId) {
                     queryClient.invalidateQueries({
                         queryKey: REACTION_QUERY_KEYS.posts.byId(
-                            variables.post_id
+                            variables.postId
                         )
                     });
                     queryClient.invalidateQueries({
                         queryKey: REACTION_QUERY_KEYS.posts.byUser(
-                            variables.post_id
+                            variables.postId
                         )
                     });
 
@@ -125,20 +128,20 @@ export function useToggleReaction() {
                         queryKey: POST_QUERY_KEYS.all
                     });
                     queryClient.invalidateQueries({
-                        queryKey: POST_QUERY_KEYS.detail(variables.post_id)
+                        queryKey: POST_QUERY_KEYS.detail(variables.postId)
                     });
                 }
 
                 // Invalidate queries for reacting to a comment
-                if (variables.comment_id) {
+                if (variables.commentId) {
                     queryClient.invalidateQueries({
                         queryKey: REACTION_QUERY_KEYS.comments.byId(
-                            variables.comment_id
+                            variables.commentId
                         )
                     });
                     queryClient.invalidateQueries({
                         queryKey: REACTION_QUERY_KEYS.comments.byUser(
-                            variables.comment_id
+                            variables.commentId
                         )
                     });
                 }

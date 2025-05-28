@@ -1,4 +1,4 @@
-import { PostQueryParams, PostResponse, Post } from '@phyt/types';
+import { UUIDv7, PostQueryParams, PostResponse, Post } from '@phyt/types';
 
 import { api } from '@/lib/api';
 
@@ -8,8 +8,8 @@ export const POST_QUERY_KEYS = {
     list: (filters: PostQueryParams) =>
         [...POST_QUERY_KEYS.lists(), filters] as const,
     details: () => [...POST_QUERY_KEYS.all, 'detail'] as const,
-    detail: (id: number) => [...POST_QUERY_KEYS.details(), id] as const,
-    userPosts: (userId: number, params?: { page?: number; limit?: number }) =>
+    detail: (id: UUIDv7) => [...POST_QUERY_KEYS.details(), id] as const,
+    userPosts: (userId: UUIDv7, params?: { page?: number; limit?: number }) =>
         ['userPosts', userId, params] as const
 };
 
@@ -26,7 +26,7 @@ export async function fetchPosts(
 
 // Function to fetch a specific post by ID
 export async function fetchPostById(
-    postId: number,
+    postId: UUIDv7,
     token: string
 ): Promise<Post> {
     const response = await api.get<Post>(`/posts/${String(postId)}`, {
@@ -37,7 +37,7 @@ export async function fetchPostById(
 
 // Function to fetch posts by a specific user
 export async function fetchUserPosts(
-    userId: number,
+    userId: UUIDv7,
     { page = 1, limit = 10 }: PostQueryParams = {},
     token: string
 ): Promise<PostResponse> {
@@ -53,7 +53,7 @@ export async function fetchUserPosts(
 
 // Function to create a new post
 export async function createPost(
-    postData: { run_id: number; content?: string },
+    postData: { runId: UUIDv7; content: string | null },
     token: string
 ): Promise<Post> {
     const response = await api.post<Post>(`/posts`, postData, {
@@ -65,7 +65,7 @@ export async function createPost(
 // Function to update a post's status
 export async function updatePostStatus(
     updatePostData: {
-        postId: number;
+        postId: UUIDv7;
         status: 'visible' | 'hidden' | 'deleted';
     },
     token: string
@@ -78,7 +78,7 @@ export async function updatePostStatus(
 }
 
 // Function to delete a post
-export async function deletePost(postId: number, token: string): Promise<Post> {
+export async function deletePost(postId: UUIDv7, token: string): Promise<Post> {
     const response = await api.delete<Post>(`/posts/${String(postId)}`, {
         headers: { Authorization: `Bearer ${token}` }
     });

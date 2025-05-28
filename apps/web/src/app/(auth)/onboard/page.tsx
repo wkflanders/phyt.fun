@@ -1,14 +1,16 @@
 'use client';
 
-import { onboardFormSchema } from '@/lib/validation';
-import { ApiError, CreateUserFormData } from '@phyt/types';
-import { usePrivy } from '@privy-io/react-auth';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
+
+import { usePrivy } from '@privy-io/react-auth';
+
+import { ApiError, CreateUserFormData } from '@phyt/types';
 
 import { OnboardForm } from '@/components/OnboardForm';
 import { useToast } from '@/hooks/use-toast';
 import { useCreateUser, useGetUser } from '@/hooks/use-users';
+import { onboardFormSchema } from '@/lib/validation';
 
 export default function OnboardPage() {
     const router = useRouter();
@@ -43,9 +45,9 @@ export default function OnboardPage() {
 
             // Add additional user data to FormData
             typedFormData.append('email', user.google.email);
-            typedFormData.append('privy_id', user.id);
+            typedFormData.append('privyId', user.id);
             if (user.wallet?.address) {
-                typedFormData.append('wallet_address', user.wallet.address);
+                typedFormData.append('walletAddress', user.wallet.address);
             }
 
             await createUser.mutateAsync({ formData: typedFormData });

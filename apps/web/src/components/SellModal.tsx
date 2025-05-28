@@ -1,8 +1,11 @@
-import { CardWithMetadata, Listing, User } from '@phyt/types';
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import Image from 'next/image';
 import React, { useState } from 'react';
+
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+
 import { parseEther } from 'viem';
+
+import { CardWithMetadata, Listing, User } from '@phyt/types';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -64,7 +67,7 @@ export const SellModal = ({ user, isOpen, onClose, card }: SellModalProps) => {
 
     const cardListings = marketListings.filter(
         (marketListing) =>
-            marketListing.metadata.runner_id === card.metadata.runner_id &&
+            marketListing.metadata.runnerId === card.metadata.runnerId &&
             marketListing.metadata.rarity === card.metadata.rarity
     );
 
@@ -94,7 +97,7 @@ export const SellModal = ({ user, isOpen, onClose, card }: SellModalProps) => {
         highestBid && highestBid !== 0n ? cardListings[0].listing : null;
 
     const handleCreateListing = async () => {
-        if (card.owner_id !== user.id) {
+        if (card.ownerId !== user.id) {
             toast({
                 title: 'Error',
                 description: 'You do not own this card',
@@ -117,7 +120,7 @@ export const SellModal = ({ user, isOpen, onClose, card }: SellModalProps) => {
 
             await createListing.mutateAsync({
                 cardId: card.id,
-                tokenId: card.token_id,
+                tokenId: card.tokenId,
                 takePrice: parsedListingPrice,
                 expiration: expiration.toISOString()
             });
@@ -167,8 +170,8 @@ export const SellModal = ({ user, isOpen, onClose, card }: SellModalProps) => {
                 {/* Card Image */}
                 <div className="flex justify-center">
                     <Image
-                        src={card.metadata.image_url}
-                        alt={`Card ${String(card.metadata.token_id)}`}
+                        src={card.metadata.imageUrl}
+                        alt={`Card ${String(card.metadata.tokenId)}`}
                         width={100}
                         height={150}
                         className="rounded-lg"

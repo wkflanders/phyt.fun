@@ -23,11 +23,13 @@
                 "SERVER_ADDRESS",
                 "SERVER_PRIVATE_KEY",
                 "SERVER_PORT",
+                "ADMIN_IDS",
                 "POSTGRES_HOST",
                 "POSTGRES_PORT",
                 "POSTGRES_USER",
                 "POSTGRES_PASSWORD",
                 "POSTGRES_DB",
+                "POSTGRES_URL",
                 "FRONTEND_URL",
                 "AWS_REGION",
                 "AWS_ACCESS_KEY",
@@ -50,26 +52,78 @@
             "dependsOn": ["@phyt/eslint#build"],
             "outputs": ["dist/**"]
         },
-        "@phyt/database#build": {
+        "@phyt/models#build": {
             "dependsOn": ["@phyt/types#build"],
             "outputs": ["dist/**"]
         },
+        "@phyt/aws#build": {
+            "dependsOn": ["@phyt/types#build", "@phyt/models#build"],
+            "outputs": ["dist/**"]
+        },
+        "@phyt/drizzle#build": {
+            "dependsOn": ["@phyt/models#build"],
+            "outputs": ["dist/**"]
+        },
+        "@phyt/repositories#build": {
+            "dependsOn": ["@phyt/drizzle#build", "@phyt/aws#build"],
+            "outputs": ["dist/**"]
+        },
+        "@phyt/dto#build": {
+            "dependsOn": ["@phyt/repositories#build"],
+            "outputs": ["dist/**"]
+        },
+        "@phyt/services#build": {
+            "dependsOn": ["@phyt/dto#build"],
+            "outputs": ["dist/**"]
+        },
         "@phyt/server#build": {
-            "dependsOn": ["@phyt/database#build", "@phyt/contracts#build"],
+            "dependsOn": ["@phyt/services#build"],
             "outputs": ["dist/**"]
         },
         "@phyt/web#build": {
-            "dependsOn": ["@phyt/database#build", "@phyt/server#build"],
+            "dependsOn": ["@phyt/drizzle#build", "@phyt/server#build"],
             "outputs": [".next/**"]
         },
         "type-check": {
             "dependsOn": ["^type-check"]
         },
         "lint": {
-            "dependsOn": ["type-check", "^lint"]
+            "dependsOn": ["^lint"]
         },
         "lint:fix": {
-            "dependsOn": ["type-check", "^lint:fix"]
+            "dependsOn": ["^lint:fix"]
+        },
+        "@phyt/types#lint:fix": {
+            "dependsOn": ["@phyt/eslint#lint:fix"]
+        },
+        "@phyt/models#lint:fix": {
+            "dependsOn": ["@phyt/eslint#lint:fix"]
+        },
+        "@phyt/aws#lint:fix": {
+            "dependsOn": ["@phyt/models#lint:fix", "@phyt/types#lint:fix"]
+        },
+        "@phyt/repositories#lint:fix": {
+            "dependsOn": ["@phyt/models#build", "@phyt/aws#build"]
+        },
+        "@phyt/dto#lint:fix": {
+            "dependsOn": ["@phyt/models#lint:fix"]
+        },
+        "@phyt/drizzle#lint:fix": {
+            "dependsOn": [
+                "@phyt/models#lint:fix",
+                "@phyt/repositories#lint:fix",
+                "@phyt/dto#lint:fix"
+            ]
+        },
+        "@phyt/web#lint:fix": {
+            "dependsOn": ["@phyt/drizzle#lint:fix", "@phyt/contracts#lint:fix"]
+        },
+        "@phyt/server#lint:fix": {
+            "dependsOn": [
+                "@phyt/drizzle#lint:fix",
+                "@phyt/web#lint:fix",
+                "@phyt/aws#lint:fix"
+            ]
         },
         "dev": {
             "cache": false,

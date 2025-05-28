@@ -1,4 +1,8 @@
-import { cn } from '@/lib/utils';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import React, { useState } from 'react';
+
 import {
     Home,
     PackageSearch,
@@ -7,10 +11,8 @@ import {
     BarChart2,
     Gift
 } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import React, { useState } from 'react';
+
+import { cn } from '@/lib/utils';
 
 export const Sidebar = () => {
     const pathname = usePathname();

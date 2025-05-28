@@ -1,7 +1,8 @@
-import { Search } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+
+import { Search } from 'lucide-react';
 
 import {
     Command,
@@ -123,7 +124,7 @@ export function CommandSearch() {
                                                                 >
                                                                     <Image
                                                                         src={
-                                                                            runner.avatar_url
+                                                                            runner.avatarUrl
                                                                         }
                                                                         alt={
                                                                             runner.username
@@ -187,7 +188,7 @@ export function CommandSearch() {
                                                                     <div className="flex items-center gap-3">
                                                                         <Image
                                                                             src={
-                                                                                runner.avatar_url
+                                                                                runner.avatarUrl
                                                                             }
                                                                             alt={
                                                                                 runner.username

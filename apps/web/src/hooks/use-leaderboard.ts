@@ -1,4 +1,9 @@
+import { usePrivy } from '@privy-io/react-auth';
+
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
 import {
+    UUIDv7,
     LeaderboardQueryParams,
     RunnerLeaderboard,
     ManagerLeaderboard,
@@ -7,8 +12,6 @@ import {
     ManagerStanding,
     RunnerStanding
 } from '@phyt/types';
-import { usePrivy } from '@privy-io/react-auth';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import {
     getManagerLeaderboard,
@@ -60,7 +63,7 @@ export function useGetManagerLeaderboard(params: LeaderboardQueryParams) {
 }
 
 export function useGetManagerStanding(
-    id: string | number,
+    id: UUIDv7 | string,
     params: LeaderboardQueryParams
 ) {
     const { getAccessToken } = usePrivy();
@@ -86,7 +89,7 @@ export function useGetManagerStanding(
 }
 
 export function useGetRunnerStanding(
-    id: string | number,
+    id: UUIDv7 | string,
     params: LeaderboardQueryParams
 ) {
     const { getAccessToken } = usePrivy();

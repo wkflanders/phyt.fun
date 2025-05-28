@@ -1,6 +1,8 @@
 'use client';
 
-import { cn } from '@/lib/utils';
+import Image from 'next/image';
+import React, { useState } from 'react';
+
 import { formatDistanceToNow } from 'date-fns';
 import {
     Heart,
@@ -13,12 +15,11 @@ import {
     ArrowDown,
     TrendingUp
 } from 'lucide-react';
-import Image from 'next/image';
-import React, { useState } from 'react';
 
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetPosts, useDeletePost } from '@/hooks/use-posts';
 import { useToggleReaction } from '@/hooks/use-reactions';
+import { cn } from '@/lib/utils';
 
 type PostFilter = 'all' | 'following' | 'trending';
 
@@ -343,7 +344,7 @@ export const Feed: React.FC = () => {
                     const stats = postData.stats;
 
                     const timeAgo = formatDistanceToNow(
-                        new Date(post.created_at),
+                        new Date(post.createdAt),
                         { addSuffix: true }
                     );
 
@@ -358,8 +359,7 @@ export const Feed: React.FC = () => {
                                     <div className="flex items-center gap-5">
                                         <Image
                                             src={
-                                                user.avatar_url ??
-                                                DEFAULT_AVATAR
+                                                user.avatarUrl ?? DEFAULT_AVATAR
                                             }
                                             alt={user.username}
                                             width={40}
@@ -388,8 +388,8 @@ export const Feed: React.FC = () => {
 
                                 {/* Run Map */}
                                 <RunMap
-                                    gpsRouteData={run.gps_route_data}
-                                    distanceInMeters={run.distance_m}
+                                    gpsRouteData={run.gpsRouteData}
+                                    distanceInMeters={run.distance}
                                 />
 
                                 {/* Metrics */}
@@ -397,17 +397,17 @@ export const Feed: React.FC = () => {
                                     <MetricWidget
                                         icon={Ruler}
                                         label="Distance"
-                                        value={formatDistance(run.distance_m)}
+                                        value={formatDistance(run.distance)}
                                     />
                                     <MetricWidget
                                         icon={Timer}
                                         label="Pace"
-                                        value={`${formatPace(run.average_pace_sec)} /mi`}
+                                        value={`${formatPace(run.averagePaceSec)} /mi`}
                                     />
                                     <MetricWidget
                                         icon={Navigation}
                                         label="Time"
-                                        value={formatTime(run.duration_seconds)}
+                                        value={formatTime(run.durationSeconds)}
                                     />
                                 </div>
 

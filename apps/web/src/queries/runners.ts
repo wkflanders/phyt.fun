@@ -1,10 +1,10 @@
-import { RunnerProfile, RunnerActivity } from '@phyt/types';
+import { UUIDv7, RunnerProfile, RunnerActivity } from '@phyt/types';
 
 import { api } from '@/lib/api';
 
 export const getRunnersQueryKey = () => ['runners'];
 export const RUNNER_ACTIVITIES_QUERY_KEY = 'runnerActivities';
-export const getRunnerQueryKey = (id: number) => ['runners', id];
+export const getRunnerQueryKey = (id: UUIDv7) => ['runners', id];
 
 export async function getRunners(
     token: string,
@@ -18,7 +18,7 @@ export async function getRunners(
 }
 
 export async function getRunner(
-    id: number,
+    id: UUIDv7,
     token: string
 ): Promise<RunnerProfile> {
     const response = await api.get<RunnerProfile>(

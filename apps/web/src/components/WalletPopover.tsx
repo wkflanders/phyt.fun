@@ -1,3 +1,5 @@
+import React, { useState } from 'react';
+
 import { usePrivy, useFundWallet } from '@privy-io/react-auth';
 import {
     Wallet,
@@ -12,7 +14,7 @@ import {
     ArrowUp,
     Download
 } from 'lucide-react';
-import React, { useState } from 'react';
+
 import { formatEther } from 'viem';
 import { useAccount, useBalance } from 'wagmi';
 
@@ -202,7 +204,7 @@ export const WalletPopover: React.FC = () => {
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
-                                            {tx.from_user_id === user?.id ? (
+                                            {tx.fromUserId === user?.id ? (
                                                 <ArrowUp
                                                     className="text-red-500"
                                                     size={16}
@@ -215,14 +217,13 @@ export const WalletPopover: React.FC = () => {
                                             )}
                                             <div>
                                                 <p className="text-md text-text">
-                                                    {tx.from_user_id ===
-                                                    user?.id
+                                                    {tx.fromUserId === user?.id
                                                         ? 'Sent'
                                                         : 'Received'}
                                                 </p>
                                                 <p className="text-xs text-text-dim">
                                                     {formatTimestamp(
-                                                        tx.created_at
+                                                        tx.createdAt
                                                     )}
                                                 </p>
                                             </div>
@@ -232,7 +233,7 @@ export const WalletPopover: React.FC = () => {
                                                 {tx.price} Tokens
                                             </p>
                                             <p className="text-xs text-text-dim">
-                                                {tx.transaction_type}
+                                                {tx.transactionType}
                                             </p>
                                         </div>
                                     </div>

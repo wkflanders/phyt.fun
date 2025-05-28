@@ -1,4 +1,9 @@
+import { usePrivy } from '@privy-io/react-auth';
+
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
 import {
+    UUIDv7,
     ApiError,
     AuthenticationError,
     CommentQueryParams,
@@ -6,8 +11,6 @@ import {
     CommentUpdateRequest,
     CommentResponse
 } from '@phyt/types';
-import { usePrivy } from '@privy-io/react-auth';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import {
     fetchPostComments,
@@ -23,17 +26,17 @@ import { POST_QUERY_KEYS } from '@/queries/posts';
 import { useToast } from './use-toast';
 
 export function usePostComments(
-    postId: number,
+    postId: UUIDv7,
     params: CommentQueryParams = {}
 ) {
-    const { page = 1, limit = 20, parent_only = false } = params;
+    const { page = 1, limit = 20, parentOnly = false } = params;
     const { getAccessToken } = usePrivy();
 
     return useQuery<CommentResponse, ApiError>({
         queryKey: COMMENT_QUERY_KEYS.postComments(postId, {
             page,
             limit,
-            parent_only
+            parentOnly
         }),
         queryFn: async () => {
             const token = await getAccessToken();
@@ -44,7 +47,7 @@ export function usePostComments(
             }
             return fetchPostComments(
                 postId,
-                { page, limit, parent_only },
+                { page, limit, parentOnly },
                 token
             );
         },
@@ -53,7 +56,7 @@ export function usePostComments(
 }
 
 export function useCommentReplies(
-    commentId: number,
+    commentId: UUIDv7,
     params: CommentQueryParams = {}
 ) {
     const { page = 1, limit = 20 } = params;
@@ -75,7 +78,7 @@ export function useCommentReplies(
     });
 }
 
-export function useComment(commentId: number) {
+export function useComment(commentId: UUIDv7) {
     const { getAccessToken } = usePrivy();
 
     return useQuery<Comment, ApiError>({
@@ -115,21 +118,21 @@ export function useCreateComment() {
             });
 
             // Invalidate relevant queries
-            if (variables.parent_comment_id) {
+            if (variables.parentCommentId) {
                 queryClient.invalidateQueries({
                     queryKey: COMMENT_QUERY_KEYS.replies(
-                        variables.parent_comment_id
+                        variables.parentCommentId
                     )
                 });
             } else {
                 queryClient.invalidateQueries({
-                    queryKey: COMMENT_QUERY_KEYS.postComments(variables.post_id)
+                    queryKey: COMMENT_QUERY_KEYS.postComments(variables.postId)
                 });
             }
 
             // Also invalidate the post to update comment count
             queryClient.invalidateQueries({
-                queryKey: POST_QUERY_KEYS.detail(variables.post_id)
+                queryKey: POST_QUERY_KEYS.detail(variables.postId)
             });
         },
         onError: (error: ApiError) => {
@@ -164,7 +167,7 @@ export function useUpdateComment() {
                 description: 'Comment updated successfully'
             });
             queryClient.invalidateQueries({
-                queryKey: COMMENT_QUERY_KEYS.detail(variables.comment_id)
+                queryKey: COMMENT_QUERY_KEYS.detail(variables.commentId)
             });
         },
         onError: (error: ApiError) => {
@@ -183,7 +186,7 @@ export function useDeleteComment() {
     const { toast } = useToast();
     const { getAccessToken } = usePrivy();
 
-    return useMutation<Comment, ApiError, number>({
+    return useMutation<Comment, ApiError, UUIDv7>({
         mutationFn: async (commentId) => {
             const token = await getAccessToken();
             if (!token) {
