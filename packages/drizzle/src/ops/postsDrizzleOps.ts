@@ -1,4 +1,4 @@
-import { eq, desc, count, isNull, and } from 'drizzle-orm';
+import { eq, desc, count, isNull, and, InferSelectModel } from 'drizzle-orm';
 import { uuidv7 } from 'uuidv7';
 
 // eslint-disable-next-line no-restricted-imports
@@ -13,11 +13,25 @@ import type {
     PostQueryParams,
     Post,
     PaginatedPosts,
-    PostWithUser,
-    PostStatus
+    PostStatus,
+    Run,
+    PostStats,
+    AvatarUrl
 } from '@phyt/types';
 
-const toPost = (postRow: typeof posts.$inferSelect): Post => ({
+const toPost = ({
+    postRow,
+    username,
+    avatarUrl,
+    stats,
+    run
+}: {
+    postRow: InferSelectModel<typeof posts>;
+    username?: string;
+    avatarUrl?: AvatarUrl;
+    stats?: PostStats;
+    run?: Run;
+}): Post => ({
     id: postRow.id as UUIDv7,
     userId: postRow.userId as UUIDv7,
     runId: postRow.runId as UUIDv7 | null,
@@ -25,74 +39,81 @@ const toPost = (postRow: typeof posts.$inferSelect): Post => ({
     content: postRow.content,
     status: postRow.status as PostStatus,
     createdAt: postRow.createdAt,
-    updatedAt: postRow.updatedAt
-});
-
-const toPostWithUser = (
-    post: typeof posts.$inferSelect,
-    user: typeof users.$inferSelect | null
-): PostWithUser => ({
-    ...toPost(post),
-    username: user?.username ?? '',
-    avatarUrl: user?.avatarUrl ?? ''
+    updatedAt: postRow.updatedAt,
+    deletedAt: postRow.deletedAt,
+    ...(username !== undefined ? { username } : {}),
+    ...(avatarUrl !== undefined ? { avatarUrl } : {}),
+    ...(stats !== undefined ? { stats } : {}),
+    ...(run !== undefined ? { run } : {})
 });
 
 export type PostsDrizzleOps = ReturnType<typeof makePostsDrizzleOps>;
 
-export const makePostsDrizzleOps = (db: DrizzleDB) => {
-    const create = async (data: PostInsert): Promise<Post> => {
+export const makePostsDrizzleOps = ({ db }: { db: DrizzleDB }) => {
+    const create = async ({ input }: { input: PostInsert }): Promise<Post> => {
         const [row] = await db
             .insert(posts)
             .values({
-                ...data,
+                ...input,
                 id: uuidv7()
             })
             .returning();
 
-        return toPost(row);
+        return toPost({ postRow: row });
     };
 
-    const findById = async (postId: UUIDv7): Promise<Post> => {
+    const findById = async ({ postId }: { postId: UUIDv7 }): Promise<Post> => {
         const [row] = await db
             .select()
             .from(posts)
             .where(and(eq(posts.id, postId), isNull(posts.deletedAt)))
             .limit(1);
 
-        return toPost(row);
+        return toPost({ postRow: row });
     };
 
-    const list = (
-        params: PostQueryParams
-    ): Promise<PaginatedPosts<PostWithUser>> =>
+    const list = async ({
+        params
+    }: {
+        params: PostQueryParams;
+    }): Promise<PaginatedPosts> =>
         paginate(
             and(eq(posts.status, 'visible'), isNull(posts.deletedAt)),
             params
         );
 
-    const listByUser = (
-        userId: UUIDv7,
-        params: PostQueryParams
-    ): Promise<PaginatedPosts<PostWithUser>> =>
+    const listByUser = async ({
+        userId,
+        params
+    }: {
+        userId: UUIDv7;
+        params: PostQueryParams;
+    }): Promise<PaginatedPosts> =>
         paginate(
             and(eq(posts.userId, userId), isNull(posts.deletedAt)),
             params
         );
 
-    const update = async (postId: UUIDv7, data: PostUpdate): Promise<Post> => {
+    const update = async ({
+        postId,
+        update
+    }: {
+        postId: UUIDv7;
+        update: PostUpdate;
+    }): Promise<Post> => {
         const [row] = await db
             .update(posts)
             .set({
-                ...data,
+                ...update,
                 updatedAt: new Date()
             })
             .where(eq(posts.id, postId))
             .returning();
 
-        return toPost(row);
+        return toPost({ postRow: row });
     };
 
-    const remove = async (postId: UUIDv7): Promise<Post> => {
+    const remove = async ({ postId }: { postId: UUIDv7 }): Promise<Post> => {
         const [row] = await db
             .update(posts)
             .set({
@@ -101,22 +122,26 @@ export const makePostsDrizzleOps = (db: DrizzleDB) => {
             .where(eq(posts.id, postId))
             .returning();
 
-        return toPost(row);
+        return toPost({ postRow: row });
     };
 
-    const unsafeRemove = async (postId: UUIDv7): Promise<Post> => {
+    const unsafeRemove = async ({
+        postId
+    }: {
+        postId: UUIDv7;
+    }): Promise<Post> => {
         const [row] = await db
             .delete(posts)
             .where(eq(posts.id, postId))
             .returning();
 
-        return toPost(row);
+        return toPost({ postRow: row });
     };
 
     const paginate = async (
         cond: ReturnType<typeof eq> | ReturnType<typeof and>,
         params: PostQueryParams
-    ): Promise<PaginatedPosts<PostWithUser>> => {
+    ): Promise<PaginatedPosts> => {
         const { page = 1, limit = 20 } = params;
         const offset = (page - 1) * limit;
 
@@ -137,7 +162,13 @@ export const makePostsDrizzleOps = (db: DrizzleDB) => {
             .offset(offset);
 
         return {
-            posts: rows.map(({ post, user }) => toPostWithUser(post, user)),
+            posts: rows.map(({ post, user }) =>
+                toPost({
+                    postRow: post,
+                    username: user?.username,
+                    avatarUrl: user?.avatarUrl
+                })
+            ),
             pagination: {
                 page,
                 limit,

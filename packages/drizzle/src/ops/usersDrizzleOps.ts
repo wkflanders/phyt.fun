@@ -1,21 +1,29 @@
-import { eq, or, desc, count, isNull, and } from 'drizzle-orm';
+import {
+    eq,
+    or,
+    desc,
+    count,
+    isNull,
+    and,
+    InferSelectModel
+} from 'drizzle-orm';
 import { uuidv7 } from 'uuidv7';
 
 // eslint-disable-next-line no-restricted-imports
 import { DrizzleDB } from '../db.js';
 // eslint-disable-next-line no-restricted-imports
 import {
+    users,
+    runners,
     cards,
     competitions,
-    transactions,
-    users,
-    runners
+    transactions
 } from '../schema.js';
 
 import type {
     UUIDv7,
+    PrivyId,
     User,
-    UserWithStatus,
     UserInsert,
     UserUpdate,
     UserQueryParams,
@@ -26,7 +34,13 @@ import type {
     RunnerStatus
 } from '@phyt/types';
 
-const toUser = (userRow: typeof users.$inferSelect): User => {
+const toUser = ({
+    userRow,
+    status
+}: {
+    userRow: InferSelectModel<typeof users>;
+    status?: RunnerStatus;
+}): User => {
     return {
         id: userRow.id as UUIDv7,
         email: userRow.email,
@@ -39,57 +53,61 @@ const toUser = (userRow: typeof users.$inferSelect): User => {
         twitterHandle: userRow.twitterHandle,
         stravaHandle: userRow.stravaHandle,
         createdAt: userRow.createdAt,
-        updatedAt: userRow.updatedAt
-    };
-};
-
-const toUserWithStatus = (
-    userRow: typeof users.$inferSelect,
-    status: RunnerStatus
-): UserWithStatus => {
-    return {
-        ...toUser(userRow),
-        status
+        updatedAt: userRow.updatedAt,
+        deletedAt: userRow.deletedAt,
+        ...(status !== undefined ? { status } : {})
     };
 };
 
 export type UsersDrizzleOps = ReturnType<typeof makeUsersDrizzleOps>;
 
-export const makeUsersDrizzleOps = (db: DrizzleDB) => {
-    const create = async (data: UserInsert): Promise<User> => {
+export const makeUsersDrizzleOps = ({ db }: { db: DrizzleDB }) => {
+    const create = async ({ input }: { input: UserInsert }): Promise<User> => {
         const [row] = await db
             .insert(users)
-            .values({ ...data, id: uuidv7() })
+            .values({ ...input, id: uuidv7() })
             .returning();
 
-        return toUser(row);
+        return toUser({ userRow: row });
     };
 
-    const update = async (userId: UUIDv7, data: UserUpdate): Promise<User> => {
+    const update = async ({
+        userId,
+        update
+    }: {
+        userId: UUIDv7;
+        update: UserUpdate;
+    }): Promise<User> => {
         const [row] = await db
             .update(users)
             .set({
-                ...data,
+                ...update,
                 updatedAt: new Date()
             })
             .where(eq(users.id, userId))
             .returning();
 
-        return toUser(row);
+        return toUser({ userRow: row });
     };
 
-    const findByPrivyId = async (privyId: string): Promise<User> => {
+    const findByPrivyId = async ({
+        privyId
+    }: {
+        privyId: PrivyId;
+    }): Promise<User> => {
         const [row] = await db
             .select()
             .from(users)
             .where(and(eq(users.privyId, privyId), isNull(users.deletedAt)));
 
-        return toUser(row);
+        return toUser({ userRow: row });
     };
 
-    const findByPrivyIdWithStatus = async (
-        privyId: string
-    ): Promise<UserWithStatus> => {
+    const findByPrivyIdWithStatus = async ({
+        privyId
+    }: {
+        privyId: PrivyId;
+    }): Promise<User> => {
         const [row] = await db
             .select({
                 user: users,
@@ -99,21 +117,23 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
             .leftJoin(runners, eq(users.id, runners.userId))
             .where(and(eq(users.privyId, privyId), isNull(users.deletedAt)));
 
-        return toUserWithStatus(row.user, row.status ?? 'inactive');
+        return toUser({ userRow: row.user, status: row.status ?? undefined });
     };
 
-    const findById = async (userId: UUIDv7): Promise<User> => {
+    const findById = async ({ userId }: { userId: UUIDv7 }): Promise<User> => {
         const [row] = await db
             .select()
             .from(users)
             .where(and(eq(users.id, userId), isNull(users.deletedAt)));
 
-        return toUser(row);
+        return toUser({ userRow: row });
     };
 
-    const findByIdWithStatus = async (
-        userId: UUIDv7
-    ): Promise<UserWithStatus> => {
+    const findByIdWithStatus = async ({
+        userId
+    }: {
+        userId: UUIDv7;
+    }): Promise<User> => {
         const [row] = await db
             .select({
                 user: users,
@@ -123,12 +143,17 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
             .leftJoin(runners, eq(users.id, runners.userId))
             .where(and(eq(users.id, userId), isNull(users.deletedAt)));
 
-        return toUserWithStatus(row.user, row.status ?? 'inactive');
+        return toUser({
+            userRow: row.user,
+            status: row.status ?? 'inactive'
+        });
     };
 
-    const findByWalletAddress = async (
-        walletAddress: string
-    ): Promise<User> => {
+    const findByWalletAddress = async ({
+        walletAddress
+    }: {
+        walletAddress: WalletAddress;
+    }): Promise<User> => {
         const [row] = await db
             .select()
             .from(users)
@@ -139,30 +164,36 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
                 )
             );
 
-        return toUser(row);
+        return toUser({ userRow: row });
     };
 
-    const findByEmail = async (email: string): Promise<User> => {
+    const findByEmail = async ({ email }: { email: string }): Promise<User> => {
         const [row] = await db
             .select()
             .from(users)
             .where(and(eq(users.email, email), isNull(users.deletedAt)));
 
-        return toUser(row);
+        return toUser({ userRow: row });
     };
 
-    const findByUsername = async (username: string): Promise<User> => {
+    const findByUsername = async ({
+        username
+    }: {
+        username: string;
+    }): Promise<User> => {
         const [row] = await db
             .select()
             .from(users)
             .where(and(eq(users.username, username), isNull(users.deletedAt)));
 
-        return toUser(row);
+        return toUser({ userRow: row });
     };
 
-    const findTransactionById = async (
-        userId: UUIDv7
-    ): Promise<Transaction[]> => {
+    const findTransactionById = async ({
+        userId
+    }: {
+        userId: UUIDv7;
+    }): Promise<Transaction[]> => {
         const rows = await db
             .select()
             .from(transactions)
@@ -195,7 +226,11 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
         }));
     };
 
-    const findCardsById = async (userId: string): Promise<Card[]> => {
+    const findCardsById = async ({
+        userId
+    }: {
+        userId: UUIDv7;
+    }): Promise<Card[]> => {
         const rows = await db
             .select()
             .from(cards)
@@ -212,9 +247,11 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
         }));
     };
 
-    const listUsers = async (
-        params: UserQueryParams
-    ): Promise<PaginatedUsers> => {
+    const listUsers = async ({
+        params
+    }: {
+        params: UserQueryParams;
+    }): Promise<PaginatedUsers> => {
         return paginate(isNull(users.deletedAt), params);
     };
 
@@ -252,7 +289,7 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
 
         return {
             users: rows.map((row) =>
-                toUserWithStatus(row.user, row.status ?? 'inactive')
+                toUser({ userRow: row.user, status: row.status ?? 'inactive' })
             ),
             pagination: {
                 page,
@@ -263,21 +300,25 @@ export const makeUsersDrizzleOps = (db: DrizzleDB) => {
         };
     };
 
-    const remove = async (userId: UUIDv7): Promise<User> => {
+    const remove = async ({ userId }: { userId: UUIDv7 }): Promise<User> => {
         const [row] = await db
             .update(users)
             .set({ deletedAt: new Date() })
             .where(eq(users.id, userId))
             .returning();
-        return toUser(row);
+        return toUser({ userRow: row });
     };
 
-    const unsafeRemove = async (userId: UUIDv7): Promise<User> => {
+    const unsafeRemove = async ({
+        userId
+    }: {
+        userId: UUIDv7;
+    }): Promise<User> => {
         const [row] = await db
             .delete(users)
             .where(eq(users.id, userId))
             .returning();
-        return toUser(row);
+        return toUser({ userRow: row });
     };
 
     return {

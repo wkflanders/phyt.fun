@@ -1,6 +1,15 @@
 import { randomInt } from 'node:crypto';
 
-import { eq, and, like, desc, asc, count, isNull } from 'drizzle-orm';
+import {
+    eq,
+    and,
+    like,
+    desc,
+    asc,
+    count,
+    isNull,
+    InferSelectModel
+} from 'drizzle-orm';
 import { uuidv7 } from 'uuidv7';
 
 // eslint-disable-next-line no-restricted-imports
@@ -10,15 +19,25 @@ import { users, runners } from '../schema.js';
 
 import type {
     UUIDv7,
+    PrivyId,
     Runner,
     RunnerInsert,
     RunnerUpdate,
-    RunnerProfile,
     RunnerQueryParams,
-    PaginatedRunners
+    PaginatedRunners,
+    AvatarUrl,
+    WalletAddress
 } from '@phyt/types';
 
-const toRunner = (runnerRow: typeof runners.$inferSelect): Runner => ({
+const toRunner = ({
+    runnerRow,
+    username,
+    avatarUrl
+}: {
+    runnerRow: InferSelectModel<typeof runners>;
+    username?: string;
+    avatarUrl?: AvatarUrl;
+}): Runner => ({
     id: runnerRow.id as UUIDv7,
     userId: runnerRow.userId as UUIDv7,
     totalDistance: runnerRow.totalDistance,
@@ -27,36 +46,38 @@ const toRunner = (runnerRow: typeof runners.$inferSelect): Runner => ({
     bestMileTime: runnerRow.bestMileTime,
     status: runnerRow.status,
     isPooled: runnerRow.isPooled,
-    runnerWallet: runnerRow.runnerWallet,
+    runnerWallet: runnerRow.runnerWallet as WalletAddress,
     createdAt: runnerRow.createdAt,
-    updatedAt: runnerRow.updatedAt
-});
-
-const toRunnerProfile = (
-    runner: typeof runners.$inferSelect,
-    user: typeof users.$inferSelect
-): RunnerProfile => ({
-    ...toRunner(runner),
-    username: user.username,
-    avatarUrl: user.avatarUrl
+    updatedAt: runnerRow.updatedAt,
+    deletedAt: runnerRow.deletedAt,
+    ...(username !== undefined ? { username } : {}),
+    ...(avatarUrl !== undefined ? { avatarUrl } : {})
 });
 
 export type RunnersDrizzleOps = ReturnType<typeof makeRunnersDrizzleOps>;
 
-export const makeRunnersDrizzleOps = (db: DrizzleDB) => {
-    const create = async (data: RunnerInsert): Promise<Runner> => {
+export const makeRunnersDrizzleOps = ({ db }: { db: DrizzleDB }) => {
+    const create = async ({
+        input
+    }: {
+        input: RunnerInsert;
+    }): Promise<Runner> => {
         const [row] = await db
             .insert(runners)
             .values({
-                ...data,
+                ...input,
                 id: uuidv7()
             })
             .returning();
 
-        return toRunner(row);
+        return toRunner({ runnerRow: row });
     };
 
-    const findById = async (runnerId: UUIDv7): Promise<RunnerProfile> => {
+    const findById = async ({
+        runnerId
+    }: {
+        runnerId: UUIDv7;
+    }): Promise<Runner> => {
         const [result] = await db
             .select({
                 runner: runners,
@@ -73,20 +94,32 @@ export const makeRunnersDrizzleOps = (db: DrizzleDB) => {
             )
             .limit(1);
 
-        return toRunnerProfile(result.runner, result.user);
+        return toRunner({
+            runnerRow: result.runner,
+            username: result.user.username,
+            avatarUrl: result.user.avatarUrl
+        });
     };
 
-    const findByUserId = async (userId: UUIDv7): Promise<Runner> => {
+    const findByUserId = async ({
+        userId
+    }: {
+        userId: UUIDv7;
+    }): Promise<Runner> => {
         const [row] = await db
             .select()
             .from(runners)
             .where(and(eq(runners.userId, userId), isNull(runners.deletedAt)))
             .limit(1);
 
-        return toRunner(row);
+        return toRunner({ runnerRow: row });
     };
 
-    const findByPrivyId = async (privyId: string): Promise<RunnerProfile> => {
+    const findByPrivyId = async ({
+        privyId
+    }: {
+        privyId: PrivyId;
+    }): Promise<Runner> => {
         const [user] = await db
             .select()
             .from(users)
@@ -109,12 +142,18 @@ export const makeRunnersDrizzleOps = (db: DrizzleDB) => {
             )
             .limit(1);
 
-        return toRunnerProfile(result.runner, result.user);
+        return toRunner({
+            runnerRow: result.runner,
+            username: result.user.username,
+            avatarUrl: result.user.avatarUrl
+        });
     };
 
-    const list = async (
-        params: RunnerQueryParams
-    ): Promise<PaginatedRunners<RunnerProfile>> => {
+    const list = async ({
+        params
+    }: {
+        params: RunnerQueryParams;
+    }): Promise<PaginatedRunners> => {
         const conditions = [
             eq(runners.status, 'active'),
             isNull(runners.deletedAt),
@@ -124,26 +163,26 @@ export const makeRunnersDrizzleOps = (db: DrizzleDB) => {
             conditions.push(like(users.username, `%${String(params.search)}%`));
         }
 
-        const sortBy = params.sortBy ?? 'totalDistance';
-        const sortOrder = params.sortOrder ?? 'desc';
-
-        return paginate(and(...conditions), params, sortBy, sortOrder);
+        return paginate(and(...conditions), params);
     };
 
-    const update = async (
-        runnerId: UUIDv7,
-        data: RunnerUpdate
-    ): Promise<Runner> => {
+    const update = async ({
+        runnerId,
+        update
+    }: {
+        runnerId: UUIDv7;
+        update: RunnerUpdate;
+    }): Promise<Runner> => {
         const [row] = await db
             .update(runners)
             .set({
-                ...data,
+                ...update,
                 updatedAt: new Date()
             })
             .where(eq(runners.id, runnerId))
             .returning();
 
-        return toRunner(row);
+        return toRunner({ runnerRow: row });
     };
 
     const findRandomRunner = async (): Promise<Runner> => {
@@ -154,34 +193,40 @@ export const makeRunnersDrizzleOps = (db: DrizzleDB) => {
         const randomIndex = randomInt(allRunners.length);
         const randomRunner = allRunners[randomIndex];
 
-        return toRunner(randomRunner);
+        return toRunner({ runnerRow: randomRunner });
     };
 
-    const remove = async (runnerId: UUIDv7): Promise<Runner> => {
+    const remove = async ({
+        runnerId
+    }: {
+        runnerId: UUIDv7;
+    }): Promise<Runner> => {
         const [row] = await db
             .update(runners)
             .set({ deletedAt: new Date() })
             .where(eq(runners.id, runnerId))
             .returning();
 
-        return toRunner(row);
+        return toRunner({ runnerRow: row });
     };
 
-    const unsafeRemove = async (runnerId: UUIDv7): Promise<Runner> => {
+    const unsafeRemove = async ({
+        runnerId
+    }: {
+        runnerId: UUIDv7;
+    }): Promise<Runner> => {
         const [row] = await db
             .delete(runners)
             .where(eq(runners.id, runnerId))
             .returning();
 
-        return toRunner(row);
+        return toRunner({ runnerRow: row });
     };
 
     const paginate = async (
         cond: ReturnType<typeof eq> | ReturnType<typeof and>,
-        params: RunnerQueryParams,
-        sortBy = 'totalDistance',
-        sortOrder = 'desc'
-    ): Promise<PaginatedRunners<RunnerProfile>> => {
+        params: RunnerQueryParams
+    ): Promise<PaginatedRunners> => {
         const { page = 1, limit = 20 } = params;
         const offset = (page - 1) * limit;
 
@@ -200,60 +245,32 @@ export const makeRunnersDrizzleOps = (db: DrizzleDB) => {
             .innerJoin(users, eq(runners.userId, users.id))
             .where(cond);
 
-        let sortedQuery;
-        if (sortOrder === 'desc') {
-            switch (sortBy) {
-                case 'username':
-                    sortedQuery = query.orderBy(desc(users.username));
-                    break;
-                case 'totalDistance':
-                    sortedQuery = query.orderBy(desc(runners.totalDistance));
-                    break;
-                case 'averagePace':
-                    sortedQuery = query.orderBy(desc(runners.averagePace));
-                    break;
-                case 'totalRuns':
-                    sortedQuery = query.orderBy(desc(runners.totalRuns));
-                    break;
-                case 'bestMileTime':
-                    sortedQuery = query.orderBy(desc(runners.bestMileTime));
-                    break;
-                case 'createdAt':
-                    sortedQuery = query.orderBy(desc(runners.createdAt));
-                    break;
-                default:
-                    sortedQuery = query.orderBy(desc(runners.totalDistance));
-            }
-        } else {
-            switch (sortBy) {
-                case 'username':
-                    sortedQuery = query.orderBy(asc(users.username));
-                    break;
-                case 'totalDistance':
-                    sortedQuery = query.orderBy(asc(runners.totalDistance));
-                    break;
-                case 'averagePace':
-                    sortedQuery = query.orderBy(asc(runners.averagePace));
-                    break;
-                case 'totalRuns':
-                    sortedQuery = query.orderBy(asc(runners.totalRuns));
-                    break;
-                case 'bestMileTime':
-                    sortedQuery = query.orderBy(asc(runners.bestMileTime));
-                    break;
-                case 'createdAt':
-                    sortedQuery = query.orderBy(asc(runners.createdAt));
-                    break;
-                default:
-                    sortedQuery = query.orderBy(asc(runners.totalDistance));
-            }
-        }
+        // Condensed sorting logic
+        const sortColumns = {
+            username: users.username,
+            totalDistance: runners.totalDistance,
+            averagePace: runners.averagePace,
+            totalRuns: runners.totalRuns,
+            bestMileTime: runners.bestMileTime,
+            createdAt: runners.createdAt
+        };
+        const sortBy =
+            params.sortBy && params.sortBy in sortColumns
+                ? params.sortBy
+                : 'totalDistance';
+        const column = sortColumns[sortBy];
+        const orderFn = params.sortOrder === 'desc' ? desc : asc;
+        const sortedQuery = query.orderBy(orderFn(column));
 
         const results = await sortedQuery.limit(limit).offset(offset);
 
         return {
             runners: results.map(({ runner, user }) =>
-                toRunnerProfile(runner, user)
+                toRunner({
+                    runnerRow: runner,
+                    username: user.username,
+                    avatarUrl: user.avatarUrl
+                })
             ),
             pagination: {
                 page,

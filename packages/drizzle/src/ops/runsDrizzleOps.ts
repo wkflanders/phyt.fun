@@ -1,4 +1,12 @@
-import { eq, and, desc, count, isNull } from 'drizzle-orm';
+import {
+    eq,
+    and,
+    desc,
+    count,
+    isNull,
+    inArray,
+    InferSelectModel
+} from 'drizzle-orm';
 import { uuidv7 } from 'uuidv7';
 
 // eslint-disable-next-line no-restricted-imports
@@ -13,11 +21,22 @@ import type {
     RunUpdate,
     RunQueryParams,
     PaginatedRuns,
-    RunWithRunnerInfo,
-    Runner
+    Runner,
+    WalletAddress,
+    AvatarUrl
 } from '@phyt/types';
 
-const toRun = (runRow: typeof runs.$inferSelect): Run => ({
+const toRun = ({
+    runRow,
+    username,
+    avatarUrl,
+    runner
+}: {
+    runRow: InferSelectModel<typeof runs>;
+    username?: string;
+    avatarUrl?: AvatarUrl;
+    runner?: Runner;
+}): Run => ({
     id: runRow.id as UUIDv7,
     runnerId: runRow.runnerId as UUIDv7,
     startTime: runRow.startTime,
@@ -36,10 +55,22 @@ const toRun = (runRow: typeof runs.$inferSelect): Run => ({
     verificationStatus: runRow.verificationStatus,
     rawDataJson: runRow.rawDataJson as Record<string, unknown> | null,
     createdAt: runRow.createdAt,
-    updatedAt: runRow.updatedAt
+    updatedAt: runRow.updatedAt,
+    deletedAt: runRow.deletedAt,
+    ...(username !== undefined ? { username } : {}),
+    ...(avatarUrl !== undefined ? { avatarUrl } : {}),
+    ...(runner !== undefined ? { runner } : {})
 });
 
-const toRunner = (runnerRow: typeof runners.$inferSelect): Runner => ({
+const toRunner = ({
+    runnerRow,
+    username,
+    avatarUrl
+}: {
+    runnerRow: InferSelectModel<typeof runners>;
+    username?: string;
+    avatarUrl?: AvatarUrl;
+}): Runner => ({
     id: runnerRow.id as UUIDv7,
     userId: runnerRow.userId as UUIDv7,
     totalDistance: runnerRow.totalDistance,
@@ -48,143 +79,175 @@ const toRunner = (runnerRow: typeof runners.$inferSelect): Runner => ({
     bestMileTime: runnerRow.bestMileTime,
     status: runnerRow.status,
     isPooled: runnerRow.isPooled,
-    runnerWallet: runnerRow.runnerWallet,
+    runnerWallet: runnerRow.runnerWallet as WalletAddress,
     createdAt: runnerRow.createdAt,
-    updatedAt: runnerRow.updatedAt
+    updatedAt: runnerRow.updatedAt,
+    deletedAt: runnerRow.deletedAt,
+    ...(username !== undefined ? { username } : {}),
+    ...(avatarUrl !== undefined ? { avatarUrl } : {})
 });
-
-const toRunWithRunnerInfo = (
-    runRow: typeof runs.$inferSelect,
-    runnerRow: typeof runners.$inferSelect,
-    userRow: typeof users.$inferSelect
-): RunWithRunnerInfo => {
-    return {
-        ...toRun(runRow),
-        runner: toRunner(runnerRow),
-        username: userRow.username,
-        avatarUrl: userRow.avatarUrl
-    };
-};
 
 export type RunsDrizzleOps = ReturnType<typeof makeRunsDrizzleOps>;
 
-export const makeRunsDrizzleOps = (db: DrizzleDB) => {
-    const create = async (data: RunInsert): Promise<Run> => {
+export const makeRunsDrizzleOps = ({ db }: { db: DrizzleDB }) => {
+    const create = async ({ input }: { input: RunInsert }): Promise<Run> => {
         const [row] = await db
             .insert(runs)
             .values({
-                ...data,
+                ...input,
                 id: uuidv7()
             })
             .returning();
 
-        return toRun(row);
+        return toRun({ runRow: row });
     };
 
-    const createBatch = async (
-        runsData: {
-            runnerId: UUIDv7;
-            startTime: Date;
-            endTime: Date;
-            durationSeconds: number;
-            distance: number;
-            averagePaceSec?: number | null;
-            caloriesBurned?: number | null;
-            stepCount?: number | null;
-            elevationGain?: number | null;
-            averageHeartRate?: number | null;
-            maxHeartRate?: number | null;
-            deviceId?: string | null;
-            gpsRouteData?: string | null;
-            rawDataJson?: Record<string, unknown> | null;
-        }[]
-    ): Promise<Run[]> => {
-        // Insert one by one to avoid type issues
-        const results = [];
-        for (const data of runsData) {
-            const result = await create(data);
-            results.push(result);
+    const createBatch = async ({
+        input,
+        params
+    }: {
+        input: RunInsert[];
+        params?: RunQueryParams;
+    }): Promise<PaginatedRuns> => {
+        // Create all runs first
+        const createdIds: UUIDv7[] = [];
+        const batchSize = 50;
+
+        for (let i = 0; i < input.length; i += batchSize) {
+            const batch = input.slice(i, i + batchSize);
+            const batchWithIds = batch.map((input) => ({
+                ...input,
+                id: uuidv7()
+            }));
+
+            const insertedRows = await db
+                .insert(runs)
+                .values(batchWithIds)
+                .returning();
+
+            const batchIds = insertedRows.map((row) => row.id as UUIDv7);
+            createdIds.push(...batchIds);
         }
-        return results;
+
+        return paginate(
+            and(inArray(runs.id, createdIds), isNull(runs.deletedAt)),
+            params
+        );
     };
 
-    const findById = async (id: UUIDv7): Promise<Run> => {
+    const findById = async ({ id }: { id: UUIDv7 }): Promise<Run> => {
         const [row] = await db
             .select()
             .from(runs)
             .where(and(eq(runs.id, id), isNull(runs.deletedAt)))
             .limit(1);
 
-        return toRun(row);
+        return toRun({ runRow: row });
     };
 
-    const findByRunnerId = async (
-        runnerId: UUIDv7,
-        params: RunQueryParams = { page: 1, limit: 20 }
-    ): Promise<PaginatedRuns> => {
+    const findByRunnerId = async ({
+        runnerId,
+        params
+    }: {
+        runnerId: UUIDv7;
+        params?: RunQueryParams;
+    }): Promise<PaginatedRuns> => {
         return paginate(
             and(eq(runs.runnerId, runnerId), isNull(runs.deletedAt)),
             params
         );
     };
 
-    const listRunsWithRunnerInfo = async (
-        runnerId: UUIDv7,
-        params: RunQueryParams = { page: 1, limit: 20 }
-    ): Promise<PaginatedRuns> => {
+    const listRunsWithRunnerInfo = async ({
+        runnerId,
+        params
+    }: {
+        runnerId: UUIDv7;
+        params?: RunQueryParams;
+    }): Promise<PaginatedRuns> => {
         return paginate(
             and(eq(runs.runnerId, runnerId), isNull(runs.deletedAt)),
             params
         );
     };
 
-    const listPendingRuns = async (): Promise<Run[]> => {
-        const pendingRuns = await db.query.runs.findMany({
-            where: and(
-                eq(runs.verificationStatus, 'pending'),
-                isNull(runs.deletedAt)
-            )
-        });
-
-        return pendingRuns.map(toRun);
+    const listPendingRuns = async (): Promise<PaginatedRuns> => {
+        return paginate(
+            and(eq(runs.verificationStatus, 'pending'), isNull(runs.deletedAt)),
+            { page: 1, limit: 20 }
+        );
     };
 
-    const update = async (runId: UUIDv7, data: RunUpdate): Promise<Run> => {
+    const update = async ({
+        runId,
+        update
+    }: {
+        runId: UUIDv7;
+        update: RunUpdate;
+    }): Promise<Run> => {
         const [result] = await db
             .update(runs)
             .set({
-                ...data,
+                ...update,
                 updatedAt: new Date()
             })
             .where(eq(runs.id, runId))
             .returning();
 
-        return toRun(result);
+        return toRun({ runRow: result });
     };
 
-    const remove = async (runId: UUIDv7): Promise<Run> => {
+    const remove = async ({ runId }: { runId: UUIDv7 }): Promise<Run> => {
         const [result] = await db
             .update(runs)
             .set({ deletedAt: new Date() })
             .where(eq(runs.id, runId))
             .returning();
 
-        return toRun(result);
+        return toRun({ runRow: result });
     };
 
-    const unsafeRemove = async (runId: UUIDv7): Promise<Run> => {
+    const unsafeRemove = async ({ runId }: { runId: UUIDv7 }): Promise<Run> => {
         const [result] = await db
             .delete(runs)
             .where(eq(runs.id, runId))
             .returning();
 
-        return toRun(result);
+        return toRun({ runRow: result });
     };
 
     const paginate = async (
         cond: ReturnType<typeof eq> | ReturnType<typeof and>,
-        params: RunQueryParams
+        params?: RunQueryParams
     ): Promise<PaginatedRuns> => {
+        // If no params, return all without pagination
+        if (!params) {
+            const rows = await db
+                .select({ run: runs, runner: runners, user: users })
+                .from(runs)
+                .innerJoin(runners, eq(runs.runnerId, runners.id))
+                .innerJoin(users, eq(runners.userId, users.id))
+                .where(cond)
+                .orderBy(desc(runs.createdAt), desc(runs.id));
+
+            return {
+                runs: rows.map(({ run, runner, user }) =>
+                    toRun({
+                        runRow: run,
+                        runner: toRunner({ runnerRow: runner }),
+                        username: user.username,
+                        avatarUrl: user.avatarUrl
+                    })
+                ),
+                pagination: {
+                    page: 1,
+                    limit: rows.length,
+                    total: rows.length,
+                    totalPages: 1
+                }
+            };
+        }
+
         const { page = 1, limit = 20 } = params;
         const offset = (page - 1) * limit;
 
@@ -198,8 +261,8 @@ export const makeRunsDrizzleOps = (db: DrizzleDB) => {
         const rows = await db
             .select({ run: runs, runner: runners, user: users })
             .from(runs)
-            .leftJoin(runners, eq(runs.runnerId, runners.id))
-            .leftJoin(users, eq(runners.userId, users.id))
+            .innerJoin(runners, eq(runs.runnerId, runners.id))
+            .innerJoin(users, eq(runners.userId, users.id))
             .where(cond)
             .orderBy(desc(runs.createdAt), desc(runs.id))
             .limit(limit)
@@ -207,14 +270,12 @@ export const makeRunsDrizzleOps = (db: DrizzleDB) => {
 
         return {
             runs: rows.map(({ run, runner, user }) =>
-                runner && user
-                    ? toRunWithRunnerInfo(run, runner, user)
-                    : {
-                          ...toRun(run),
-                          runner: null,
-                          username: '',
-                          avatarUrl: ''
-                      }
+                toRun({
+                    runRow: run,
+                    runner: toRunner({ runnerRow: runner }),
+                    username: user.username,
+                    avatarUrl: user.avatarUrl
+                })
             ),
             pagination: {
                 page,

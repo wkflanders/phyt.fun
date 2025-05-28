@@ -1,4 +1,4 @@
-import { eq, and, isNull, desc, count } from 'drizzle-orm';
+import { eq, and, isNull, desc, count, InferSelectModel } from 'drizzle-orm';
 import { uuidv7 } from 'uuidv7';
 
 // eslint-disable-next-line no-restricted-imports
@@ -9,14 +9,22 @@ import { comments, users } from '../schema.js';
 import type {
     UUIDv7,
     Comment,
-    CommentWithUser,
     CommentInsert,
     CommentUpdate,
     CommentQueryParams,
-    PaginatedComments
+    PaginatedComments,
+    AvatarUrl
 } from '@phyt/types';
 
-const toComment = (commentRow: typeof comments.$inferSelect): Comment => {
+const toComment = ({
+    commentRow,
+    username,
+    avatarUrl
+}: {
+    commentRow: InferSelectModel<typeof comments>;
+    username?: string;
+    avatarUrl?: AvatarUrl;
+}): Comment => {
     return {
         id: commentRow.id as UUIDv7,
         postId: commentRow.postId as UUIDv7,
@@ -24,50 +32,53 @@ const toComment = (commentRow: typeof comments.$inferSelect): Comment => {
         content: commentRow.content,
         parentCommentId: commentRow.parentCommentId as UUIDv7 | null,
         createdAt: commentRow.createdAt,
-        updatedAt: commentRow.updatedAt
-    };
-};
-
-const toCommentWithUser = (
-    commentRow: typeof comments.$inferSelect,
-    user: typeof users.$inferSelect
-): CommentWithUser => {
-    return {
-        ...toComment(commentRow),
-        username: user.username,
-        avatarUrl: user.avatarUrl
+        updatedAt: commentRow.updatedAt,
+        deletedAt: commentRow.deletedAt,
+        ...(username !== undefined ? { username } : {}),
+        ...(avatarUrl !== undefined ? { avatarUrl } : {})
     };
 };
 
 export type CommentsDrizzleOps = ReturnType<typeof makeCommentsDrizzleOps>;
 
-export const makeCommentsDrizzleOps = (db: DrizzleDB) => {
-    const create = async (data: CommentInsert): Promise<Comment> => {
+export const makeCommentsDrizzleOps = ({ db }: { db: DrizzleDB }) => {
+    const create = async ({
+        input
+    }: {
+        input: CommentInsert;
+    }): Promise<Comment> => {
         const [row] = await db
             .insert(comments)
             .values({
-                ...data,
+                ...input,
                 id: uuidv7()
             })
             .returning();
 
-        return toComment(row);
+        return toComment({ commentRow: row });
     };
 
-    const findById = async (commentId: UUIDv7): Promise<Comment> => {
+    const findById = async ({
+        commentId
+    }: {
+        commentId: UUIDv7;
+    }): Promise<Comment> => {
         const [row] = await db
             .select()
             .from(comments)
             .where(and(eq(comments.id, commentId), isNull(comments.deletedAt)))
             .limit(1);
 
-        return toComment(row);
+        return toComment({ commentRow: row });
     };
 
-    const listForPost = (
-        postId: UUIDv7,
-        params: CommentQueryParams
-    ): Promise<PaginatedComments<CommentWithUser>> =>
+    const listForPost = async ({
+        postId,
+        params
+    }: {
+        postId: UUIDv7;
+        params: CommentQueryParams;
+    }): Promise<PaginatedComments> =>
         paginate(
             params.parentOnly
                 ? and(
@@ -79,54 +90,68 @@ export const makeCommentsDrizzleOps = (db: DrizzleDB) => {
             params
         );
 
-    const listReplies = (
-        parent: UUIDv7,
-        params: CommentQueryParams
-    ): Promise<PaginatedComments<CommentWithUser>> =>
+    const listReplies = async ({
+        parentCommentId,
+        params
+    }: {
+        parentCommentId: UUIDv7;
+        params: CommentQueryParams;
+    }): Promise<PaginatedComments> =>
         paginate(
             and(
-                eq(comments.parentCommentId, parent),
+                eq(comments.parentCommentId, parentCommentId),
                 isNull(comments.deletedAt)
             ),
             params
         );
 
-    const update = async (
-        commentId: UUIDv7,
-        data: CommentUpdate
-    ): Promise<Comment> => {
+    const update = async ({
+        commentId,
+        update
+    }: {
+        commentId: UUIDv7;
+        update: CommentUpdate;
+    }): Promise<Comment> => {
         const [row] = await db
             .update(comments)
-            .set({ content: data.content, updatedAt: new Date() })
+            .set({ ...update, updatedAt: new Date() })
             .where(eq(comments.id, commentId))
             .returning();
 
-        return toComment(row);
+        return toComment({ commentRow: row });
     };
 
-    const remove = async (commentId: UUIDv7): Promise<Comment> => {
+    const remove = async ({
+        commentId
+    }: {
+        commentId: UUIDv7;
+    }): Promise<Comment> => {
         const [row] = await db
             .update(comments)
             .set({ deletedAt: new Date() })
             .where(eq(comments.id, commentId))
             .returning();
 
-        return toComment(row);
+        return toComment({ commentRow: row });
     };
 
-    const unsafeRemove = async (commentId: UUIDv7): Promise<Comment> => {
+    const unsafeRemove = async ({
+        commentId
+    }: {
+        commentId: UUIDv7;
+    }): Promise<Comment> => {
         const [row] = await db
             .delete(comments)
             .where(eq(comments.id, commentId))
             .returning();
 
-        return toComment(row);
+        return toComment({ commentRow: row });
     };
 
     const paginate = async (
         cond: ReturnType<typeof eq> | ReturnType<typeof and>,
         params: CommentQueryParams
-    ): Promise<PaginatedComments<CommentWithUser>> => {
+    ): Promise<PaginatedComments> => {
         const { page = 1, limit = 20 } = params;
         const offset = (page - 1) * limit;
 
@@ -146,7 +171,11 @@ export const makeCommentsDrizzleOps = (db: DrizzleDB) => {
 
         return {
             comments: rows.map(({ comment, user }) =>
-                toCommentWithUser(comment, user)
+                toComment({
+                    commentRow: comment,
+                    username: user.username,
+                    avatarUrl: user.avatarUrl
+                })
             ),
             pagination: {
                 page,
