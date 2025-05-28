@@ -1,82 +1,82 @@
-import express, { Router, Request, Response } from 'express';
+// import express, { Router, Request, Response } from 'express';
 
-import { UUIDv7 } from '@phyt/types';
+// import { UUIDv7 } from '@phyt/types';
 
-import { validateAuth } from '@/middleware/auth.js';
-import { leaderboardService } from '@/services/leaderboardServices.js';
+// import { validateAuth } from '@/middleware/auth.js';
+// import { leaderboardService } from '@/services/leaderboardServices.js';
 
-const router: Router = express.Router();
+// const router: Router = express.Router();
 
-router.use(validateAuth);
+// router.use(validateAuth);
 
-// Get runner leaderboard
-router.get('/runners', async (req: Request, res: Response) => {
-    const { page = '1', limit = '20', timeFrame = 'weekly' } = req.query;
+// // Get runner leaderboard
+// router.get('/runners', async (req: Request, res: Response) => {
+//     const { page = '1', limit = '20', timeFrame = 'weekly' } = req.query;
 
-    const runnerLeaderboard = await leaderboardService.getRunnerLeaderboard({
-        page: parseInt(page as string),
-        limit: parseInt(limit as string),
-        timeFrame: timeFrame as 'weekly' | 'monthly' | 'allTime'
-    });
+//     const runnerLeaderboard = await leaderboardService.getRunnerLeaderboard({
+//         page: parseInt(page as string),
+//         limit: parseInt(limit as string),
+//         timeFrame: timeFrame as 'weekly' | 'monthly' | 'allTime'
+//     });
 
-    res.status(200).json(runnerLeaderboard);
-});
+//     res.status(200).json(runnerLeaderboard);
+// });
 
-// Get manager leaderboard
-router.get('/managers', async (req: Request, res: Response) => {
-    const { page = '1', limit = '20', timeFrame = 'weekly' } = req.query;
+// // Get manager leaderboard
+// router.get('/managers', async (req: Request, res: Response) => {
+//     const { page = '1', limit = '20', timeFrame = 'weekly' } = req.query;
 
-    const managerLeaderboard = await leaderboardService.getManagerLeaderboard({
-        page: parseInt(page as string),
-        limit: parseInt(limit as string),
-        timeFrame: timeFrame as 'weekly' | 'monthly' | 'allTime'
-    });
+//     const managerLeaderboard = await leaderboardService.getManagerLeaderboard({
+//         page: parseInt(page as string),
+//         limit: parseInt(limit as string),
+//         timeFrame: timeFrame as 'weekly' | 'monthly' | 'allTime'
+//     });
 
-    res.status(200).json(managerLeaderboard);
-});
+//     res.status(200).json(managerLeaderboard);
+// });
 
-// Get runner standing by privyId
-router.get('/runner/:id', async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const { timeFrame = 'weekly' } = req.query;
+// // Get runner standing by privyId
+// router.get('/runner/:id', async (req: Request, res: Response) => {
+//     const { id } = req.params;
+//     const { timeFrame = 'weekly' } = req.query;
 
-    if (id.includes('privy')) {
-        const runnerStanding = await leaderboardService.getRunnerStanding(
-            id,
-            true,
-            { timeFrame: timeFrame as 'weekly' | 'monthly' | 'allTime' }
-        );
-        res.status(200).json(runnerStanding);
-    } else {
-        const runnerStanding = await leaderboardService.getRunnerStanding(
-            id,
-            false,
-            { timeFrame: timeFrame as 'weekly' | 'monthly' | 'allTime' }
-        );
-        res.status(200).json(runnerStanding);
-    }
-});
+//     if (id.includes('privy')) {
+//         const runnerStanding = await leaderboardService.getRunnerStanding(
+//             id,
+//             true,
+//             { timeFrame: timeFrame as 'weekly' | 'monthly' | 'allTime' }
+//         );
+//         res.status(200).json(runnerStanding);
+//     } else {
+//         const runnerStanding = await leaderboardService.getRunnerStanding(
+//             id,
+//             false,
+//             { timeFrame: timeFrame as 'weekly' | 'monthly' | 'allTime' }
+//         );
+//         res.status(200).json(runnerStanding);
+//     }
+// });
 
-// Get manager standing by privyId
-router.get('/manager/:id', async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const { timeFrame = 'weekly' } = req.query;
+// // Get manager standing by privyId
+// router.get('/manager/:id', async (req: Request, res: Response) => {
+//     const { id } = req.params;
+//     const { timeFrame = 'weekly' } = req.query;
 
-    if (id.includes('privy')) {
-        const managerStanding = await leaderboardService.getManagerStanding(
-            id,
-            true,
-            { timeFrame: timeFrame as 'weekly' | 'monthly' | 'allTime' }
-        );
-        res.status(200).json(managerStanding);
-    } else {
-        const managerStanding = await leaderboardService.getManagerStanding(
-            id,
-            false,
-            { timeFrame: timeFrame as 'weekly' | 'monthly' | 'allTime' }
-        );
-        res.status(200).json(managerStanding);
-    }
-});
+//     if (id.includes('privy')) {
+//         const managerStanding = await leaderboardService.getManagerStanding(
+//             id,
+//             true,
+//             { timeFrame: timeFrame as 'weekly' | 'monthly' | 'allTime' }
+//         );
+//         res.status(200).json(managerStanding);
+//     } else {
+//         const managerStanding = await leaderboardService.getManagerStanding(
+//             id,
+//             false,
+//             { timeFrame: timeFrame as 'weekly' | 'monthly' | 'allTime' }
+//         );
+//         res.status(200).json(managerStanding);
+//     }
+// });
 
-export { router as leaderboardRouter };
+// export { router as leaderboardRouter };

@@ -1,29 +1,35 @@
-import express, { Router, Request, Response } from 'express';
+// import { Router } from 'express';
 
-import { ValidationError, TokenURIMetadata } from '@phyt/types';
+// import { controller } from '@/container.js'; // Assuming metadata controller is added to container
+// // import { adminRequired } from '@/middleware/auth.js'; // Example if admin auth is needed
 
-import { validateAuth } from '@/middleware/auth.js';
-import { metadataService } from '@/services/metadataServices.js';
+// const router: Router = Router();
 
-const router: Router = express.Router();
+// // Get metadata for a specific token
+// router.get(
+//     '/:tokenId',
+//     ...controller.metadata.getTokenMetadata // Using asyncHandler for consistency
+// );
 
-router.use(validateAuth);
+// // Generate metadata for a single token (example, might be POST or admin-only)
+// router.post(
+//     '/generate/:tokenId',
+//     // adminRequired, // Example
+//     ...controller.metadata.generateTokenMetadata
+// );
 
-// Get metadata for a specific token
-router.get(
-    '/:tokenId',
-    async (
-        req: Request<{ tokenId: string }, TokenURIMetadata>,
-        res: Response<TokenURIMetadata>
-    ) => {
-        const tokenId = parseInt(req.params.tokenId);
-        if (isNaN(tokenId)) {
-            throw new ValidationError('Invalid token Id');
-        }
+// // Generate metadata with specific rarity
+// router.post(
+//     '/generate-with-rarity',
+//     // adminRequired, // Example
+//     ...controller.metadata.generateTokenMetadataWithRarity
+// );
 
-        const metadata = await metadataService.getMetadata(tokenId);
-        res.status(200).json(metadata);
-    }
-);
+// // Generate metadata for a pack
+// router.post(
+//     '/generate-pack',
+//     // adminRequired, // Example
+//     ...controller.metadata.generatePackMetadata
+// );
 
-export { router as metadataRouter };
+// export { router as metadataRouter };

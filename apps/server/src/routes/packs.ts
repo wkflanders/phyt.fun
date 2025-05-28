@@ -1,75 +1,34 @@
-import express, { Router, Request, Response } from 'express';
+// import { controller } from '@/container.js';
 
-import {
-    PackPurchaseNotif,
-    TokenURIMetadata,
-    MintConfigResponse
-} from '@phyt/types';
+// import { Router } from 'express';
 
-import { purchasePackSchema } from '../../../../packages/infra/src/validation.js';
-import { validateAuth } from '@/middleware/auth.js';
-import { validateSchema } from '@/middleware/validator.js';
-import { packService } from '@/services/packServices.js';
+// const router: Router = Router();
 
-const router: Router = express.Router();
+// // Get all packs (paginated)
+// router.get('/', ...controller.packs.getPacks);
 
-router.use(validateAuth);
+// // Get packs for a specific buyer
+// router.get('/buyer/:buyerId', ...controller.packs.getBuyerPacks);
 
-router.get(
-    '/init/:walletAddress',
-    async (
-        req: Request<
-            { walletAddress: string },
-            MintConfigResponse,
-            Record<string, never>,
-            { packType?: string }
-        >,
-        res: Response<MintConfigResponse>
-    ) => {
-        const wallet_address = req.params.walletAddress;
-        const packType = req.query.packType ?? 'scrawny';
+// // Get a specific pack by ID
+// router.get('/:id', ...controller.packs.getPackById);
 
-        const mintConfigId = await packService.createMintConfig(packType);
-        const packPrice = packService.getPackPrice(packType);
-        const merkleProof = await packService.getWhitelistProof(wallet_address);
+// // Create a new pack (requires authentication)
+// router.post('/', ...controller.packs.createPack);
 
-        if (!Array.isArray(merkleProof)) {
-            throw new Error('Invalid merkle proof format');
-        }
+// // Update a pack (requires authentication)
+// router.patch('/:id', ...controller.packs.updatePack);
 
-        const mintConfig: MintConfigResponse = {
-            mintConfigId: mintConfigId.toString(),
-            packPrice: packPrice.toString(),
-            merkleProof: merkleProof,
-            packType: packType
-        };
+// // Delete a pack (requires authentication)
+// router.delete('/:id', ...controller.packs.deletePack);
 
-        res.status(200).json(mintConfig);
-    }
-);
+// // Create a new mint config for blockchain  (requires authentication)
+// router.post('/mint/config', ...controller.packs.createMintConfig);
 
-router.post(
-    '/purchase',
-    validateSchema(purchasePackSchema),
-    async (
-        req: Request<
-            Record<string, never>,
-            TokenURIMetadata[],
-            PackPurchaseNotif
-        >,
-        res: Response<TokenURIMetadata[]>
-    ) => {
-        const { buyerId, hash, packPrice, packType = 'scrawny' } = req.body;
+// // Get whitelist proof for a wallet (requires authentication)
+// router.get('/mint/proof/:wallet', ...controller.packs.getWhitelistProof);
 
-        const result = await packService.purchasePack({
-            buyerId,
-            hash,
-            packPrice,
-            packType
-        });
+// // Process a pack purchase from blockchain (requires authentication)
+// router.post('/mint/purchase', ...controller.packs.purchasePack);
 
-        res.status(200).json(result);
-    }
-);
-
-export { router as packRouter };
+// export { router as packRouter };
