@@ -1,80 +1,93 @@
-import { RunVO } from '@phyt/models';
+import { RunsVO } from '@phyt/models';
 
 import type { RunsDrizzleOps } from '@phyt/drizzle';
 import type {
     UUIDv7,
     RunInsert,
-    RunUpdate,
     RunQueryParams,
-    PaginatedRuns,
-    RunWithRunnerInfo
+    PaginatedRuns
 } from '@phyt/types';
 
 export type RunsRepository = ReturnType<typeof makeRunsRepository>;
 
-export const makeRunsRepository = (ops: RunsDrizzleOps) => {
-    const save = async (input: RunInsert): Promise<RunVO> => {
-        const data = await ops.create(input);
-        return RunVO.from(data);
+export const makeRunsRepository = ({
+    drizzleOps
+}: {
+    drizzleOps: RunsDrizzleOps;
+}) => {
+    const save = async ({ input }: { input: RunInsert }): Promise<RunsVO> => {
+        const record = await drizzleOps.create({ input });
+        return RunsVO.from({ run: record });
     };
 
-    const findById = async (runId: UUIDv7): Promise<RunVO> => {
-        const data = await ops.findById(runId);
-        return RunVO.from(data);
-    };
-
-    const findByRunnerId = async (
-        runnerId: UUIDv7,
-        params: RunQueryParams = { page: 1, limit: 20 }
-    ): Promise<PaginatedRuns<RunVO>> => {
-        const paginatedData = await ops.findByRunnerId(runnerId, params);
-
+    const saveBatch = async ({
+        input,
+        params
+    }: {
+        input: RunInsert[];
+        params?: RunQueryParams;
+    }): Promise<PaginatedRuns<RunsVO>> => {
+        const paginatedRecords = await drizzleOps.createBatch({
+            input,
+            params
+        });
         return {
-            runs: paginatedData.runs.map((run) => {
-                const runWithRunner = run as RunWithRunnerInfo;
-                return RunVO.from(runWithRunner, {
-                    runnerUsername: runWithRunner.username,
-                    runnerAvatarUrl: runWithRunner.avatarUrl
-                });
-            }),
-            pagination: paginatedData.pagination
+            runs: paginatedRecords.runs.map((run) => RunsVO.from({ run })),
+            pagination: paginatedRecords.pagination
         };
     };
 
-    const findWithRunnerInfo = async (
-        runnerId: UUIDv7,
-        params: RunQueryParams = { page: 1, limit: 20 }
-    ): Promise<PaginatedRuns<RunVO>> => {
-        const paginatedData = await ops.listRunsWithRunnerInfo(
+    const findById = async ({ runId }: { runId: UUIDv7 }): Promise<RunsVO> => {
+        const record = await drizzleOps.findById({ id: runId });
+        return RunsVO.from({ run: record });
+    };
+
+    const findByRunnerId = async ({
+        runnerId,
+        params
+    }: {
+        runnerId: UUIDv7;
+        params?: RunQueryParams;
+    }): Promise<PaginatedRuns<RunsVO>> => {
+        const paginatedRecords = await drizzleOps.findByRunnerId({
             runnerId,
             params
-        );
-
+        });
         return {
-            runs: paginatedData.runs.map((run) => {
-                const runWithRunner = run as RunWithRunnerInfo;
-                return RunVO.from(runWithRunner, {
-                    runnerUsername: runWithRunner.username,
-                    runnerAvatarUrl: runWithRunner.avatarUrl
-                });
-            }),
-            pagination: paginatedData.pagination
+            runs: paginatedRecords.runs.map((run) => RunsVO.from({ run })),
+            pagination: paginatedRecords.pagination
         };
     };
 
-    const findPending = async (): Promise<RunVO[]> => {
-        const data = await ops.listPendingRuns();
-        return data.map((run) => RunVO.from(run));
+    const findWithRunnerInfo = async ({
+        runnerId,
+        params
+    }: {
+        runnerId: UUIDv7;
+        params?: RunQueryParams;
+    }): Promise<PaginatedRuns<RunsVO>> => {
+        const paginatedRecords = await drizzleOps.listRunsWithRunnerInfo({
+            runnerId,
+            params
+        });
+
+        return {
+            runs: paginatedRecords.runs.map((run) => RunsVO.from({ run })),
+            pagination: paginatedRecords.pagination
+        };
     };
 
-    const saveBatch = async (input: RunInsert[]): Promise<RunVO[]> => {
-        const data = await ops.createBatch(input);
-        return data.map((run) => RunVO.from(run));
+    const findPending = async (): Promise<PaginatedRuns<RunsVO>> => {
+        const paginatedRecords = await drizzleOps.listPendingRuns();
+        return {
+            runs: paginatedRecords.runs.map((run) => RunsVO.from({ run })),
+            pagination: paginatedRecords.pagination
+        };
     };
 
-    const remove = async (runId: UUIDv7): Promise<RunVO> => {
-        const data = await ops.remove(runId);
-        return RunVO.from(data);
+    const remove = async ({ runId }: { runId: UUIDv7 }): Promise<RunsVO> => {
+        const record = await drizzleOps.remove({ runId });
+        return RunsVO.from({ run: record });
     };
 
     // Performance optimization: direct update without domain validation

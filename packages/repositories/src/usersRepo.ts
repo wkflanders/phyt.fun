@@ -1,69 +1,112 @@
-import { UserVO } from '@phyt/models';
+import { UsersVO } from '@phyt/models';
 
-import type { UserAWSOps } from '@phyt/aws';
+import type { AvatarAWSOps } from '@phyt/aws';
 import type { UsersDrizzleOps } from '@phyt/drizzle';
 import type {
     UUIDv7,
     UserInsert,
     UserUpdate,
     UserQueryParams,
-    PaginatedUsers
+    PaginatedUsers,
+    WalletAddress,
+    AvatarUrl
 } from '@phyt/types';
 
 export type UsersRepository = ReturnType<typeof makeUsersRepository>;
 
-export const makeUsersRepository = (
-    drizzleOps: UsersDrizzleOps,
-    awsOps: UserAWSOps
-) => {
-    const save = async (input: UserInsert): Promise<UserVO> => {
-        const data = await drizzleOps.create(input);
-        return UserVO.from(data);
+export const makeUsersRepository = ({
+    drizzleOps,
+    awsOps
+}: {
+    drizzleOps: UsersDrizzleOps;
+    awsOps: AvatarAWSOps;
+}) => {
+    const save = async ({ input }: { input: UserInsert }): Promise<UsersVO> => {
+        const record = await drizzleOps.create({ input });
+        return UsersVO.from({ user: record });
     };
 
-    const findById = async (userId: UUIDv7): Promise<UserVO> => {
-        const data = await drizzleOps.findById(userId);
-        return UserVO.from(data);
+    const findById = async ({
+        userId
+    }: {
+        userId: UUIDv7;
+    }): Promise<UsersVO> => {
+        const record = await drizzleOps.findById({ userId });
+        return UsersVO.from({ user: record });
     };
 
-    const findByPrivyId = async (privyId: string): Promise<UserVO> => {
-        const data = await drizzleOps.findByPrivyId(privyId);
-        return UserVO.from(data);
+    const findByIdWithStatus = async ({
+        userId
+    }: {
+        userId: UUIDv7;
+    }): Promise<UsersVO> => {
+        const record = await drizzleOps.findByIdWithStatus({ userId });
+        return UsersVO.from({ user: record });
     };
 
-    const findByWalletAddress = async (
-        walletAddress: string
-    ): Promise<UserVO> => {
-        const data = await drizzleOps.findByWalletAddress(walletAddress);
-        return UserVO.from(data);
+    const findByPrivyId = async ({
+        privyId
+    }: {
+        privyId: string;
+    }): Promise<UsersVO> => {
+        const record = await drizzleOps.findByPrivyId({ privyId });
+        return UsersVO.from({ user: record });
     };
 
-    const findByEmail = async (email: string): Promise<UserVO> => {
-        const data = await drizzleOps.findByEmail(email);
-        return UserVO.from(data);
+    const findByPrivyIdWithStatus = async ({
+        privyId
+    }: {
+        privyId: string;
+    }): Promise<UsersVO> => {
+        const record = await drizzleOps.findByPrivyIdWithStatus({ privyId });
+        return UsersVO.from({ user: record });
     };
 
-    const findByUsername = async (username: string): Promise<UserVO> => {
-        const data = await drizzleOps.findByUsername(username);
-        return UserVO.from(data);
+    const findByWalletAddress = async ({
+        walletAddress
+    }: {
+        walletAddress: WalletAddress;
+    }): Promise<UsersVO> => {
+        const record = await drizzleOps.findByWalletAddress({ walletAddress });
+        return UsersVO.from({ user: record });
     };
 
-    const findAll = async (
-        params: UserQueryParams
-    ): Promise<PaginatedUsers<UserVO>> => {
-        const paginatedData = await drizzleOps.listUsers(params);
+    const findByEmail = async ({
+        email
+    }: {
+        email: string;
+    }): Promise<UsersVO> => {
+        const record = await drizzleOps.findByEmail({ email });
+        return UsersVO.from({ user: record });
+    };
+
+    const findByUsername = async ({
+        username
+    }: {
+        username: string;
+    }): Promise<UsersVO> => {
+        const record = await drizzleOps.findByUsername({ username });
+        return UsersVO.from({ user: record });
+    };
+
+    const findAll = async ({
+        params
+    }: {
+        params: UserQueryParams;
+    }): Promise<PaginatedUsers<UsersVO>> => {
+        const paginatedRecords = await drizzleOps.listUsers({ params });
 
         return {
-            users: paginatedData.users.map((user) => UserVO.from(user)),
-            pagination: paginatedData.pagination
+            users: paginatedRecords.users.map((user) => UsersVO.from({ user })),
+            pagination: paginatedRecords.pagination
         };
     };
 
-    const findWhitelistedWallets = async (): Promise<string[]> => {
+    const findWhitelistedWallets = async (): Promise<WalletAddress[]> => {
         return await drizzleOps.findWhitelistedWallets();
     };
 
-    const uploadAvatar = async (buffer: Buffer): Promise<string> => {
+    const uploadAvatar = async (buffer: Buffer): Promise<AvatarUrl> => {
         const fileKey = await awsOps.uploadAvatar(buffer);
         return awsOps.generateAvatarUrl(fileKey);
     };
@@ -76,18 +119,21 @@ export const makeUsersRepository = (
         return awsOps.extractFileKeyFromUrl(url);
     };
 
-    const updateAvatarWithFile = async (
-        userId: UUIDv7,
-        buffer: Buffer
-    ): Promise<UserVO> => {
+    const updateAvatarWithFile = async ({
+        userId,
+        buffer
+    }: {
+        userId: UUIDv7;
+        buffer: Buffer;
+    }): Promise<UsersVO> => {
         // Get current user to potentially cleanup old avatar
-        const currentUser = await findById(userId);
+        const currentUser = await findById({ userId });
 
         // Upload file to S3 and get URL
         const avatarUrl = await uploadAvatar(buffer);
 
         // Update the user with the new avatar URL
-        const updatedUser = await update(userId, { avatarUrl });
+        const updatedUser = await update({ userId, update: { avatarUrl } });
 
         // Clean up old avatar if exists
         if (currentUser.avatarUrl) {
@@ -150,18 +196,21 @@ export const makeUsersRepository = (
     //     }));
     // };
 
-    const remove = async (userId: UUIDv7): Promise<UserVO> => {
-        const data = await drizzleOps.remove(userId);
-        return UserVO.from(data);
+    const remove = async ({ userId }: { userId: UUIDv7 }): Promise<UsersVO> => {
+        const record = await drizzleOps.remove({ userId });
+        return UsersVO.from({ user: record });
     };
 
     // Performance optimization: direct update without domain validation
-    const update = async (
-        userId: UUIDv7,
-        update: UserUpdate
-    ): Promise<UserVO> => {
-        const updated = await drizzleOps.update(userId, update);
-        return UserVO.from(updated);
+    const update = async ({
+        userId,
+        update
+    }: {
+        userId: UUIDv7;
+        update: UserUpdate;
+    }): Promise<UsersVO> => {
+        const updated = await drizzleOps.update({ userId, update });
+        return UsersVO.from({ user: updated });
     };
 
     return {
@@ -173,7 +222,8 @@ export const makeUsersRepository = (
         findByUsername,
         findAll,
         findWhitelistedWallets,
-
+        findByIdWithStatus,
+        findByPrivyIdWithStatus,
         // AWS operations
         updateAvatarWithFile,
         uploadAvatar,

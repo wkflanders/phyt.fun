@@ -10,54 +10,88 @@ import type {
 
 export type CommentsRepository = ReturnType<typeof makeCommentsRepository>;
 
-export const makeCommentsRepository = (ops: CommentsDrizzleOps) => {
-    const save = async (input: CommentInsert): Promise<CommentsVO> => {
-        const data = await ops.create(input);
-        return CommentsVO.from(data);
+export const makeCommentsRepository = ({
+    drizzleOps
+}: {
+    drizzleOps: CommentsDrizzleOps;
+}) => {
+    const save = async ({
+        input
+    }: {
+        input: CommentInsert;
+    }): Promise<CommentsVO> => {
+        const record = await drizzleOps.create({ input });
+        return CommentsVO.from({ comment: record });
     };
 
-    const findById = async (commentId: UUIDv7): Promise<CommentsVO> => {
-        const data = await ops.findById(commentId);
-        return CommentsVO.from(data);
+    const findById = async ({
+        commentId
+    }: {
+        commentId: UUIDv7;
+    }): Promise<CommentsVO> => {
+        const record = await drizzleOps.findById({ commentId });
+        return CommentsVO.from({ comment: record });
     };
 
-    const findByPost = async (
-        postId: UUIDv7,
-        params: CommentQueryParams
-    ): Promise<PaginatedComments<CommentsVO>> => {
-        const paginatedData = await ops.listForPost(postId, params);
+    const findByPost = async ({
+        postId,
+        params
+    }: {
+        postId: UUIDv7;
+        params: CommentQueryParams;
+    }): Promise<PaginatedComments<CommentsVO>> => {
+        const paginatedRecords = await drizzleOps.listForPost({
+            postId,
+            params
+        });
 
         return {
-            comments: paginatedData.comments.map((c) =>
-                CommentsVO.from(c, {
-                    username: c.username,
-                    avatarUrl: c.avatarUrl
+            comments: paginatedRecords.comments.map((record) =>
+                CommentsVO.from({
+                    comment: record,
+                    options: {
+                        username: record.username,
+                        avatarUrl: record.avatarUrl
+                    }
                 })
             ),
-            pagination: paginatedData.pagination
+            pagination: paginatedRecords.pagination
         };
     };
 
-    const findReplies = async (
-        parentId: UUIDv7,
-        params: CommentQueryParams
-    ): Promise<PaginatedComments<CommentsVO>> => {
-        const paginatedData = await ops.listReplies(parentId, params);
+    const findReplies = async ({
+        parentCommentId,
+        params
+    }: {
+        parentCommentId: UUIDv7;
+        params: CommentQueryParams;
+    }): Promise<PaginatedComments<CommentsVO>> => {
+        const paginatedRecords = await drizzleOps.listReplies({
+            parentCommentId,
+            params
+        });
 
         return {
-            comments: paginatedData.comments.map((c) =>
-                CommentsVO.from(c, {
-                    username: c.username,
-                    avatarUrl: c.avatarUrl
+            comments: paginatedRecords.comments.map((record) =>
+                CommentsVO.from({
+                    comment: record,
+                    options: {
+                        username: record.username,
+                        avatarUrl: record.avatarUrl
+                    }
                 })
             ),
-            pagination: paginatedData.pagination
+            pagination: paginatedRecords.pagination
         };
     };
 
-    const deleteById = async (commentId: UUIDv7): Promise<CommentsVO> => {
-        const data = await ops.remove(commentId);
-        return CommentsVO.from(data);
+    const remove = async ({
+        commentId
+    }: {
+        commentId: UUIDv7;
+    }): Promise<CommentsVO> => {
+        const record = await drizzleOps.remove({ commentId });
+        return CommentsVO.from({ comment: record });
     };
 
     // Performance optimization: direct update without domain validation
@@ -74,7 +108,7 @@ export const makeCommentsRepository = (ops: CommentsDrizzleOps) => {
         findById,
         findByPost,
         findReplies,
-        deleteById
+        remove
         // update
     };
 };

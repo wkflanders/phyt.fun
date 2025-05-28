@@ -1,99 +1,179 @@
-import { ReactionVO } from '@phyt/models';
+import { ReactionsVO } from '@phyt/models';
 
 import type { ReactionsDrizzleOps } from '@phyt/drizzle';
 import type {
     UUIDv7,
     ReactionInsert,
     ReactionType,
-    ReactionWithUser,
-    ReactionCount
+    ReactionCount,
+    PaginatedReactions
 } from '@phyt/types';
 
 export type ReactionsRepository = ReturnType<typeof makeReactionsRepository>;
 
-export const makeReactionsRepository = (ops: ReactionsDrizzleOps) => {
-    const save = async (input: ReactionInsert): Promise<ReactionVO> => {
-        const data = await ops.create(input);
-        return ReactionVO.from(data);
+export const makeReactionsRepository = ({
+    drizzleOps
+}: {
+    drizzleOps: ReactionsDrizzleOps;
+}) => {
+    const save = async ({
+        input
+    }: {
+        input: ReactionInsert;
+    }): Promise<ReactionsVO> => {
+        const record = await drizzleOps.create({ input });
+        return ReactionsVO.from({ reaction: record });
     };
 
-    const findById = async (reactionId: UUIDv7): Promise<ReactionVO> => {
-        const data = await ops.findById(reactionId);
-        return ReactionVO.from(data);
+    const findById = async ({
+        reactionId
+    }: {
+        reactionId: UUIDv7;
+    }): Promise<ReactionsVO> => {
+        const record = await drizzleOps.findById({ reactionId });
+        return ReactionsVO.from({ reaction: record });
     };
 
-    const findByUser = async (
-        userId: UUIDv7,
-        postId?: UUIDv7,
-        commentId?: UUIDv7,
-        type?: ReactionType
-    ): Promise<ReactionVO> => {
-        const data = await ops.findByUserId(userId, postId, commentId, type);
-        return ReactionVO.from(data);
+    const findByUser = async ({
+        userId,
+        entityId,
+        entityType,
+        type
+    }: {
+        userId: UUIDv7;
+        entityId: UUIDv7;
+        entityType: 'post' | 'comment';
+        type?: ReactionType;
+    }): Promise<ReactionsVO> => {
+        const record = await drizzleOps.findByUserId({
+            userId,
+            entityId,
+            entityType,
+            type
+        });
+        return ReactionsVO.from({ reaction: record });
     };
 
-    const findByPost = async (postId: UUIDv7): Promise<ReactionVO[]> => {
-        const data = await ops.findReactionsWithUsers(postId);
-        return data.map((reaction: ReactionWithUser) =>
-            ReactionVO.from(reaction, {
-                username: reaction.username,
-                avatarUrl: reaction.avatarUrl
-            })
-        );
+    const findByPost = async ({
+        postId
+    }: {
+        postId: UUIDv7;
+    }): Promise<PaginatedReactions<ReactionsVO>> => {
+        const paginatedRecords = await drizzleOps.findReactionsWithUsers({
+            entityId: postId,
+            entityType: 'post'
+        });
+        return {
+            reactions: paginatedRecords.reactions.map((reaction) =>
+                ReactionsVO.from({ reaction })
+            ),
+            pagination: paginatedRecords.pagination
+        };
     };
 
-    const findByComment = async (commentId: UUIDv7): Promise<ReactionVO[]> => {
-        const data = await ops.findReactionsWithUsers(undefined, commentId);
-        return data.map((reaction: ReactionWithUser) =>
-            ReactionVO.from(reaction, {
-                username: reaction.username,
-                avatarUrl: reaction.avatarUrl
-            })
-        );
+    const findByComment = async ({
+        commentId
+    }: {
+        commentId: UUIDv7;
+    }): Promise<PaginatedReactions<ReactionsVO>> => {
+        const paginatedRecords = await drizzleOps.findReactionsWithUsers({
+            entityId: commentId,
+            entityType: 'comment'
+        });
+        return {
+            reactions: paginatedRecords.reactions.map((reaction) =>
+                ReactionsVO.from({ reaction })
+            ),
+            pagination: paginatedRecords.pagination
+        };
     };
 
-    const getCountsForPost = async (postId: UUIDv7): Promise<ReactionCount> => {
-        return await ops.findReactionCountByPost(postId);
+    const getCountsForPost = async ({
+        postId
+    }: {
+        postId: UUIDv7;
+    }): Promise<ReactionCount> => {
+        return await drizzleOps.findReactionCountByPost({ postId });
     };
 
-    const getCountsForComment = async (
-        commentId: UUIDv7
-    ): Promise<ReactionCount> => {
-        return await ops.findReactionCountByComment(commentId);
+    const getCountsForComment = async ({
+        commentId
+    }: {
+        commentId: UUIDv7;
+    }): Promise<ReactionCount> => {
+        return await drizzleOps.findReactionCountByComment({ commentId });
     };
 
-    const findUserReactions = async (
-        userId: UUIDv7,
-        postId?: UUIDv7,
-        commentId?: UUIDv7
-    ): Promise<ReactionVO[]> => {
-        const data = await ops.findUserReactions(userId, postId, commentId);
-        return data.map((reaction) => ReactionVO.from(reaction));
+    const findUserReactions = async ({
+        userId,
+        postId,
+        commentId
+    }: {
+        userId: UUIDv7;
+        postId?: UUIDv7;
+        commentId?: UUIDv7;
+    }): Promise<PaginatedReactions<ReactionsVO>> => {
+        const paginatedRecords = await drizzleOps.findUserReactions({
+            userId,
+            postId,
+            commentId
+        });
+        return {
+            reactions: paginatedRecords.reactions.map((reaction) =>
+                ReactionsVO.from({ reaction })
+            ),
+            pagination: paginatedRecords.pagination
+        };
     };
 
-    const findWithUsers = async (
-        postId?: UUIDv7,
-        commentId?: UUIDv7
-    ): Promise<ReactionVO[]> => {
-        const data = await ops.findReactionsWithUsers(postId, commentId);
-        return data.map((reaction: ReactionWithUser) =>
-            ReactionVO.from(reaction, {
-                username: reaction.username,
-                avatarUrl: reaction.avatarUrl
-            })
-        );
+    const findByPostWithUsers = async ({
+        postId
+    }: {
+        postId: UUIDv7;
+    }): Promise<PaginatedReactions<ReactionsVO>> => {
+        const paginatedRecords = await drizzleOps.findReactionsWithUsers({
+            entityId: postId,
+            entityType: 'post'
+        });
+        return {
+            reactions: paginatedRecords.reactions.map((reaction) =>
+                ReactionsVO.from({ reaction })
+            ),
+            pagination: paginatedRecords.pagination
+        };
+    };
+
+    const findByCommentWithUsers = async ({
+        commentId
+    }: {
+        commentId: UUIDv7;
+    }): Promise<PaginatedReactions<ReactionsVO>> => {
+        const paginatedRecords = await drizzleOps.findReactionsWithUsers({
+            entityId: commentId,
+            entityType: 'comment'
+        });
+        return {
+            reactions: paginatedRecords.reactions.map((reaction) =>
+                ReactionsVO.from({ reaction })
+            ),
+            pagination: paginatedRecords.pagination
+        };
     };
 
     const calculateTrendingScore = async (
         postId: UUIDv7,
         daysAgo: number
     ): Promise<number> => {
-        return ops.calculateTrendingScore(postId, daysAgo);
+        return await drizzleOps.calculateTrendingScore(postId, daysAgo);
     };
 
-    const remove = async (reactionId: UUIDv7): Promise<ReactionVO> => {
-        const data = await ops.unsafeRemove(reactionId);
-        return ReactionVO.from(data);
+    const remove = async ({
+        reactionId
+    }: {
+        reactionId: UUIDv7;
+    }): Promise<ReactionsVO> => {
+        const record = await drizzleOps.unsafeRemove({ reactionId });
+        return ReactionsVO.from({ reaction: record });
     };
 
     return {
@@ -105,7 +185,8 @@ export const makeReactionsRepository = (ops: ReactionsDrizzleOps) => {
         getCountsForPost,
         getCountsForComment,
         findUserReactions,
-        findWithUsers,
+        findByPostWithUsers,
+        findByCommentWithUsers,
         calculateTrendingScore,
         remove
     };

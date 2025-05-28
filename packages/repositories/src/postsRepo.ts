@@ -4,60 +4,81 @@ import type { PostsDrizzleOps } from '@phyt/drizzle';
 import type {
     UUIDv7,
     PostInsert,
-    PostUpdate,
     PostQueryParams,
     PaginatedPosts
 } from '@phyt/types';
 
 export type PostsRepository = ReturnType<typeof makePostsRepository>;
 
-export const makePostsRepository = (ops: PostsDrizzleOps) => {
-    const save = async (input: PostInsert): Promise<PostsVO> => {
-        const data = await ops.create(input);
-        return PostsVO.from(data);
+export const makePostsRepository = ({
+    drizzleOps
+}: {
+    drizzleOps: PostsDrizzleOps;
+}) => {
+    const save = async ({ input }: { input: PostInsert }): Promise<PostsVO> => {
+        const record = await drizzleOps.create({ input });
+        return PostsVO.from({ post: record });
     };
 
-    const findById = async (postId: UUIDv7): Promise<PostsVO> => {
-        const data = await ops.findById(postId);
-        return PostsVO.from(data);
+    const findById = async ({
+        postId
+    }: {
+        postId: UUIDv7;
+    }): Promise<PostsVO> => {
+        const record = await drizzleOps.findById({ postId });
+        return PostsVO.from({ post: record });
     };
 
-    const findAll = async (
-        params: PostQueryParams
-    ): Promise<PaginatedPosts<PostsVO>> => {
-        const paginatedData = await ops.list(params);
+    const findAll = async ({
+        params
+    }: {
+        params: PostQueryParams;
+    }): Promise<PaginatedPosts<PostsVO>> => {
+        const paginatedData = await drizzleOps.list({ params });
 
         return {
             posts: paginatedData.posts.map((p) =>
-                PostsVO.from(p, {
-                    username: p.username,
-                    avatarUrl: p.avatarUrl
+                PostsVO.from({
+                    post: p,
+                    options: {
+                        username: p.username,
+                        avatarUrl: p.avatarUrl
+                    }
                 })
             ),
             pagination: paginatedData.pagination
         };
     };
 
-    const findByUser = async (
-        userId: UUIDv7,
-        params: PostQueryParams
-    ): Promise<PaginatedPosts<PostsVO>> => {
-        const paginatedData = await ops.listByUser(userId, params);
+    const findByUser = async ({
+        userId,
+        params
+    }: {
+        userId: UUIDv7;
+        params: PostQueryParams;
+    }): Promise<PaginatedPosts<PostsVO>> => {
+        const paginatedRecords = await drizzleOps.listByUser({
+            userId,
+            params
+        });
 
         return {
-            posts: paginatedData.posts.map((p) =>
-                PostsVO.from(p, {
-                    username: p.username,
-                    avatarUrl: p.avatarUrl
+            posts: paginatedRecords.posts.map((record) =>
+                PostsVO.from({
+                    post: record,
+                    options: {
+                        username: record.username,
+                        avatarUrl: record.avatarUrl
+                    }
                 })
             ),
-            pagination: paginatedData.pagination
+            pagination: paginatedRecords.pagination
         };
     };
 
-    const remove = async (postId: UUIDv7): Promise<PostsVO> => {
-        const data = await ops.remove(postId);
-        return PostsVO.from(data);
+    const remove = async ({ postId }: { postId: UUIDv7 }): Promise<PostsVO> => {
+        const record = await drizzleOps.remove({ postId });
+        return PostsVO.from({ post: record });
     };
 
     // Performance optimization: direct update without domain validation
