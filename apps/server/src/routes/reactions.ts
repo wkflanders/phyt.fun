@@ -1,11 +1,11 @@
-import { Router } from 'express';
-
 import { controller } from '@/container.js';
+
+import { Router } from 'express';
 
 const router: Router = Router();
 
 // Toggle a reaction on a post or comment
-router.post('/', ...controller.reactions.toggleReaction);
+router.post('/', ...controller.reactions.addReaction);
 
 // Get reactions for a post
 router.get('/post/:postId', ...controller.reactions.getPostReactions);

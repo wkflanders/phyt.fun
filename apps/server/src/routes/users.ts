@@ -1,6 +1,6 @@
-import { Router } from 'express';
-
 import { controller } from '@/container.js';
+
+import { Router } from 'express';
 
 const router: Router = Router();
 
@@ -44,12 +44,12 @@ router.patch('/:userId/avatar', ...controller.users.updateAvatar);
 router.get('/', ...controller.users.listUsers);
 
 // Get all the cards owned by a user
-router.get('/cards/:userId', ...controller.users.getCardsByUserId);
+// router.get('/cards/:userId', ...controller.users.getCardsByUserId);
 
 // Get all transactions for a user
-router.get(
-    '/transactions/:userId',
-    ...controller.users.getTransactionsByUserId
-);
+// router.get(
+//     '/transactions/:userId',
+//     ...controller.users.getTransactionsByUserId
+// );
 
 export { router as usersRouter };

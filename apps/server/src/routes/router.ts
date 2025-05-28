@@ -1,12 +1,12 @@
 import express, { Router } from 'express';
 
-import { adminRouter } from './admin.js';
+// import { adminRouter } from './admin.js';
 import { commentsRouter } from './comments.js';
-import { competitionsRouter } from './competitions.js';
-import { leaderboardRouter } from './leaderboard.js';
-import { marketplaceRouter } from './marketplace.js';
-import { metadataRouter } from './metadata.js';
-import { packRouter } from './packs.js';
+// import { competitionsRouter } from './competitions.js';
+// import { leaderboardRouter } from './leaderboard.js';
+// import { marketplaceRouter } from './marketplace.js';
+// import { metadataRouter } from './metadata.js';
+// import { packRouter } from './packs.js';
 import { postsRouter } from './posts.js';
 import { reactionsRouter } from './reactions.js';
 import { runnerRouter } from './runners.js';
@@ -39,13 +39,13 @@ router.get('/health', (_, res) => {
 });
 
 // API Routes
-router.use('/admin', adminRouter);
+// router.use('/admin', adminRouter);
 router.use('/comments', commentsRouter);
-router.use('/competitions', competitionsRouter);
-router.use('/leaderboard', leaderboardRouter);
-router.use('/marketplace', marketplaceRouter);
-router.use('/metadata', metadataRouter);
-router.use('/packs', packRouter);
+// router.use('/competitions', competitionsRouter);
+// router.use('/leaderboard', leaderboardRouter);
+// router.use('/marketplace', marketplaceRouter);
+// router.use('/metadata', metadataRouter);
+// router.use('/packs', packRouter);
 router.use('/posts', postsRouter);
 router.use('/reactions', reactionsRouter);
 router.use('/runners', runnerRouter);

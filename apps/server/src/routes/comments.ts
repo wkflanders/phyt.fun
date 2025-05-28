@@ -1,6 +1,7 @@
+import { controller } from '@/container.js';
+
 import { Router } from 'express';
 
-import { controller } from '@/container.js';
 
 const router: Router = Router();
 
