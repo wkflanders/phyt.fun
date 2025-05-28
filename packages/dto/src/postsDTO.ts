@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
 import { uuidv7, PaginationSchema } from './core.js';
-import { UserIdSchema } from './usersDTO.js';
+import { RunIdValueSchema, RunSchema } from './runsDTO.js';
+import { UserIdValueSchema, UserInfoSchema } from './usersDTO.js';
 
 import type {
-    UUIDv7,
     Post,
     PostInsert,
     PostUpdate,
@@ -12,15 +12,22 @@ import type {
     PaginatedPosts
 } from '@phyt/types';
 
-/* ---------- Inbound DTOs ---------- */
-export const PostIdSchema = z.object({
-    postId: uuidv7()
+export const PostStatsSchema = z.object({
+    commentCount: z.number(),
+    reactionCount: z.number()
 });
-export type PostIdDTO = z.infer<typeof PostIdSchema> & UUIDv7;
+
+/* ---------- Inbound DTOs ---------- */
+export const PostIdValueSchema = uuidv7();
+export const PostIdSchema = z.object({
+    postId: PostIdValueSchema
+});
+export type PostIdDTO = z.infer<typeof PostIdValueSchema>;
 
 export const CreatePostSchema = z
     .object({
-        userId: UserIdSchema,
+        userId: UserIdValueSchema,
+        runId: RunIdValueSchema.nullable(),
         title: z.string().min(1),
         content: z.string().min(1),
         status: z.enum(['visible', 'hidden', 'deleted']).optional()
@@ -41,7 +48,7 @@ export const PostQueryParamsSchema = z
     .object({
         page: z.coerce.number().min(1).optional(),
         limit: z.coerce.number().min(1).max(100).optional(),
-        userId: UserIdSchema.optional()
+        userId: UserIdValueSchema.optional()
     })
     .strict();
 export type PostQueryParamsDTO = z.infer<typeof PostQueryParamsSchema> &
@@ -50,13 +57,19 @@ export type PostQueryParamsDTO = z.infer<typeof PostQueryParamsSchema> &
 /* ---------- Outbound DTOs ---------- */
 export const PostSchema = z
     .object({
-        id: PostIdSchema,
-        userId: UserIdSchema,
+        id: PostIdValueSchema,
+        userId: UserIdValueSchema,
+        runId: RunIdValueSchema.nullable(),
         title: z.string(),
         content: z.string(),
         status: z.enum(['visible', 'hidden', 'deleted']),
         createdAt: z.coerce.date(),
-        updatedAt: z.coerce.date()
+        updatedAt: z.coerce.date(),
+        deletedAt: z.coerce.date().nullable(),
+        username: UserInfoSchema.shape.username.optional(),
+        avatarUrl: UserInfoSchema.shape.avatarUrl.optional(),
+        stats: PostStatsSchema.optional(),
+        run: RunSchema.optional()
     })
     .strict();
 export type PostDTO = z.infer<typeof PostSchema> & Post;

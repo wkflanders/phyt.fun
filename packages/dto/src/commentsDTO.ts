@@ -1,11 +1,10 @@
 import { z } from 'zod';
 
 import { uuidv7, PaginationSchema } from './core.js';
-import { PostIdSchema } from './postsDTO.js';
-import { UserIdSchema } from './usersDTO.js';
+import { PostIdValueSchema } from './postsDTO.js';
+import { UserIdValueSchema, UserInfoSchema } from './usersDTO.js';
 
 import type {
-    UUIDv7,
     Comment,
     CommentInsert,
     CommentUpdate,
@@ -14,17 +13,18 @@ import type {
 } from '@phyt/types';
 
 /* ---------- Inbound DTOs ---------- */
+export const CommentIdValueSchema = uuidv7();
 export const CommentIdSchema = z.object({
-    commentId: uuidv7()
+    commentId: CommentIdValueSchema
 });
-export type CommentIdDTO = z.infer<typeof CommentIdSchema> & UUIDv7;
+export type CommentIdDTO = z.infer<typeof CommentIdValueSchema>;
 
 export const CreateCommentSchema = z
     .object({
-        userId: UserIdSchema,
-        postId: PostIdSchema,
+        userId: UserIdValueSchema,
+        postId: PostIdValueSchema,
         content: z.string().min(1),
-        parentCommentId: CommentIdSchema.nullable()
+        parentCommentId: CommentIdValueSchema.nullable()
     })
     .strict();
 export type CreateCommentDTO = z.infer<typeof CreateCommentSchema> &
@@ -51,13 +51,16 @@ export type CommentQueryParamsDTO = z.infer<typeof CommentQueryParamsSchema> &
 /* ---------- Outbound DTOs ---------- */
 export const CommentSchema = z
     .object({
-        id: CommentIdSchema,
-        postId: PostIdSchema,
-        userId: UserIdSchema,
+        id: CommentIdValueSchema,
+        postId: PostIdValueSchema,
+        userId: UserIdValueSchema,
         content: z.string(),
-        parentCommentId: CommentIdSchema.nullable(),
+        parentCommentId: CommentIdValueSchema.nullable(),
         createdAt: z.coerce.date(),
-        updatedAt: z.coerce.date()
+        updatedAt: z.coerce.date(),
+        deletedAt: z.coerce.date().nullable(),
+        username: UserInfoSchema.shape.username.optional(),
+        avatarUrl: UserInfoSchema.shape.avatarUrl.optional()
     })
     .strict();
 export type CommentDTO = z.infer<typeof CommentSchema> & Comment;

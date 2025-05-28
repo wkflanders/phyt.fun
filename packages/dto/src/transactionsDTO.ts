@@ -1,5 +1,3 @@
-import { z } from 'zod';
-
 import {
     UUIDv7,
     Transaction,
@@ -8,6 +6,9 @@ import {
     TransactionQueryParams,
     PaginatedTransactions
 } from '@phyt/types';
+
+import { z } from 'zod';
+
 
 import { CardIdSchema } from './cardsDTO.js';
 import { CompetitionIdSchema } from './competitionsDTO.js';

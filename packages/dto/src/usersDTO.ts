@@ -1,11 +1,15 @@
-import { z } from 'zod';
-
 import { DefaultAvatar } from '@phyt/models';
 
-import { uuidv7, PaginationSchema, WalletAddressSchema } from './core.js';
+import { z } from 'zod';
+
+import {
+    uuidv7,
+    PaginationSchema,
+    PrivyIdValueSchema,
+    WalletAddressValueSchema
+} from './core.js';
 
 import type {
-    UUIDv7,
     User,
     UserInsert,
     UserUpdate,
@@ -13,11 +17,34 @@ import type {
     PaginatedUsers
 } from '@phyt/types';
 
-/* ------------ Inbound DTOs ------------ */
-export const UserIdSchema = z.object({
-    userId: uuidv7()
+const EmailValueSchema = z.string().email();
+export const EmailSchema = z.object({
+    email: z.string().email()
 });
-export type UserIdDTO = z.infer<typeof UserIdSchema> & UUIDv7;
+export type EmailDTO = z.infer<typeof EmailValueSchema>;
+
+const UsernameValueSchema = z
+    .string()
+    .min(3)
+    .max(30)
+    .regex(/^[a-zA-Z0-9_-]+$/);
+export const UsernameSchema = z.object({
+    username: UsernameValueSchema
+});
+export type UsernameDTO = z.infer<typeof UsernameValueSchema>;
+
+export const UserInfoSchema = z.object({
+    email: EmailValueSchema.optional(),
+    username: UsernameValueSchema.optional(),
+    avatarUrl: z.string().default(DefaultAvatar).optional()
+});
+
+/* ------------ Inbound DTOs ------------ */
+export const UserIdValueSchema = uuidv7();
+export const UserIdSchema = z.object({
+    userId: UserIdValueSchema
+});
+export type UserIdDTO = z.infer<typeof UserIdValueSchema>;
 
 export const UserRoleSchema = z.enum(['admin', 'user', 'runner']);
 
@@ -29,23 +56,18 @@ export const CreateUserSchema = z
             .min(3)
             .max(30)
             .regex(/^[a-zA-Z0-9_-]+$/),
-        privyId: z.string(),
-        walletAddress: WalletAddressSchema
+        privyId: PrivyIdValueSchema,
+        walletAddress: WalletAddressValueSchema
     })
     .strict();
 export type CreateUserDTO = z.infer<typeof CreateUserSchema> & UserInsert;
 
 export const UpdateUserSchema = z
     .object({
-        email: z.string().email().optional(),
-        username: z
-            .string()
-            .min(3)
-            .max(30)
-            .regex(/^[a-zA-Z0-9_-]+$/)
-            .optional(),
-        privyId: z.string().optional(),
-        walletAddress: WalletAddressSchema.optional(),
+        email: UserInfoSchema.shape.email.optional(),
+        username: UserInfoSchema.shape.username.optional(),
+        privyId: PrivyIdValueSchema.optional(),
+        walletAddress: WalletAddressValueSchema.optional(),
         avatarUrl: z.string().optional(),
         role: UserRoleSchema.optional(),
         phytnessPoints: z.number().optional(),
@@ -68,7 +90,7 @@ export type UserQueryParamsDTO = z.infer<typeof UserQueryParamsSchema> &
 /* ------------ Outbound DTOs ----------- */
 export const UserSchema = z
     .object({
-        id: UserIdSchema,
+        id: UserIdValueSchema,
         email: z.string().email(),
         username: z
             .string()
@@ -76,14 +98,15 @@ export const UserSchema = z
             .max(30)
             .regex(/^[a-zA-Z0-9_-]+$/),
         role: UserRoleSchema,
-        privyId: z.string(),
+        privyId: PrivyIdValueSchema,
         avatarUrl: z.string().default(DefaultAvatar),
-        walletAddress: WalletAddressSchema,
+        walletAddress: WalletAddressValueSchema,
         phytnessPoints: z.number(),
         twitterHandle: z.string().nullable(),
         stravaHandle: z.string().nullable(),
         createdAt: z.coerce.date(),
-        updatedAt: z.coerce.date()
+        updatedAt: z.coerce.date(),
+        deletedAt: z.coerce.date().nullable()
     })
     .strict();
 export type UserDTO = z.infer<typeof UserSchema> & User;

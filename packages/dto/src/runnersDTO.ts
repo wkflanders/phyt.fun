@@ -1,7 +1,4 @@
-import { z } from 'zod';
-
 import {
-    UUIDv7,
     Runner,
     RunnerInsert,
     RunnerUpdate,
@@ -9,26 +6,40 @@ import {
     RunnerQueryParams
 } from '@phyt/types';
 
-import { uuidv7, PaginationSchema, WalletAddressSchema } from './core.js';
-import { UserIdSchema } from './usersDTO.js';
+import { z } from 'zod';
+
+import { uuidv7, PaginationSchema, WalletAddressValueSchema } from './core.js';
+import { UserIdValueSchema, UserInfoSchema } from './usersDTO.js';
 
 /* ---------- Inbound DTOs ---------- */
+export const RunnerIdValueSchema = uuidv7();
 export const RunnerIdSchema = z.object({
-    runnerId: uuidv7()
+    runnerId: RunnerIdValueSchema
 });
-export type RunnerIdDTO = z.infer<typeof RunnerIdSchema> & UUIDv7;
+export type RunnerIdDTO = z.infer<typeof RunnerIdValueSchema>;
 
 export const RunnerStatusSchema = z.enum(['pending', 'active', 'inactive']);
 
 export const CreateRunnerSchema = z.object({
-    userId: UserIdSchema,
-    runnerWallet: WalletAddressSchema
+    userId: UserIdValueSchema,
+    totalDistance: z.number(),
+    averagePace: z.number().nullable(),
+    totalRuns: z.number(),
+    bestMileTime: z.number().nullable(),
+    status: RunnerStatusSchema,
+    isPooled: z.boolean(),
+    runnerWallet: WalletAddressValueSchema
 });
 export type CreateRunnerDTO = z.infer<typeof CreateRunnerSchema> & RunnerInsert;
 
 export const UpdateRunnerSchema = z.object({
-    status: RunnerStatusSchema,
-    isPooled: z.boolean()
+    totalDistance: z.number().optional(),
+    averagePace: z.number().nullable().optional(),
+    totalRuns: z.number().optional(),
+    bestMileTime: z.number().nullable().optional(),
+    status: RunnerStatusSchema.optional(),
+    isPooled: z.boolean().optional(),
+    runnerWallet: WalletAddressValueSchema.optional()
 });
 export type UpdateRunnerDTO = z.infer<typeof UpdateRunnerSchema> & RunnerUpdate;
 
@@ -53,17 +64,20 @@ export type RunnerQueryParamsDTO = z.infer<typeof RunnerQueryParamsSchema> &
 
 /* ---------- Outbound DTOs ---------- */
 export const RunnerSchema = z.object({
-    id: RunnerIdSchema,
-    userId: UserIdSchema,
+    id: RunnerIdValueSchema,
+    userId: UserIdValueSchema,
     totalDistance: z.number(),
     averagePace: z.number().nullable(),
     totalRuns: z.number(),
     bestMileTime: z.number().nullable(),
     status: RunnerStatusSchema,
     isPooled: z.boolean(),
-    runnerWallet: WalletAddressSchema,
+    runnerWallet: WalletAddressValueSchema,
     createdAt: z.date(),
-    updatedAt: z.date()
+    updatedAt: z.date(),
+    deletedAt: z.date().nullable(),
+    username: UserInfoSchema.shape.username.optional(),
+    avatarUrl: UserInfoSchema.shape.avatarUrl.optional()
 });
 export type RunnerDTO = z.infer<typeof RunnerSchema> & Runner;
 

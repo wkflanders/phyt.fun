@@ -1,6 +1,6 @@
-import { z } from 'zod';
-
 import { isUUIDv7 } from '@phyt/models';
+
+import { z } from 'zod';
 
 export const PaginationSchema = z
     .object({
@@ -17,9 +17,18 @@ export const uuidv7 = () =>
         .refine(isUUIDv7, { message: 'Invalid UUIDv7' })
         .transform((s) => s);
 
-export const WalletAddressSchema = z
-    .string()
-    .regex(/^0x[a-fA-F0-9]{40}$/)
-    .transform((val) => val as `0x${string}`);
+export const PrivyIdValueSchema = z.string().transform((val) => val);
+export const PrivyIdSchema = z.object({
+    privyId: PrivyIdValueSchema
+});
+export type PrivyIdDTO = z.infer<typeof PrivyIdValueSchema>;
 
-export const DeviceIdSchema = z.string().regex(/^[a-zA-Z0-9_-]{1,255}$/);
+export const WalletAddressValueSchema = z
+    .string()
+    .regex(/^0x[a-fA-F0-9]{42}$/)
+    .length(42)
+    .transform((val) => val as `0x${string}`);
+export const WalletAddressSchema = z.object({
+    walletAddress: WalletAddressValueSchema
+});
+export type WalletAddressDTO = z.infer<typeof WalletAddressValueSchema>;
