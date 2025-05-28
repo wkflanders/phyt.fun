@@ -76,12 +76,12 @@
             "dependsOn": ["@phyt/dto#build"],
             "outputs": ["dist/**"]
         },
-        "@phyt/server#build": {
+        "@phyt/api#build": {
             "dependsOn": ["@phyt/services#build"],
             "outputs": ["dist/**"]
         },
         "@phyt/web#build": {
-            "dependsOn": ["@phyt/drizzle#build", "@phyt/server#build"],
+            "dependsOn": ["@phyt/drizzle#build", "@phyt/api#build"],
             "outputs": [".next/**"]
         },
         "type-check": {
@@ -118,7 +118,7 @@
         "@phyt/web#lint:fix": {
             "dependsOn": ["@phyt/drizzle#lint:fix", "@phyt/contracts#lint:fix"]
         },
-        "@phyt/server#lint:fix": {
+        "@phyt/api#lint:fix": {
             "dependsOn": [
                 "@phyt/drizzle#lint:fix",
                 "@phyt/web#lint:fix",
