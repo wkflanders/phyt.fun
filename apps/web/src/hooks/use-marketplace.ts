@@ -202,6 +202,7 @@ export function useCreateListing(user: User) {
             expiration // added parameter
         }: {
             cardId: UUIDv7;
+            cardId: UUIDv7;
             tokenId: number;
             takePrice: bigint;
             expiration: string; // e.g. an ISO string or UNIX timestamp string
@@ -240,8 +241,11 @@ export function useCreateListing(user: User) {
                             collection: order.collection,
                             tokenId: order.tokenId.toString(),
                             paymentToken: order.paymentToken,
+                            tokenId: order.tokenId.toString(),
+                            paymentToken: order.paymentToken,
                             price: order.price.toString(),
                             expiration_time: expiration,
+                            merkleRoot: order.merkleRoot,
                             merkleRoot: order.merkleRoot,
                             salt: order.salt.toString()
                         },
@@ -312,6 +316,7 @@ export function usePurchaseListing() {
             // Convert the listing data into the Order format
             const sellOrder: Order = {
                 trader: listing.orderData.trader,
+                trader: listing.orderData.trader,
                 side: 'sell', // 1 for sell
                 collection: listing.orderData.collection,
                 tokenId: BigInt(listing.orderData.tokenId),
@@ -319,7 +324,14 @@ export function usePurchaseListing() {
                 price: BigInt(listing.orderData.price),
                 expirationTime: BigInt(listing.orderData.expirationTime),
                 merkleRoot:
+                collection: listing.orderData.collection,
+                tokenId: BigInt(listing.orderData.tokenId),
+                paymentToken: listing.orderData.paymentToken,
+                price: BigInt(listing.orderData.price),
+                expirationTime: BigInt(listing.orderData.expirationTime),
+                merkleRoot:
                     '0x0000000000000000000000000000000000000000000000000000000000000000' as `0x${string}`,
+                salt: BigInt(listing.orderData.salt)
                 salt: BigInt(listing.orderData.salt)
             };
 
@@ -381,6 +393,8 @@ export function usePlaceBid() {
             cardId,
             bidAmount
         }: {
+            listingId: UUIDv7;
+            cardId: UUIDv7;
             listingId: UUIDv7;
             cardId: UUIDv7;
             bidAmount: bigint;

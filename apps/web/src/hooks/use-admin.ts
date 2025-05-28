@@ -54,6 +54,7 @@ export function useApproveRunner() {
 
     return useMutation({
         mutationFn: async (runnerId: UUIDv7) => {
+        mutationFn: async (runnerId: UUIDv7) => {
             const token = await getAccessToken();
             if (!token) {
                 throw new AuthenticationError(
@@ -91,6 +92,7 @@ export function useUpdateRunVerification() {
             runId,
             status
         }: {
+            runId: UUIDv7;
             runId: UUIDv7;
             status: 'verified' | 'flagged';
         }) => {

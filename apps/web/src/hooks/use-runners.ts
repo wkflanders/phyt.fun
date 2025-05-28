@@ -36,6 +36,7 @@ export function useGetRunners(search?: string) {
 }
 
 export function useGetRunner(id: UUIDv7) {
+export function useGetRunner(id: UUIDv7) {
     const { getAccessToken } = usePrivy();
 
     return useQuery<RunnerProfile, ApiError>({

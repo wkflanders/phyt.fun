@@ -66,7 +66,11 @@ export function useExchange() {
                 order.collection,
                 order.tokenId,
                 order.paymentToken,
+                order.tokenId,
+                order.paymentToken,
                 order.price,
+                order.expirationTime,
+                order.merkleRoot,
                 order.expirationTime,
                 order.merkleRoot,
                 order.salt
@@ -102,7 +106,11 @@ export function useExchange() {
             collection: env.NEXT_PUBLIC_PHYT_CARDS_ADDRESS as `0x${string}`,
             tokenId: BigInt(tokenId),
             paymentToken: '0x0000000000000000000000000000000000000000', // ETH
+            tokenId: BigInt(tokenId),
+            paymentToken: '0x0000000000000000000000000000000000000000', // ETH
             price: takePrice,
+            expirationTime: BigInt(new Date(expiration).getTime()),
+            merkleRoot:
             expirationTime: BigInt(new Date(expiration).getTime()),
             merkleRoot:
                 '0x0000000000000000000000000000000000000000000000000000000000000000',
@@ -133,6 +141,8 @@ export function useExchange() {
     }: {
         listingId: UUIDv7;
         cardId: UUIDv7;
+        listingId: UUIDv7;
+        cardId: UUIDv7;
         bidAmount: bigint;
     }) => {
         if (!walletClient || !address) {
@@ -145,10 +155,14 @@ export function useExchange() {
             collection: env.NEXT_PUBLIC_PHYT_CARDS_ADDRESS as `0x${string}`,
             tokenId: BigInt(cardId),
             paymentToken: '0x0000000000000000000000000000000000000000', // ETH
+            tokenId: BigInt(cardId),
+            paymentToken: '0x0000000000000000000000000000000000000000', // ETH
             price: bidAmount,
+            expirationTime: BigInt(
             expirationTime: BigInt(
                 Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60
             ),
+            merkleRoot:
             merkleRoot:
                 '0x0000000000000000000000000000000000000000000000000000000000000000',
             salt: BigInt(Math.floor(Math.random() * 1000000))

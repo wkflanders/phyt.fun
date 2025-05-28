@@ -2,7 +2,6 @@ import { PermissionError } from '@phyt/models';
 
 import { Request, Response, NextFunction } from 'express';
 
-
 export const ensureOwnership = (
     req: Request,
     res: Response,
