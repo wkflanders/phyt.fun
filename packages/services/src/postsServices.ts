@@ -1,71 +1,104 @@
 import { PostsVO } from '@phyt/models';
 
-import type { PostDTO, PostsPageDTO, PostWithUserDTO } from '@phyt/dto';
-import type { PostsRepository } from '@phyt/repositories';
+import { PostSchema } from '@phyt/dto';
+
 import type {
-    UUIDv7,
-    PostInsert,
-    PostUpdate,
-    PostQueryParams
-} from '@phyt/types';
+    PostIdDTO,
+    UserIdDTO,
+    PostDTO,
+    CreatePostDTO,
+    UpdatePostDTO,
+    PostsPageDTO,
+    PostQueryParamsDTO
+} from '@phyt/dto';
+import type { PostsRepository } from '@phyt/repositories';
 
 export type PostsService = ReturnType<typeof makePostsService>;
 
-export const makePostsService = (repo: PostsRepository) => {
-    const _findById = async (postId: UUIDv7): Promise<PostsVO> => {
-        const postVO = await repo.findById(postId);
-        return postVO;
+export const makePostsService = ({
+    postsRepo
+}: {
+    postsRepo: PostsRepository;
+}) => {
+    const createPost = async ({
+        input
+    }: {
+        input: CreatePostDTO;
+    }): Promise<PostDTO> => {
+        const postVO = PostsVO.create({ input });
+        await postsRepo.save({ input: postVO });
+        return PostSchema.parse(postVO.toDTO<PostDTO>());
     };
 
-    /**
-     * Public API: Always return plain Post DTOs for external consumption
-     */
-    const createPost = async (input: PostInsert): Promise<PostDTO> => {
-        PostsVO.validateInput(input);
-
-        const postVO = await repo.create(input);
-        return postVO.toDTO<PostDTO>();
-    };
-
-    const getPosts = async (params: PostQueryParams): Promise<PostsPageDTO> => {
-        const result = await repo.list(params);
+    const getPosts = async ({
+        params
+    }: {
+        params: PostQueryParamsDTO;
+    }): Promise<PostsPageDTO> => {
+        const paginatedPosts = await postsRepo.findAll({ params });
         return {
-            posts: result.posts.map((p) => p.toDTO<PostWithUserDTO>()),
-            pagination: result.pagination
+            posts: paginatedPosts.posts.map((p) =>
+                PostSchema.parse(p.toDTO<PostDTO>())
+            ),
+            pagination: paginatedPosts.pagination
         };
     };
 
-    const getUserPosts = async (
-        userId: UUIDv7,
-        params: PostQueryParams
-    ): Promise<PostsPageDTO> => {
-        const result = await repo.listByUser(userId, params);
+    const getUserPosts = async ({
+        userId,
+        params
+    }: {
+        userId: UserIdDTO;
+        params: PostQueryParamsDTO;
+    }): Promise<PostsPageDTO> => {
+        const paginatedPosts = await postsRepo.findByUser({ userId, params });
         return {
-            posts: result.posts.map((p) => p.toDTO<PostWithUserDTO>()),
-            pagination: result.pagination
+            posts: paginatedPosts.posts.map((p) =>
+                PostSchema.parse(p.toDTO<PostDTO>())
+            ),
+            pagination: paginatedPosts.pagination
         };
     };
 
-    const getPostById = async (postId: UUIDv7): Promise<PostDTO> => {
-        const postVO = await _findById(postId);
-        return postVO.toDTO<PostDTO>();
+    const getPostById = async ({
+        postId
+    }: {
+        postId: PostIdDTO;
+    }): Promise<PostDTO> => {
+        const postVO = await postsRepo.findById({ postId });
+        return PostSchema.parse(postVO.toDTO<PostDTO>());
     };
 
-    const updatePost = async (
-        postId: UUIDv7,
-        input: PostUpdate
-    ): Promise<PostDTO> => {
-        if (Object.keys(input).length > 0) {
-            PostsVO.validateUpdate(input);
-        }
-
-        const savedVO = await repo.update(postId, input);
-        return savedVO.toDTO<PostDTO>();
+    const updatePost = async ({
+        postId,
+        update
+    }: {
+        postId: PostIdDTO;
+        update: UpdatePostDTO;
+    }): Promise<PostDTO> => {
+        const postVO = (await postsRepo.findById({ postId })).update({
+            update
+        });
+        await postsRepo.save({
+            input: {
+                userId: postVO.userId,
+                runId: postVO.runId,
+                title: postVO.title,
+                content: postVO.content,
+                status: postVO.status
+            }
+        });
+        return PostSchema.parse(postVO.toDTO<PostDTO>());
     };
 
-    const deletePost = async (postId: UUIDv7): Promise<PostDTO> => {
-        const deletedVO = await repo.remove(postId);
-        return deletedVO.toDTO<PostDTO>();
+    const deletePost = async ({
+        postId
+    }: {
+        postId: PostIdDTO;
+    }): Promise<PostDTO> => {
+        const postVO = await postsRepo.findById({ postId });
+        await postsRepo.remove({ postId });
+        return PostSchema.parse(postVO.toDTO<PostDTO>());
     };
 
     return Object.freeze({

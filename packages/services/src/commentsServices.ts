@@ -1,81 +1,104 @@
 import { CommentsVO } from '@phyt/models';
 
+import { CommentSchema } from '@phyt/dto';
+
 import type {
+    PostIdDTO,
+    CommentIdDTO,
     CommentDTO,
-    CommentsPageDTO,
-    CommentWithUserDTO
+    CreateCommentDTO,
+    UpdateCommentDTO,
+    CommentQueryParamsDTO,
+    CommentsPageDTO
 } from '@phyt/dto';
 import type { CommentsRepository } from '@phyt/repositories';
-import type {
-    UUIDv7,
-    CommentInsert,
-    CommentUpdate,
-    CommentQueryParams
-} from '@phyt/types';
 
 export type CommentsService = ReturnType<typeof makeCommentsService>;
 
-export const makeCommentsService = (repo: CommentsRepository) => {
-    /**
-     * Domain operations: Return CommentsVO objects for internal use
-     * These are not exposed outside the service
-     */
-    const _findById = async (commentId: UUIDv7): Promise<CommentsVO> => {
-        const commentVO = await repo.findById(commentId);
-        return commentVO;
+export const makeCommentsService = ({
+    commentsRepo
+}: {
+    commentsRepo: CommentsRepository;
+}) => {
+    const createComment = async ({
+        input
+    }: {
+        input: CreateCommentDTO;
+    }): Promise<CommentDTO> => {
+        const commentVO = CommentsVO.create({ input });
+        await commentsRepo.save({ input: commentVO });
+        return CommentSchema.parse(commentVO.toDTO<CommentDTO>());
     };
 
-    /**
-     * Public API: Always return plain Comment DTOs for external consumption
-     */
-    const createComment = async (input: CommentInsert): Promise<CommentDTO> => {
-        CommentsVO.validateInput(input);
-
-        const commentVO = await repo.create(input);
-        return commentVO.toDTO<CommentDTO>();
-    };
-
-    const getPostComments = async (
-        postId: UUIDv7,
-        params: CommentQueryParams
-    ): Promise<CommentsPageDTO> => {
-        const result = await repo.listForPost(postId, params);
+    const getPostComments = async ({
+        postId,
+        params
+    }: {
+        postId: PostIdDTO;
+        params: CommentQueryParamsDTO;
+    }): Promise<CommentsPageDTO> => {
+        const paginatedComments = await commentsRepo.findByPost({
+            postId,
+            params
+        });
         return {
-            comments: result.comments.map((c) => c.toDTO<CommentWithUserDTO>()),
-            pagination: result.pagination
+            comments: paginatedComments.comments.map((comment) =>
+                CommentSchema.parse(comment.toDTO<CommentDTO>())
+            ),
+            pagination: paginatedComments.pagination
         };
     };
 
-    const getCommentReplies = async (
-        commentId: UUIDv7,
-        params: CommentQueryParams
-    ): Promise<CommentsPageDTO> => {
-        await _findById(commentId);
-        const result = await repo.listReplies(commentId, params);
+    const getCommentReplies = async ({
+        parentCommentId,
+        params
+    }: {
+        parentCommentId: CommentIdDTO;
+        params: CommentQueryParamsDTO;
+    }): Promise<CommentsPageDTO> => {
+        const paginatedComments = await commentsRepo.findReplies({
+            parentCommentId,
+            params
+        });
         return {
-            comments: result.comments.map((c) => c.toDTO<CommentWithUserDTO>()),
-            pagination: result.pagination
+            comments: paginatedComments.comments.map((comment) =>
+                CommentSchema.parse(comment.toDTO<CommentDTO>())
+            ),
+            pagination: paginatedComments.pagination
         };
     };
 
-    const getCommentById = async (commentId: UUIDv7): Promise<CommentDTO> => {
-        const commentVO = await _findById(commentId);
-        return commentVO.toDTO<CommentDTO>();
+    const getCommentById = async ({
+        commentId
+    }: {
+        commentId: CommentIdDTO;
+    }): Promise<CommentDTO> => {
+        const commentVO = await commentsRepo.findById({ commentId });
+        return CommentSchema.parse(commentVO.toDTO<CommentDTO>());
     };
 
-    const updateComment = async (
-        commentId: UUIDv7,
-        input: CommentUpdate
-    ): Promise<CommentDTO> => {
-        CommentsVO.validateUpdate(input);
-
-        const savedVO = await repo.update(commentId, input);
-        return savedVO.toDTO<CommentDTO>();
+    const updateComment = async ({
+        commentId,
+        update
+    }: {
+        commentId: CommentIdDTO;
+        update: UpdateCommentDTO;
+    }): Promise<CommentDTO> => {
+        const commentVO = (await commentsRepo.findById({ commentId })).update({
+            update
+        });
+        await commentsRepo.save({ input: commentVO });
+        return CommentSchema.parse(commentVO.toDTO<CommentDTO>());
     };
 
-    const deleteComment = async (commentId: UUIDv7): Promise<CommentDTO> => {
-        const deletedVO = await repo.remove(commentId);
-        return deletedVO.toDTO<CommentDTO>();
+    const deleteComment = async ({
+        commentId
+    }: {
+        commentId: CommentIdDTO;
+    }): Promise<CommentDTO> => {
+        const commentVO = (await commentsRepo.findById({ commentId })).remove();
+        await commentsRepo.save({ input: commentVO });
+        return CommentSchema.parse(commentVO.toDTO<CommentDTO>());
     };
 
     return Object.freeze({

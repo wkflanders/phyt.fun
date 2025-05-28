@@ -1,17 +1,19 @@
-import { UserVO } from '@phyt/models';
+import { UsersVO } from '@phyt/models';
+
+import { UserSchema } from '@phyt/dto';
 
 import type {
+    PrivyIdDTO,
+    WalletAddressDTO,
+    UserIdDTO,
     UserDTO,
     CreateUserDTO,
-    UpdateProfileDTO,
-    UpdateAvatarDTO,
-    UsersPageDTO,
-    UserWithStatusDTO
+    UpdateUserDTO,
+    UserQueryParamsDTO,
+    UsersPageDTO
 } from '@phyt/dto';
 import type { UsersRepository } from '@phyt/repositories';
-import type { UUIDv7, UserQueryParams, Transaction, Card } from '@phyt/types';
 
-// Define Multer file type as interface rather than namespace
 export interface MulterFile {
     fieldname: string;
     originalname: string;
@@ -26,129 +28,157 @@ export interface MulterFile {
 
 export type UsersService = ReturnType<typeof makeUsersService>;
 
-/**
- * Creates user services that handle business logic for user operations
- */
-export const makeUsersService = (repo: UsersRepository) => {
-    // Domain operations: Return UserVO objects for internal use
-    const _findById = async (userId: UUIDv7): Promise<UserVO> => {
-        return await repo.findById(userId);
-    };
+export const makeUsersService = ({
+    usersRepo
+}: {
+    usersRepo: UsersRepository;
+}) => {
+    const createUser = async ({
+        input,
+        file
+    }: {
+        input: CreateUserDTO;
+        file?: MulterFile;
+    }): Promise<UserDTO> => {
+        const userVO = UsersVO.create({ input });
+        await usersRepo.save({ input: userVO });
 
-    // Public API: Convert domain objects to DTOs
-    const createUser = async (
-        input: CreateUserDTO,
-        file?: MulterFile
-    ): Promise<UserDTO> => {
-        UserVO.validateInput(input);
-
-        // Handle avatar upload if file exists
-        let avatarUrl = input.avatarUrl;
         if (file) {
-            try {
-                avatarUrl = await repo.uploadAvatar(file.buffer);
-            } catch (error) {
-                console.error('Error uploading avatar:', error);
-                // Continue with default avatar if upload fails
-            }
+            userVO.avatarUrl = await usersRepo.uploadAvatar(file.buffer);
         }
 
-        const user = await repo.create({
-            ...input,
-            avatarUrl
-        });
-
-        return user.toDTO<UserDTO>();
+        return UserSchema.parse(userVO.toDTO<UserDTO>());
     };
 
-    const getUserById = async (userId: UUIDv7): Promise<UserDTO> => {
-        const user = await _findById(userId);
-        return user.toDTO<UserDTO>();
+    const getUserById = async ({
+        userId
+    }: {
+        userId: UserIdDTO;
+    }): Promise<UserDTO> => {
+        const userVO = await usersRepo.findById({ userId });
+        return UserSchema.parse(userVO.toDTO<UserDTO>());
     };
 
-    const getUserByPrivyId = async (privyId: string): Promise<UserDTO> => {
-        const user = await repo.findByPrivyId(privyId);
-        return user.toDTO<UserDTO>();
+    const getUserWithStatusById = async ({
+        userId
+    }: {
+        userId: UserIdDTO;
+    }): Promise<UserDTO> => {
+        const userVO = await usersRepo.findByIdWithStatus({ userId });
+        return UserSchema.parse(userVO.toDTO<UserDTO>());
     };
 
-    const getUserWithStatusByPrivyId = async (
-        privyId: string
-    ): Promise<UserWithStatusDTO> => {
-        const userWithStatus = await repo.findByPrivyIdWithStatus(privyId);
-        return userWithStatus.toDTO<UserWithStatusDTO>();
+    const getUserByPrivyId = async ({
+        privyId
+    }: {
+        privyId: PrivyIdDTO;
+    }): Promise<UserDTO> => {
+        const userVO = await usersRepo.findByPrivyId({ privyId });
+        return UserSchema.parse(userVO.toDTO<UserDTO>());
     };
 
-    const getUserWithStatusById = async (
-        userId: UUIDv7
-    ): Promise<UserWithStatusDTO> => {
-        const userWithStatus = await repo.findByIdWithStatus(userId);
-        return userWithStatus.toDTO<UserWithStatusDTO>();
+    const getUserWithStatusByPrivyId = async ({
+        privyId
+    }: {
+        privyId: PrivyIdDTO;
+    }): Promise<UserDTO> => {
+        const userVO = await usersRepo.findByPrivyIdWithStatus({ privyId });
+        return UserSchema.parse(userVO.toDTO<UserDTO>());
     };
 
-    const getUserByWalletAddress = async (
-        walletAddress: string
-    ): Promise<UserDTO> => {
-        const user = await repo.findByWalletAddress(walletAddress);
-        return user.toDTO<UserDTO>();
+    const getUserByWalletAddress = async ({
+        walletAddress
+    }: {
+        walletAddress: WalletAddressDTO;
+    }): Promise<UserDTO> => {
+        const userVO = await usersRepo.findByWalletAddress({ walletAddress });
+        return UserSchema.parse(userVO.toDTO<UserDTO>());
     };
 
-    const getUserByEmail = async (email: string): Promise<UserDTO> => {
-        const user = await repo.findByEmail(email);
-        return user.toDTO<UserDTO>();
+    const getUserByEmail = async ({
+        email
+    }: {
+        email: string;
+    }): Promise<UserDTO> => {
+        const userVO = await usersRepo.findByEmail({ email });
+        return UserSchema.parse(userVO.toDTO<UserDTO>());
     };
 
-    const getUserByUsername = async (username: string): Promise<UserDTO> => {
-        const user = await repo.findByUsername(username);
-        return user.toDTO<UserDTO>();
+    const getUserByUsername = async ({
+        username
+    }: {
+        username: string;
+    }): Promise<UserDTO> => {
+        const userVO = await usersRepo.findByUsername({ username });
+        return UserSchema.parse(userVO.toDTO<UserDTO>());
     };
 
-    const updateProfile = async (
-        userId: UUIDv7,
-        input: UpdateProfileDTO
-    ): Promise<UserDTO> => {
-        UserVO.validateUpdate(input);
-        const user = await repo.updateProfile(userId, input);
-        return user.toDTO<UserDTO>();
+    const updateUser = async ({
+        userId,
+        update,
+        file
+    }: {
+        userId: UserIdDTO;
+        update: UpdateUserDTO;
+        file?: MulterFile;
+    }): Promise<UserDTO> => {
+        const userVO = await usersRepo.findById({ userId });
+        const updateUserVO = userVO.update({ update });
+        if (file) {
+            updateUserVO.avatarUrl = await usersRepo.uploadAvatar(file.buffer);
+        }
+        const savedVO = await usersRepo.save({ input: updateUserVO });
+
+        return UserSchema.parse(savedVO.toDTO<UserDTO>());
     };
 
-    const updateAvatar = async (
-        userId: UUIDv7,
-        input: UpdateAvatarDTO
-    ): Promise<UserDTO> => {
-        const user = await repo.updateAvatar(userId, input.avatarUrl);
-        return user.toDTO<UserDTO>();
+    const updateAvatarWithFile = async ({
+        userId,
+        file
+    }: {
+        userId: UserIdDTO;
+        file: MulterFile;
+    }): Promise<UserDTO> => {
+        const userVO = await usersRepo.findById({ userId });
+        userVO.avatarUrl = await usersRepo.uploadAvatar(file.buffer);
+        const savedVO = await usersRepo.save({ input: userVO });
+        return UserSchema.parse(savedVO.toDTO<UserDTO>());
     };
 
-    const updateAvatarWithFile = async (
-        userId: UUIDv7,
-        file: MulterFile
-    ): Promise<UserDTO> => {
-        const updatedUser = await repo.updateAvatarWithFile(
-            userId,
-            file.buffer
-        );
-        return updatedUser.toDTO<UserDTO>();
-    };
-
-    const listUsers = async (
-        params: UserQueryParams
-    ): Promise<UsersPageDTO> => {
-        const result = await repo.listUsers(params);
+    const listUsers = async ({
+        params
+    }: {
+        params: UserQueryParamsDTO;
+    }): Promise<UsersPageDTO> => {
+        const paginatedUsers = await usersRepo.findAll({ params });
         return {
-            users: result.users.map((userVO) => userVO.toDTO()),
-            pagination: result.pagination
+            users: paginatedUsers.users.map((userVO) =>
+                UserSchema.parse(userVO.toDTO<UserDTO>())
+            ),
+            pagination: paginatedUsers.pagination
         };
     };
 
-    const getCardsByUserId = async (userId: string): Promise<Card[]> => {
-        return await repo.findCardsById(userId as UUIDv7);
+    const deleteUser = async ({
+        userId
+    }: {
+        userId: UserIdDTO;
+    }): Promise<UserDTO> => {
+        const userVO = await usersRepo.findById({ userId });
+        const removedUserVO = userVO.remove();
+        await usersRepo.save({ input: removedUserVO });
+        return UserSchema.parse(userVO.toDTO<UserDTO>());
     };
 
-    const getTransactionsByUserId = async (
-        userId: string
-    ): Promise<Transaction[]> => {
-        return await repo.findTransactionById(userId as UUIDv7);
-    };
+    // const getCardsByUserId = async (userId: UserIdDTO): Promise<Card[]> => {
+    //     return await repo.findCardsById(userId);
+    // };
+
+    // const getTransactionsByUserId = async (
+    //     userId: UserIdDTO
+    // ): Promise<Transaction[]> => {
+    //     return await repo.findTransactionById(userId);
+    // };
 
     return {
         createUser,
@@ -159,11 +189,11 @@ export const makeUsersService = (repo: UsersRepository) => {
         getUserByWalletAddress,
         getUserByEmail,
         getUserByUsername,
-        updateProfile,
-        updateAvatar,
+        updateUser,
         updateAvatarWithFile,
         listUsers,
-        getCardsByUserId,
-        getTransactionsByUserId
+        deleteUser
+        // getCardsByUserId,
+        // getTransactionsByUserId
     };
 };

@@ -1,126 +1,165 @@
-import { RunVO } from '@phyt/models';
+import { RunsVO } from '@phyt/models';
 
 import type {
+    PrivyIdDTO,
+    RunIdDTO,
+    RunnerIdDTO,
     RunDTO,
     RunWithRunnerDTO,
-    RunsPageDTO,
-    RunsWithRunnerPageDTO,
     CreateRunDTO,
-    UpdateRunVerificationDTO
+    UpdateRunDTO,
+    RunQueryParamsDTO,
+    RunsPageDTO,
+    RunsWithRunnerPageDTO
 } from '@phyt/dto';
-import type { RunsRepository } from '@phyt/repositories';
-import type { UUIDv7, RunInsert, RunQueryParams } from '@phyt/types';
+import type { RunsRepository, UsersRepository } from '@phyt/repositories';
 
 export type RunsService = ReturnType<typeof makeRunsServices>;
 
-export const makeRunsServices = (repo: RunsRepository) => {
-    /**
-     * Domain operations: Return RunVO objects for internal use
-     * These are not exposed outside the service
-     */
-    const _getRunById = async (runId: UUIDv7): Promise<RunVO> => {
-        return await repo.getRunById(runId);
+export const makeRunsServices = ({
+    runsRepo,
+    usersRepo
+}: {
+    runsRepo: RunsRepository;
+    usersRepo: UsersRepository;
+}) => {
+    const createRun = async ({
+        input
+    }: {
+        input: CreateRunDTO;
+    }): Promise<RunDTO> => {
+        const runVO = RunsVO.create({ input });
+        await runsRepo.save({ input: runVO });
+        return runVO.toDTO<RunDTO>();
     };
 
-    /**
-     * Public API: Always return plain DTOs for external consumption
-     */
-    const getRunById = async (runId: UUIDv7): Promise<RunDTO> => {
-        const run = await _getRunById(runId);
-        return run.toDTO<RunDTO>();
+    const createRunByPrivyId = async ({
+        privyId,
+        input
+    }: {
+        privyId: PrivyIdDTO;
+        input: CreateRunDTO;
+    }): Promise<RunDTO> => {
+        const userVO = await usersRepo.findByPrivyId({ privyId });
+        const runVO = RunsVO.create({
+            input: {
+                ...input,
+                runnerId: userVO.id
+            }
+        });
+        await runsRepo.save({ input: runVO });
+        return runVO.toDTO<RunDTO>();
     };
 
-    const getRunsByRunnerId = async (
-        runnerId: UUIDv7,
-        params: RunQueryParams = { page: 1, limit: 20 }
-    ): Promise<RunsPageDTO> => {
-        const result = await repo.getRunsByRunnerId(runnerId, params);
+    const createRunsBatch = async ({
+        input,
+        params
+    }: {
+        input: CreateRunDTO[];
+        params?: RunQueryParamsDTO;
+    }): Promise<RunsPageDTO> => {
+        const runsVOList = input.map((batch) =>
+            RunsVO.create({ input: batch })
+        );
+        const result = await runsRepo.saveBatch({ input: runsVOList, params });
         return {
             runs: result.runs.map((run) => run.toDTO<RunDTO>()),
             pagination: result.pagination
         };
     };
 
-    const getRunsWithRunnerInfo = async (
-        params: RunQueryParams = { page: 1, limit: 20 }
-    ): Promise<RunsWithRunnerPageDTO> => {
-        const result = await repo.getRunsWithRunnerInfo(params);
+    const createRunsBatchByPrivyId = async ({
+        privyId,
+        input,
+        params
+    }: {
+        privyId: PrivyIdDTO;
+        input: CreateRunDTO[];
+        params?: RunQueryParamsDTO;
+    }): Promise<RunsPageDTO> => {
+        const userVO = await usersRepo.findByPrivyId({ privyId });
+        const runsVOList = input.map((data) =>
+            RunsVO.create({
+                input: {
+                    ...data,
+                    runnerId: userVO.id
+                }
+            })
+        );
+        const result = await runsRepo.saveBatch({ input: runsVOList, params });
+        return {
+            runs: result.runs.map((run) => run.toDTO<RunDTO>()),
+            pagination: result.pagination
+        };
+    };
+
+    const getRunById = async ({
+        runId
+    }: {
+        runId: RunIdDTO;
+    }): Promise<RunDTO> => {
+        const result = await runsRepo.findById({ runId });
+        return result.toDTO<RunDTO>();
+    };
+
+    const getRunsByRunnerId = async ({
+        runnerId,
+        params
+    }: {
+        runnerId: RunnerIdDTO;
+        params: RunQueryParamsDTO;
+    }): Promise<RunsPageDTO> => {
+        const result = await runsRepo.findByRunnerId({ runnerId, params });
+        return {
+            runs: result.runs.map((run) => run.toDTO<RunDTO>()),
+            pagination: result.pagination
+        };
+    };
+
+    const getRunsWithRunnerInfo = async ({
+        runnerId,
+        params
+    }: {
+        runnerId: RunnerIdDTO;
+        params: RunQueryParamsDTO;
+    }): Promise<RunsWithRunnerPageDTO> => {
+        const result = await runsRepo.findWithRunnerInfo({ runnerId, params });
         return {
             runs: result.runs.map((run) => run.toDTO<RunWithRunnerDTO>()),
             pagination: result.pagination
         };
     };
 
-    const getPendingRuns = async (): Promise<RunDTO[]> => {
-        const runs = await repo.getPendingRuns();
-        return runs.map((run) => run.toDTO<RunDTO>());
-    };
-
-    const createRun = async (data: CreateRunDTO): Promise<RunDTO> => {
-        const runInsert: RunInsert = {
-            ...data,
-            startTime: new Date(data.startTime),
-            endTime: new Date(data.endTime)
+    const getPendingRuns = async (): Promise<RunsPageDTO> => {
+        const result = await runsRepo.findPending();
+        return {
+            runs: result.runs.map((run) => run.toDTO<RunDTO>()),
+            pagination: result.pagination
         };
-        const run = await repo.createRun(runInsert);
-        return run.toDTO<RunDTO>();
     };
 
-    const createRunsBatch = async (
-        runsData: CreateRunDTO[]
-    ): Promise<RunDTO[]> => {
-        const runsInsert: RunInsert[] = runsData.map((data) => ({
-            ...data,
-            startTime: new Date(data.startTime),
-            endTime: new Date(data.endTime)
-        }));
-        const runs = await repo.createRunsBatch(runsInsert);
-        return runs.map((run) => run.toDTO<RunDTO>());
-    };
-
-    const updateRunVerificationStatus = async (
-        runId: UUIDv7,
-        status: UpdateRunVerificationDTO['verificationStatus']
-    ): Promise<RunDTO> => {
-        const run = await repo.updateRunVerificationStatus(runId, status);
-        return run.toDTO<RunDTO>();
-    };
-
-    const markRunAsPosted = async (runId: UUIDv7): Promise<RunDTO> => {
-        const run = await repo.markRunAsPosted(runId);
-        return run.toDTO<RunDTO>();
-    };
-
-    const deleteRun = async (runId: UUIDv7): Promise<RunDTO> => {
-        const run = await repo.deleteRun(runId);
-        return run.toDTO<RunDTO>();
-    };
-
-    // Helper function to help with applying run data by runner ID
-    const createRunByPrivyId = async ({
-        privyId,
-        workout
+    const updateRun = async ({
+        runId,
+        update
     }: {
-        privyId: string;
-        workout: CreateRunDTO;
+        runId: RunIdDTO;
+        update: UpdateRunDTO;
     }): Promise<RunDTO> => {
-        // Implementation specific to business logic would go here
-        // Placeholder implementation
-        await Promise.resolve(); // Add await to satisfy linter
-        throw new Error('Not implemented');
+        const runVO = await runsRepo.findById({ runId });
+        const updateRunVO = runVO.update({ update });
+        await runsRepo.save({ input: updateRunVO });
+        return updateRunVO.toDTO<RunDTO>();
     };
 
-    const createRunsBatchByPrivyId = async ({
-        privyId,
-        workouts
+    const deleteRun = async ({
+        runId
     }: {
-        privyId: string;
-        workouts: CreateRunDTO[];
-    }): Promise<RunDTO[]> => {
-        // Implementation specific to business logic would go here
-        // Placeholder implementation
-        await Promise.resolve(); // Add await to satisfy linter
-        throw new Error('Not implemented');
+        runId: RunIdDTO;
+    }): Promise<RunDTO> => {
+        const runVO = await runsRepo.findById({ runId });
+        const removedRunVO = runVO.remove();
+        await runsRepo.save({ input: removedRunVO });
+        return runVO.toDTO<RunDTO>();
     };
 
     return Object.freeze({
@@ -130,8 +169,7 @@ export const makeRunsServices = (repo: RunsRepository) => {
         getPendingRuns,
         createRun,
         createRunsBatch,
-        updateRunVerificationStatus,
-        markRunAsPosted,
+        updateRun,
         deleteRun,
         createRunByPrivyId,
         createRunsBatchByPrivyId

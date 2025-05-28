@@ -1,133 +1,125 @@
-import {
-    ReactionSchema,
-    ReactionWithUserSchema,
-    ReactionToggleSchema,
-    ReactionCountSchema,
-    ReactionDTO,
-    ReactionWithUserDTO,
-    ReactionCountDTO,
-    ReactionToggleDTO
-} from '@phyt/dto';
-import { ReactionVO, NotFoundError } from '@phyt/models';
+import { ReactionsVO } from '@phyt/models';
 
+import { ReactionSchema, ReactionCountSchema } from '@phyt/dto';
+
+import type {
+    UserIdDTO,
+    ReactionDTO,
+    CreateReactionDTO,
+    ReactionCountDTO,
+    EntityTypeDTO,
+    EntityIdDTO,
+    PostIdDTO,
+    ReactionIdDTO
+} from '@phyt/dto';
 import type { ReactionsRepository } from '@phyt/repositories';
-import type { UUIDv7, ReactionType, ReactionAction } from '@phyt/types';
 
 export type ReactionsService = ReturnType<typeof makeReactionsService>;
 
-export const makeReactionsService = (repo: ReactionsRepository) => {
-    const _findExisting = async (
-        userId: UUIDv7,
-        postId?: UUIDv7,
-        commentId?: UUIDv7,
-        type?: ReactionType
-    ): Promise<ReactionVO> => {
-        return await repo.findExisting(userId, postId, commentId, type);
+export const makeReactionsService = ({
+    reactionsRepo
+}: {
+    reactionsRepo: ReactionsRepository;
+}) => {
+    const addReaction = async ({
+        input
+    }: {
+        input: CreateReactionDTO;
+    }): Promise<ReactionDTO> => {
+        const reactionVO = ReactionsVO.create({ input });
+        await reactionsRepo.save({ input: reactionVO });
+        return ReactionSchema.parse(reactionVO.toDTO<ReactionDTO>());
     };
 
-    const toggleReaction = async (
-        userId: UUIDv7,
-        entityId: UUIDv7,
-        type: ReactionType,
-        isPost: boolean
-    ): Promise<ReactionToggleDTO> => {
-        let action: ReactionAction = 'added';
-        const postId = isPost ? entityId : undefined;
-        const commentId = !isPost ? entityId : undefined;
-
-        try {
-            const existingVO = await _findExisting(
-                userId,
-                postId,
-                commentId,
-                type
-            );
-
-            await repo.remove(existingVO.id);
-            action = 'removed';
-        } catch (error) {
-            if (error instanceof NotFoundError) {
-                await repo.create({
-                    userId,
-                    postId,
-                    commentId,
-                    type
-                });
-            } else {
-                throw error;
-            }
-        }
-
-        const reactionVO = isPost
-            ? await repo.getReactionCountForPost(entityId)
-            : await repo.getReactionCountForComment(entityId);
-
-        const toggleResponse = {
-            action,
-            reaction: type,
-            counts: reactionVO.counts
-        };
-
-        return ReactionToggleSchema.parse(toggleResponse) as ReactionToggleDTO;
+    const getReactionCounts = async ({
+        entityId,
+        entityType
+    }: {
+        entityId: EntityIdDTO;
+        entityType: EntityTypeDTO;
+    }): Promise<ReactionCountDTO> => {
+        const reactionCount =
+            entityType === 'post'
+                ? await reactionsRepo.getCountsForPost({
+                      postId: entityId
+                  })
+                : await reactionsRepo.getCountsForComment({
+                      commentId: entityId
+                  });
+        return ReactionCountSchema.parse(reactionCount as ReactionCountDTO);
     };
 
-    const getReactionCounts = async (
-        entityId: UUIDv7,
-        isPost: boolean
-    ): Promise<ReactionCountDTO> => {
-        const reactionVO = isPost
-            ? await repo.getReactionCountForPost(entityId)
-            : await repo.getReactionCountForComment(entityId);
+    const getUserReactions = async ({
+        userId,
+        entityId,
+        entityType
+    }: {
+        userId: UserIdDTO;
+        entityId: EntityIdDTO;
+        entityType: EntityTypeDTO;
+    }): Promise<ReactionDTO[]> => {
+        const reactionVOs =
+            entityType === 'post'
+                ? await reactionsRepo.findUserReactions({
+                      userId,
+                      postId: entityId
+                  })
+                : await reactionsRepo.findUserReactions({
+                      userId,
+                      commentId: entityId
+                  });
 
-        return ReactionCountSchema.parse(reactionVO.counts) as ReactionCountDTO;
-    };
-
-    const getUserReactions = async (
-        userId: UUIDv7,
-        entityId: UUIDv7,
-        isPost: boolean
-    ): Promise<ReactionDTO[]> => {
-        const reactionVOs = await repo.findUserReactions(
-            userId,
-            isPost ? entityId : undefined,
-            !isPost ? entityId : undefined
-        );
-
-        return reactionVOs.map(
-            (reactionVO) =>
-                ReactionSchema.parse(reactionVO.toDTO()) as ReactionDTO
+        return reactionVOs.reactions.map((reactionVO) =>
+            ReactionSchema.parse(reactionVO.toDTO<ReactionDTO>())
         );
     };
 
-    const getReactionsWithUsers = async (
-        entityId: UUIDv7,
-        isPost: boolean
-    ): Promise<ReactionWithUserDTO[]> => {
-        const reactionVOs = await repo.findReactionsWithUsers(
-            isPost ? entityId : undefined,
-            !isPost ? entityId : undefined
-        );
+    const getReactions = async ({
+        entityId,
+        entityType
+    }: {
+        entityId: EntityIdDTO;
+        entityType: EntityTypeDTO;
+    }): Promise<ReactionDTO[]> => {
+        const reactionsVOs =
+            entityType === 'post'
+                ? await reactionsRepo.findByPost({
+                      postId: entityId
+                  })
+                : await reactionsRepo.findByComment({
+                      commentId: entityId
+                  });
 
-        return reactionVOs.map(
-            (reactionVO) =>
-                ReactionWithUserSchema.parse(
-                    reactionVO.toDTO()
-                ) as ReactionWithUserDTO
+        return reactionsVOs.reactions.map((reactionVO) =>
+            ReactionSchema.parse(reactionVO.toDTO<ReactionDTO>())
         );
     };
 
-    const calculateTrendingScore = async (
-        postId: UUIDv7,
-        daysAgo: number
-    ): Promise<number> => {
-        return repo.calculateTrendingScore(postId, daysAgo);
+    const calculateTrendingScore = async ({
+        postId,
+        daysAgo
+    }: {
+        postId: PostIdDTO;
+        daysAgo: number;
+    }): Promise<number> => {
+        return reactionsRepo.calculateTrendingScore(postId, daysAgo);
+    };
+
+    const removeReaction = async ({
+        reactionId
+    }: {
+        reactionId: ReactionIdDTO;
+    }): Promise<ReactionDTO> => {
+        const reactionVO = await reactionsRepo.remove({ reactionId });
+        return ReactionSchema.parse(reactionVO.toDTO<ReactionDTO>());
     };
 
     return Object.freeze({
-        toggleReaction,
+        addReaction,
         getReactionCounts,
         getUserReactions,
-        getReactionsWithUsers,
-        calculateTrendingScore
+        getReactions,
+        calculateTrendingScore,
+        removeReaction
     });
 };
