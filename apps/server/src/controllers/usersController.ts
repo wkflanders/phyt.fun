@@ -1,10 +1,13 @@
 import {
     UserIdSchema,
     CreateUserSchema,
-    UpdateProfileSchema,
-    UserQueryParamsSchema
+    UserQueryParamsSchema,
+    PrivyIdSchema,
+    WalletAddressSchema,
+    UsernameSchema,
+    EmailSchema,
+    UpdateUserSchema
 } from '@phyt/dto';
-import { InputError } from '@phyt/models';
 
 import { validateAuth } from '@/middleware/auth.js';
 import { avatarUpload } from '@/middleware/multer.js';
@@ -15,13 +18,15 @@ import type {
     UserIdDTO,
     UserDTO,
     CreateUserDTO,
-    UpdateProfileDTO,
     UserQueryParamsDTO,
     UsersPageDTO,
-    UserWithStatusDTO
+    PrivyIdDTO,
+    WalletAddressDTO,
+    UsernameDTO,
+    EmailDTO,
+    UpdateUserDTO
 } from '@phyt/dto';
-import type { UsersService } from '@phyt/services';
-import type { Card, Transaction } from '@phyt/types';
+import type { MulterFile, UsersService } from '@phyt/services';
 import type { Request, RequestHandler, Response } from 'express';
 
 export interface UsersController {
@@ -36,100 +41,103 @@ export interface UsersController {
     updateProfile: RequestHandler[];
     updateAvatar: RequestHandler[];
     listUsers: RequestHandler[];
-    getCardsByUserId: RequestHandler[];
-    getTransactionsByUserId: RequestHandler[];
+    // getCardsByUserId: RequestHandler[];
+    // getTransactionsByUserId: RequestHandler[];
 }
 
 export const makeUsersController = (svc: UsersService): UsersController => {
     const getUserById = [
         validateAuth,
-        validateSchema(UserIdSchema),
+        validateSchema({ paramsSchema: UserIdSchema }),
         async (req: Request<UserIdDTO, UserDTO>, res: Response<UserDTO>) => {
-            const user = await svc.getUserById(req.params.userId);
+            const user = await svc.getUserById({
+                userId: req.params
+            });
             res.status(200).json(user);
         }
     ] as RequestHandler[];
 
     const getUserByPrivyId = [
         validateAuth,
-        async (
-            req: Request<{ privyId: string }, UserDTO>,
-            res: Response<UserDTO>
-        ) => {
-            const user = await svc.getUserByPrivyId(req.params.privyId);
+        validateSchema({ paramsSchema: PrivyIdSchema }),
+        async (req: Request<PrivyIdDTO, UserDTO>, res: Response<UserDTO>) => {
+            const user = await svc.getUserByPrivyId({
+                privyId: req.params
+            });
             res.status(200).json(user);
         }
     ] as RequestHandler[];
 
     const getUserWithStatusByPrivyId = [
         validateAuth,
-        async (
-            req: Request<{ privyId: string }, UserWithStatusDTO>,
-            res: Response<UserWithStatusDTO>
-        ) => {
-            const user = await svc.getUserWithStatusByPrivyId(
-                req.params.privyId
-            );
+        validateSchema({ paramsSchema: PrivyIdSchema }),
+        async (req: Request<PrivyIdDTO, UserDTO>, res: Response<UserDTO>) => {
+            const user = await svc.getUserWithStatusByPrivyId({
+                privyId: req.params
+            });
             res.status(200).json(user);
         }
     ] as RequestHandler[];
 
     const getUserWithStatusById = [
         validateAuth,
-        validateSchema(UserIdSchema),
-        async (
-            req: Request<UserIdDTO, UserWithStatusDTO>,
-            res: Response<UserWithStatusDTO>
-        ) => {
-            const user = await svc.getUserWithStatusById(req.params.userId);
+        validateSchema({ paramsSchema: UserIdSchema }),
+        async (req: Request<UserIdDTO, UserDTO>, res: Response<UserDTO>) => {
+            const user = await svc.getUserWithStatusById({
+                userId: req.params
+            });
             res.status(200).json(user);
         }
     ] as RequestHandler[];
 
     const getUserByWalletAddress = [
         validateAuth,
+        validateSchema({ paramsSchema: WalletAddressSchema }),
         async (
-            req: Request<{ walletAddress: string }, UserDTO>,
+            req: Request<WalletAddressDTO, UserDTO>,
             res: Response<UserDTO>
         ) => {
-            const user = await svc.getUserByWalletAddress(
-                req.params.walletAddress
-            );
+            const user = await svc.getUserByWalletAddress({
+                walletAddress: req.params
+            });
             res.status(200).json(user);
         }
     ] as RequestHandler[];
 
     const getUserByEmail = [
         validateAuth,
-        async (
-            req: Request<{ email: string }, UserDTO>,
-            res: Response<UserDTO>
-        ) => {
-            const user = await svc.getUserByEmail(req.params.email);
+        validateSchema({ paramsSchema: EmailSchema }),
+        async (req: Request<EmailDTO, UserDTO>, res: Response<UserDTO>) => {
+            const user = await svc.getUserByEmail({
+                email: req.params
+            });
             res.status(200).json(user);
         }
     ] as RequestHandler[];
 
     const getUserByUsername = [
         validateAuth,
-        async (
-            req: Request<{ username: string }, UserDTO>,
-            res: Response<UserDTO>
-        ) => {
-            const user = await svc.getUserByUsername(req.params.username);
+        validateSchema({ paramsSchema: UsernameSchema }),
+        async (req: Request<UsernameDTO, UserDTO>, res: Response<UserDTO>) => {
+            const user = await svc.getUserByUsername({
+                username: req.params
+            });
             res.status(200).json(user);
         }
     ] as RequestHandler[];
 
     const createUser = [
-        validateSchema(undefined, CreateUserSchema),
+        validateSchema({ bodySchema: CreateUserSchema }),
         avatarUpload.single('avatar'),
         async (
             req: Request<Record<string, never>, UserDTO, CreateUserDTO>,
             res: Response<UserDTO>
         ) => {
             const userData = req.body;
-            const user = await svc.createUser(userData, req.file);
+            const user = await svc.createUser({
+                input: userData,
+                file: req.file
+            });
             res.status(201).json(user);
         }
     ] as RequestHandler[];
@@ -137,14 +145,18 @@ export const makeUsersController = (svc: UsersService): UsersController => {
     const updateProfile = [
         validateAuth,
         ensureOwnership,
-        validateSchema(UserIdSchema, UpdateProfileSchema),
+        validateSchema({
+            paramsSchema: UserIdSchema,
+            bodySchema: UpdateUserSchema
+        }),
         async (
-            req: Request<UserIdDTO, UserDTO, UpdateProfileDTO>,
+            req: Request<UserIdDTO, UserDTO, UpdateUserDTO>,
             res: Response<UserDTO>
         ) => {
-            const userId = req.params.userId;
-            const profileData = req.body;
-            const user = await svc.updateProfile(userId, profileData);
+            const user = await svc.updateUser({
+                userId: req.params,
+                update: req.body
+            });
             res.status(200).json(user);
         }
     ] as RequestHandler[];
@@ -152,23 +164,23 @@ export const makeUsersController = (svc: UsersService): UsersController => {
     const updateAvatar = [
         validateAuth,
         ensureOwnership,
-        validateSchema(UserIdSchema),
+        validateSchema({ paramsSchema: UserIdSchema }),
         avatarUpload.single('avatar'),
-        async (req: Request<UserIdDTO, UserDTO>, res: Response<UserDTO>) => {
-            const userId = req.params.userId;
-
-            if (!req.file) {
-                throw new InputError('No avatar file provided');
-            }
-
-            const user = await svc.updateAvatarWithFile(userId, req.file);
+        async (
+            req: Request<UserIdDTO, UserDTO, MulterFile>,
+            res: Response<UserDTO>
+        ) => {
+            const user = await svc.updateAvatarWithFile({
+                userId: req.params,
+                file: req.file as MulterFile
+            });
             res.status(200).json(user);
         }
     ] as RequestHandler[];
 
     const listUsers = [
         validateAuth,
-        validateSchema(undefined, undefined, UserQueryParamsSchema),
+        validateSchema({ querySchema: UserQueryParamsSchema }),
         async (
             req: Request<
                 Record<string, never>,
@@ -178,38 +190,36 @@ export const makeUsersController = (svc: UsersService): UsersController => {
             >,
             res: Response<UsersPageDTO>
         ) => {
-            const { page = 1, limit = 20 } = req.query;
             const data = await svc.listUsers({
-                page,
-                limit
+                params: req.query
             });
             res.status(200).json(data);
         }
     ] as RequestHandler[];
 
-    const getCardsByUserId = [
-        validateAuth,
-        async (
-            req: Request<{ userId: string }, Card[]>,
-            res: Response<Card[]>
-        ) => {
-            const userId = req.params.userId;
-            const cards = await svc.getCardsByUserId(userId);
-            res.status(200).json(cards);
-        }
-    ] as RequestHandler[];
+    // const getCardsByUserId = [
+    //     validateAuth,
+    //     validateSchema({ paramsSchema: UserIdSchema }),
+    //     async (req: Request<UserIdDTO, Card[]>, res: Response<Card[]>) => {
+    //         const cards = await svc.getCardsByUserId({
+    //             userId: req.params
+    //         });
+    //         res.status(200).json(cards);
+    //     }
+    // ] as RequestHandler[];
 
-    const getTransactionsByUserId = [
-        validateAuth,
-        async (
-            req: Request<{ userId: string }, Transaction[]>,
-            res: Response<Transaction[]>
-        ) => {
-            const userId = req.params.userId;
-            const transactions = await svc.getTransactionsByUserId(userId);
-            res.status(200).json(transactions);
-        }
-    ] as RequestHandler[];
+    // const getTransactionsByUserId = [
+    //     validateAuth,
+    //     async (
+    //         req: Request<{ userId: string }, Transaction[]>,
+    //         res: Response<Transaction[]>
+    //     ) => {
+    //         const transactions = await svc.getTransactionsByUserId({
+    //             userId: req.params
+    //         });
+    //         res.status(200).json(transactions);
+    //     }
+    // ] as RequestHandler[];
 
     return {
         getUserById,
@@ -222,8 +232,8 @@ export const makeUsersController = (svc: UsersService): UsersController => {
         createUser,
         updateProfile,
         updateAvatar,
-        listUsers,
-        getCardsByUserId,
-        getTransactionsByUserId
+        listUsers
+        // getCardsByUserId,
+        // getTransactionsByUserId
     };
 };

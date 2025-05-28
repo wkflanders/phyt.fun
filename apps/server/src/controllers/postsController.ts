@@ -1,9 +1,9 @@
 import {
     PostIdSchema,
+    UserIdSchema,
     CreatePostSchema,
     UpdatePostSchema,
-    PostQueryParamsSchema,
-    UserIdSchema
+    PostQueryParamsSchema
 } from '@phyt/dto';
 
 import { validateAuth } from '@/middleware/auth.js';
@@ -34,7 +34,7 @@ export interface PostsController {
 export const makePostsController = (svc: PostsService): PostsController => {
     const getPosts = [
         validateAuth,
-        validateSchema(undefined, undefined, PostQueryParamsSchema),
+        validateSchema({ querySchema: PostQueryParamsSchema }),
         async (
             req: Request<
                 Record<string, never>,
@@ -44,10 +44,8 @@ export const makePostsController = (svc: PostsService): PostsController => {
             >,
             res: Response<PostsPageDTO>
         ) => {
-            const { page = 1, limit = 20 } = req.query;
             const data = await svc.getPosts({
-                page,
-                limit
+                params: req.query
             });
             res.status(200).json(data);
         }
@@ -55,7 +53,10 @@ export const makePostsController = (svc: PostsService): PostsController => {
 
     const getUserPosts = [
         validateAuth,
-        validateSchema(UserIdSchema, undefined, PostQueryParamsSchema),
+        validateSchema({
+            paramsSchema: UserIdSchema,
+            querySchema: PostQueryParamsSchema
+        }),
         async (
             req: Request<
                 UserIdDTO,
@@ -65,11 +66,9 @@ export const makePostsController = (svc: PostsService): PostsController => {
             >,
             res: Response<PostsPageDTO>
         ) => {
-            const { page = 1, limit = 20 } = req.query;
-            const userId = req.params.userId;
-            const data = await svc.getUserPosts(userId, {
-                page,
-                limit
+            const data = await svc.getUserPosts({
+                userId: req.params,
+                params: req.query
             });
             res.status(200).json(data);
         }
@@ -77,22 +76,26 @@ export const makePostsController = (svc: PostsService): PostsController => {
 
     const getPostById = [
         validateAuth,
-        validateSchema(PostIdSchema),
+        validateSchema({ paramsSchema: PostIdSchema }),
         async (req: Request<PostIdDTO, PostDTO>, res: Response<PostDTO>) => {
-            const post = await svc.getPostById(req.params.postId);
+            const post = await svc.getPostById({
+                postId: req.params
+            });
             res.status(200).json(post);
         }
     ] as RequestHandler[];
 
     const createPost = [
         validateAuth,
-        validateSchema(undefined, CreatePostSchema),
+        validateSchema({ bodySchema: CreatePostSchema }),
         async (
             req: Request<Record<string, never>, PostDTO, CreatePostDTO>,
             res: Response<PostDTO>
         ) => {
             const postData = req.body;
-            const post = await svc.createPost(postData);
+            const post = await svc.createPost({
+                input: postData
+            });
             res.status(201).json(post);
         }
     ] as RequestHandler[];
@@ -100,15 +103,18 @@ export const makePostsController = (svc: PostsService): PostsController => {
     const updatePost = [
         validateAuth,
         ensureOwnership,
-        validateSchema(PostIdSchema, UpdatePostSchema),
+        validateSchema({
+            paramsSchema: PostIdSchema,
+            bodySchema: UpdatePostSchema
+        }),
         async (
             req: Request<PostIdDTO, PostDTO, UpdatePostDTO>,
             res: Response<PostDTO>
         ) => {
-            const postId = req.params.postId;
-            const updatePostData = req.body;
-
-            const post = await svc.updatePost(postId, updatePostData);
+            const post = await svc.updatePost({
+                postId: req.params,
+                update: req.body
+            });
             res.status(200).json(post);
         }
     ] as RequestHandler[];
@@ -116,10 +122,11 @@ export const makePostsController = (svc: PostsService): PostsController => {
     const deletePost = [
         validateAuth,
         ensureOwnership,
-        validateSchema(PostIdSchema),
+        validateSchema({ paramsSchema: PostIdSchema }),
         async (req: Request<PostIdDTO, PostDTO>, res: Response<PostDTO>) => {
-            const postId = req.params.postId;
-            const deleted = await svc.deletePost(postId);
+            const deleted = await svc.deletePost({
+                postId: req.params
+            });
             res.status(200).json(deleted);
         }
     ] as RequestHandler[];

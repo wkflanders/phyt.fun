@@ -1,27 +1,31 @@
-import { RequestHandler, Request, Response } from 'express';
-
-import { RunnerQueryParamsSchema } from '@phyt/dto';
-import { NotFoundError, ValidationError } from '@phyt/models';
+import {
+    RunnerIdSchema,
+    RunnerQueryParamsSchema,
+    UpdateRunnerSchema,
+    PrivyIdSchema
+} from '@phyt/dto';
 
 import { validateAuth } from '@/middleware/auth.js';
 import { validateSchema } from '@/middleware/validator.js';
 
-import type { RunnersService } from '@phyt/services';
+import { RequestHandler, Request, Response } from 'express';
+
 import type {
-    UUIDv7,
-    RunnerProfile,
-    RunnerQueryParams,
-    RunnerActivity,
-    RunnerPoolStatus
-} from '@phyt/types';
+    PrivyIdDTO,
+    RunnerDTO,
+    RunnerIdDTO,
+    RunnerQueryParamsDTO,
+    RunnersPageDTO,
+    UpdateRunnerDTO
+} from '@phyt/dto';
+import type { RunnersService } from '@phyt/services';
 
 export interface RunnersController {
     getAllRunners: RequestHandler[];
     getRunnerById: RequestHandler[];
     getRunnerByPrivyId: RequestHandler[];
-    getRunnerStatusByPrivyId: RequestHandler[];
-    getRecentActivities: RequestHandler[];
-    getRunnerActivities: RequestHandler[];
+    updateRunner: RequestHandler[];
+    deleteRunner: RequestHandler[];
 }
 
 export const makeRunnersController = (
@@ -29,21 +33,18 @@ export const makeRunnersController = (
 ): RunnersController => {
     const getAllRunners = [
         validateAuth,
-        validateSchema(undefined, undefined, RunnerQueryParamsSchema),
+        validateSchema({ querySchema: RunnerQueryParamsSchema }),
         async (
             req: Request<
                 Record<string, never>,
-                RunnerProfile[],
+                RunnersPageDTO,
                 Record<string, never>,
-                RunnerQueryParams
+                RunnerQueryParamsDTO
             >,
-            res: Response<RunnerProfile[]>
+            res: Response<RunnersPageDTO>
         ) => {
-            const { search, sortBy, sortOrder } = req.query;
             const runners = await svc.getAllRunners({
-                search,
-                sortBy,
-                sortOrder
+                params: req.query
             });
             res.status(200).json(runners);
         }
@@ -51,94 +52,61 @@ export const makeRunnersController = (
 
     const getRunnerById = [
         validateAuth,
+        validateSchema({ paramsSchema: RunnerIdSchema }),
         async (
-            req: Request<{ id: UUIDv7 }, RunnerProfile, Record<string, never>>,
-            res: Response<RunnerProfile>
+            req: Request<RunnerIdDTO, RunnerDTO, Record<string, never>>,
+            res: Response<RunnerDTO>
         ) => {
-            const runnerId = req.params.id;
-            if (!runnerId) {
-                throw new ValidationError('Invalid runner id');
-            }
-
-            const runner = await svc.getRunnerById(runnerId);
+            const runner = await svc.getRunnerById({
+                runnerId: req.params
+            });
             res.status(200).json(runner);
         }
     ] as RequestHandler[];
 
     const getRunnerByPrivyId = [
         validateAuth,
+        validateSchema({ paramsSchema: PrivyIdSchema }),
         async (
-            req: Request<
-                { privyId: string },
-                RunnerProfile,
-                Record<string, never>
-            >,
-            res: Response<RunnerProfile>
+            req: Request<PrivyIdDTO, RunnerDTO, Record<string, never>>,
+            res: Response<RunnerDTO>
         ) => {
-            const { privyId } = req.params;
-            if (!privyId) {
-                throw new ValidationError('Invalid privy id');
-            }
-
-            const runner = await svc.getRunnerByPrivyId(privyId);
+            const runner = await svc.getRunnerByPrivyId({
+                privyId: req.params
+            });
             res.status(200).json(runner);
         }
     ] as RequestHandler[];
 
-    const getRunnerStatusByPrivyId = [
+    const updateRunner = [
         validateAuth,
+        validateSchema({
+            paramsSchema: RunnerIdSchema,
+            bodySchema: UpdateRunnerSchema
+        }),
         async (
-            req: Request<
-                { privyId: string },
-                RunnerPoolStatus,
-                Record<string, never>
-            >,
-            res: Response<RunnerPoolStatus>
+            req: Request<RunnerIdDTO, RunnerDTO, UpdateRunnerDTO>,
+            res: Response<RunnerDTO>
         ) => {
-            const { privyId } = req.params;
-            if (!privyId) {
-                throw new ValidationError('Invalid privy id');
-            }
-
-            const status = await svc.getRunnerStatusByPrivyId(privyId);
-            res.status(200).json(status);
+            const runner = await svc.updateRunner({
+                runnerId: req.params,
+                update: req.body
+            });
+            res.status(200).json(runner);
         }
     ] as RequestHandler[];
 
-    const getRecentActivities = [
+    const deleteRunner = [
         validateAuth,
+        validateSchema({ paramsSchema: RunnerIdSchema }),
         async (
-            req: Request<
-                Record<string, never>,
-                RunnerActivity[],
-                Record<string, never>,
-                { filter?: string }
-            >,
-            res: Response<RunnerActivity[]>
+            req: Request<RunnerIdDTO, RunnerDTO>,
+            res: Response<RunnerDTO>
         ) => {
-            const filter = req.query.filter;
-            const activities = await svc.getRecentActivities(filter);
-            res.status(200).json(activities);
-        }
-    ] as RequestHandler[];
-
-    const getRunnerActivities = [
-        validateAuth,
-        async (
-            req: Request<
-                { id: UUIDv7 },
-                RunnerActivity[],
-                Record<string, never>
-            >,
-            res: Response<RunnerActivity[]>
-        ) => {
-            const runnerId = req.params.id;
-            if (!runnerId) {
-                throw new ValidationError('Invalid runner id');
-            }
-
-            const activities = await svc.getRunnerActivities(runnerId);
-            res.status(200).json(activities);
+            const runner = await svc.deleteRunner({
+                runnerId: req.params
+            });
+            res.status(200).json(runner);
         }
     ] as RequestHandler[];
 
@@ -146,8 +114,7 @@ export const makeRunnersController = (
         getAllRunners,
         getRunnerById,
         getRunnerByPrivyId,
-        getRunnerStatusByPrivyId,
-        getRecentActivities,
-        getRunnerActivities
+        updateRunner,
+        deleteRunner
     };
 };
