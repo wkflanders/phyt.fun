@@ -5,25 +5,28 @@ import { InputError } from './errors.js';
 import type { UUIDv7, Runner, RunnerInsert, RunnerUpdate } from '@phyt/types';
 
 export interface RunnerVO extends Runner {
-    update(update: RunnerUpdate): RunnerVO;
+    update({ update }: { update: RunnerUpdate }): RunnerVO;
+    remove(): RunnerVO;
     with(options: { username?: string; avatarUrl?: string }): RunnerVO;
     toDTO<T extends Runner = Runner>(options?: { [K in keyof T]?: T[K] }): T;
     toJSON(): Runner;
 }
 
 export const RunnerVO = (() => {
-    const make = (
-        record: Runner & {
-            username?: string | null;
-            avatarUrl?: string | null;
-        }
-    ): RunnerVO => {
-        const update = (updateData: RunnerUpdate): RunnerVO => {
-            RunnerVO.validateUpdate(updateData);
+    const make = (runner: Runner): RunnerVO => {
+        const update = ({ update }: { update: RunnerUpdate }): RunnerVO => {
+            RunnerVO.validateUpdate(update);
             return make({
-                ...record,
-                ...updateData,
+                ...runner,
+                ...update,
                 updatedAt: new Date()
+            });
+        };
+
+        const remove = (): RunnerVO => {
+            return make({
+                ...runner,
+                deletedAt: new Date()
             });
         };
 
@@ -32,7 +35,7 @@ export const RunnerVO = (() => {
             avatarUrl?: string;
         }): RunnerVO => {
             return make({
-                ...record,
+                ...runner,
                 ...(options.username !== undefined
                     ? { username: options.username }
                     : {}),
@@ -46,20 +49,21 @@ export const RunnerVO = (() => {
             [K in keyof T]?: T[K];
         }): T => {
             return {
-                ...record,
-                createdAt: new Date(record.createdAt),
-                updatedAt: new Date(record.updatedAt),
-                ...(record.username ? { username: record.username } : {}),
-                ...(record.avatarUrl ? { avatarUrl: record.avatarUrl } : {}),
+                ...runner,
+                createdAt: new Date(runner.createdAt),
+                updatedAt: new Date(runner.updatedAt),
+                ...(runner.username ? { username: runner.username } : {}),
+                ...(runner.avatarUrl ? { avatarUrl: runner.avatarUrl } : {}),
                 ...(options ?? {})
             } as T;
         };
 
-        const toJSON = (): Runner => ({ ...record });
+        const toJSON = (): Runner => ({ ...runner });
 
         return Object.freeze({
             ...toDTO(),
             update,
+            remove,
             with: withOptions,
             toDTO,
             toJSON
@@ -67,7 +71,7 @@ export const RunnerVO = (() => {
     };
 
     return {
-        create(input: RunnerInsert): RunnerVO {
+        create({ input }: { input: RunnerInsert }): RunnerVO {
             RunnerVO.validateInput(input);
             return make({
                 id: uuidv7() as UUIDv7,
@@ -76,24 +80,28 @@ export const RunnerVO = (() => {
                 averagePace: input.averagePace,
                 totalRuns: input.totalRuns,
                 bestMileTime: input.bestMileTime,
-                status: 'pending',
-                isPooled: false,
+                status: input.status,
+                isPooled: input.isPooled,
                 runnerWallet: input.runnerWallet,
                 createdAt: new Date(),
-                updatedAt: new Date()
+                updatedAt: new Date(),
+                deletedAt: null
             });
         },
 
-        from(
-            data: Runner,
-            options?: { username?: string; avatarUrl?: string }
-        ): RunnerVO {
+        from({
+            runner,
+            options
+        }: {
+            runner: Runner;
+            options?: { username?: string; avatarUrl?: string };
+        }): RunnerVO {
             if (!options) {
-                return make(data);
+                return make(runner);
             }
 
             return make({
-                ...data,
+                ...runner,
                 ...(options.username !== undefined
                     ? { username: options.username }
                     : {}),
@@ -106,10 +114,6 @@ export const RunnerVO = (() => {
         validateInput(input: RunnerInsert): void {
             if (!input.userId) {
                 throw new InputError('User ID is required');
-            }
-
-            if (!input.runnerWallet) {
-                throw new InputError('Runner wallet is required');
             }
 
             if (input.totalDistance && input.totalDistance < 0) {

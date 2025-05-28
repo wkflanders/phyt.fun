@@ -7,46 +7,45 @@ import type {
     Reaction,
     ReactionInsert,
     ReactionCount,
-    ReactionUpdate
+    ReactionUpdate,
+    AvatarUrl
 } from '@phyt/types';
 
-export interface ReactionVO extends Reaction {
-    update(update: ReactionUpdate): ReactionVO;
+export interface ReactionsVO extends Reaction {
+    update({ update }: { update: ReactionUpdate }): ReactionsVO;
     with(options: {
         username?: string;
-        avatarUrl?: string;
+        avatarUrl?: AvatarUrl;
         counts?: ReactionCount;
-    }): ReactionVO;
+    }): ReactionsVO;
     toDTO<T extends Reaction = Reaction>(options?: {
         [K in keyof T]?: T[K];
     }): T;
     toJSON(): Reaction;
 }
 
-export const ReactionVO = (() => {
-    const make = (
-        record: Reaction & {
-            username?: string;
-            avatarUrl?: string;
-            counts?: ReactionCount;
-        }
-    ): ReactionVO => {
-        const update = (updateData: ReactionUpdate): ReactionVO => {
-            ReactionVO.validateUpdate(updateData);
+export const ReactionsVO = (() => {
+    const make = (reaction: Reaction): ReactionsVO => {
+        const update = ({
+            update
+        }: {
+            update: ReactionUpdate;
+        }): ReactionsVO => {
+            ReactionsVO.validateUpdate(update);
             return make({
-                ...record,
-                ...updateData,
+                ...reaction,
+                ...update,
                 updatedAt: new Date()
             });
         };
 
         const withOptions = (options: {
             username?: string;
-            avatarUrl?: string;
+            avatarUrl?: AvatarUrl;
             counts?: ReactionCount;
-        }): ReactionVO => {
+        }): ReactionsVO => {
             return make({
-                ...record,
+                ...reaction,
                 ...(options.username !== undefined
                     ? { username: options.username }
                     : {}),
@@ -63,17 +62,18 @@ export const ReactionVO = (() => {
             [K in keyof T]?: T[K];
         }): T => {
             return {
-                ...record,
-                createdAt: new Date(record.createdAt),
-                updatedAt: new Date(record.updatedAt),
-                ...(record.username ? { username: record.username } : {}),
-                ...(record.avatarUrl ? { avatarUrl: record.avatarUrl } : {}),
-                ...(record.counts ? { counts: record.counts } : {}),
+                ...reaction,
+                createdAt: new Date(reaction.createdAt),
+                updatedAt: new Date(reaction.updatedAt),
+                ...(reaction.username ? { username: reaction.username } : {}),
+                ...(reaction.avatarUrl
+                    ? { avatarUrl: reaction.avatarUrl }
+                    : {}),
                 ...(options ?? {})
             } as T;
         };
 
-        const toJSON = (): Reaction => ({ ...record });
+        const toJSON = (): Reaction => ({ ...reaction });
 
         return Object.freeze({
             ...toDTO(),
@@ -81,12 +81,12 @@ export const ReactionVO = (() => {
             with: withOptions,
             toDTO,
             toJSON
-        }) as ReactionVO;
+        }) as ReactionsVO;
     };
 
     return {
-        create(input: ReactionInsert): ReactionVO {
-            ReactionVO.validateInput(input);
+        create({ input }: { input: ReactionInsert }): ReactionsVO {
+            ReactionsVO.validateInput(input);
             return make({
                 id: uuidv7() as UUIDv7,
                 userId: input.userId,
@@ -98,20 +98,23 @@ export const ReactionVO = (() => {
             });
         },
 
-        from(
-            data: Reaction,
+        from({
+            reaction,
+            options
+        }: {
+            reaction: Reaction;
             options?: {
                 username?: string;
-                avatarUrl?: string;
+                avatarUrl?: AvatarUrl;
                 counts?: ReactionCount;
-            }
-        ): ReactionVO {
+            };
+        }): ReactionsVO {
             if (!options) {
-                return make(data);
+                return make(reaction);
             }
 
             return make({
-                ...data,
+                ...reaction,
                 ...(options.username !== undefined
                     ? { username: options.username }
                     : {}),
@@ -134,13 +137,19 @@ export const ReactionVO = (() => {
                     'Either post ID or comment ID is required'
                 );
             }
+
+            if (input.postId && input.commentId) {
+                throw new InputError(
+                    'Either post ID or comment ID is required, not both'
+                );
+            }
         },
 
-        validateUpdate(input: ReactionUpdate): void {
+        validateUpdate(update: ReactionUpdate): void {
             if (
-                input.type !== 'like' &&
-                input.type !== 'funny' &&
-                input.type !== 'insightful'
+                update.type !== 'like' &&
+                update.type !== 'funny' &&
+                update.type !== 'insightful'
             ) {
                 throw new InputError('Invalid reaction type');
             }

@@ -4,34 +4,46 @@ import { DefaultAvatar } from './core.js';
 import { InputError } from './errors.js';
 
 import type {
-    User,
     UUIDv7,
+    User,
     UserInsert,
-    RunnerStatus,
-    UserUpdate
+    UserUpdate,
+    RunnerStatus
 } from '@phyt/types';
 
-export interface UserVO extends User {
-    update(update: UserUpdate): UserVO;
-    with(options: { status?: RunnerStatus }): UserVO;
+export interface UsersVO extends User {
+    update({ update }: { update: UserUpdate }): UsersVO;
+    remove(): UsersVO;
+    with(options: { status?: RunnerStatus }): UsersVO;
     toDTO<T extends User = User>(options?: { [K in keyof T]?: T[K] }): T;
     toJSON(): User;
 }
 
-export const UserVO = (() => {
-    const make = (record: User & { status?: RunnerStatus }): UserVO => {
-        const update = (updateData: UserUpdate): UserVO => {
-            UserVO.validateUpdate(updateData);
+export const UsersVO = (() => {
+    const make = (user: User): UsersVO => {
+        const update = ({ update }: { update: UserUpdate }): UsersVO => {
+            UsersVO.validateUpdate(update);
             return make({
-                ...record,
-                ...updateData,
+                ...user,
+                ...update,
                 updatedAt: new Date()
             });
         };
 
-        const withOptions = (options: { status?: RunnerStatus }): UserVO => {
+        const remove = (): UsersVO => {
             return make({
-                ...record,
+                ...user,
+                deletedAt: new Date()
+            });
+        };
+
+        const withOptions = ({
+            options
+        }: {
+            options: { status?: RunnerStatus };
+        }): UsersVO => {
+            return make({
+                ...user,
                 ...(options.status !== undefined
                     ? { status: options.status }
                     : {})
@@ -42,26 +54,27 @@ export const UserVO = (() => {
             [K in keyof T]?: T[K];
         }): T => {
             return {
-                ...record,
-                createdAt: new Date(record.createdAt),
-                updatedAt: new Date(record.updatedAt),
-                ...(record.status ? { status: record.status } : {}),
+                ...user,
+                createdAt: new Date(user.createdAt),
+                updatedAt: new Date(user.updatedAt),
+                ...(user.status ? { status: user.status } : {}),
                 ...(options ?? {})
             } as T;
         };
 
-        const toJSON = (): User => ({ ...record });
+        const toJSON = (): User => ({ ...user });
 
         return Object.freeze({
             ...toDTO(),
             update,
+            remove,
             with: withOptions,
             toDTO,
             toJSON
-        }) as UserVO;
+        }) as UsersVO;
     };
 
-    const _isValidUrl = (urlString: string): boolean => {
+    const _isValidUrl = ({ urlString }: { urlString: string }): boolean => {
         try {
             const url = new URL(urlString);
             return url.protocol === 'http:' || url.protocol === 'https:';
@@ -71,8 +84,8 @@ export const UserVO = (() => {
     };
 
     return {
-        create(input: UserInsert): UserVO {
-            UserVO.validateInput(input);
+        create({ input }: { input: UserInsert }): UsersVO {
+            UsersVO.validateInput(input);
             return make({
                 id: uuidv7() as UUIDv7,
                 email: input.email,
@@ -85,17 +98,24 @@ export const UserVO = (() => {
                 twitterHandle: input.twitterHandle ?? null,
                 stravaHandle: input.stravaHandle ?? null,
                 createdAt: new Date(),
-                updatedAt: new Date()
+                updatedAt: new Date(),
+                deletedAt: null
             });
         },
 
-        from(data: User, options?: { status?: RunnerStatus }): UserVO {
+        from({
+            user,
+            options
+        }: {
+            user: User;
+            options?: { status?: RunnerStatus };
+        }): UsersVO {
             if (!options) {
-                return make(data);
+                return make(user);
             }
 
             return make({
-                ...data,
+                ...user,
                 ...(options.status !== undefined
                     ? { status: options.status }
                     : {})
@@ -103,7 +123,10 @@ export const UserVO = (() => {
         },
 
         validateInput(input: UserInsert): void {
-            if (input.avatarUrl && !_isValidUrl(input.avatarUrl)) {
+            if (
+                input.avatarUrl &&
+                !_isValidUrl({ urlString: input.avatarUrl })
+            ) {
                 throw new InputError('Avatar URL must be a valid URL');
             }
 
@@ -129,7 +152,7 @@ export const UserVO = (() => {
 
         validateUpdate(input: UserUpdate): void {
             if (input.avatarUrl) {
-                if (!_isValidUrl(input.avatarUrl)) {
+                if (!_isValidUrl({ urlString: input.avatarUrl })) {
                     throw new InputError('Avatar URL must be a valid URL');
                 }
             }

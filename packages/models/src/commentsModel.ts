@@ -10,25 +10,28 @@ import type {
 } from '@phyt/types';
 
 export interface CommentsVO extends Comment {
-    update(update: CommentUpdate): CommentsVO;
+    update({ update }: { update: CommentUpdate }): CommentsVO;
+    remove(): CommentsVO;
     with(options: { username?: string; avatarUrl?: string }): CommentsVO;
     toDTO<T extends Comment = Comment>(options?: { [K in keyof T]?: T[K] }): T;
     toJSON(): Comment;
 }
 
 export const CommentsVO = (() => {
-    const make = (
-        record: Comment & {
-            username?: string;
-            avatarUrl?: string;
-        }
-    ): CommentsVO => {
-        const update = (updateData: CommentUpdate): CommentsVO => {
-            CommentsVO.validateUpdate(updateData);
+    const make = (comment: Comment): CommentsVO => {
+        const update = ({ update }: { update: CommentUpdate }): CommentsVO => {
+            CommentsVO.validateUpdate(update);
             return make({
-                ...record,
-                ...updateData,
+                ...comment,
+                ...update,
                 updatedAt: new Date()
+            });
+        };
+
+        const remove = (): CommentsVO => {
+            return make({
+                ...comment,
+                deletedAt: new Date()
             });
         };
 
@@ -37,7 +40,7 @@ export const CommentsVO = (() => {
             avatarUrl?: string;
         }): CommentsVO => {
             return make({
-                ...record,
+                ...comment,
                 ...(options.username !== undefined
                     ? { username: options.username }
                     : {}),
@@ -51,20 +54,21 @@ export const CommentsVO = (() => {
             [K in keyof T]?: T[K];
         }): T => {
             return {
-                ...record,
-                createdAt: new Date(record.createdAt),
-                updatedAt: new Date(record.updatedAt),
-                ...(record.username ? { username: record.username } : {}),
-                ...(record.avatarUrl ? { avatarUrl: record.avatarUrl } : {}),
-                ...(options ?? {})
+                ...comment,
+                createdAt: new Date(comment.createdAt),
+                updatedAt: new Date(comment.updatedAt),
+                ...(comment.username ? { username: comment.username } : {}),
+                ...(comment.avatarUrl ? { avatarUrl: comment.avatarUrl } : {}),
+                ...options
             } as T;
         };
 
-        const toJSON = (): Comment => ({ ...record });
+        const toJSON = (): Comment => ({ ...comment });
 
         return Object.freeze({
             ...toDTO(),
             update,
+            remove,
             with: withOptions,
             toDTO,
             toJSON
@@ -72,7 +76,7 @@ export const CommentsVO = (() => {
     };
 
     return {
-        create(input: CommentInsert): CommentsVO {
+        create({ input }: { input: CommentInsert }): CommentsVO {
             CommentsVO.validateInput(input);
             return make({
                 id: uuidv7() as UUIDv7,
@@ -81,20 +85,24 @@ export const CommentsVO = (() => {
                 content: input.content,
                 parentCommentId: input.parentCommentId,
                 createdAt: new Date(),
-                updatedAt: new Date()
+                updatedAt: new Date(),
+                deletedAt: null
             });
         },
 
-        from(
-            data: Comment,
-            options?: { username?: string; avatarUrl?: string }
-        ): CommentsVO {
+        from({
+            comment,
+            options
+        }: {
+            comment: Comment;
+            options?: { username?: string; avatarUrl?: string };
+        }): CommentsVO {
             if (!options) {
-                return make(data);
+                return make(comment);
             }
 
             return make({
-                ...data,
+                ...comment,
                 ...(options.username !== undefined
                     ? { username: options.username }
                     : {}),
@@ -121,8 +129,8 @@ export const CommentsVO = (() => {
             }
         },
 
-        validateUpdate(input: CommentUpdate): void {
-            if (!input.content || input.content.trim() === '') {
+        validateUpdate(update: CommentUpdate): void {
+            if (!update.content || update.content.trim() === '') {
                 throw new InputError('Comment content cannot be empty');
             }
         }
