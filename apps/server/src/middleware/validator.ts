@@ -10,11 +10,15 @@ export function validateSchema<
     P extends ParamsDictionary = ParamsDictionary,
     B = unknown,
     Q = unknown
->(
-    paramsSchema?: DTOSchema<P>,
-    bodySchema?: DTOSchema<B>,
-    querySchema?: DTOSchema<Q>
-) {
+>({
+    paramsSchema,
+    bodySchema,
+    querySchema
+}: {
+    paramsSchema?: DTOSchema<P>;
+    bodySchema?: DTOSchema<B>;
+    querySchema?: DTOSchema<Q>;
+}) {
     return (req: Request<P, any, B, Q>, res: Response, next: NextFunction) => {
         if (paramsSchema) {
             const parsedParams = paramsSchema.parse(req.params);
