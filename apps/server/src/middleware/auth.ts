@@ -1,9 +1,10 @@
-import { Request, Response, NextFunction } from 'express';
-
-import { privy } from '@phyt/infra';
 import { AuthenticationError } from '@phyt/models';
 
+import { privy } from '@phyt/infra';
+
 import { env } from '@/env.js';
+
+import { Request, Response, NextFunction } from 'express';
 
 export const validateAuth = async (
     req: Request,

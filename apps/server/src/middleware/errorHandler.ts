@@ -1,9 +1,3 @@
-import { Request, Response, NextFunction } from 'express';
-
-import multer from 'multer';
-
-import { ZodError } from 'zod';
-
 import {
     NotFoundError,
     ValidationError,
@@ -16,6 +10,14 @@ import {
 } from '@phyt/models';
 
 import { env } from '@/env.js';
+
+import { Request, Response, NextFunction } from 'express';
+
+import multer from 'multer';
+
+import { ZodError } from 'zod';
+
+
 
 export const errorHandler = (
     err: Error,
