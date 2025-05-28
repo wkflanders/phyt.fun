@@ -1,10 +1,10 @@
+import { AWSPutError, AWSGetError } from '@phyt/models';
+
 import {
     PutObjectCommand,
     S3Client,
     GetObjectCommand
 } from '@aws-sdk/client-s3';
-
-import { AWSPutError, AWSGetError } from '@phyt/models';
 
 import type {
     TokenURIMetadata,
@@ -58,7 +58,7 @@ export const makeMetadataAWSOps = (
             const bodyContents = await response.Body?.transformToString();
             if (!bodyContents) {
                 throw new AWSGetError(
-                    `No content found for token ID ${tokenId}`
+                    `No content found for token ID ${String(tokenId)}`
                 );
             }
 

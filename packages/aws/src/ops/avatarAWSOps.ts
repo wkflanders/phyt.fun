@@ -1,20 +1,23 @@
-import { v4 as uuidv4 } from 'uuid';
+import { AWSPutError, AWSGetError, AWSDeleteError } from '@phyt/models';
+
 import {
     PutObjectCommand,
     DeleteObjectCommand,
     S3Client
 } from '@aws-sdk/client-s3';
-
-import { AWSPutError, AWSGetError, AWSDeleteError } from '@phyt/models';
+import { v4 as uuidv4 } from 'uuid';
 
 import type { AvatarConfig } from '@phyt/types';
 
-export type UserAWSOps = ReturnType<typeof makeUserAWSOps>;
+export type AvatarAWSOps = ReturnType<typeof makeAvatarAWSOps>;
 
-export const makeUserAWSOps = (
-    s3Client: S3Client,
-    avatarConfig: AvatarConfig
-) => {
+export const makeAvatarAWSOps = ({
+    awsClient,
+    avatarConfig
+}: {
+    awsClient: S3Client;
+    avatarConfig: AvatarConfig;
+}) => {
     const uploadAvatar = async (file: Buffer): Promise<string> => {
         const bucketName = avatarConfig.bucketName;
         if (!bucketName) {
@@ -26,7 +29,7 @@ export const makeUserAWSOps = (
         const fileKey = `${uuidv4()}.png`;
 
         try {
-            await s3Client.send(
+            await awsClient.send(
                 new PutObjectCommand({
                     Bucket: bucketName,
                     Key: fileKey,
@@ -61,7 +64,7 @@ export const makeUserAWSOps = (
         }
 
         try {
-            await s3Client.send(
+            await awsClient.send(
                 new DeleteObjectCommand({
                     Bucket: bucketName,
                     Key: fileKey
