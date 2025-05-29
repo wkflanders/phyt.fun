@@ -24,7 +24,7 @@ export const validateAuth = async (
     // Verify and type the token claims
     const claims: { userId?: string } = await privy.verifyAuthToken(
         token,
-        env.PRIVY_VERIFICATION_KEY
+        env.PRIVY_VERIFICATION_KEY as string
     );
 
     if (!claims.userId) {

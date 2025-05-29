@@ -1,4 +1,3 @@
-
 import { PermissionError } from '@phyt/models';
 
 import { env } from '@/env.js';
@@ -15,7 +14,7 @@ export const validateAdmin = [
             throw new PermissionError('Missing claims payload');
         }
 
-        if (!env.ADMIN_IDS.has(privyId)) {
+        if (!(env.ADMIN_IDS as Set<string>).has(privyId)) {
             throw new PermissionError('Unauthorized');
         }
 
