@@ -20,11 +20,12 @@
         "clean": "rm -rf dist .turbo node_modules"
     },
     "dependencies": {
+        "@phyt/types": "workspace:*",
         "zod": "^3.24.4"
     },
     "devDependencies": {
         "@phyt/eslint": "workspace:*",
         "@phyt/tsconfig": "workspace:*",
-        "@phyt/types": "workspace:*"
+        "@phyt/infra": "workspace:*"
     }
 }

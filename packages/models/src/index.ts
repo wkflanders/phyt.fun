@@ -1,6 +1,5 @@
 export * from './commentsModel.js';
 export * from './core.js';
-export * from './errors.js';
 export * from './reactionsModel.js';
 export * from './usersModel.js';
 export * from './postsModel.js';

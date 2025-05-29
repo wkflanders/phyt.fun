@@ -1,6 +1,6 @@
-import { uuidv7 } from 'uuidv7';
+import { InputError } from '@phyt/infra';
 
-import { InputError } from './errors.js';
+import { uuidv7 } from 'uuidv7';
 
 import type { UUIDv7, Run, RunUpdate, RunInsert, AvatarUrl } from '@phyt/types';
 

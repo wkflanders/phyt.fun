@@ -1,7 +1,8 @@
+import { InputError } from '@phyt/infra';
+
 import { uuidv7 } from 'uuidv7';
 
 import { DefaultAvatar } from './core.js';
-import { InputError } from './errors.js';
 
 import type {
     UUIDv7,
