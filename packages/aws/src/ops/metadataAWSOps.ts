@@ -1,4 +1,4 @@
-import { AWSPutError, AWSGetError } from '@phyt/models';
+import { AWSPutError, AWSGetError } from '@phyt/infra';
 
 import {
     PutObjectCommand,
