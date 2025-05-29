@@ -20,7 +20,7 @@ import type {
     CommentsPageDTO
 } from '@phyt/dto';
 import type { CommentsService } from '@phyt/services';
-import type { Request, RequestHandler, Response } from 'express';
+import type { Request, RequestHandler, Response, NextFunction } from 'express';
 
 export interface CommentsController {
     getPostComments: RequestHandler[];
@@ -31,9 +31,11 @@ export interface CommentsController {
     deleteComment: RequestHandler[];
 }
 
-export const makeCommentsController = (
-    svc: CommentsService
-): CommentsController => {
+export const makeCommentsController = ({
+    commentServices
+}: {
+    commentServices: CommentsService;
+}): CommentsController => {
     const getPostComments = [
         validateAuth,
         validateSchema({
@@ -49,7 +51,7 @@ export const makeCommentsController = (
             >,
             res: Response<CommentsPageDTO>
         ) => {
-            const data = await svc.getPostComments({
+            const data = await commentServices.getPostComments({
                 postId: req.params,
                 params: req.query
             });
@@ -72,7 +74,7 @@ export const makeCommentsController = (
             >,
             res: Response<CommentsPageDTO>
         ) => {
-            const data = await svc.getCommentReplies({
+            const data = await commentServices.getCommentReplies({
                 parentCommentId: req.params,
                 params: req.query
             });
@@ -89,7 +91,7 @@ export const makeCommentsController = (
             req: Request<CommentIdDTO, CommentDTO>,
             res: Response<CommentDTO>
         ) => {
-            const comment = await svc.getCommentById({
+            const comment = await commentServices.getCommentById({
                 commentId: req.params
             });
             res.status(200).json(comment);
@@ -106,7 +108,7 @@ export const makeCommentsController = (
             res: Response<CommentDTO>
         ) => {
             const input = req.body;
-            const comment = await svc.createComment({ input });
+            const comment = await commentServices.createComment({ input });
             res.status(201).json(comment);
         }
     ] as RequestHandler[];
@@ -121,7 +123,7 @@ export const makeCommentsController = (
             req: Request<CommentIdDTO, CommentDTO, UpdateCommentDTO>,
             res: Response<CommentDTO>
         ) => {
-            const comment = await svc.updateComment({
+            const comment = await commentServices.updateComment({
                 commentId: req.params,
                 update: req.body
             });
@@ -139,7 +141,7 @@ export const makeCommentsController = (
             req: Request<CommentIdDTO, CommentDTO>,
             res: Response<CommentDTO>
         ) => {
-            const deleted = await svc.deleteComment({
+            const deleted = await commentServices.deleteComment({
                 commentId: req.params
             });
             res.status(200).json(deleted);

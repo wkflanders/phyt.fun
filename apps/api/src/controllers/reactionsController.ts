@@ -31,9 +31,11 @@ export interface ReactionsController {
     getAllReactionsForComment: RequestHandler[];
 }
 
-export const makeReactionsController = (
-    reactionsServices: ReactionsService
-): ReactionsController => {
+export const makeReactionsController = ({
+    reactionsServices
+}: {
+    reactionsServices: ReactionsService;
+}): ReactionsController => {
     const addReaction = [
         validateAuth,
         validateSchema({ bodySchema: CreateReactionSchema }),

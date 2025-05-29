@@ -32,12 +32,16 @@ export interface RunsController {
     deleteRun: RequestHandler[];
 }
 
-export const makeRunsController = (service: RunsService): RunsController => {
+export const makeRunsController = ({
+    runServices
+}: {
+    runServices: RunsService;
+}): RunsController => {
     const getRunById = [
         validateAuth,
         validateSchema({ paramsSchema: RunIdSchema }),
         async (req: Request<RunIdDTO, RunDTO>, res: Response<RunDTO>) => {
-            const run = await service.getRunById({
+            const run = await runServices.getRunById({
                 runId: req.params
             });
             return res.status(200).json(run);
@@ -54,7 +58,7 @@ export const makeRunsController = (service: RunsService): RunsController => {
             req: Request<RunnerIdDTO, RunsPageDTO, unknown, RunQueryParamsDTO>,
             res: Response<RunsPageDTO>
         ) => {
-            const runs = await service.getRunsByRunnerId({
+            const runs = await runServices.getRunsByRunnerId({
                 runnerId: req.params,
                 params: req.query
             });
@@ -74,7 +78,7 @@ export const makeRunsController = (service: RunsService): RunsController => {
             >,
             res: Response<RunsWithRunnerPageDTO>
         ) => {
-            const runs = await service.getRunsWithRunnerInfo({
+            const runs = await runServices.getRunsWithRunnerInfo({
                 runnerId: req.params,
                 params: req.query
             });
@@ -85,7 +89,7 @@ export const makeRunsController = (service: RunsService): RunsController => {
     const getPendingRuns = [
         validateAuth,
         async (req: Request, res: Response<RunsPageDTO>) => {
-            const runs = await service.getPendingRuns();
+            const runs = await runServices.getPendingRuns();
             return res.status(200).json(runs);
         }
     ] as RequestHandler[];
@@ -97,7 +101,7 @@ export const makeRunsController = (service: RunsService): RunsController => {
             req: Request<unknown, RunDTO, CreateRunDTO>,
             res: Response<RunDTO>
         ) => {
-            const run = await service.createRun({
+            const run = await runServices.createRun({
                 input: req.body
             });
             return res.status(201).json(run);
@@ -114,7 +118,7 @@ export const makeRunsController = (service: RunsService): RunsController => {
             req: Request<RunIdDTO, RunDTO, UpdateRunDTO>,
             res: Response<RunDTO>
         ) => {
-            const run = await service.updateRun({
+            const run = await runServices.updateRun({
                 runId: req.params,
                 update: req.body
             });
@@ -126,7 +130,7 @@ export const makeRunsController = (service: RunsService): RunsController => {
         validateAuth,
         validateSchema({ paramsSchema: RunIdSchema }),
         async (req: Request<RunIdDTO, RunDTO>, res: Response<RunDTO>) => {
-            const run = await service.deleteRun({
+            const run = await runServices.deleteRun({
                 runId: req.params
             });
             return res.status(200).json(run);

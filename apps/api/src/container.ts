@@ -109,13 +109,25 @@ export const service = {
 };
 
 export const controller = {
-    comments: makeCommentsController(service.comments),
-    users: makeUsersController(service.users),
-    reactions: makeReactionsController(service.reactions),
-    posts: makePostsController(service.posts),
+    comments: makeCommentsController({
+        commentServices: service.comments
+    }),
+    users: makeUsersController({
+        userServices: service.users
+    }),
+    reactions: makeReactionsController({
+        reactionsServices: service.reactions
+    }),
+    posts: makePostsController({
+        postServices: service.posts
+    }),
     // admin: makeAdminController(service.admin),
-    runners: makeRunnersController(service.runners),
-    runs: makeRunsController(service.runs)
+    runners: makeRunnersController({
+        runnerServices: service.runners
+    }),
+    runs: makeRunsController({
+        runServices: service.runs
+    })
     // packs: makePacksController(service.packs),
     // metadata: makeMetadataController(service.metadata)
 };

@@ -45,12 +45,16 @@ export interface UsersController {
     // getTransactionsByUserId: RequestHandler[];
 }
 
-export const makeUsersController = (svc: UsersService): UsersController => {
+export const makeUsersController = ({
+    userServices
+}: {
+    userServices: UsersService;
+}): UsersController => {
     const getUserById = [
         validateAuth,
         validateSchema({ paramsSchema: UserIdSchema }),
         async (req: Request<UserIdDTO, UserDTO>, res: Response<UserDTO>) => {
-            const user = await svc.getUserById({
+            const user = await userServices.getUserById({
                 userId: req.params
             });
             res.status(200).json(user);
@@ -61,7 +65,7 @@ export const makeUsersController = (svc: UsersService): UsersController => {
         validateAuth,
         validateSchema({ paramsSchema: PrivyIdSchema }),
         async (req: Request<PrivyIdDTO, UserDTO>, res: Response<UserDTO>) => {
-            const user = await svc.getUserByPrivyId({
+            const user = await userServices.getUserByPrivyId({
                 privyId: req.params
             });
             res.status(200).json(user);
@@ -72,7 +76,7 @@ export const makeUsersController = (svc: UsersService): UsersController => {
         validateAuth,
         validateSchema({ paramsSchema: PrivyIdSchema }),
         async (req: Request<PrivyIdDTO, UserDTO>, res: Response<UserDTO>) => {
-            const user = await svc.getUserWithStatusByPrivyId({
+            const user = await userServices.getUserWithStatusByPrivyId({
                 privyId: req.params
             });
             res.status(200).json(user);
@@ -83,7 +87,7 @@ export const makeUsersController = (svc: UsersService): UsersController => {
         validateAuth,
         validateSchema({ paramsSchema: UserIdSchema }),
         async (req: Request<UserIdDTO, UserDTO>, res: Response<UserDTO>) => {
-            const user = await svc.getUserWithStatusById({
+            const user = await userServices.getUserWithStatusById({
                 userId: req.params
             });
             res.status(200).json(user);
@@ -97,7 +101,7 @@ export const makeUsersController = (svc: UsersService): UsersController => {
             req: Request<WalletAddressDTO, UserDTO>,
             res: Response<UserDTO>
         ) => {
-            const user = await svc.getUserByWalletAddress({
+            const user = await userServices.getUserByWalletAddress({
                 walletAddress: req.params
             });
             res.status(200).json(user);
@@ -108,7 +112,7 @@ export const makeUsersController = (svc: UsersService): UsersController => {
         validateAuth,
         validateSchema({ paramsSchema: EmailSchema }),
         async (req: Request<EmailDTO, UserDTO>, res: Response<UserDTO>) => {
-            const user = await svc.getUserByEmail({
+            const user = await userServices.getUserByEmail({
                 email: req.params
             });
             res.status(200).json(user);
@@ -119,7 +123,7 @@ export const makeUsersController = (svc: UsersService): UsersController => {
         validateAuth,
         validateSchema({ paramsSchema: UsernameSchema }),
         async (req: Request<UsernameDTO, UserDTO>, res: Response<UserDTO>) => {
-            const user = await svc.getUserByUsername({
+            const user = await userServices.getUserByUsername({
                 username: req.params
             });
             res.status(200).json(user);
@@ -134,7 +138,7 @@ export const makeUsersController = (svc: UsersService): UsersController => {
             res: Response<UserDTO>
         ) => {
             const userData = req.body;
-            const user = await svc.createUser({
+            const user = await userServices.createUser({
                 input: userData,
                 file: req.file
             });
@@ -153,7 +157,7 @@ export const makeUsersController = (svc: UsersService): UsersController => {
             req: Request<UserIdDTO, UserDTO, UpdateUserDTO>,
             res: Response<UserDTO>
         ) => {
-            const user = await svc.updateUser({
+            const user = await userServices.updateUser({
                 userId: req.params,
                 update: req.body
             });
@@ -170,7 +174,7 @@ export const makeUsersController = (svc: UsersService): UsersController => {
             req: Request<UserIdDTO, UserDTO, MulterFile>,
             res: Response<UserDTO>
         ) => {
-            const user = await svc.updateAvatarWithFile({
+            const user = await userServices.updateAvatarWithFile({
                 userId: req.params,
                 file: req.file as MulterFile
             });
@@ -190,7 +194,7 @@ export const makeUsersController = (svc: UsersService): UsersController => {
             >,
             res: Response<UsersPageDTO>
         ) => {
-            const data = await svc.listUsers({
+            const data = await userServices.listUsers({
                 params: req.query
             });
             res.status(200).json(data);

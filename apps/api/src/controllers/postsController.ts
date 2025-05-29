@@ -31,7 +31,11 @@ export interface PostsController {
     deletePost: RequestHandler[];
 }
 
-export const makePostsController = (svc: PostsService): PostsController => {
+export const makePostsController = ({
+    postServices
+}: {
+    postServices: PostsService;
+}): PostsController => {
     const getPosts = [
         validateAuth,
         validateSchema({ querySchema: PostQueryParamsSchema }),
@@ -44,7 +48,7 @@ export const makePostsController = (svc: PostsService): PostsController => {
             >,
             res: Response<PostsPageDTO>
         ) => {
-            const data = await svc.getPosts({
+            const data = await postServices.getPosts({
                 params: req.query
             });
             res.status(200).json(data);
@@ -66,7 +70,7 @@ export const makePostsController = (svc: PostsService): PostsController => {
             >,
             res: Response<PostsPageDTO>
         ) => {
-            const data = await svc.getUserPosts({
+            const data = await postServices.getUserPosts({
                 userId: req.params,
                 params: req.query
             });
@@ -78,7 +82,7 @@ export const makePostsController = (svc: PostsService): PostsController => {
         validateAuth,
         validateSchema({ paramsSchema: PostIdSchema }),
         async (req: Request<PostIdDTO, PostDTO>, res: Response<PostDTO>) => {
-            const post = await svc.getPostById({
+            const post = await postServices.getPostById({
                 postId: req.params
             });
             res.status(200).json(post);
@@ -93,7 +97,7 @@ export const makePostsController = (svc: PostsService): PostsController => {
             res: Response<PostDTO>
         ) => {
             const postData = req.body;
-            const post = await svc.createPost({
+            const post = await postServices.createPost({
                 input: postData
             });
             res.status(201).json(post);
@@ -111,7 +115,7 @@ export const makePostsController = (svc: PostsService): PostsController => {
             req: Request<PostIdDTO, PostDTO, UpdatePostDTO>,
             res: Response<PostDTO>
         ) => {
-            const post = await svc.updatePost({
+            const post = await postServices.updatePost({
                 postId: req.params,
                 update: req.body
             });
@@ -124,7 +128,7 @@ export const makePostsController = (svc: PostsService): PostsController => {
         ensureOwnership,
         validateSchema({ paramsSchema: PostIdSchema }),
         async (req: Request<PostIdDTO, PostDTO>, res: Response<PostDTO>) => {
-            const deleted = await svc.deletePost({
+            const deleted = await postServices.deletePost({
                 postId: req.params
             });
             res.status(200).json(deleted);

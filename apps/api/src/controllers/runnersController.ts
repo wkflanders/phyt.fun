@@ -28,9 +28,11 @@ export interface RunnersController {
     deleteRunner: RequestHandler[];
 }
 
-export const makeRunnersController = (
-    svc: RunnersService
-): RunnersController => {
+export const makeRunnersController = ({
+    runnerServices
+}: {
+    runnerServices: RunnersService;
+}): RunnersController => {
     const getAllRunners = [
         validateAuth,
         validateSchema({ querySchema: RunnerQueryParamsSchema }),
@@ -43,7 +45,7 @@ export const makeRunnersController = (
             >,
             res: Response<RunnersPageDTO>
         ) => {
-            const runners = await svc.getAllRunners({
+            const runners = await runnerServices.getAllRunners({
                 params: req.query
             });
             res.status(200).json(runners);
@@ -57,7 +59,7 @@ export const makeRunnersController = (
             req: Request<RunnerIdDTO, RunnerDTO, Record<string, never>>,
             res: Response<RunnerDTO>
         ) => {
-            const runner = await svc.getRunnerById({
+            const runner = await runnerServices.getRunnerById({
                 runnerId: req.params
             });
             res.status(200).json(runner);
@@ -71,7 +73,7 @@ export const makeRunnersController = (
             req: Request<PrivyIdDTO, RunnerDTO, Record<string, never>>,
             res: Response<RunnerDTO>
         ) => {
-            const runner = await svc.getRunnerByPrivyId({
+            const runner = await runnerServices.getRunnerByPrivyId({
                 privyId: req.params
             });
             res.status(200).json(runner);
@@ -88,7 +90,7 @@ export const makeRunnersController = (
             req: Request<RunnerIdDTO, RunnerDTO, UpdateRunnerDTO>,
             res: Response<RunnerDTO>
         ) => {
-            const runner = await svc.updateRunner({
+            const runner = await runnerServices.updateRunner({
                 runnerId: req.params,
                 update: req.body
             });
@@ -103,7 +105,7 @@ export const makeRunnersController = (
             req: Request<RunnerIdDTO, RunnerDTO>,
             res: Response<RunnerDTO>
         ) => {
-            const runner = await svc.deleteRunner({
+            const runner = await runnerServices.deleteRunner({
                 runnerId: req.params
             });
             res.status(200).json(runner);
