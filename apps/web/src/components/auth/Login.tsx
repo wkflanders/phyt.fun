@@ -1,14 +1,14 @@
 'use client';
 
+import { AuthenticationError, isErrorWithStatusCode } from '@phyt/infra';
+
+import { Button } from '@/components/ui/button';
+import { getUser } from '@/queries/user';
+
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useState } from 'react';
 
 import { usePrivy, useLogin } from '@privy-io/react-auth';
-
-import { ApiError, AuthenticationError } from '@phyt/types';
-
-import { Button } from '@/components/ui/button';
-import { getUser } from '@/queries/user';
 
 export const Login = () => {
     const router = useRouter();
@@ -39,12 +39,17 @@ export const Login = () => {
                                 'No token available. Is user logged in with privy?'
                             );
                         }
-                        const data = await getUser(user.id, token); // Cacheing user data
+                        await getUser(user.id, token); // Cacheing user data
 
                         const redirectTo = searchParams.get('redirect') ?? '/';
                         router.push(redirectTo);
-                    } catch (error) {
-                        const apiError = error as ApiError;
+                    } catch (error: unknown) {
+                        if (isErrorWithStatusCode(error)) {
+                            console.error(error.message);
+                            if (error.statusCode === 400) {
+                                router.push('/onboard');
+                            }
+                        }
                     }
                 }
             } catch (error) {

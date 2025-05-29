@@ -1,3 +1,23 @@
+// Generic error interface for frontend error handling
+export interface ErrorWithStatusCode {
+    statusCode: number;
+    message: string;
+}
+
+// Type guard to check if an error has statusCode
+export function isErrorWithStatusCode(
+    error: unknown
+): error is ErrorWithStatusCode {
+    return (
+        typeof error === 'object' &&
+        error !== null &&
+        'statusCode' in error &&
+        typeof (error as { statusCode: unknown }).statusCode === 'number' &&
+        'message' in error &&
+        typeof (error as { message: unknown }).message === 'string'
+    );
+}
+
 export class DatabaseError extends Error {
     statusCode: number;
     constructor(
@@ -114,5 +134,14 @@ export class MarketplaceError extends Error {
         super(message);
         this.statusCode = statusCode;
         this.name = 'MARKETPLACE_ERROR';
+    }
+}
+
+export class LoginError extends Error {
+    statusCode: number;
+    constructor(message: string, statusCode = 400) {
+        super(message);
+        this.statusCode = statusCode;
+        this.name = 'LOGIN_ERROR';
     }
 }
