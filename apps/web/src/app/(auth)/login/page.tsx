@@ -1,8 +1,8 @@
-"use client";
+'use client';
+
+import { Login } from '@/components/auth/Login';
 
 import React, { Suspense } from 'react';
-
-import { Login } from "@/components/Login";
 
 export default function LoginPage() {
     return (

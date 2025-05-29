@@ -7,4 +7,4 @@ export default function ListingsPage() {
             <div className="text-text-dim">No active listings</div>
         </div>
     );
-} 
+}

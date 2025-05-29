@@ -1,14 +1,14 @@
 'use client';
 
-import Image from 'next/image';
-import React from 'react';
-
-import { Loader2, Calendar, TrophyIcon, Layers } from 'lucide-react';
-
 import { Button } from '@/components/ui/button';
 import { useGetMajorCompetitions } from '@/hooks/use-competitions';
 import { useToast } from '@/hooks/use-toast';
 import { EthIcon, PhytIcon } from '@/lib/icons';
+
+import Image from 'next/image';
+import React from 'react';
+
+import { Loader2, Calendar, TrophyIcon, Layers } from 'lucide-react';
 
 export const CompetitionMast = () => {
     const {

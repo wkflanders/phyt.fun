@@ -1,7 +1,5 @@
 'use client';
 
-import React, { useState } from 'react';
-
 import { CardWithMetadata } from '@phyt/types';
 
 import { ItemsGrid } from '@/components/profile/ItemsGrid';
@@ -9,6 +7,8 @@ import { ItemsToolbar } from '@/components/profile/ItemsToolbar';
 import { SearchSidebar } from '@/components/profile/SearchSidebar';
 import { useToast } from '@/hooks/use-toast';
 import { useGetUserCards, useGetUser } from '@/hooks/use-users';
+
+import React, { useState } from 'react';
 
 export default function ProfilePage() {
     const { data: user } = useGetUser();

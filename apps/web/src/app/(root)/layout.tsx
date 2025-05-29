@@ -1,12 +1,12 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import React, { useEffect, useRef } from 'react';
-
 import { Navbar } from '@/components/Navbar';
 import { Sidebar } from '@/components/Sidebar';
 import { useScroll } from '@/hooks/use-scroll';
 import { useGetUser } from '@/hooks/use-users';
+
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useRef } from 'react';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     const router = useRouter();

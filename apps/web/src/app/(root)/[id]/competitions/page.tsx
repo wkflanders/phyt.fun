@@ -7,4 +7,4 @@ export default function CompetitionsPage() {
             <div className="text-text-dim">No active competitions</div>
         </div>
     );
-} 
+}

@@ -1,13 +1,12 @@
-// src/app/(root)/profile/layout.tsx
 'use client';
-
-import React from 'react';
-
-import { Loader2 } from 'lucide-react';
 
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
 import { ProfileTabs } from '@/components/profile/ProfileTabs';
 import { useGetUser, useGetUserCards } from '@/hooks/use-users';
+
+import React from 'react';
+
+import { Loader2 } from 'lucide-react';
 
 export default function ProfileLayout({
     children

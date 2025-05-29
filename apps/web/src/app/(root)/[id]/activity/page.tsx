@@ -7,4 +7,4 @@ export default function ActivityPage() {
             <div className="text-text-dim">No recent activity</div>
         </div>
     );
-} 
+}

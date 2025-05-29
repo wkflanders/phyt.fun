@@ -7,4 +7,4 @@ export default function OffersPage() {
             <div className="text-text-dim">No active offers</div>
         </div>
     );
-} 
+}

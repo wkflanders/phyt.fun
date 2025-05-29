@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
-
 import Marketplace from '@/components/marketplace/Marketplace';
+
+import React from 'react';
 
 export default function MarketplacePage() {
     return (

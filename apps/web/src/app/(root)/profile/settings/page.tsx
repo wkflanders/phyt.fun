@@ -8,9 +8,11 @@ export default function SettingsPage() {
                 <h2 className="text-lg font-semibold mb-4">Profile Settings</h2>
                 <div className="space-y-4">
                     {/* Profile settings form will go here */}
-                    <div className="text-text-dim">Settings form coming soon</div>
+                    <div className="text-text-dim">
+                        Settings form coming soon
+                    </div>
                 </div>
             </div>
         </div>
     );
-} 
+}

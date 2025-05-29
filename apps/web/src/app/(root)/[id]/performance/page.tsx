@@ -7,4 +7,4 @@ export default function PerformancePage() {
             <div className="text-text-dim">No performance data available</div>
         </div>
     );
-} 
+}
