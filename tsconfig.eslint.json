@@ -8,7 +8,7 @@
         "baseUrl": ".",
         "paths": {
             "@phyt/*": ["packages/*/src"],
-            "@/*": ["apps/server/src/*", "apps/web/src/*"]
+            "@/*": ["apps/web/src/*", "apps/api/src/*"]
         }
     },
     "include": [

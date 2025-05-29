@@ -56,12 +56,20 @@
             "dependsOn": ["@phyt/types#build"],
             "outputs": ["dist/**"]
         },
-        "@phyt/aws#build": {
+        "@phyt/infra#build": {
             "dependsOn": ["@phyt/types#build", "@phyt/models#build"],
             "outputs": ["dist/**"]
         },
+        "@phyt/aws#build": {
+            "dependsOn": [
+                "@phyt/types#build",
+                "@phyt/models#build",
+                "@phyt/infra#build"
+            ],
+            "outputs": ["dist/**"]
+        },
         "@phyt/drizzle#build": {
-            "dependsOn": ["@phyt/models#build"],
+            "dependsOn": ["@phyt/models#build", "@phyt/infra#build"],
             "outputs": ["dist/**"]
         },
         "@phyt/repositories#build": {
@@ -89,6 +97,50 @@
         },
         "lint": {
             "dependsOn": ["^lint"]
+        },
+        "@phyt/types#lint": {
+            "dependsOn": ["@phyt/eslint#lint"],
+            "outputs": ["dist/**"]
+        },
+        "@phyt/models#lint": {
+            "dependsOn": ["@phyt/types#lint"],
+            "outputs": ["dist/**"]
+        },
+        "@phyt/infra#lint": {
+            "dependsOn": ["@phyt/types#lint", "@phyt/models#lint"],
+            "outputs": ["dist/**"]
+        },
+        "@phyt/aws#lint": {
+            "dependsOn": [
+                "@phyt/types#lint",
+                "@phyt/models#lint",
+                "@phyt/infra#lint"
+            ],
+            "outputs": ["dist/**"]
+        },
+        "@phyt/drizzle#lint": {
+            "dependsOn": ["@phyt/models#lint", "@phyt/infra#lint"],
+            "outputs": ["dist/**"]
+        },
+        "@phyt/repositories#lint": {
+            "dependsOn": ["@phyt/drizzle#lint", "@phyt/aws#lint"],
+            "outputs": ["dist/**"]
+        },
+        "@phyt/dto#lint": {
+            "dependsOn": ["@phyt/repositories#lint"],
+            "outputs": ["dist/**"]
+        },
+        "@phyt/services#lint": {
+            "dependsOn": ["@phyt/dto#lint"],
+            "outputs": ["dist/**"]
+        },
+        "@phyt/api#lint": {
+            "dependsOn": ["@phyt/services#lint"],
+            "outputs": ["dist/**"]
+        },
+        "@phyt/web#lint": {
+            "dependsOn": ["@phyt/drizzle#lint", "@phyt/api#lint"],
+            "outputs": [".next/**"]
         },
         "lint:fix": {
             "dependsOn": ["^lint:fix"]

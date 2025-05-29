@@ -106,7 +106,7 @@ export const baseConfig: import('eslint').Linter.Config[] = [
                             position: 'before'
                         },
                         {
-                            pattern: '@phyt/server',
+                            pattern: '@phyt/api',
                             group: 'internal',
                             position: 'before'
                         },
