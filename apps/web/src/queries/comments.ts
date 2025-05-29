@@ -1,31 +1,34 @@
 import {
-    UUIDv7,
-    CommentQueryParams,
-    CommentResponse,
-    CommentCreateRequest,
-    CommentUpdateRequest
-} from '@phyt/types';
+    CommentDTO,
+    CommentIdDTO,
+    CommentQueryParamsDTO,
+    CommentsPageDTO,
+    CreateCommentDTO,
+    UpdateCommentDTO
+} from '@phyt/dto';
 
 import { api } from '@/lib/api';
 
 export const COMMENT_QUERY_KEYS = {
     all: ['comments'] as const,
     lists: () => [...COMMENT_QUERY_KEYS.all, 'list'] as const,
-    detail: (commentId: UUIDv7) =>
+    detail: (commentId: CommentIdDTO) =>
         [...COMMENT_QUERY_KEYS.all, commentId] as const,
-    postComments: (postId: UUIDv7, params?: CommentQueryParams) =>
+    postComments: (postId: CommentIdDTO, params?: CommentQueryParamsDTO) =>
         ['postComments', postId, params] as const,
-    replies: (commentId: UUIDv7, params?: { page?: number; limit?: number }) =>
-        ['commentReplies', commentId, params] as const
+    replies: (
+        commentId: CommentIdDTO,
+        params?: { page?: number; limit?: number }
+    ) => ['commentReplies', commentId, params] as const
 };
 
 // Function to fetch comments for a post
 export async function fetchPostComments(
-    postId: UUIDv7,
-    { page = 1, limit = 20, parentOnly = false }: CommentQueryParams = {},
+    postId: CommentIdDTO,
+    { page = 1, limit = 20, parentOnly = false }: CommentQueryParamsDTO = {},
     token: string
-): Promise<CommentResponse> {
-    const response = await api.get<CommentResponse>(
+): Promise<CommentsPageDTO> {
+    const response = await api.get<CommentsPageDTO>(
         `/comments/post/${String(postId)}`,
         {
             params: { page, limit, parentOnly },
@@ -37,11 +40,11 @@ export async function fetchPostComments(
 
 // Function to fetch replies to a comment
 export async function fetchCommentReplies(
-    commentId: UUIDv7,
-    { page = 1, limit = 20 }: CommentQueryParams = {},
+    commentId: CommentIdDTO,
+    { page = 1, limit = 20 }: CommentQueryParamsDTO = {},
     token: string
-): Promise<CommentResponse> {
-    const response = await api.get<CommentResponse>(
+): Promise<CommentsPageDTO> {
+    const response = await api.get<CommentsPageDTO>(
         `/comments/replies/${String(commentId)}`,
         {
             params: { page, limit },
@@ -53,21 +56,24 @@ export async function fetchCommentReplies(
 
 // Function to fetch a single comment by ID
 export async function fetchComment(
-    commentId: UUIDv7,
+    commentId: CommentIdDTO,
     token: string
-): Promise<Comment> {
-    const response = await api.get<Comment>(`/comments/${String(commentId)}`, {
-        headers: { Authorization: `Bearer ${token}` }
-    });
+): Promise<CommentDTO> {
+    const response = await api.get<CommentDTO>(
+        `/comments/${String(commentId)}`,
+        {
+            headers: { Authorization: `Bearer ${token}` }
+        }
+    );
     return response.data;
 }
 
 // Function to create a comment or reply
 export async function createComment(
-    commentData: CommentCreateRequest,
+    commentData: CreateCommentDTO,
     token: string
-): Promise<Comment> {
-    const response = await api.post<Comment>('/comments', commentData, {
+): Promise<CommentDTO> {
+    const response = await api.post<CommentDTO>('/comments', commentData, {
         headers: { Authorization: `Bearer ${token}` }
     });
     return response.data;
@@ -75,21 +81,25 @@ export async function createComment(
 
 // Function to update a comment
 export async function updateComment(
-    updateCommentData: CommentUpdateRequest,
+    updateCommentData: UpdateCommentDTO,
     token: string
-): Promise<Comment> {
-    const response = await api.patch<Comment>('/comments', updateCommentData, {
-        headers: { Authorization: `Bearer ${token}` }
-    });
+): Promise<CommentDTO> {
+    const response = await api.patch<CommentDTO>(
+        '/comments',
+        updateCommentData,
+        {
+            headers: { Authorization: `Bearer ${token}` }
+        }
+    );
     return response.data;
 }
 
 // Function to delete a comment
 export async function deleteComment(
-    commentId: UUIDv7,
+    commentId: CommentIdDTO,
     token: string
-): Promise<Comment> {
-    const response = await api.delete<Comment>(
+): Promise<CommentDTO> {
+    const response = await api.delete<CommentDTO>(
         `/comments/${String(commentId)}`,
         {
             headers: { Authorization: `Bearer ${token}` }

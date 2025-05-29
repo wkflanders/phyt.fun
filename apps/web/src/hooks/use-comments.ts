@@ -1,16 +1,13 @@
-import { usePrivy } from '@privy-io/react-auth';
-
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-
 import {
-    UUIDv7,
-    ApiError,
-    AuthenticationError,
-    CommentQueryParams,
-    CommentCreateRequest,
-    CommentUpdateRequest,
-    CommentResponse
-} from '@phyt/types';
+    CommentIdDTO,
+    CommentQueryParamsDTO,
+    CreateCommentDTO,
+    UpdateCommentDTO,
+    CommentsPageDTO,
+    CommentDTO
+} from '@phyt/dto';
+
+import { APIError, AuthenticationError } from '@phyt/infra';
 
 import {
     fetchPostComments,
@@ -23,16 +20,20 @@ import {
 } from '@/queries/comments';
 import { POST_QUERY_KEYS } from '@/queries/posts';
 
+import { usePrivy } from '@privy-io/react-auth';
+
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { useToast } from './use-toast';
 
 export function usePostComments(
-    postId: UUIDv7,
-    params: CommentQueryParams = {}
+    postId: CommentIdDTO,
+    params: CommentQueryParamsDTO = {}
 ) {
     const { page = 1, limit = 20, parentOnly = false } = params;
     const { getAccessToken } = usePrivy();
 
-    return useQuery<CommentResponse, ApiError>({
+    return useQuery<CommentsPageDTO, APIError>({
         queryKey: COMMENT_QUERY_KEYS.postComments(postId, {
             page,
             limit,
@@ -56,13 +57,13 @@ export function usePostComments(
 }
 
 export function useCommentReplies(
-    commentId: UUIDv7,
-    params: CommentQueryParams = {}
+    commentId: CommentIdDTO,
+    params: CommentQueryParamsDTO = {}
 ) {
     const { page = 1, limit = 20 } = params;
     const { getAccessToken } = usePrivy();
 
-    return useQuery<CommentResponse, ApiError>({
+    return useQuery<CommentsPageDTO, APIError>({
         queryKey: COMMENT_QUERY_KEYS.replies(commentId, { page, limit }),
         queryFn: async () => {
             const token = await getAccessToken();
@@ -78,10 +79,10 @@ export function useCommentReplies(
     });
 }
 
-export function useComment(commentId: UUIDv7) {
+export function useComment(commentId: CommentIdDTO) {
     const { getAccessToken } = usePrivy();
 
-    return useQuery<Comment, ApiError>({
+    return useQuery<CommentDTO, APIError>({
         queryKey: COMMENT_QUERY_KEYS.detail(commentId),
         queryFn: async () => {
             const token = await getAccessToken();
@@ -101,7 +102,7 @@ export function useCreateComment() {
     const { toast } = useToast();
     const { getAccessToken } = usePrivy();
 
-    return useMutation<Comment, ApiError, CommentCreateRequest>({
+    return useMutation<CommentDTO, APIError, CreateCommentDTO>({
         mutationFn: async (commentData) => {
             const token = await getAccessToken();
             if (!token) {
@@ -135,7 +136,7 @@ export function useCreateComment() {
                 queryKey: POST_QUERY_KEYS.detail(variables.postId)
             });
         },
-        onError: (error: ApiError) => {
+        onError: (error: APIError) => {
             console.error(error.message);
             toast({
                 title: 'Error',
@@ -151,7 +152,7 @@ export function useUpdateComment() {
     const { toast } = useToast();
     const { getAccessToken } = usePrivy();
 
-    return useMutation<Comment, ApiError, CommentUpdateRequest>({
+    return useMutation<CommentDTO, APIError, UpdateCommentDTO>({
         mutationFn: async (updateCommentData) => {
             const token = await getAccessToken();
             if (!token) {
@@ -161,16 +162,16 @@ export function useUpdateComment() {
             }
             return updateComment(updateCommentData, token);
         },
-        onSuccess: (_, variables) => {
+        onSuccess: (returnedComment, variables) => {
             toast({
                 title: 'Success',
                 description: 'Comment updated successfully'
             });
             queryClient.invalidateQueries({
-                queryKey: COMMENT_QUERY_KEYS.detail(variables.commentId)
+                queryKey: COMMENT_QUERY_KEYS.detail(returnedComment.id)
             });
         },
-        onError: (error: ApiError) => {
+        onError: (error: APIError) => {
             console.error(error.message);
             toast({
                 title: 'Error',
@@ -186,7 +187,7 @@ export function useDeleteComment() {
     const { toast } = useToast();
     const { getAccessToken } = usePrivy();
 
-    return useMutation<Comment, ApiError, UUIDv7>({
+    return useMutation<CommentDTO, APIError, CommentIdDTO>({
         mutationFn: async (commentId) => {
             const token = await getAccessToken();
             if (!token) {
@@ -196,7 +197,7 @@ export function useDeleteComment() {
             }
             return deleteComment(commentId, token);
         },
-        onSuccess: (_, commentId) => {
+        onSuccess: (returnedComment, commentId) => {
             toast({
                 title: 'Success',
                 description: 'Comment deleted successfully'
@@ -205,10 +206,10 @@ export function useDeleteComment() {
                 queryKey: COMMENT_QUERY_KEYS.all
             });
             queryClient.removeQueries({
-                queryKey: COMMENT_QUERY_KEYS.detail(commentId)
+                queryKey: COMMENT_QUERY_KEYS.detail(returnedComment.id)
             });
         },
-        onError: (error: ApiError) => {
+        onError: (error: APIError) => {
             console.error(error.message);
             toast({
                 title: 'Error',
