@@ -1,7 +1,6 @@
-import { InputError } from '@phyt/models';
+import { InputError } from '@phyt/infra';
 
 import multer from 'multer';
-
 
 const storage = multer.memoryStorage();
 const fileFilter = (

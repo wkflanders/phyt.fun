@@ -1,4 +1,4 @@
-import { PermissionError } from '@phyt/models';
+import { PermissionError } from '@phyt/infra';
 
 import { env } from '@/env.js';
 

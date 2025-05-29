@@ -1,6 +1,4 @@
-import { AuthenticationError } from '@phyt/models';
-
-import { privy } from '@phyt/infra';
+import { AuthenticationError, privy } from '@phyt/infra';
 
 import { env } from '@/env.js';
 

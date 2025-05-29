@@ -7,7 +7,7 @@ import {
     DatabaseError,
     PackPurchaseError,
     MarketplaceError
-} from '@phyt/models';
+} from '@phyt/infra';
 
 import { env } from '@/env.js';
 
@@ -16,8 +16,6 @@ import { Request, Response, NextFunction } from 'express';
 import multer from 'multer';
 
 import { ZodError } from 'zod';
-
-
 
 export const errorHandler = (
     err: Error,
