@@ -1,13 +1,10 @@
 // Generic error interface for frontend error handling
-export interface ErrorWithStatusCode {
+export interface APIError {
     statusCode: number;
     message: string;
 }
 
-// Type guard to check if an error has statusCode
-export function isErrorWithStatusCode(
-    error: unknown
-): error is ErrorWithStatusCode {
+export function isAPIError(error: unknown): error is APIError {
     return (
         typeof error === 'object' &&
         error !== null &&

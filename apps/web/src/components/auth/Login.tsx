@@ -1,6 +1,6 @@
 'use client';
 
-import { AuthenticationError, isErrorWithStatusCode } from '@phyt/infra';
+import { AuthenticationError, isAPIError } from '@phyt/infra';
 
 import { Button } from '@/components/ui/button';
 import { getUser } from '@/queries/user';
@@ -44,11 +44,15 @@ export const Login = () => {
                         const redirectTo = searchParams.get('redirect') ?? '/';
                         router.push(redirectTo);
                     } catch (error: unknown) {
-                        if (isErrorWithStatusCode(error)) {
+                        if (isAPIError(error)) {
                             console.error(error.message);
                             if (error.statusCode === 400) {
                                 router.push('/onboard');
                             }
+                        } else {
+                            // Fallback for errors that don't have statusCode
+                            console.error(error);
+                            setError('Failed to login. Please try again');
                         }
                     }
                 }

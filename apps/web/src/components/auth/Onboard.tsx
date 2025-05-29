@@ -1,6 +1,6 @@
 'use client';
 
-import { isErrorWithStatusCode } from '@phyt/infra';
+import { isAPIError } from '@phyt/infra';
 
 import { OnboardForm } from '@/components/OnboardForm';
 import { useToast } from '@/hooks/use-toast';
@@ -59,7 +59,7 @@ export const Onboard = () => {
                 description: 'Profile created successfully!'
             });
         } catch (error: unknown) {
-            if (isErrorWithStatusCode(error)) {
+            if (isAPIError(error)) {
                 console.error(error.message);
 
                 if (error.statusCode === 422) {
