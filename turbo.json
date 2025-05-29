@@ -52,12 +52,12 @@
             "dependsOn": ["@phyt/eslint#build"],
             "outputs": ["dist/**"]
         },
-        "@phyt/models#build": {
+        "@phyt/infra#build": {
             "dependsOn": ["@phyt/types#build"],
             "outputs": ["dist/**"]
         },
-        "@phyt/infra#build": {
-            "dependsOn": ["@phyt/types#build", "@phyt/models#build"],
+        "@phyt/models#build": {
+            "dependsOn": ["@phyt/infra#build"],
             "outputs": ["dist/**"]
         },
         "@phyt/aws#build": {
