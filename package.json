@@ -40,6 +40,13 @@
         "dotenv": "^16.4.7",
         "uuidv7": "^1.0.2"
     },
+    "pnpm": {
+        "overrides": {
+            "tailwindcss": "3.4.17",
+            "eslint-plugin-tailwindcss>tailwindcss": "3.4.17",
+            "*>tailwindcss": "3.4.17"
+        }
+    },
     "packageManager": "pnpm@10.11.0",
     "engines": {
         "node": ">=18.0.0"
