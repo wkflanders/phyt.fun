@@ -1,4 +1,4 @@
-import { Packs } from '@/components/packs/Packs';
+// import { Packs } from '@/components/packs/Packs';
 import { SynthwaveBackground } from '@/components/packs/SynthwaveBackground';
 
 import React from 'react';
@@ -11,7 +11,7 @@ export default function PackPage() {
 
             {/* Existing Packs component or page content */}
             <div className="relative z-10 px-4 sm:px-6 lg:px-6 py-8">
-                <Packs />
+                {/* <Packs /> */}
             </div>
         </div>
     );

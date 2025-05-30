@@ -1,15 +1,13 @@
 'use client';
 
-import Marketplace from '@/components/marketplace/Marketplace';
+// import Marketplace from '@/components/marketplace/Marketplace';
 
 import React from 'react';
 
 export default function MarketplacePage() {
     return (
         <div className="flex-1 overflow-y-auto">
-            <div className="max-w-4xl mx-auto">
-                <Marketplace />
-            </div>
+            <div className="max-w-4xl mx-auto">{/* <Marketplace /> */}</div>
         </div>
     );
 }

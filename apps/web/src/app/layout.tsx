@@ -1,7 +1,7 @@
-import localFont from 'next/font/local';
-
 import { Toaster } from '@/components/ui/toaster';
 import Providers from '@/context/Providers';
+
+import localFont from 'next/font/local';
 
 import './globals.css';
 
