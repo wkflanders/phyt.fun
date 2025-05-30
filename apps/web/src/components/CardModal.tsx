@@ -1,8 +1,3 @@
-import Image from 'next/image';
-import React, { useState } from 'react';
-
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
-
 import { User, CardWithMetadata } from '@phyt/types';
 
 import { Button } from '@/components/ui/button';
@@ -14,7 +9,12 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 
-import { SellModal } from './SellModal';
+import Image from 'next/image';
+import React, { useState } from 'react';
+
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+
+// import { SellModal } from './SellModal';
 
 interface CardModalProps {
     user: User;
@@ -156,14 +156,14 @@ export const CardModal = ({ user, isOpen, onClose, card }: CardModalProps) => {
                     </div>
                 </div>
 
-                <SellModal
+                {/* <SellModal
                     user={user}
                     isOpen={isSellModal}
                     onClose={() => {
                         setIsSellModal(false);
                     }}
                     card={card}
-                />
+                /> */}
             </DialogContent>
         </Dialog>
     );

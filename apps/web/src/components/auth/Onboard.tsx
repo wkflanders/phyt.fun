@@ -40,17 +40,20 @@ export const Onboard = () => {
         try {
             setIsSubmitting(true);
 
-            // Create a properly typed FormData object
             const typedFormData = formData;
 
-            // Add additional user data to FormData
             typedFormData.append('email', user.google.email);
             typedFormData.append('privyId', user.id);
             if (user.wallet?.address) {
                 typedFormData.append('walletAddress', user.wallet.address);
             }
 
-            await createUser.mutateAsync({ formData: typedFormData });
+            await createUser.mutateAsync({
+                email: user.google.email,
+                privyId: user.id,
+                username: formData.get('username') as string,
+                walletAddress: user.wallet?.address as `0x${string}`
+            });
 
             router.push('/');
 

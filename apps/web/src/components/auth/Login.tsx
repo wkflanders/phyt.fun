@@ -1,9 +1,9 @@
 'use client';
 
-import { AuthenticationError, isAPIError } from '@phyt/infra';
+import { isAPIError } from '@phyt/infra';
 
 import { Button } from '@/components/ui/button';
-import { getUser } from '@/queries/user';
+import { getUser } from '@/queries/usersQueries';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useState } from 'react';
@@ -13,7 +13,7 @@ import { usePrivy, useLogin } from '@privy-io/react-auth';
 export const Login = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { ready, getAccessToken } = usePrivy();
+    const { ready } = usePrivy();
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -33,13 +33,7 @@ export const Login = () => {
                     router.push('/onboard');
                 } else {
                     try {
-                        const token = await getAccessToken();
-                        if (!token) {
-                            throw new AuthenticationError(
-                                'No token available. Is user logged in with privy?'
-                            );
-                        }
-                        await getUser(user.id, token); // Cacheing user data
+                        await getUser(user.id);
 
                         const redirectTo = searchParams.get('redirect') ?? '/';
                         router.push(redirectTo);

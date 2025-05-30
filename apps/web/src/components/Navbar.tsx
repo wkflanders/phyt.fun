@@ -1,12 +1,12 @@
 'use client';
+import { CommandSearch } from '@/components/CommandSearch';
+import { WalletPopover } from '@/components/WalletPopover';
+import { useGetUser } from '@/hooks/use-users';
+
 import Image from 'next/image';
 import React from 'react';
 
 import { useAccount, useBalance } from 'wagmi';
-
-import { CommandSearch } from '@/components/CommandSearch';
-import { WalletPopover } from '@/components/WalletPopover';
-import { useGetUser } from '@/hooks/use-users';
 
 import { NotificationsPopover } from './NotificationsPopover';
 import { ProfilePopover } from './profile/ProfilePopover';

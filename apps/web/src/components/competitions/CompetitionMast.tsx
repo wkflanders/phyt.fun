@@ -26,7 +26,11 @@ export const CompetitionMast = () => {
         );
     }
 
-    if (error || !majorCompetitions || majorCompetitions.length === 0) {
+    if (
+        error ||
+        !majorCompetitions ||
+        majorCompetitions.competitions.length === 0
+    ) {
         return (
             <div className="flex flex-col items-center justify-center w-full h-64 bg-zinc-900 shadow-lg rounded-xl text-text-dim">
                 <p>No major competitions available at the moment.</p>
@@ -35,7 +39,7 @@ export const CompetitionMast = () => {
     }
 
     // Get the first major competition to feature
-    const featuredCompetition = majorCompetitions[0];
+    const featuredCompetition = majorCompetitions.competitions[0];
 
     // Format dates
     const startDate = new Date(featuredCompetition.startTime);

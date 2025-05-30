@@ -1,8 +1,16 @@
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
 import React from 'react';
 
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer
+} from 'recharts';
 
 interface PriceHistoryEntry {
     timestamp: string;
@@ -20,22 +28,31 @@ interface PriceChartProps {
 
 const PriceChart = ({ listings }: PriceChartProps) => {
     const chartData = listings
-        .map(listing => ({
+        .map((listing) => ({
             timestamp: new Date(listing.listing.created_at).toLocaleString(),
             price: Number(listing.listing.price)
         }))
-        .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+        .sort(
+            (a, b) =>
+                new Date(a.timestamp).getTime() -
+                new Date(b.timestamp).getTime()
+        );
 
     return (
         <Card className="bg-black border-gray-800">
             <CardHeader>
-                <CardTitle className="text-white text-sm">Price History</CardTitle>
+                <CardTitle className="text-white text-sm">
+                    Price History
+                </CardTitle>
             </CardHeader>
             <CardContent>
                 <div className="h-48 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={chartData}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                            <CartesianGrid
+                                strokeDasharray="3 3"
+                                stroke="#374151"
+                            />
                             <XAxis
                                 dataKey="timestamp"
                                 stroke="#9CA3AF"

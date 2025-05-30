@@ -1,13 +1,5 @@
 'use client';
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import React from 'react';
-
-import { useLogout } from '@privy-io/react-auth';
-import { LogOut } from 'lucide-react';
-
 import { Button } from '@/components/ui/button';
 import {
     Popover,
@@ -15,6 +7,14 @@ import {
     PopoverContent
 } from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
+
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import React from 'react';
+
+import { useLogout } from '@privy-io/react-auth';
+import { LogOut } from 'lucide-react';
 
 interface ProfilePopoverProps {
     avatarUrl?: string;

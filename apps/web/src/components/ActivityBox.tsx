@@ -1,25 +1,23 @@
 'use client';
 
-import Image from 'next/image';
-import React, { useState } from 'react';
-
-import { Zap, Users, ArrowDown, Loader2 } from 'lucide-react';
-
-import { RunnerActivity } from '@phyt/types';
+import { RunnerActivityDTO } from '@phyt/dto';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useGetRunnerActivities } from '@/hooks/use-runners';
 import { cn } from '@/lib/utils';
 
+import Image from 'next/image';
+import React, { useState } from 'react';
+
+import { Zap, Users, ArrowDown, Loader2 } from 'lucide-react';
+
 type TabType = 'all' | 'pooled';
 
 export const ActivityBox: React.FC = () => {
     const [activeTab, setActiveTab] = useState<TabType>('all');
-    const {
-        data: activities,
-        isLoading,
-        isError
-    } = useGetRunnerActivities(activeTab !== 'all' ? activeTab : undefined);
+    const { data, isLoading, isError } = useGetRunnerActivities(
+        activeTab !== 'all' ? activeTab : undefined
+    );
 
     return (
         <Card className="w-1/5 bg-transparent rounded-none border-0 border-l border-white/10">
@@ -61,11 +59,11 @@ export const ActivityBox: React.FC = () => {
                         <div className="text-center text-phyt_text_secondary py-4">
                             Error loading activities
                         </div>
-                    ) : activities && activities.length > 0 ? (
-                        activities.map((activity) => (
+                    ) : data && data.activities.length > 0 ? (
+                        data.activities.map((activity) => (
                             <ActivityItem
-                                key={activity.id}
-                                activity={activity}
+                                key={activity.runId}
+                                activity={activity as RunnerActivityDTO}
                             />
                         ))
                     ) : (
@@ -105,7 +103,7 @@ const TabButton: React.FC<TabButtonProps> = ({
 );
 
 interface ActivityItemProps {
-    activity: RunnerActivity;
+    activity: RunnerActivityDTO;
 }
 
 const ActivityItem: React.FC<ActivityItemProps> = ({ activity }) => {

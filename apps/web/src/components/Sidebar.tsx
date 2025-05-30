@@ -1,3 +1,5 @@
+import { cn } from '@/lib/utils';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -12,8 +14,6 @@ import {
     Gift
 } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
-
 export const Sidebar = () => {
     const pathname = usePathname();
     const [isExpanded, setIsExpanded] = useState(false);
@@ -23,7 +23,7 @@ export const Sidebar = () => {
         { icon: PackageSearch, label: 'Packs', href: '/pack' },
         { icon: ShoppingCart, label: 'Marketplace', href: '/marketplace' },
         { icon: Trophy, label: 'Competition', href: '/competition' },
-        { icon: BarChart2, label: 'Leaderboard', href: '/leaderboard' },
+        { icon: BarChart2, label: 'Leaderboard', href: '/leaderboard' }
     ];
 
     const isActive = (href: string) => {
@@ -37,24 +37,28 @@ export const Sidebar = () => {
         <>
             <div
                 className={cn(
-                    "fixed left-0 top-0 z-50 h-screen transition-all duration-300 ease-in-out sidebar-glass",
-                    isExpanded ? "w-56" : "w-16"
+                    'fixed left-0 top-0 z-50 h-screen transition-all duration-300 ease-in-out sidebar-glass',
+                    isExpanded ? 'w-56' : 'w-16'
                 )}
-                onMouseEnter={() => { setIsExpanded(true); }}
-                onMouseLeave={() => { setIsExpanded(false); }}
+                onMouseEnter={() => {
+                    setIsExpanded(true);
+                }}
+                onMouseLeave={() => {
+                    setIsExpanded(false);
+                }}
             >
                 <div className="flex items-center px-4 py-2 mt-1">
                     <div className="flex items-center">
                         <span className="font-semibold text-text">
                             <div
                                 className={cn(
-                                    "relative h-14 w-36 transition-all duration-300 overflow-hidden",
-                                    "clip-sidebar"
+                                    'relative h-14 w-36 transition-all duration-300 overflow-hidden',
+                                    'clip-sidebar'
                                 )}
                                 style={{
                                     clipPath: isExpanded
                                         ? 'inset(0 0 0 0)' // Fully visible when expanded
-                                        : 'inset(0 calc(100% - 2rem) 0 0)', // Clipped when collapsed
+                                        : 'inset(0 calc(100% - 2rem) 0 0)' // Clipped when collapsed
                                 }}
                             >
                                 <Image
@@ -68,8 +72,8 @@ export const Sidebar = () => {
                         </span>
                         <span
                             className={cn(
-                                "ml-2 rounded-sm bg-secondary-shade px-1 py-0.5 text-xs transition-all duration-200",
-                                isExpanded ? "opacity-100" : "opacity-0"
+                                'ml-2 rounded-sm bg-secondary-shade px-1 py-0.5 text-xs transition-all duration-200',
+                                isExpanded ? 'opacity-100' : 'opacity-0'
                             )}
                         >
                             BETA
@@ -88,17 +92,17 @@ export const Sidebar = () => {
                             >
                                 <div
                                     className={cn(
-                                        "mb-4 flex cursor-pointer items-center rounded-md p-2 hover:bg-black/20 transition-all duration-300",
+                                        'mb-4 flex cursor-pointer items-center rounded-md p-2 hover:bg-black/20 transition-all duration-300',
                                         active ? 'text-text' : 'text-text-dim'
                                     )}
                                 >
                                     <item.icon size={20} className="shrink-0" />
                                     <span
                                         className={cn(
-                                            "ml-4 font-medium whitespace-nowrap overflow-hidden transition-all duration-300",
+                                            'ml-4 font-medium whitespace-nowrap overflow-hidden transition-all duration-300',
                                             isExpanded
-                                                ? "max-w-full opacity-100"
-                                                : "max-w-0 opacity-0"
+                                                ? 'max-w-full opacity-100'
+                                                : 'max-w-0 opacity-0'
                                         )}
                                     >
                                         {item.label}
@@ -111,8 +115,8 @@ export const Sidebar = () => {
             </div>
             <div
                 className={cn(
-                    "fixed inset-0 bg-black transition-opacity duration-400 z-40",
-                    isExpanded ? "opacity-50" : "opacity-0 pointer-events-none"
+                    'fixed inset-0 bg-black transition-opacity duration-400 z-40',
+                    isExpanded ? 'opacity-50' : 'opacity-0 pointer-events-none'
                 )}
             />
         </>
