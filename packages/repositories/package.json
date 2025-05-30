@@ -17,6 +17,7 @@
         "build": "tsup src/index.ts --dts --format esm,cjs --out-dir dist",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
+        "update": "pnpm update --latest",
         "clean": "rm -rf dist .turbo node_modules"
     },
     "dependencies": {

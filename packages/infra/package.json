@@ -17,16 +17,17 @@
         "build": "tsup src/index.ts --dts --format esm,cjs --out-dir dist",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
+        "update": "pnpm update --latest",
         "clean": "rm -rf dist .turbo node_modules"
     },
     "dependencies": {
-        "@privy-io/server-auth": "^1.19.2",
-        "viem": "^2.24.3",
-        "@t3-oss/env-core": "^0.12.0",
-        "@aws-sdk/client-s3": "^3.779.0",
+        "@aws-sdk/client-s3": "^3.820.0",
+        "@privy-io/server-auth": "^1.24.0",
+        "@t3-oss/env-core": "^0.13.6",
         "dotenv": "^16.5.0",
-        "uuid": "^9.0.1",
-        "zod": "^3.24.2"
+        "uuid": "^11.1.0",
+        "viem": "^2.30.5",
+        "zod": "^3.25.42"
     },
     "devDependencies": {
         "@phyt/eslint": "workspace:*",
