@@ -1,18 +1,14 @@
-import { usePrivy } from '@privy-io/react-auth';
-
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-
 import {
-    UUIDv7,
-    ApiError,
-    Reaction,
-    ReactionCount,
-    ReactionToggleRequest,
-    ReactionToggleResponse,
-    AuthenticationError
-} from '@phyt/types';
+    CommentIdDTO,
+    PostIdDTO,
+    ReactionCountDTO,
+    ReactionDTO,
+    ReactionToggleDTO
+} from '@phyt/dto';
 
-import { POST_QUERY_KEYS } from '@/queries/posts';
+import { APIError } from '@phyt/infra';
+
+import { POST_QUERY_KEYS } from '@/queries/postsQueries';
 import {
     fetchPostReactions,
     fetchCommentReactions,
@@ -20,75 +16,45 @@ import {
     fetchUserCommentReactions,
     toggleReaction,
     REACTION_QUERY_KEYS
-} from '@/queries/reactions';
+} from '@/queries/reactionsQueries';
 
-export function usePostReactions(postId: UUIDv7) {
-    const { getAccessToken } = usePrivy();
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-    return useQuery<ReactionCount, ApiError>({
-        queryKey: REACTION_QUERY_KEYS.posts.byId(postId),
+export function usePostReactions(postId: PostIdDTO) {
+    return useQuery<ReactionCountDTO, APIError>({
+        queryKey: REACTION_QUERY_KEYS.posts.byPost(postId),
         queryFn: async () => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
-            return fetchPostReactions(postId, token);
+            return fetchPostReactions(postId);
         },
         enabled: !!postId
     });
 }
 
-export function useCommentReactions(commentId: UUIDv7) {
-    const { getAccessToken } = usePrivy();
-
-    return useQuery<ReactionCount, ApiError>({
-        queryKey: REACTION_QUERY_KEYS.comments.byId(commentId),
+export function useCommentReactions(commentId: CommentIdDTO) {
+    return useQuery<ReactionCountDTO, APIError>({
+        queryKey: REACTION_QUERY_KEYS.comments.byComment(commentId),
         queryFn: async () => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
-            return fetchCommentReactions(commentId, token);
+            return fetchCommentReactions(commentId);
         },
         enabled: !!commentId
     });
 }
 
-export function useUserPostReactions(postId: UUIDv7) {
-    const { getAccessToken } = usePrivy();
-
-    return useQuery<Reaction[], ApiError>({
+export function useUserPostReactions(postId: PostIdDTO) {
+    return useQuery<ReactionDTO[], APIError>({
         queryKey: REACTION_QUERY_KEYS.posts.byUser(postId),
         queryFn: async () => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
-            return fetchUserPostReactions(postId, token);
+            return fetchUserPostReactions(postId);
         },
         enabled: !!postId
     });
 }
 
-export function useUserCommentReactions(commentId: UUIDv7) {
-    const { getAccessToken } = usePrivy();
-
-    return useQuery<Reaction[], ApiError>({
+export function useUserCommentReactions(commentId: CommentIdDTO) {
+    return useQuery<ReactionDTO[], APIError>({
         queryKey: REACTION_QUERY_KEYS.comments.byUser(commentId),
         queryFn: async () => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
-            return fetchUserCommentReactions(commentId, token);
+            return fetchUserCommentReactions(commentId);
         },
         enabled: !!commentId
     });
@@ -96,59 +62,46 @@ export function useUserCommentReactions(commentId: UUIDv7) {
 
 export function useToggleReaction() {
     const queryClient = useQueryClient();
-    const { getAccessToken } = usePrivy();
 
-    return useMutation<ReactionToggleResponse, ApiError, ReactionToggleRequest>(
-        {
-            mutationFn: async (reactionData) => {
-                const token = await getAccessToken();
-                if (!token) {
-                    throw new AuthenticationError(
-                        'No token available. Is user logged in with privy?'
-                    );
-                }
-                return toggleReaction(reactionData, token);
-            },
-            onSuccess: (_, variables) => {
-                // Invalidate queries for reacting to a post
-                if (variables.postId) {
-                    queryClient.invalidateQueries({
-                        queryKey: REACTION_QUERY_KEYS.posts.byId(
-                            variables.postId
-                        )
-                    });
-                    queryClient.invalidateQueries({
-                        queryKey: REACTION_QUERY_KEYS.posts.byUser(
-                            variables.postId
-                        )
-                    });
+    return useMutation<ReactionDTO, APIError, ReactionToggleDTO>({
+        mutationFn: async (reactionData) => {
+            return toggleReaction(reactionData);
+        },
+        onSuccess: (_, variables) => {
+            // Invalidate queries for reacting to a post
+            if (variables.postId) {
+                queryClient.invalidateQueries({
+                    queryKey: REACTION_QUERY_KEYS.posts.byPost(variables.postId)
+                });
+                queryClient.invalidateQueries({
+                    queryKey: REACTION_QUERY_KEYS.posts.byUser(variables.postId)
+                });
 
-                    // Also update post counts in feed
-                    queryClient.invalidateQueries({
-                        queryKey: POST_QUERY_KEYS.all
-                    });
-                    queryClient.invalidateQueries({
-                        queryKey: POST_QUERY_KEYS.detail(variables.postId)
-                    });
-                }
-
-                // Invalidate queries for reacting to a comment
-                if (variables.commentId) {
-                    queryClient.invalidateQueries({
-                        queryKey: REACTION_QUERY_KEYS.comments.byId(
-                            variables.commentId
-                        )
-                    });
-                    queryClient.invalidateQueries({
-                        queryKey: REACTION_QUERY_KEYS.comments.byUser(
-                            variables.commentId
-                        )
-                    });
-                }
-            },
-            onError: (error: ApiError) => {
-                console.error('Failed to toggle reaction:', error);
+                // Also update post counts in feed
+                queryClient.invalidateQueries({
+                    queryKey: POST_QUERY_KEYS.all
+                });
+                queryClient.invalidateQueries({
+                    queryKey: POST_QUERY_KEYS.detail(variables.postId)
+                });
             }
+
+            // Invalidate queries for reacting to a comment
+            if (variables.commentId) {
+                queryClient.invalidateQueries({
+                    queryKey: REACTION_QUERY_KEYS.comments.byComment(
+                        variables.commentId
+                    )
+                });
+                queryClient.invalidateQueries({
+                    queryKey: REACTION_QUERY_KEYS.comments.byUser(
+                        variables.commentId
+                    )
+                });
+            }
+        },
+        onError: (error: APIError) => {
+            console.error('Failed to toggle reaction:', error);
         }
-    );
+    });
 }

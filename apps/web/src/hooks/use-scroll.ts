@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, RefObject } from "react";
+import { useState, useEffect, useCallback, RefObject } from 'react';
 
 export function useScroll(ref: RefObject<HTMLDivElement | null>) {
     const [scrolled, setScrolled] = useState(false);
@@ -12,10 +12,12 @@ export function useScroll(ref: RefObject<HTMLDivElement | null>) {
     useEffect(() => {
         const scrollEl = ref.current;
         if (!scrollEl) return;
-        scrollEl.addEventListener("scroll", handleScroll);
+        scrollEl.addEventListener('scroll', handleScroll);
         // Initial check
         handleScroll();
-        return () => { scrollEl.removeEventListener("scroll", handleScroll); };
+        return () => {
+            scrollEl.removeEventListener('scroll', handleScroll);
+        };
     }, [handleScroll, ref]);
 
     return scrolled;
