@@ -38,7 +38,7 @@ import {
     // makeMetadataService
 } from '@phyt/services';
 
-import { avatarConfig, awsClient } from '@phyt/infra';
+import { avatarConfig, awsClient } from '@phyt/infra/server';
 
 // import { makeAdminController } from './controllers/adminController.js';
 import { makeCommentsController } from './controllers/commentsController.js';

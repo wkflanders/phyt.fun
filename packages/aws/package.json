@@ -10,11 +10,11 @@
         "dist/**"
     ],
     "scripts": {
-        "clean": "rm -rf dist",
         "build": "tsc",
         "dev": "tsc --watch --preserveWatchOutput",
         "update": "pnpm update --latest",
         "lint": "eslint \"src/**/*.ts\"",
+        "clean": "rm -rf dist .turbo node_modules",
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
