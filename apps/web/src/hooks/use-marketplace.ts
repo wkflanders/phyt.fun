@@ -1,496 +1,496 @@
-import { usePrivy } from '@privy-io/react-auth';
+// import { usePrivy } from '@privy-io/react-auth';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAccount } from 'wagmi';
+// import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+// import { useAccount } from 'wagmi';
 
-import { UUIDv7, MarketListing, Order, User, Listing } from '@phyt/types';
+// import { UUIDv7, MarketListing, Order, User, Listing } from '@phyt/types';
 
-import { env } from '@/env';
+// import { env } from '@/env';
 
-import { useExchange } from './use-exchange';
-import { useToast } from './use-toast';
+// import { useExchange } from './use-exchange';
+// import { useToast } from './use-toast';
 
-interface ListingFilters {
-    minPrice?: string;
-    maxPrice?: string;
-    rarity?: string[];
-    sort?: 'price_asc' | 'price_desc' | 'created_at';
-}
+// interface ListingFilters {
+//     minPrice?: string;
+//     maxPrice?: string;
+//     rarity?: string[];
+//     sort?: 'price_asc' | 'price_desc' | 'created_at';
+// }
 
-const API_URL: string = env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api';
+// const API_URL: string = env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api';
 
-// Fetch active listings
-export function useListings(filters?: ListingFilters) {
-    const { getAccessToken } = usePrivy();
+// // Fetch active listings
+// export function useListings(filters?: ListingFilters) {
+//     const { getAccessToken } = usePrivy();
 
-    return useQuery<MarketListing[]>({
-        queryKey: ['listings', filters],
-        queryFn: async () => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new Error(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
+//     return useQuery<MarketListing[]>({
+//         queryKey: ['listings', filters],
+//         queryFn: async () => {
+//             const token = await getAccessToken();
+//             if (!token) {
+//                 throw new Error(
+//                     'No token available. Is user logged in with privy?'
+//                 );
+//             }
 
-            const searchParams = new URLSearchParams();
-            if (filters?.minPrice)
-                searchParams.append('minPrice', filters.minPrice);
-            if (filters?.maxPrice)
-                searchParams.append('maxPrice', filters.maxPrice);
-            if (filters?.rarity)
-                filters.rarity.forEach((r) => {
-                    searchParams.append('rarity', r);
-                });
-            if (filters?.sort) searchParams.append('sort', filters.sort);
+//             const searchParams = new URLSearchParams();
+//             if (filters?.minPrice)
+//                 searchParams.append('minPrice', filters.minPrice);
+//             if (filters?.maxPrice)
+//                 searchParams.append('maxPrice', filters.maxPrice);
+//             if (filters?.rarity)
+//                 filters.rarity.forEach((r) => {
+//                     searchParams.append('rarity', r);
+//                 });
+//             if (filters?.sort) searchParams.append('sort', filters.sort);
 
-            const response = await fetch(
-                `${API_URL}/marketplace/listings?${searchParams.toString()}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch listings');
-            }
-            return response.json() as Promise<MarketListing[]>;
-        }
-    });
-}
+//             const response = await fetch(
+//                 `${API_URL}/marketplace/listings?${searchParams.toString()}`,
+//                 {
+//                     method: 'GET',
+//                     headers: {
+//                         Authorization: `Bearer ${token}`
+//                     }
+//                 }
+//             );
+//             if (!response.ok) {
+//                 throw new Error('Failed to fetch listings');
+//             }
+//             return response.json() as Promise<MarketListing[]>;
+//         }
+//     });
+// }
 
-export const useOpenBids = (cardId: number) => {
-    const { getAccessToken } = usePrivy();
+// export const useOpenBids = (cardId: number) => {
+//     const { getAccessToken } = usePrivy();
 
-    return useQuery({
-        queryKey: ['openBids', cardId],
-        queryFn: async () => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new Error(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
+//     return useQuery({
+//         queryKey: ['openBids', cardId],
+//         queryFn: async () => {
+//             const token = await getAccessToken();
+//             if (!token) {
+//                 throw new Error(
+//                     'No token available. Is user logged in with privy?'
+//                 );
+//             }
 
-            const res = await fetch(
-                `${API_URL}/marketplace/cards/${String(cardId)}/open-bids`,
-                {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
-            if (!res.ok) {
-                const errorData = (await res.json()) as unknown;
-                const message =
-                    typeof errorData === 'object' &&
-                    errorData &&
-                    'message' in errorData
-                        ? (errorData as { message: string }).message
-                        : 'Failed to fetch open bids';
-                throw new Error(message);
-            }
-            return (await res.json()) as Order[];
-        }
-    });
-};
+//             const res = await fetch(
+//                 `${API_URL}/marketplace/cards/${String(cardId)}/open-bids`,
+//                 {
+//                     method: 'GET',
+//                     headers: {
+//                         Authorization: `Bearer ${token}`
+//                     }
+//                 }
+//             );
+//             if (!res.ok) {
+//                 const errorData = (await res.json()) as unknown;
+//                 const message =
+//                     typeof errorData === 'object' &&
+//                     errorData &&
+//                     'message' in errorData
+//                         ? (errorData as { message: string }).message
+//                         : 'Failed to fetch open bids';
+//                 throw new Error(message);
+//             }
+//             return (await res.json()) as Order[];
+//         }
+//     });
+// };
 
-export const useUserBids = (userId: string) => {
-    const { getAccessToken } = usePrivy();
+// export const useUserBids = (userId: string) => {
+//     const { getAccessToken } = usePrivy();
 
-    return useQuery({
-        queryKey: ['userBids', userId],
-        queryFn: async () => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new Error(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
+//     return useQuery({
+//         queryKey: ['userBids', userId],
+//         queryFn: async () => {
+//             const token = await getAccessToken();
+//             if (!token) {
+//                 throw new Error(
+//                     'No token available. Is user logged in with privy?'
+//                 );
+//             }
 
-            const res = await fetch(
-                `${API_URL}/marketplace/users/${userId}/bids`,
-                {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
-            if (!res.ok) {
-                const errorData = (await res.json()) as unknown;
-                const message =
-                    typeof errorData === 'object' &&
-                    errorData &&
-                    'message' in errorData
-                        ? (errorData as { message: string }).message
-                        : 'Failed to fetch user bids';
-                throw new Error(message);
-            }
-            return (await res.json()) as Order[];
-        },
-        enabled: !!userId
-    });
-};
+//             const res = await fetch(
+//                 `${API_URL}/marketplace/users/${userId}/bids`,
+//                 {
+//                     method: 'GET',
+//                     headers: {
+//                         Authorization: `Bearer ${token}`
+//                     }
+//                 }
+//             );
+//             if (!res.ok) {
+//                 const errorData = (await res.json()) as unknown;
+//                 const message =
+//                     typeof errorData === 'object' &&
+//                     errorData &&
+//                     'message' in errorData
+//                         ? (errorData as { message: string }).message
+//                         : 'Failed to fetch user bids';
+//                 throw new Error(message);
+//             }
+//             return (await res.json()) as Order[];
+//         },
+//         enabled: !!userId
+//     });
+// };
 
-export const useAcceptOpenBid = () => {
-    const queryClient = useQueryClient();
-    const { getAccessToken } = usePrivy();
+// export const useAcceptOpenBid = () => {
+//     const queryClient = useQueryClient();
+//     const { getAccessToken } = usePrivy();
 
-    return useMutation({
-        mutationFn: async ({
-            bidId,
-            transactionHash
-        }: {
-            bidId: number;
-            transactionHash: string;
-        }) => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new Error(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
+//     return useMutation({
+//         mutationFn: async ({
+//             bidId,
+//             transactionHash
+//         }: {
+//             bidId: number;
+//             transactionHash: string;
+//         }) => {
+//             const token = await getAccessToken();
+//             if (!token) {
+//                 throw new Error(
+//                     'No token available. Is user logged in with privy?'
+//                 );
+//             }
 
-            const res = await fetch(
-                `${API_URL}/marketplace/open-bids/${String(bidId)}/accept`,
-                {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ transactionHash })
-                }
-            );
-            if (!res.ok) {
-                const errorData = (await res.json()) as unknown;
-                const message =
-                    typeof errorData === 'object' &&
-                    errorData &&
-                    'message' in errorData
-                        ? (errorData as { message: string }).message
-                        : 'Failed to accept bid';
-                throw new Error(message);
-            }
-            return (await res.json()) as { success: boolean };
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['listings'] });
-            queryClient.invalidateQueries({ queryKey: ['openBids'] });
-        }
-    });
-};
+//             const res = await fetch(
+//                 `${API_URL}/marketplace/open-bids/${String(bidId)}/accept`,
+//                 {
+//                     method: 'POST',
+//                     credentials: 'include',
+//                     headers: {
+//                         Authorization: `Bearer ${token}`,
+//                         'Content-Type': 'application/json'
+//                     },
+//                     body: JSON.stringify({ transactionHash })
+//                 }
+//             );
+//             if (!res.ok) {
+//                 const errorData = (await res.json()) as unknown;
+//                 const message =
+//                     typeof errorData === 'object' &&
+//                     errorData &&
+//                     'message' in errorData
+//                         ? (errorData as { message: string }).message
+//                         : 'Failed to accept bid';
+//                 throw new Error(message);
+//             }
+//             return (await res.json()) as { success: boolean };
+//         },
+//         onSuccess: () => {
+//             queryClient.invalidateQueries({ queryKey: ['listings'] });
+//             queryClient.invalidateQueries({ queryKey: ['openBids'] });
+//         }
+//     });
+// };
 
-// Create a new listing
-export function useCreateListing(user: User) {
-    const { toast } = useToast();
-    const { signSellOrder } = useExchange();
-    const { address } = useAccount();
-    const queryClient = useQueryClient();
-    const { getAccessToken } = usePrivy();
+// // Create a new listing
+// export function useCreateListing(user: User) {
+//     const { toast } = useToast();
+//     const { signSellOrder } = useExchange();
+//     const { address } = useAccount();
+//     const queryClient = useQueryClient();
+//     const { getAccessToken } = usePrivy();
 
-    return useMutation({
-        mutationFn: async ({
-            cardId,
-            tokenId,
-            takePrice,
-            expiration // added parameter
-        }: {
-            cardId: UUIDv7;
-            cardId: UUIDv7;
-            tokenId: number;
-            takePrice: bigint;
-            expiration: string; // e.g. an ISO string or UNIX timestamp string
-        }) => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new Error(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
+//     return useMutation({
+//         mutationFn: async ({
+//             cardId,
+//             tokenId,
+//             takePrice,
+//             expiration // added parameter
+//         }: {
+//             cardId: UUIDv7;
+//             cardId: UUIDv7;
+//             tokenId: number;
+//             takePrice: bigint;
+//             expiration: string; // e.g. an ISO string or UNIX timestamp string
+//         }) => {
+//             const token = await getAccessToken();
+//             if (!token) {
+//                 throw new Error(
+//                     'No token available. Is user logged in with privy?'
+//                 );
+//             }
 
-            if (!address) throw new Error('Wallet not connected');
-            // Sign the sell order with the expiration value included.
-            const { order, signature, orderHash } = await signSellOrder({
-                tokenId,
-                takePrice,
-                expiration // pass expiration to  signing logic
-            } as { tokenId: number; takePrice: bigint; expiration: string });
-            // Send the auction listing to API, aligning with the validation schema.
-            const response = await fetch(`${API_URL}/marketplace/listings`, {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(
-                    {
-                        cardId,
-                        price: takePrice.toString(),
-                        signature,
-                        orderHash,
-                        orderData: {
-                            trader: order.trader,
-                            side: order.side,
-                            collection: order.collection,
-                            tokenId: order.tokenId.toString(),
-                            paymentToken: order.paymentToken,
-                            tokenId: order.tokenId.toString(),
-                            paymentToken: order.paymentToken,
-                            price: order.price.toString(),
-                            expiration_time: expiration,
-                            merkleRoot: order.merkleRoot,
-                            merkleRoot: order.merkleRoot,
-                            salt: order.salt.toString()
-                        },
-                        user: user
-                    },
-                    (_key: string, value: unknown): unknown =>
-                        typeof value === 'bigint' ? value.toString() : value
-                )
-            });
-            if (!response.ok) {
-                const errorData = (await response.json()) as unknown;
-                const message =
-                    typeof errorData === 'object' &&
-                    errorData &&
-                    'message' in errorData
-                        ? (errorData as { message: string }).message
-                        : 'Failed to create listing';
-                throw new Error(message);
-            }
-            return (await response.json()) as MarketListing;
-        },
-        onMutate: async (newListing) => {
-            await queryClient.cancelQueries({ queryKey: ['listings'] });
-            const previousListings = queryClient.getQueryData(['listings']);
+//             if (!address) throw new Error('Wallet not connected');
+//             // Sign the sell order with the expiration value included.
+//             const { order, signature, orderHash } = await signSellOrder({
+//                 tokenId,
+//                 takePrice,
+//                 expiration // pass expiration to  signing logic
+//             } as { tokenId: number; takePrice: bigint; expiration: string });
+//             // Send the auction listing to API, aligning with the validation schema.
+//             const response = await fetch(`${API_URL}/marketplace/listings`, {
+//                 method: 'POST',
+//                 credentials: 'include',
+//                 headers: {
+//                     Authorization: `Bearer ${token}`,
+//                     'Content-Type': 'application/json'
+//                 },
+//                 body: JSON.stringify(
+//                     {
+//                         cardId,
+//                         price: takePrice.toString(),
+//                         signature,
+//                         orderHash,
+//                         orderData: {
+//                             trader: order.trader,
+//                             side: order.side,
+//                             collection: order.collection,
+//                             tokenId: order.tokenId.toString(),
+//                             paymentToken: order.paymentToken,
+//                             tokenId: order.tokenId.toString(),
+//                             paymentToken: order.paymentToken,
+//                             price: order.price.toString(),
+//                             expiration_time: expiration,
+//                             merkleRoot: order.merkleRoot,
+//                             merkleRoot: order.merkleRoot,
+//                             salt: order.salt.toString()
+//                         },
+//                         user: user
+//                     },
+//                     (_key: string, value: unknown): unknown =>
+//                         typeof value === 'bigint' ? value.toString() : value
+//                 )
+//             });
+//             if (!response.ok) {
+//                 const errorData = (await response.json()) as unknown;
+//                 const message =
+//                     typeof errorData === 'object' &&
+//                     errorData &&
+//                     'message' in errorData
+//                         ? (errorData as { message: string }).message
+//                         : 'Failed to create listing';
+//                 throw new Error(message);
+//             }
+//             return (await response.json()) as MarketListing;
+//         },
+//         onMutate: async (newListing) => {
+//             await queryClient.cancelQueries({ queryKey: ['listings'] });
+//             const previousListings = queryClient.getQueryData(['listings']);
 
-            queryClient.setQueryData(['listings'], (old: unknown) => {
-                const arr = Array.isArray(old) ? (old as MarketListing[]) : [];
-                return [...arr, newListing];
-            });
+//             queryClient.setQueryData(['listings'], (old: unknown) => {
+//                 const arr = Array.isArray(old) ? (old as MarketListing[]) : [];
+//                 return [...arr, newListing];
+//             });
 
-            return { previousListings };
-        },
-        onError: (error: Error) => {
-            console.error(error);
-            toast({
-                title: 'Error',
-                description: 'Error creating new listing',
-                variant: 'destructive'
-            });
-        },
-        onSuccess: () => {
-            toast({
-                title: 'Success',
-                description: 'Your card has been listed for auction'
-            });
-        }
-    });
-}
+//             return { previousListings };
+//         },
+//         onError: (error: Error) => {
+//             console.error(error);
+//             toast({
+//                 title: 'Error',
+//                 description: 'Error creating new listing',
+//                 variant: 'destructive'
+//             });
+//         },
+//         onSuccess: () => {
+//             toast({
+//                 title: 'Success',
+//                 description: 'Your card has been listed for auction'
+//             });
+//         }
+//     });
+// }
 
-// Purchase a listed card
-export function usePurchaseListing() {
-    const { toast } = useToast();
-    const { executeBuy } = useExchange();
-    const { address } = useAccount();
-    const { getAccessToken } = usePrivy();
+// // Purchase a listed card
+// export function usePurchaseListing() {
+//     const { toast } = useToast();
+//     const { executeBuy } = useExchange();
+//     const { address } = useAccount();
+//     const { getAccessToken } = usePrivy();
 
-    return useMutation({
-        mutationFn: async (listing: Listing) => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new Error(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
+//     return useMutation({
+//         mutationFn: async (listing: Listing) => {
+//             const token = await getAccessToken();
+//             if (!token) {
+//                 throw new Error(
+//                     'No token available. Is user logged in with privy?'
+//                 );
+//             }
 
-            if (!address) throw new Error('Wallet not connected');
+//             if (!address) throw new Error('Wallet not connected');
 
-            // Convert the listing data into the Order format
-            const sellOrder: Order = {
-                trader: listing.orderData.trader,
-                trader: listing.orderData.trader,
-                side: 'sell', // 1 for sell
-                collection: listing.orderData.collection,
-                tokenId: BigInt(listing.orderData.tokenId),
-                paymentToken: listing.orderData.paymentToken,
-                price: BigInt(listing.orderData.price),
-                expirationTime: BigInt(listing.orderData.expirationTime),
-                merkleRoot:
-                collection: listing.orderData.collection,
-                tokenId: BigInt(listing.orderData.tokenId),
-                paymentToken: listing.orderData.paymentToken,
-                price: BigInt(listing.orderData.price),
-                expirationTime: BigInt(listing.orderData.expirationTime),
-                merkleRoot:
-                    '0x0000000000000000000000000000000000000000000000000000000000000000' as `0x${string}`,
-                salt: BigInt(listing.orderData.salt)
-                salt: BigInt(listing.orderData.salt)
-            };
+//             // Convert the listing data into the Order format
+//             const sellOrder: Order = {
+//                 trader: listing.orderData.trader,
+//                 trader: listing.orderData.trader,
+//                 side: 'sell', // 1 for sell
+//                 collection: listing.orderData.collection,
+//                 tokenId: BigInt(listing.orderData.tokenId),
+//                 paymentToken: listing.orderData.paymentToken,
+//                 price: BigInt(listing.orderData.price),
+//                 expirationTime: BigInt(listing.orderData.expirationTime),
+//                 merkleRoot:
+//                 collection: listing.orderData.collection,
+//                 tokenId: BigInt(listing.orderData.tokenId),
+//                 paymentToken: listing.orderData.paymentToken,
+//                 price: BigInt(listing.orderData.price),
+//                 expirationTime: BigInt(listing.orderData.expirationTime),
+//                 merkleRoot:
+//                     '0x0000000000000000000000000000000000000000000000000000000000000000' as `0x${string}`,
+//                 salt: BigInt(listing.orderData.salt)
+//                 salt: BigInt(listing.orderData.salt)
+//             };
 
-            // Execute the purchase transaction
-            const { hash, receipt } = await executeBuy({
-                sellOrder,
-                signature: listing.signature
-            });
+//             // Execute the purchase transaction
+//             const { hash, receipt } = await executeBuy({
+//                 sellOrder,
+//                 signature: listing.signature
+//             });
 
-            // Notify backend of successful purchase
-            const response = await fetch(
-                `${API_URL}/marketplace/listings/${String(listing.id)}/complete`,
-                {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        hash,
-                        buyer: address
-                    })
-                }
-            );
+//             // Notify backend of successful purchase
+//             const response = await fetch(
+//                 `${API_URL}/marketplace/listings/${String(listing.id)}/complete`,
+//                 {
+//                     method: 'POST',
+//                     credentials: 'include',
+//                     headers: {
+//                         Authorization: `Bearer ${token}`,
+//                         'Content-Type': 'application/json'
+//                     },
+//                     body: JSON.stringify({
+//                         hash,
+//                         buyer: address
+//                     })
+//                 }
+//             );
 
-            if (!response.ok) {
-                throw new Error('Failed to update listing status');
-            }
+//             if (!response.ok) {
+//                 throw new Error('Failed to update listing status');
+//             }
 
-            return { hash, receipt };
-        },
-        onError: (error: Error) => {
-            toast({
-                title: 'Error',
-                description: error.message,
-                variant: 'destructive'
-            });
-        },
-        onSuccess: () => {
-            toast({
-                title: 'Success',
-                description: 'Purchase completed successfully'
-            });
-        }
-    });
-}
+//             return { hash, receipt };
+//         },
+//         onError: (error: Error) => {
+//             toast({
+//                 title: 'Error',
+//                 description: error.message,
+//                 variant: 'destructive'
+//             });
+//         },
+//         onSuccess: () => {
+//             toast({
+//                 title: 'Success',
+//                 description: 'Purchase completed successfully'
+//             });
+//         }
+//     });
+// }
 
-// Place a bid on a listing
-export function usePlaceBid() {
-    const { toast } = useToast();
-    const { signBuyOrder } = useExchange();
-    const { address } = useAccount();
-    const { getAccessToken } = usePrivy();
+// // Place a bid on a listing
+// export function usePlaceBid() {
+//     const { toast } = useToast();
+//     const { signBuyOrder } = useExchange();
+//     const { address } = useAccount();
+//     const { getAccessToken } = usePrivy();
 
-    return useMutation({
-        mutationFn: async ({
-            listingId,
-            cardId,
-            bidAmount
-        }: {
-            listingId: UUIDv7;
-            cardId: UUIDv7;
-            listingId: UUIDv7;
-            cardId: UUIDv7;
-            bidAmount: bigint;
-        }) => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new Error(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
+//     return useMutation({
+//         mutationFn: async ({
+//             listingId,
+//             cardId,
+//             bidAmount
+//         }: {
+//             listingId: UUIDv7;
+//             cardId: UUIDv7;
+//             listingId: UUIDv7;
+//             cardId: UUIDv7;
+//             bidAmount: bigint;
+//         }) => {
+//             const token = await getAccessToken();
+//             if (!token) {
+//                 throw new Error(
+//                     'No token available. Is user logged in with privy?'
+//                 );
+//             }
 
-            if (!address) throw new Error('Wallet not connected');
+//             if (!address) throw new Error('Wallet not connected');
 
-            // 1. Sign the buy order
-            const { order, signature, orderHash } = await signBuyOrder({
-                listingId,
-                cardId,
-                bidAmount
-            });
+//             // 1. Sign the buy order
+//             const { order, signature, orderHash } = await signBuyOrder({
+//                 listingId,
+//                 cardId,
+//                 bidAmount
+//             });
 
-            // 2. Store the bid in the database
-            const response = await fetch(`${API_URL}/marketplace/bids`, {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    order,
-                    signature,
-                    orderHash
-                })
-            });
+//             // 2. Store the bid in the database
+//             const response = await fetch(`${API_URL}/marketplace/bids`, {
+//                 method: 'POST',
+//                 credentials: 'include',
+//                 headers: {
+//                     Authorization: `Bearer ${token}`,
+//                     'Content-Type': 'application/json'
+//                 },
+//                 body: JSON.stringify({
+//                     order,
+//                     signature,
+//                     orderHash
+//                 })
+//             });
 
-            if (!response.ok) {
-                const errorData = (await response.json()) as unknown;
-                const message =
-                    typeof errorData === 'object' &&
-                    errorData &&
-                    'message' in errorData
-                        ? (errorData as { message: string }).message
-                        : 'Failed to place bid';
-                throw new Error(message);
-            }
+//             if (!response.ok) {
+//                 const errorData = (await response.json()) as unknown;
+//                 const message =
+//                     typeof errorData === 'object' &&
+//                     errorData &&
+//                     'message' in errorData
+//                         ? (errorData as { message: string }).message
+//                         : 'Failed to place bid';
+//                 throw new Error(message);
+//             }
 
-            return (await response.json()) as Order;
-        },
-        onError: (error: Error) => {
-            toast({
-                title: 'Error',
-                description: error.message,
-                variant: 'destructive'
-            });
-        },
-        onSuccess: () => {
-            toast({
-                title: 'Success',
-                description: 'Your bid has been placed'
-            });
-        }
-    });
-}
+//             return (await response.json()) as Order;
+//         },
+//         onError: (error: Error) => {
+//             toast({
+//                 title: 'Error',
+//                 description: error.message,
+//                 variant: 'destructive'
+//             });
+//         },
+//         onSuccess: () => {
+//             toast({
+//                 title: 'Success',
+//                 description: 'Your bid has been placed'
+//             });
+//         }
+//     });
+// }
 
-// Get user's active listings
-export function useUserListings() {
-    const { address } = useAccount();
-    const { getAccessToken } = usePrivy();
+// // Get user's active listings
+// export function useUserListings() {
+//     const { address } = useAccount();
+//     const { getAccessToken } = usePrivy();
 
-    return useQuery({
-        queryKey: ['user-listings', address],
-        queryFn: async () => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new Error(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
+//     return useQuery({
+//         queryKey: ['user-listings', address],
+//         queryFn: async () => {
+//             const token = await getAccessToken();
+//             if (!token) {
+//                 throw new Error(
+//                     'No token available. Is user logged in with privy?'
+//                 );
+//             }
 
-            if (!address) throw new Error('Wallet not connected');
+//             if (!address) throw new Error('Wallet not connected');
 
-            const response = await fetch(
-                `${API_URL}/marketplace/users/${address}/listings`,
-                {
-                    method: 'GET',
-                    credentials: 'include',
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch user listings');
-            }
-            return response.json() as Promise<MarketListing[]>;
-        },
-        enabled: !!address
-    });
-}
+//             const response = await fetch(
+//                 `${API_URL}/marketplace/users/${address}/listings`,
+//                 {
+//                     method: 'GET',
+//                     credentials: 'include',
+//                     headers: {
+//                         Authorization: `Bearer ${token}`
+//                     }
+//                 }
+//             );
+//             if (!response.ok) {
+//                 throw new Error('Failed to fetch user listings');
+//             }
+//             return response.json() as Promise<MarketListing[]>;
+//         },
+//         enabled: !!address
+//     });
+// }

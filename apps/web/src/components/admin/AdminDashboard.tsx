@@ -1,16 +1,3 @@
-import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
-
-import { usePrivy } from '@privy-io/react-auth';
-import {
-    Users,
-    Activity,
-    Search,
-    RefreshCw,
-    CheckCircle,
-    XCircle
-} from 'lucide-react';
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -31,6 +18,19 @@ import {
 } from '@/hooks/use-admin';
 import { useGetUser } from '@/hooks/use-users';
 
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+
+import { usePrivy } from '@privy-io/react-auth';
+import {
+    Users,
+    Activity,
+    Search,
+    RefreshCw,
+    CheckCircle,
+    XCircle
+} from 'lucide-react';
+
 const AdminDashboard = () => {
     const router = useRouter();
     const { ready } = usePrivy();
@@ -43,7 +43,6 @@ const AdminDashboard = () => {
     const approveRunnerMutation = useApproveRunner();
     const verifyRunMutation = useUpdateRunVerification();
 
-    // Protect the route
     if (!ready || userLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
@@ -284,7 +283,8 @@ const AdminDashboard = () => {
                                                                 {
                                                                     runId: run
                                                                         .run.id,
-                                                                    status: 'verified'
+                                                                    isVerified:
+                                                                        true
                                                                 }
                                                             );
                                                         }}
@@ -303,7 +303,8 @@ const AdminDashboard = () => {
                                                                 {
                                                                     runId: run
                                                                         .run.id,
-                                                                    status: 'flagged'
+                                                                    isVerified:
+                                                                        false
                                                                 }
                                                             );
                                                         }}

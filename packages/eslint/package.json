@@ -13,35 +13,37 @@
     },
     "scripts": {
         "build": "tsc -p tsconfig.json",
+        "update": "pnpm update --latest",
         "clean": "rm -rf dist .turbo node_modules"
     },
     "dependencies": {
-        "eslint": "^9.23.0",
-        "eslint-config-prettier": "^9.1.0",
-        "eslint-import-resolver-typescript": "^4.2.4",
+        "eslint": "^9.27.0",
+        "eslint-config-prettier": "^10.1.5",
+        "eslint-import-resolver-typescript": "^4.4.1",
         "eslint-plugin-drizzle": "^0.2.3",
         "eslint-plugin-import": "^2.31.0",
         "eslint-plugin-jsx-a11y": "^6.10.2",
         "eslint-plugin-node": "^11.1.0",
         "eslint-plugin-only-warn": "^1.1.0",
-        "eslint-plugin-react": "^7.37.4",
+        "eslint-plugin-react": "^7.37.5",
         "eslint-plugin-react-hooks": "^5.2.0",
-        "eslint-plugin-tailwindcss": "^3.18.0",
-        "eslint-plugin-turbo": "^2.4.4",
-        "eslint-plugin-unicorn": "^58.0.0",
-        "globals": "^15.15.0"
+        "eslint-plugin-tailwindcss": "3.18.0",
+        "eslint-plugin-turbo": "^2.5.3",
+        "eslint-plugin-unicorn": "^59.0.1",
+        "globals": "^16.2.0",
+        "tailwindcss": "3.4.17"
     },
     "devDependencies": {
-        "@eslint/eslintrc": "^3.1.0",
-        "@eslint/js": "^9.23.0",
-        "@next/eslint-plugin-next": "^15.2.4",
+        "@eslint/eslintrc": "^3.3.1",
+        "@eslint/js": "^9.27.0",
+        "@next/eslint-plugin-next": "^15.3.3",
         "@phyt/tsconfig": "workspace:*",
-        "@tanstack/eslint-plugin-query": "^5.68.0",
+        "@tanstack/eslint-plugin-query": "^5.78.0",
         "@types/eslint-config-prettier": "^6.11.3",
         "@types/eslint-plugin-jsx-a11y": "^6.10.0",
-        "@types/eslint-plugin-tailwindcss": "^3.17.0",
-        "@types/node": "^22.14.1",
-        "@typescript-eslint/parser": "^8.28.0",
-        "typescript-eslint": "^8.30.1"
+        "@types/eslint-plugin-tailwindcss": "3.17.0",
+        "@types/node": "^22.15.28",
+        "@typescript-eslint/parser": "^8.33.0",
+        "typescript-eslint": "^8.33.0"
     }
 }

@@ -1,6 +1,6 @@
 import { ActivityBox } from '@/components/ActivityBox';
 import { CompetitionMast } from '@/components/competitions/CompetitionMast';
-import { Feed } from '@/components/feed/Feed';
+// import { Feed } from '@/components/feed/Feed';
 
 export default function Home() {
     return (
@@ -14,7 +14,7 @@ export default function Home() {
             <div>
                 <div className="flex justify-center gap-8 bg-background pt-12">
                     <div className="flex-1 lg:max-w-[40%]">
-                        <Feed />
+                        {/* <Feed /> */}
                     </div>
                     <ActivityBox />
                 </div>

@@ -1,16 +1,13 @@
-import { usePrivy } from '@privy-io/react-auth';
-
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-
 import {
-    UUIDv7,
-    ApiError,
-    AuthenticationError,
-    CommentQueryParams,
-    CommentCreateRequest,
-    CommentUpdateRequest,
-    CommentResponse
-} from '@phyt/types';
+    CommentIdDTO,
+    CommentQueryParamsDTO,
+    CreateCommentDTO,
+    UpdateCommentDTO,
+    CommentsPageDTO,
+    CommentDTO
+} from '@phyt/dto';
+
+import { APIError } from '@phyt/infra';
 
 import {
     fetchPostComments,
@@ -20,77 +17,52 @@ import {
     updateComment,
     deleteComment,
     COMMENT_QUERY_KEYS
-} from '@/queries/comments';
-import { POST_QUERY_KEYS } from '@/queries/posts';
+} from '@/queries/commentsQueries';
+import { POST_QUERY_KEYS } from '@/queries/postsQueries';
+
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useToast } from './use-toast';
 
 export function usePostComments(
-    postId: UUIDv7,
-    params: CommentQueryParams = {}
+    postId: CommentIdDTO,
+    params: CommentQueryParamsDTO = {}
 ) {
     const { page = 1, limit = 20, parentOnly = false } = params;
-    const { getAccessToken } = usePrivy();
 
-    return useQuery<CommentResponse, ApiError>({
+    return useQuery<CommentsPageDTO, APIError>({
         queryKey: COMMENT_QUERY_KEYS.postComments(postId, {
             page,
             limit,
             parentOnly
         }),
         queryFn: async () => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
-            return fetchPostComments(
-                postId,
-                { page, limit, parentOnly },
-                token
-            );
+            return fetchPostComments(postId, { page, limit, parentOnly });
         },
         enabled: !!postId
     });
 }
 
 export function useCommentReplies(
-    commentId: UUIDv7,
-    params: CommentQueryParams = {}
+    commentId: CommentIdDTO,
+    params: CommentQueryParamsDTO = {}
 ) {
     const { page = 1, limit = 20 } = params;
-    const { getAccessToken } = usePrivy();
 
-    return useQuery<CommentResponse, ApiError>({
+    return useQuery<CommentsPageDTO, APIError>({
         queryKey: COMMENT_QUERY_KEYS.replies(commentId, { page, limit }),
         queryFn: async () => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
-
-            return fetchCommentReplies(commentId, { page, limit }, token);
+            return fetchCommentReplies(commentId, { page, limit });
         },
         enabled: !!commentId
     });
 }
 
-export function useComment(commentId: UUIDv7) {
-    const { getAccessToken } = usePrivy();
-
-    return useQuery<Comment, ApiError>({
+export function useComment(commentId: CommentIdDTO) {
+    return useQuery<CommentDTO, APIError>({
         queryKey: COMMENT_QUERY_KEYS.detail(commentId),
         queryFn: async () => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
-            return fetchComment(commentId, token);
+            return fetchComment(commentId);
         },
         enabled: !!commentId
     });
@@ -99,47 +71,41 @@ export function useComment(commentId: UUIDv7) {
 export function useCreateComment() {
     const queryClient = useQueryClient();
     const { toast } = useToast();
-    const { getAccessToken } = usePrivy();
 
-    return useMutation<Comment, ApiError, CommentCreateRequest>({
+    return useMutation<CommentDTO, APIError, CreateCommentDTO>({
         mutationFn: async (commentData) => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
-            return createComment(commentData, token);
+            return createComment(commentData);
         },
-        onSuccess: (_, variables) => {
-            toast({
-                title: 'Success',
-                description: 'Comment added successfully'
-            });
+        onSuccess: (newComment, variables) => {
+            // Invalidate post comments
+            if (variables.postId) {
+                queryClient.invalidateQueries({
+                    queryKey: COMMENT_QUERY_KEYS.postComments(variables.postId)
+                });
+                // Update post stats if available
+                queryClient.invalidateQueries({
+                    queryKey: POST_QUERY_KEYS.detail(variables.postId)
+                });
+            }
 
-            // Invalidate relevant queries
+            // Invalidate parent comment replies if this is a reply
             if (variables.parentCommentId) {
                 queryClient.invalidateQueries({
                     queryKey: COMMENT_QUERY_KEYS.replies(
                         variables.parentCommentId
                     )
                 });
-            } else {
-                queryClient.invalidateQueries({
-                    queryKey: COMMENT_QUERY_KEYS.postComments(variables.postId)
-                });
             }
 
-            // Also invalidate the post to update comment count
-            queryClient.invalidateQueries({
-                queryKey: POST_QUERY_KEYS.detail(variables.postId)
+            toast({
+                title: 'Success',
+                description: 'Comment created successfully'
             });
         },
-        onError: (error: ApiError) => {
-            console.error(error.message);
+        onError: (error) => {
             toast({
                 title: 'Error',
-                description: 'Failed to add comment',
+                description: error.message || 'Failed to create comment',
                 variant: 'destructive'
             });
         }
@@ -149,32 +115,34 @@ export function useCreateComment() {
 export function useUpdateComment() {
     const queryClient = useQueryClient();
     const { toast } = useToast();
-    const { getAccessToken } = usePrivy();
 
-    return useMutation<Comment, ApiError, CommentUpdateRequest>({
-        mutationFn: async (updateCommentData) => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
-            return updateComment(updateCommentData, token);
+    return useMutation<
+        CommentDTO,
+        APIError,
+        { commentId: CommentIdDTO; updateData: UpdateCommentDTO }
+    >({
+        mutationFn: async ({ commentId, updateData }) => {
+            return updateComment(commentId, updateData);
         },
-        onSuccess: (_, variables) => {
+        onSuccess: (updatedComment) => {
+            queryClient.setQueryData(
+                COMMENT_QUERY_KEYS.detail(updatedComment.id),
+                updatedComment
+            );
+            // Invalidate related queries
+            queryClient.invalidateQueries({
+                queryKey: COMMENT_QUERY_KEYS.postComments(updatedComment.postId)
+            });
+
             toast({
                 title: 'Success',
                 description: 'Comment updated successfully'
             });
-            queryClient.invalidateQueries({
-                queryKey: COMMENT_QUERY_KEYS.detail(variables.commentId)
-            });
         },
-        onError: (error: ApiError) => {
-            console.error(error.message);
+        onError: (error) => {
             toast({
                 title: 'Error',
-                description: 'Failed to update comment',
+                description: error.message || 'Failed to update comment',
                 variant: 'destructive'
             });
         }
@@ -184,35 +152,29 @@ export function useUpdateComment() {
 export function useDeleteComment() {
     const queryClient = useQueryClient();
     const { toast } = useToast();
-    const { getAccessToken } = usePrivy();
 
-    return useMutation<Comment, ApiError, UUIDv7>({
+    return useMutation<CommentDTO, APIError, CommentIdDTO>({
         mutationFn: async (commentId) => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
-            return deleteComment(commentId, token);
+            return deleteComment(commentId);
         },
-        onSuccess: (_, commentId) => {
+        onSuccess: (deletedComment) => {
+            // Invalidate related queries
+            queryClient.invalidateQueries({
+                queryKey: COMMENT_QUERY_KEYS.postComments(deletedComment.postId)
+            });
+            queryClient.invalidateQueries({
+                queryKey: POST_QUERY_KEYS.detail(deletedComment.postId)
+            });
+
             toast({
                 title: 'Success',
                 description: 'Comment deleted successfully'
             });
-            queryClient.invalidateQueries({
-                queryKey: COMMENT_QUERY_KEYS.all
-            });
-            queryClient.removeQueries({
-                queryKey: COMMENT_QUERY_KEYS.detail(commentId)
-            });
         },
-        onError: (error: ApiError) => {
-            console.error(error.message);
+        onError: (error) => {
             toast({
                 title: 'Error',
-                description: 'Failed to delete comment',
+                description: error.message || 'Failed to delete comment',
                 variant: 'destructive'
             });
         }

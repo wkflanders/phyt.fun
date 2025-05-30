@@ -1,3 +1,13 @@
+import { Button } from '@/components/ui/button';
+import { CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import {
+    Popover,
+    PopoverTrigger,
+    PopoverContent
+} from '@/components/ui/popover';
+import { useToast } from '@/hooks/use-toast';
+import { useGetUserTransactions, useGetUser } from '@/hooks/use-users';
+
 import React, { useState } from 'react';
 
 import { usePrivy, useFundWallet } from '@privy-io/react-auth';
@@ -18,16 +28,6 @@ import {
 import { formatEther } from 'viem';
 import { useAccount, useBalance } from 'wagmi';
 
-import { Button } from '@/components/ui/button';
-import { CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import {
-    Popover,
-    PopoverTrigger,
-    PopoverContent
-} from '@/components/ui/popover';
-import { useToast } from '@/hooks/use-toast';
-import { useGetUserTransactions, useGetUser } from '@/hooks/use-users';
-
 export const WalletPopover: React.FC = () => {
     const { ready, exportWallet } = usePrivy();
     const { address, isConnecting } = useAccount();
@@ -37,8 +37,8 @@ export const WalletPopover: React.FC = () => {
         'main'
     );
     const [isProcessing, setIsProcessing] = useState(false);
-    const { data: user, isLoading: isGetUserLoading } = useGetUser();
-    const { data: transactions, isLoading: isTransactionLoading } =
+    const { data: userData, isLoading: isGetUserLoading } = useGetUser();
+    const { data: transactionData, isLoading: isTransactionLoading } =
         useGetUserTransactions();
     const { fundWallet } = useFundWallet();
     const { data: balanceData, isLoading: isBalanceLoading } = useBalance(
@@ -192,19 +192,20 @@ export const WalletPopover: React.FC = () => {
                             <div className="flex items-center justify-center">
                                 <Loader2 className="w-8 h-8 animate-spin text-phyt_blue" />
                             </div>
-                        ) : transactions?.length === 0 ? (
+                        ) : transactionData?.transactions.length === 0 ? (
                             <p className="text-center text-text-dim">
                                 No transactions found
                             </p>
                         ) : (
-                            transactions?.map((tx, index) => (
+                            transactionData?.transactions.map((tx, index) => (
                                 <div
                                     key={index}
                                     className="pb-3 border-b border-phyt_text last:border-0 last:pb-0"
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
-                                            {tx.fromUserId === user?.id ? (
+                                            {tx.fromUserId?.userId ===
+                                            userData?.id ? (
                                                 <ArrowUp
                                                     className="text-red-500"
                                                     size={16}
@@ -217,7 +218,8 @@ export const WalletPopover: React.FC = () => {
                                             )}
                                             <div>
                                                 <p className="text-md text-text">
-                                                    {tx.fromUserId === user?.id
+                                                    {tx.fromUserId?.userId ===
+                                                    userData?.id
                                                         ? 'Sent'
                                                         : 'Received'}
                                                 </p>

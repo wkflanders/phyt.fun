@@ -1,4 +1,2 @@
-export * from './awsClient.js';
-export * from './privyClient.js';
-export * from './viemClient.js';
+// Only export client-safe types and utilities
 export * from './errors.js';

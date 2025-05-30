@@ -1,11 +1,10 @@
-import React from 'react';
-
-import { Loader2 } from 'lucide-react';
-
 import { CardWithMetadata, User } from '@phyt/types';
 
 import { formatSeasonName } from '@/lib/utils';
 
+import React from 'react';
+
+import { Loader2 } from 'lucide-react';
 
 import { ItemCard } from './ItemCard';
 interface ItemsGridProps {

@@ -1,13 +1,12 @@
-// src/app/(root)/profile/layout.tsx
 'use client';
+
+import { ProfileHeader } from '@/components/profile/ProfileHeader';
+import { ProfileTabs } from '@/components/profile/ProfileTabs';
+import { useGetUser } from '@/hooks/use-users';
 
 import React from 'react';
 
 import { Loader2 } from 'lucide-react';
-
-import { ProfileHeader } from '@/components/profile/ProfileHeader';
-import { ProfileTabs } from '@/components/profile/ProfileTabs';
-import { useGetUser, useGetUserCards } from '@/hooks/use-users';
 
 export default function ProfileLayout({
     children
@@ -19,7 +18,6 @@ export default function ProfileLayout({
         isFetching: fetchingUser,
         status: userFetchStatus
     } = useGetUser();
-    const { data: cards, isFetching: fetchingCards } = useGetUserCards();
 
     if (!user) {
         if (userFetchStatus !== 'pending' && !fetchingUser) {
@@ -40,7 +38,7 @@ export default function ProfileLayout({
     return (
         <div className="flex flex-col pl-14 min-h-screen bg-background">
             <div className="relative">
-                <ProfileHeader user={user} cards={cards ?? []} />
+                <ProfileHeader user={user} cards={[]} />
             </div>
             <div className="flex flex-col">
                 <ProfileTabs />

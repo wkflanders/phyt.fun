@@ -1,73 +1,98 @@
-import { usePrivy } from '@privy-io/react-auth';
+import {
+    CreateRunnerDTO,
+    CreateRunDTO,
+    RunDTO,
+    RunnerDTO,
+    RunnerActivitiesDTO,
+    RunnersPageDTO
+} from '@phyt/dto';
 
-import { useQuery } from '@tanstack/react-query';
+import { APIError } from '@phyt/infra';
 
 import {
-    UUIDv7,
-    AuthenticationError,
-    RunnerProfile,
-    ApiError
-} from '@phyt/types';
-
-import {
-    getRunners,
-    getRunnersQueryKey,
-    getRunner,
-    getRunnerQueryKey,
     getRunnerActivities,
-    RUNNER_ACTIVITIES_QUERY_KEY
-} from '@/queries/runners';
+    getRunners,
+    createRunnerApplication,
+    submitRun,
+    RUNNER_ACTIVITIES_QUERY_KEY,
+    getRunnersQueryKey
+} from '@/queries/runnersQueries';
 
-export function useGetRunners(search?: string) {
-    const { getAccessToken } = usePrivy();
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-    return useQuery<RunnerProfile[], ApiError>({
-        queryKey: [...getRunnersQueryKey(), { search }],
+import { useToast } from './use-toast';
+
+export function useGetRunners() {
+    return useQuery<RunnersPageDTO, APIError>({
+        queryKey: [getRunnersQueryKey()],
         queryFn: async () => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
-            return getRunners(token, search);
-        }
-    });
-}
-
-export function useGetRunner(id: UUIDv7) {
-export function useGetRunner(id: UUIDv7) {
-    const { getAccessToken } = usePrivy();
-
-    return useQuery<RunnerProfile, ApiError>({
-        queryKey: getRunnerQueryKey(id),
-        queryFn: async () => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
-            return getRunner(id, token);
+            return getRunners();
         }
     });
 }
 
 export function useGetRunnerActivities(filter?: string) {
-    const { getAccessToken } = usePrivy();
-
-    return useQuery({
+    return useQuery<RunnerActivitiesDTO, APIError>({
         queryKey: [RUNNER_ACTIVITIES_QUERY_KEY, filter],
         queryFn: async () => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
-            return getRunnerActivities(token, filter);
+            return getRunnerActivities(filter);
         },
         staleTime: 60000,
         refetchInterval: 300000
+    });
+}
+
+export function useCreateRunnerApplication() {
+    const queryClient = useQueryClient();
+    const { toast } = useToast();
+
+    return useMutation<RunnerDTO, APIError, CreateRunnerDTO>({
+        mutationFn: async (runnerData) => {
+            return createRunnerApplication(runnerData);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: [getRunnersQueryKey()]
+            });
+            toast({
+                title: 'Success',
+                description: 'Runner application submitted successfully'
+            });
+        },
+        onError: (error: APIError) => {
+            toast({
+                title: 'Error',
+                description:
+                    error.message || 'Failed to submit runner application',
+                variant: 'destructive'
+            });
+        }
+    });
+}
+
+export function useSubmitRun() {
+    const queryClient = useQueryClient();
+    const { toast } = useToast();
+
+    return useMutation<RunDTO, APIError, CreateRunDTO>({
+        mutationFn: async (runData) => {
+            return submitRun(runData);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: [RUNNER_ACTIVITIES_QUERY_KEY]
+            });
+            toast({
+                title: 'Success',
+                description: 'Run submitted successfully'
+            });
+        },
+        onError: (error: APIError) => {
+            toast({
+                title: 'Error',
+                description: error.message || 'Failed to submit run',
+                variant: 'destructive'
+            });
+        }
     });
 }

@@ -7,4 +7,4 @@ export default function IntegrationsPage() {
             <div className="text-text-dim">No integrations connected</div>
         </div>
     );
-} 
+}

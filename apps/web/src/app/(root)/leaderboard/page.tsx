@@ -1,6 +1,6 @@
-import React from 'react';
-
 import DualLeaderboard from '@/components/leaderboard/DualLeaderboard';
+
+import React from 'react';
 
 export default function LeaderboardPage() {
     return (

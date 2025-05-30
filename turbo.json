@@ -181,6 +181,9 @@
             "cache": false,
             "persistent": true
         },
+        "update": {
+            "dependsOn": ["^update"]
+        },
         "clean": {
             "cache": false
         }

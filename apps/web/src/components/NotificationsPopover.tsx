@@ -1,9 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 /* WIP COMING BACK TO THIS ONCE NOTIFICATIONS BACKEND BUILT */
 'use client';
-import React from 'react';
-
-import { Bell, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -12,6 +9,10 @@ import {
     PopoverTrigger,
     PopoverContent
 } from '@/components/ui/popover';
+
+import React from 'react';
+
+import { Bell, Loader2 } from 'lucide-react';
 // import { useGetNotifications } from "@/hooks/use-get-notifications";
 
 export const NotificationsPopover = () => {

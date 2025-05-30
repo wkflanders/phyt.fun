@@ -17,6 +17,7 @@
         "build": "tsup src/index.ts --dts --format esm,cjs --out-dir dist",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
+        "update": "pnpm update --latest",
         "clean": "rm -rf dist .turbo node_modules"
     },
     "dependencies": {
@@ -24,10 +25,10 @@
     },
     "devDependencies": {
         "@phyt/tsconfig": "workspace:*",
-        "@types/express": "^5.0.1",
-        "@types/qs": "^6.9.18",
+        "@types/express": "^5.0.2",
+        "@types/qs": "^6.14.0",
         "express": "^5.1.0",
         "qs": "^6.14.0",
-        "viem": "^2.24.1"
+        "viem": "^2.30.5"
     }
 }

@@ -1,19 +1,19 @@
 'use client';
 
+import { isAPIError } from '@phyt/infra';
+
+import { Button } from '@/components/ui/button';
+import { getUser } from '@/queries/usersQueries';
+
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useState } from 'react';
 
 import { usePrivy, useLogin } from '@privy-io/react-auth';
 
-import { ApiError, AuthenticationError } from '@phyt/types';
-
-import { Button } from '@/components/ui/button';
-import { getUser } from '@/queries/user';
-
 export const Login = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { ready, getAccessToken } = usePrivy();
+    const { ready } = usePrivy();
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -33,18 +33,21 @@ export const Login = () => {
                     router.push('/onboard');
                 } else {
                     try {
-                        const token = await getAccessToken();
-                        if (!token) {
-                            throw new AuthenticationError(
-                                'No token available. Is user logged in with privy?'
-                            );
-                        }
-                        const data = await getUser(user.id, token); // Cacheing user data
+                        await getUser(user.id);
 
                         const redirectTo = searchParams.get('redirect') ?? '/';
                         router.push(redirectTo);
-                    } catch (error) {
-                        const apiError = error as ApiError;
+                    } catch (error: unknown) {
+                        if (isAPIError(error)) {
+                            console.error(error.message);
+                            if (error.statusCode === 400) {
+                                router.push('/onboard');
+                            }
+                        } else {
+                            // Fallback for errors that don't have statusCode
+                            console.error(error);
+                            setError('Failed to login. Please try again');
+                        }
                     }
                 }
             } catch (error) {

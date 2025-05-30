@@ -41,6 +41,21 @@ export interface RunnerUpdate {
     runnerWallet?: WalletAddress;
 }
 
+export interface RunnerActivity {
+    runId: UUIDv7;
+    runnerId: UUIDv7;
+    username: string;
+    avatarUrl: string;
+    distance: number;
+    completedAt: string;
+    isPooled: boolean;
+    timeAgo: string;
+}
+
+export interface RunnerActivities {
+    activities: RunnerActivity[];
+}
+
 export type RunnerSortFields =
     | 'username'
     | 'totalDistance'

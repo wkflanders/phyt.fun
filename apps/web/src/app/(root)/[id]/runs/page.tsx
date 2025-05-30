@@ -7,4 +7,4 @@ export default function RunsPage() {
             <div className="text-text-dim">No runs found</div>
         </div>
     );
-} 
+}

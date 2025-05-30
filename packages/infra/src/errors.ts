@@ -1,3 +1,20 @@
+// Generic error interface for frontend error handling
+export interface APIError {
+    statusCode: number;
+    message: string;
+}
+
+export function isAPIError(error: unknown): error is APIError {
+    return (
+        typeof error === 'object' &&
+        error !== null &&
+        'statusCode' in error &&
+        typeof (error as { statusCode: unknown }).statusCode === 'number' &&
+        'message' in error &&
+        typeof (error as { message: unknown }).message === 'string'
+    );
+}
+
 export class DatabaseError extends Error {
     statusCode: number;
     constructor(
@@ -114,5 +131,14 @@ export class MarketplaceError extends Error {
         super(message);
         this.statusCode = statusCode;
         this.name = 'MARKETPLACE_ERROR';
+    }
+}
+
+export class LoginError extends Error {
+    statusCode: number;
+    constructor(message: string, statusCode = 400) {
+        super(message);
+        this.statusCode = statusCode;
+        this.name = 'LOGIN_ERROR';
     }
 }

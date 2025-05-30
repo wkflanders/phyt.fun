@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-
-import { Search } from 'lucide-react';
-
 import { CardWithMetadata } from '@phyt/types';
 
 import { formatSeasonName } from '@/lib/utils';
 
+import React, { useState } from 'react';
+
+import { Search } from 'lucide-react';
 
 interface SearchSidebarProps {
     cards: CardWithMetadata[];

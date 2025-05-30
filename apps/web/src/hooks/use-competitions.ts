@@ -1,45 +1,29 @@
-import { usePrivy } from '@privy-io/react-auth';
+import { CompetitionsPageDTO } from '@phyt/dto';
 
-import { useQuery } from '@tanstack/react-query';
-
-import { Competition, ApiError, AuthenticationError } from '@phyt/types';
+import { APIError } from '@phyt/infra';
 
 import {
     getCompetitions,
     getMajorCompetitions,
     getCompetitionsQueryKey
-} from '@/queries/competitions';
+} from '@/queries/competitionsQueries';
+
+import { useQuery } from '@tanstack/react-query';
 
 export function useGetCompetitions() {
-    const { getAccessToken } = usePrivy();
-
-    return useQuery<Competition[], ApiError>({
+    return useQuery<CompetitionsPageDTO, APIError>({
         queryKey: getCompetitionsQueryKey(),
         queryFn: async () => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
-            return getCompetitions(token);
+            return getCompetitions();
         }
     });
 }
 
 export function useGetMajorCompetitions() {
-    const { getAccessToken } = usePrivy();
-
-    return useQuery<Competition[], ApiError>({
-        queryKey: [...getCompetitionsQueryKey(), 'major'],
+    return useQuery<CompetitionsPageDTO, APIError>({
+        queryKey: ['majorCompetitions'],
         queryFn: async () => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
-            return getMajorCompetitions(token);
+            return getMajorCompetitions();
         }
     });
 }

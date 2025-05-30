@@ -1,14 +1,5 @@
 'use client';
 
-import Image from 'next/image';
-import React, { useRef, useState } from 'react';
-
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-
-import { ZodType } from 'zod';
-
 import { Button } from '@/components/ui/button';
 import {
     Form,
@@ -21,6 +12,15 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+
+import Image from 'next/image';
+import React, { useRef, useState } from 'react';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+
+import { ZodType } from 'zod';
 
 interface OnboardFormProps {
     schema: ZodType;

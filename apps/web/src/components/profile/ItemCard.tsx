@@ -1,10 +1,10 @@
-import Image from 'next/image';
-import React from 'react';
-
 import { CardWithMetadata, User } from '@phyt/types';
 
-import { ListingModal } from '@/components/marketplace/ListingModal';
+// import { ListingModal } from '@/components/marketplace/ListingModal';
 import { Card, CardContent } from '@/components/ui/card';
+
+import Image from 'next/image';
+import React from 'react';
 
 interface ItemCardProps {
     id: string;
@@ -65,14 +65,14 @@ export const ItemCard: React.FC<ItemCardProps> = ({
                 </Card>
             </div>
 
-            <ListingModal
+            {/* <ListingModal
                 user={user}
                 isOpen={showListingModal}
                 onClose={() => {
                     setShowListingModal(false);
                 }}
                 card={card}
-            />
+            /> */}
         </>
     );
 };

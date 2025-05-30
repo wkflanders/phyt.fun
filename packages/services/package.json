@@ -18,6 +18,7 @@
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "type-check": "tsc --noEmit",
+        "update": "pnpm update --latest",
         "clean": "rm -rf dist .turbo node_modules"
     },
     "dependencies": {
@@ -25,8 +26,8 @@
         "@phyt/contracts": "workspace:*",
         "@phyt/infra": "workspace:*",
         "@phyt/models": "workspace:*",
-        "merkletreejs": "^0.4.1",
-        "viem": "^2.29.3"
+        "merkletreejs": "^0.5.2",
+        "viem": "^2.30.5"
     },
     "devDependencies": {
         "@phyt/dto": "workspace:*",
@@ -34,6 +35,6 @@
         "@phyt/repositories": "workspace:*",
         "@phyt/tsconfig": "workspace:*",
         "@phyt/types": "workspace:*",
-        "zod": "^3.24.3"
+        "zod": "^3.25.42"
     }
 }

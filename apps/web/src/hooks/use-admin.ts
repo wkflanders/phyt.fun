@@ -1,8 +1,6 @@
-import { usePrivy } from '@privy-io/react-auth';
+import { RunnerDTO, RunnerIdDTO } from '@phyt/dto';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-
-import { UUIDv7, AuthenticationError } from '@phyt/types';
+import { APIError } from '@phyt/infra';
 
 import {
     getPendingRunners,
@@ -11,38 +9,26 @@ import {
     updateRunVerification,
     PENDING_RUNNERS_QUERY_KEY,
     PENDING_RUNS_QUERY_KEY
-} from '@/queries/admin';
+} from '@/queries/adminQueries';
+
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useToast } from './use-toast';
 
 export function usePendingRunners() {
-    const { getAccessToken } = usePrivy();
     return useQuery({
         queryKey: [PENDING_RUNNERS_QUERY_KEY],
         queryFn: async () => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
-            return getPendingRunners(token);
+            return getPendingRunners();
         }
     });
 }
 
 export function usePendingRuns() {
-    const { getAccessToken } = usePrivy();
     return useQuery({
         queryKey: [PENDING_RUNS_QUERY_KEY],
         queryFn: async () => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
-            return getPendingRuns(token);
+            return getPendingRuns();
         }
     });
 }
@@ -50,18 +36,10 @@ export function usePendingRuns() {
 export function useApproveRunner() {
     const queryClient = useQueryClient();
     const { toast } = useToast();
-    const { getAccessToken } = usePrivy();
 
-    return useMutation({
-        mutationFn: async (runnerId: UUIDv7) => {
-        mutationFn: async (runnerId: UUIDv7) => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
-            return approveRunner(runnerId, token);
+    return useMutation<RunnerDTO, APIError, RunnerIdDTO>({
+        mutationFn: async (runnerId) => {
+            return approveRunner(runnerId);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({
@@ -72,7 +50,7 @@ export function useApproveRunner() {
                 description: 'Runner approved successfully'
             });
         },
-        onError: (error: Error) => {
+        onError: (error: APIError) => {
             toast({
                 title: 'Error',
                 description: error.message || 'Failed to approve runner',
@@ -85,24 +63,16 @@ export function useApproveRunner() {
 export function useUpdateRunVerification() {
     const queryClient = useQueryClient();
     const { toast } = useToast();
-    const { getAccessToken } = usePrivy();
 
     return useMutation({
         mutationFn: async ({
             runId,
-            status
+            isVerified
         }: {
-            runId: UUIDv7;
-            runId: UUIDv7;
-            status: 'verified' | 'flagged';
+            runId: string;
+            isVerified: boolean;
         }) => {
-            const token = await getAccessToken();
-            if (!token) {
-                throw new AuthenticationError(
-                    'No token available. Is user logged in with privy?'
-                );
-            }
-            updateRunVerification(runId, status, token);
+            return updateRunVerification(runId, isVerified);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({
@@ -110,7 +80,7 @@ export function useUpdateRunVerification() {
             });
             toast({
                 title: 'Success',
-                description: 'Run verification status updated successfully'
+                description: 'Run verification updated successfully'
             });
         },
         onError: (error: Error) => {

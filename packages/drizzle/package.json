@@ -17,6 +17,7 @@
         "build": "tsup src/index.ts --dts --format esm,cjs --out-dir dist",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
+        "update": "pnpm update --latest",
         "clean": "rm -rf dist .turbo node_modules",
         "db:generate": "drizzle-kit generate",
         "db:migrate": "drizzle-kit migrate",
@@ -28,12 +29,12 @@
     },
     "dependencies": {
         "@phyt/models": "workspace:*",
-        "@t3-oss/env-core": "^0.12.0",
+        "@t3-oss/env-core": "^0.13.6",
         "dotenv": "^16.5.0",
-        "drizzle-orm": "^0.39.3",
+        "drizzle-orm": "^0.44.0",
         "pg": "^8.16.0",
         "uuid": "^11.1.0",
-        "zod": "^3.24.4"
+        "zod": "^3.25.42"
     },
     "devDependencies": {
         "@phyt/eslint": "workspace:*",

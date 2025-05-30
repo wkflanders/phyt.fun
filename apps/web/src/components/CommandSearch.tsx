@@ -1,9 +1,3 @@
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
-
-import { Search } from 'lucide-react';
-
 import {
     Command,
     CommandList,
@@ -12,16 +6,28 @@ import {
     CommandInput,
     CommandItem
 } from '@/components/ui/command';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useGetRunners } from '@/hooks/use-runners';
+
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+
+import { Search } from 'lucide-react';
 
 export function CommandSearch() {
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState('');
     const router = useRouter();
-    const { data: runners = [], isLoading } = useGetRunners();
+    const { data: runnersData, isLoading } = useGetRunners();
+    const runners = runnersData?.runners ?? [];
 
-    const filteredRunners = runners.filter((runner) =>
-        runner.username.toLowerCase().includes(search.toLowerCase())
+    const validRunners = runners.filter((runner) => runner.username);
+
+    const filteredRunners = validRunners.filter(
+        (runner) =>
+            runner.username?.toLowerCase().includes(search.toLowerCase()) ??
+            false
     );
 
     const handleOpenSearch = () => {
@@ -122,26 +128,30 @@ export function CommandSearch() {
                                                                     }}
                                                                     className="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer hover:bg-black/30"
                                                                 >
-                                                                    <Image
-                                                                        src={
-                                                                            runner.avatarUrl
-                                                                        }
-                                                                        alt={
-                                                                            runner.username
-                                                                        }
-                                                                        width={
-                                                                            38
-                                                                        }
-                                                                        height={
-                                                                            38
-                                                                        }
-                                                                        className="rounded-full"
-                                                                    />
+                                                                    {runner.avatarUrl ? (
+                                                                        <Image
+                                                                            src={
+                                                                                runner.avatarUrl
+                                                                            }
+                                                                            alt={
+                                                                                runner.username ??
+                                                                                ''
+                                                                            }
+                                                                            width={
+                                                                                38
+                                                                            }
+                                                                            height={
+                                                                                38
+                                                                            }
+                                                                            className="rounded-full"
+                                                                        />
+                                                                    ) : (
+                                                                        <Skeleton className="w-10 h-10 rounded-full" />
+                                                                    )}
                                                                     <div>
                                                                         <p className="font-medium text-text">
-                                                                            {
-                                                                                runner.username
-                                                                            }
+                                                                            {runner.username ??
+                                                                                ''}
                                                                         </p>
                                                                         <p className="text-md text-text-dim">
                                                                             {String(
@@ -186,26 +196,30 @@ export function CommandSearch() {
                                                                     className="flex items-center justify-between px-4 py-3 rounded-lg cursor-pointer hover:bg-black/30"
                                                                 >
                                                                     <div className="flex items-center gap-3">
-                                                                        <Image
-                                                                            src={
-                                                                                runner.avatarUrl
-                                                                            }
-                                                                            alt={
-                                                                                runner.username
-                                                                            }
-                                                                            width={
-                                                                                38
-                                                                            }
-                                                                            height={
-                                                                                38
-                                                                            }
-                                                                            className="rounded-full"
-                                                                        />
+                                                                        {runner.avatarUrl ? (
+                                                                            <Image
+                                                                                src={
+                                                                                    runner.avatarUrl
+                                                                                }
+                                                                                alt={
+                                                                                    runner.username ??
+                                                                                    ''
+                                                                                }
+                                                                                width={
+                                                                                    38
+                                                                                }
+                                                                                height={
+                                                                                    38
+                                                                                }
+                                                                                className="rounded-full"
+                                                                            />
+                                                                        ) : (
+                                                                            <Skeleton className="w-10 h-10 rounded-full" />
+                                                                        )}
                                                                         <div>
                                                                             <p className="font-medium text-text">
-                                                                                {
-                                                                                    runner.username
-                                                                                }
+                                                                                {runner.username ??
+                                                                                    ''}
                                                                             </p>
                                                                             <p className="text-md text-text-dim">
                                                                                 {Math.floor(

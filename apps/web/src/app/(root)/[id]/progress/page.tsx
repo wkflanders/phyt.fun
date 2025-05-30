@@ -7,4 +7,4 @@ export default function ProgressPage() {
             <div className="text-text-dim">No progress data available</div>
         </div>
     );
-} 
+}
