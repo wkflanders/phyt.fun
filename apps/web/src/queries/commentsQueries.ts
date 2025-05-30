@@ -25,14 +25,12 @@ export const COMMENT_QUERY_KEYS = {
 // Function to fetch comments for a post
 export async function fetchPostComments(
     postId: CommentIdDTO,
-    { page = 1, limit = 20, parentOnly = false }: CommentQueryParamsDTO = {},
-    token: string
+    { page = 1, limit = 20, parentOnly = false }: CommentQueryParamsDTO = {}
 ): Promise<CommentsPageDTO> {
     const response = await api.get<CommentsPageDTO>(
         `/comments/post/${String(postId)}`,
         {
-            params: { page, limit, parentOnly },
-            headers: { Authorization: `Bearer ${token}` }
+            params: { page, limit, parentOnly }
         }
     );
     return response.data;
@@ -41,14 +39,12 @@ export async function fetchPostComments(
 // Function to fetch replies to a comment
 export async function fetchCommentReplies(
     commentId: CommentIdDTO,
-    { page = 1, limit = 20 }: CommentQueryParamsDTO = {},
-    token: string
+    { page = 1, limit = 20 }: CommentQueryParamsDTO = {}
 ): Promise<CommentsPageDTO> {
     const response = await api.get<CommentsPageDTO>(
-        `/comments/replies/${String(commentId)}`,
+        `/comments/${String(commentId)}/replies`,
         {
-            params: { page, limit },
-            headers: { Authorization: `Bearer ${token}` }
+            params: { page, limit }
         }
     );
     return response.data;
@@ -56,54 +52,40 @@ export async function fetchCommentReplies(
 
 // Function to fetch a single comment by ID
 export async function fetchComment(
-    commentId: CommentIdDTO,
-    token: string
+    commentId: CommentIdDTO
 ): Promise<CommentDTO> {
     const response = await api.get<CommentDTO>(
-        `/comments/${String(commentId)}`,
-        {
-            headers: { Authorization: `Bearer ${token}` }
-        }
+        `/comments/${String(commentId)}`
     );
     return response.data;
 }
 
 // Function to create a comment or reply
 export async function createComment(
-    commentData: CreateCommentDTO,
-    token: string
+    commentData: CreateCommentDTO
 ): Promise<CommentDTO> {
-    const response = await api.post<CommentDTO>('/comments', commentData, {
-        headers: { Authorization: `Bearer ${token}` }
-    });
+    const response = await api.post<CommentDTO>('/comments', commentData);
     return response.data;
 }
 
 // Function to update a comment
 export async function updateComment(
-    updateCommentData: UpdateCommentDTO,
-    token: string
+    commentId: CommentIdDTO,
+    updateData: UpdateCommentDTO
 ): Promise<CommentDTO> {
     const response = await api.patch<CommentDTO>(
-        '/comments',
-        updateCommentData,
-        {
-            headers: { Authorization: `Bearer ${token}` }
-        }
+        `/comments/${String(commentId)}`,
+        updateData
     );
     return response.data;
 }
 
 // Function to delete a comment
 export async function deleteComment(
-    commentId: CommentIdDTO,
-    token: string
+    commentId: CommentIdDTO
 ): Promise<CommentDTO> {
     const response = await api.delete<CommentDTO>(
-        `/comments/${String(commentId)}`,
-        {
-            headers: { Authorization: `Bearer ${token}` }
-        }
+        `/comments/${String(commentId)}`
     );
     return response.data;
 }
