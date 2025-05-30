@@ -1,0 +1,27 @@
+'use client';
+
+import { setTokenGetter } from '@/lib/api';
+
+import React, { useEffect } from 'react';
+
+import { usePrivy } from '@privy-io/react-auth';
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+    const { getAccessToken, ready } = usePrivy();
+
+    useEffect(() => {
+        if (ready) {
+            // Set the token getter function for the API interceptors
+            setTokenGetter(async () => {
+                try {
+                    return await getAccessToken();
+                } catch (error) {
+                    console.error('Failed to get access token:', error);
+                    return null;
+                }
+            });
+        }
+    }, [getAccessToken, ready]);
+
+    return <>{children}</>;
+}
