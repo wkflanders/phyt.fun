@@ -3,12 +3,15 @@ import {
     RunnerInsert,
     RunnerUpdate,
     PaginatedRunners,
-    RunnerQueryParams
+    RunnerQueryParams,
+    RunnerActivities,
+    RunnerActivity
 } from '@phyt/types';
 
 import { z } from 'zod';
 
 import { uuidv7, PaginationSchema, WalletAddressValueSchema } from './core.js';
+import { RunIdValueSchema } from './runsDTO.js';
 import { UserIdValueSchema, UserInfoSchema } from './usersDTO.js';
 
 /* ---------- Inbound DTOs ---------- */
@@ -87,3 +90,22 @@ export const RunnersPageSchema = z.object({
 });
 export type RunnersPageDTO = z.infer<typeof RunnersPageSchema> &
     PaginatedRunners;
+
+export const RunnerActivitySchema = z.object({
+    runId: RunIdValueSchema,
+    runnerId: RunnerIdValueSchema,
+    username: UserInfoSchema.shape.username,
+    avatarUrl: UserInfoSchema.shape.avatarUrl,
+    distance: z.number(),
+    completedAt: z.string(),
+    isPooled: z.boolean(),
+    timeAgo: z.string()
+});
+export type RunnerActivityDTO = z.infer<typeof RunnerActivitySchema> &
+    RunnerActivity;
+
+export const RunnerActivitiesSchema = z.object({
+    activities: z.array(RunnerActivitySchema)
+});
+export type RunnerActivitiesDTO = z.infer<typeof RunnerActivitiesSchema> &
+    RunnerActivities;

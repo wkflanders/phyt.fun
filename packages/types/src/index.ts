@@ -12,6 +12,7 @@ export * from './posts.js';
 export * from './runs.js';
 export * from './admin.js';
 export * from './pack.js';
+export * from './competitions.js';
 
 // export type RunVerificationStatus = 'pending' | 'verified' | 'flagged';
 // export type RunnerApplicationStatus =

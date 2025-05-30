@@ -37,6 +37,7 @@ export type CreatePostDTO = z.infer<typeof CreatePostSchema> & PostInsert;
 
 export const UpdatePostSchema = z
     .object({
+        postId: PostIdValueSchema.optional(),
         title: z.string().min(1).optional(),
         content: z.string().min(1).optional(),
         status: z.enum(['visible', 'hidden', 'deleted']).optional()
