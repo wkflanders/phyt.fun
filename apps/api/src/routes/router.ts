@@ -1,17 +1,17 @@
 import express, { Router } from 'express';
 
 // import { adminRouter } from './admin.js';
-import { commentsRouter } from './comments.js';
+import { commentsRouter } from './commentsRoutes.js';
 // import { competitionsRouter } from './competitions.js';
 // import { leaderboardRouter } from './leaderboard.js';
 // import { marketplaceRouter } from './marketplace.js';
 // import { metadataRouter } from './metadata.js';
 // import { packRouter } from './packs.js';
-import { postsRouter } from './posts.js';
-import { reactionsRouter } from './reactions.js';
-import { runnerRouter } from './runners.js';
-import { runRouter } from './runs.js';
-import { usersRouter } from './users.js';
+import { postsRouter } from './postsRoutes.js';
+import { reactionsRouter } from './reactionsRoutes.js';
+import { runnerRouter } from './runnersRoutes.js';
+import { runRouter } from './runsRoutes.js';
+import { usersRouter } from './usersRoutes.js';
 
 // Create the router
 const router: Router = express.Router();
