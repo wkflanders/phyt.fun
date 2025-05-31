@@ -2,7 +2,6 @@ import express from 'express';
 
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import { config } from 'dotenv';
 import helmet from 'helmet';
 import morgan from 'morgan';
 
@@ -14,8 +13,6 @@ import { standardLimiter } from './middleware/rateLimiter.js';
 import { responseTimeMonitor } from './middleware/responseTime.js';
 import { sanitizeInputs } from './middleware/sanitize.js';
 import { router } from './routes/router.js';
-
-config();
 
 // eslint-disable-next-line no-console
 console.log('Starting server initialization...');
