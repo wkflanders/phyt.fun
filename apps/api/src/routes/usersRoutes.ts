@@ -32,7 +32,7 @@ router.get('/email/:email', ...controller.users.getUserByEmail);
 router.get('/username/:username', ...controller.users.getUserByUsername);
 
 // Create a new user
-router.post('/', ...controller.users.createUser);
+router.post('/create', ...controller.users.createUser);
 
 // Update user profile
 router.patch('/:userId/profile', ...controller.users.updateProfile);
