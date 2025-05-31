@@ -50,7 +50,42 @@ import { makeRunnersController } from './controllers/runnersController.js';
 import { makeRunsController } from './controllers/runsController.js';
 import { makeUsersController } from './controllers/usersController.js';
 
-export const ops = {
+import type { AvatarAWSOps } from '@phyt/aws';
+import type {
+    CommentsDrizzleOps,
+    UsersDrizzleOps,
+    ReactionsDrizzleOps,
+    PostsDrizzleOps,
+    RunnersDrizzleOps,
+    RunsDrizzleOps
+} from '@phyt/drizzle';
+import type {
+    CommentsRepository,
+    UsersRepository,
+    ReactionsRepository,
+    PostsRepository,
+    RunnersRepository,
+    RunsRepository
+} from '@phyt/repositories';
+import type {
+    CommentsService,
+    UsersService,
+    MerkleTreeService,
+    ReactionsService,
+    PostsService,
+    RunnersService,
+    RunsService
+} from '@phyt/services';
+
+export const ops: {
+    commentsDrizzleOps: CommentsDrizzleOps;
+    usersDrizzleOps: UsersDrizzleOps;
+    avatarAWSOps: AvatarAWSOps;
+    reactionsDrizzleOps: ReactionsDrizzleOps;
+    postsDrizzleOps: PostsDrizzleOps;
+    runnersDrizzleOps: RunnersDrizzleOps;
+    runsDrizzleOps: RunsDrizzleOps;
+} = {
     commentsDrizzleOps: makeCommentsDrizzleOps({ db }),
     usersDrizzleOps: makeUsersDrizzleOps({ db }),
     avatarAWSOps: makeAvatarAWSOps({ awsClient, avatarConfig }),
@@ -63,7 +98,14 @@ export const ops = {
     // metadataDrizzleOps: makeMetadataDrizzleOps(db)
 };
 
-export const repos = {
+export const repos: {
+    comments: CommentsRepository;
+    users: UsersRepository;
+    reactions: ReactionsRepository;
+    posts: PostsRepository;
+    runners: RunnersRepository;
+    runs: RunsRepository;
+} = {
     comments: makeCommentsRepository({ drizzleOps: ops.commentsDrizzleOps }),
     users: makeUsersRepository({
         drizzleOps: ops.usersDrizzleOps,
@@ -80,7 +122,15 @@ export const repos = {
     // metadata: makeMetadataRepository(ops.metadataDrizzleOps, ops.userAWSOps)
 };
 
-export const service = {
+export const service: {
+    comments: CommentsService;
+    users: UsersService;
+    merkletree: MerkleTreeService;
+    reactions: ReactionsService;
+    posts: PostsService;
+    runners: RunnersService;
+    runs: RunsService;
+} = {
     comments: makeCommentsService({
         commentsRepo: repos.comments
     }),
