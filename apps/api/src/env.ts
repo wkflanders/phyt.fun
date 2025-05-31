@@ -1,11 +1,20 @@
 import { createEnv } from '@t3-oss/env-core';
+import { config } from 'dotenv';
 
 import { z } from 'zod';
+config();
 
 const address = z
     .string()
     .regex(/^0x[a-fA-F0-9]{40}$/, {
         message: 'Must be a valid 0x-prefixed Ethereum address'
+    })
+    .min(1);
+
+const privateKey = z
+    .string()
+    .regex(/^0x[a-fA-F0-9]{64}$/, {
+        message: 'Must be a valid 0x-prefixed Ethereum private key'
     })
     .min(1);
 
@@ -18,7 +27,7 @@ export const env = createEnv({
         FRONTEND_URL: z.string().url().optional(),
         BASE_RPC_URL: z.string().min(1).optional(),
         SERVER_ADDRESS: address,
-        SERVER_PRIVATE_KEY: address,
+        SERVER_PRIVATE_KEY: privateKey,
         SERVER_PORT: z.coerce.number().default(4000),
         ADMIN_IDS: z
             .string()

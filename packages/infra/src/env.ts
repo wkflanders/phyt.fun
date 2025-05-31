@@ -9,6 +9,13 @@ const address = z
     })
     .min(1);
 
+const privateKey = z
+    .string()
+    .regex(/^0x[a-fA-F0-9]{64}$/, {
+        message: 'Must be a valid 0x-prefixed Ethereum private key'
+    })
+    .min(1);
+
 export const env = createEnv({
     server: {
         PRIVY_APP_ID: z.string().min(1),
@@ -18,7 +25,7 @@ export const env = createEnv({
         FRONTEND_URL: z.string().url().optional(),
         BASE_RPC_URL: z.string().min(1).optional(),
         SERVER_ADDRESS: address,
-        SERVER_PRIVATE_KEY: address,
+        SERVER_PRIVATE_KEY: privateKey,
         SERVER_PORT: z.coerce.number().default(4000),
         ADMIN_IDS: z
             .string()
