@@ -25,6 +25,7 @@ export const baseConfig: import('eslint').Linter.Config[] = [
             'eslint.config.js',
             'eslint.config.mjs',
             'eslint.config.cjs',
+            'vitest.config.ts',
             // 'packages/eslint/**',
             'packages/contracts/**',
             'packages/contracts/**/*',
