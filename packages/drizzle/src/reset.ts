@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { connection as pool } from './db.js';
 
 async function dropAllTables() {
