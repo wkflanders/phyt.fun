@@ -18,7 +18,15 @@
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "update": "pnpm update --latest",
-        "clean": "rm -rf dist .turbo node_modules"
+        "clean": "rm -rf dist .turbo node_modules",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:verbose": "vitest run --reporter=verbose",
+        "test:debug": "vitest run --reporter=verbose --no-coverage",
+        "test:users": "vitest run src/__tests__/usersModel.test.ts --reporter=verbose",
+        "test:single": "vitest run --reporter=verbose -t",
+        "test:ui": "vitest --ui",
+        "test:coverage": "vitest run --coverage"
     },
     "dependencies": {
         "@phyt/types": "workspace:*",
@@ -27,6 +35,8 @@
     "devDependencies": {
         "@phyt/eslint": "workspace:*",
         "@phyt/infra": "workspace:*",
-        "@phyt/tsconfig": "workspace:*"
+        "@phyt/tsconfig": "workspace:*",
+        "@phyt/test": "workspace:*",
+        "vitest": "^2.1.8"
     }
 }
