@@ -1,5 +1,5 @@
 import { uuidv7 } from 'uuidv7';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // eslint-disable-next-line no-restricted-imports
 import { CommentsVO } from '../commentsModel.js';
@@ -13,6 +13,14 @@ describe('commentsModel', () => {
         content: 'This is a test comment',
         parentCommentId: null
     };
+
+    beforeEach(() => {
+        vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
 
     describe('CommentsVO.create', () => {
         it('should create a valid comment with all fields', () => {
@@ -72,6 +80,9 @@ describe('commentsModel', () => {
     describe('CommentsVO.update', () => {
         it('should update comment content successfully', () => {
             const comment = CommentsVO.create({ input: validCommentInput });
+
+            vi.advanceTimersByTime(1000);
+
             const updatedComment = comment.update({
                 update: { content: 'Updated comment content' }
             });

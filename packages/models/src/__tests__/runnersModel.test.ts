@@ -1,5 +1,5 @@
 import { uuidv7 } from 'uuidv7';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // eslint-disable-next-line no-restricted-imports
 import { RunnerVO } from '../runnersModel.js';
@@ -17,6 +17,14 @@ describe('runnersModel', () => {
         isPooled: false,
         runnerWallet: '0x1234567890123456789012345678901234567890' as const
     };
+
+    beforeEach(() => {
+        vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
 
     describe('RunnerVO.create', () => {
         it('should create a valid runner with all fields', () => {
@@ -99,6 +107,9 @@ describe('runnersModel', () => {
     describe('RunnerVO.update', () => {
         it('should update runner data successfully', () => {
             const runner = RunnerVO.create({ input: validRunnerInput });
+
+            vi.advanceTimersByTime(1000);
+
             const updatedRunner = runner.update({
                 update: {
                     totalDistance: 15000,

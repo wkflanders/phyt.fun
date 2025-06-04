@@ -1,5 +1,5 @@
 import { uuidv7 } from 'uuidv7';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // eslint-disable-next-line no-restricted-imports
 import { ReactionsVO } from '../reactionsModel.js';
@@ -20,6 +20,14 @@ describe('reactionsModel', () => {
         commentId: uuidv7() as UUIDv7,
         type: 'funny' as const
     };
+
+    beforeEach(() => {
+        vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
 
     describe('ReactionsVO.create', () => {
         it('should create a valid reaction for a post', () => {
@@ -89,6 +97,9 @@ describe('reactionsModel', () => {
             const reaction = ReactionsVO.create({
                 input: validReactionInputPost
             });
+
+            vi.advanceTimersByTime(1000);
+
             const updatedReaction = reaction.update({
                 update: { type: 'insightful', action: 'added' }
             });

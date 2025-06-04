@@ -1,5 +1,5 @@
 import { uuidv7 } from 'uuidv7';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // eslint-disable-next-line no-restricted-imports
 import { PostsVO } from '../postsModel.js';
@@ -14,6 +14,14 @@ describe('postsModel', () => {
         runId: uuidv7() as UUIDv7,
         status: 'visible' as const
     };
+
+    beforeEach(() => {
+        vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
 
     describe('PostsVO.create', () => {
         it('should create a valid post with all fields', () => {
@@ -93,6 +101,9 @@ describe('postsModel', () => {
     describe('PostsVO.update', () => {
         it('should update post data successfully', () => {
             const post = PostsVO.create({ input: validPostInput });
+
+            vi.advanceTimersByTime(1000);
+
             const updatedPost = post.update({
                 update: {
                     title: 'Updated Title',
