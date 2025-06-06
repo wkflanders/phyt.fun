@@ -1,12 +1,9 @@
 {
     "$schema": "https://turbo.build/schema.v2.json",
+
     "tasks": {
-        "prebuild": {
-            "outputs": [],
-            "cache": false
-        },
         "build": {
-            "dependsOn": ["prebuild", "^build"],
+            "dependsOn": ["^build"],
             "outputs": [".next/**", "dist/**", "build/**", "src/**/*.json"],
             "env": [
                 "NEXT_PUBLIC_*",
@@ -45,135 +42,26 @@
                 "NODE_ENV"
             ]
         },
-        "@phyt/eslint#build": {
-            "outputs": ["dist/**"]
+
+        "test": {
+            "outputs": ["coverage/**"],
+            "persistent": false,
+            "cache": true
         },
-        "@phyt/test#build": {
-            "dependsOn": ["@phyt/eslint#build"],
-            "outputs": ["dist/**"]
-        },
-        "@phyt/types#build": {
-            "dependsOn": ["@phyt/test#build"],
-            "outputs": ["dist/**"]
-        },
-        "@phyt/infra#build": {
-            "dependsOn": ["@phyt/types#build"],
-            "outputs": ["dist/**"]
-        },
-        "@phyt/models#build": {
-            "dependsOn": ["@phyt/infra#build"],
-            "outputs": ["dist/**"]
-        },
-        "@phyt/aws#build": {
-            "dependsOn": [
-                "@phyt/types#build",
-                "@phyt/models#build",
-                "@phyt/infra#build"
-            ],
-            "outputs": ["dist/**"]
-        },
-        "@phyt/drizzle#build": {
-            "dependsOn": ["@phyt/models#build", "@phyt/infra#build"],
-            "outputs": ["dist/**"]
-        },
-        "@phyt/repositories#build": {
-            "dependsOn": ["@phyt/drizzle#build", "@phyt/aws#build"],
-            "outputs": ["dist/**"]
-        },
-        "@phyt/dto#build": {
-            "dependsOn": ["@phyt/repositories#build"],
-            "outputs": ["dist/**"]
-        },
-        "@phyt/services#build": {
-            "dependsOn": ["@phyt/dto#build"],
-            "outputs": ["dist/**"]
-        },
-        "@phyt/api#build": {
-            "dependsOn": ["@phyt/services#build"],
-            "outputs": ["dist/**"]
-        },
-        "@phyt/web#build": {
-            "dependsOn": ["@phyt/drizzle#build", "@phyt/api#build"],
-            "outputs": [".next/**"]
-        },
-        "type-check": {
-            "dependsOn": ["^type-check"]
-        },
+
         "lint": {
-            "dependsOn": ["^lint"]
-        },
-        "@phyt/types#lint": {
-            "dependsOn": ["@phyt/test#lint"]
-        },
-        "@phyt/models#lint": {
-            "dependsOn": ["@phyt/types#lint"]
-        },
-        "@phyt/infra#lint": {
-            "dependsOn": ["@phyt/types#lint", "@phyt/models#lint"]
-        },
-        "@phyt/aws#lint": {
-            "dependsOn": [
-                "@phyt/types#lint",
-                "@phyt/models#lint",
-                "@phyt/infra#lint"
-            ]
-        },
-        "@phyt/drizzle#lint": {
-            "dependsOn": ["@phyt/models#lint", "@phyt/infra#lint"]
-        },
-        "@phyt/repositories#lint": {
-            "dependsOn": ["@phyt/drizzle#lint", "@phyt/aws#lint"]
-        },
-        "@phyt/dto#lint": {
-            "dependsOn": ["@phyt/repositories#lint"]
-        },
-        "@phyt/services#lint": {
-            "dependsOn": ["@phyt/dto#lint"]
-        },
-        "@phyt/api#lint": {
-            "dependsOn": ["@phyt/services#lint"]
-        },
-        "@phyt/web#lint": {
-            "dependsOn": ["@phyt/drizzle#lint", "@phyt/api#lint"]
+            "dependsOn": ["^lint"],
+            "outputs": []
         },
         "lint:fix": {
-            "dependsOn": ["^lint:fix"]
+            "dependsOn": ["^lint:fix"],
+            "outputs": []
         },
-        "@phyt/test#lint:fix": {
-            "outputs": ["dist/**"]
+        "type-check": {
+            "dependsOn": ["^type-check"],
+            "outputs": []
         },
-        "@phyt/types#lint:fix": {
-            "dependsOn": ["@phyt/test#lint:fix"]
-        },
-        "@phyt/models#lint:fix": {
-            "dependsOn": ["@phyt/test#lint:fix"]
-        },
-        "@phyt/aws#lint:fix": {
-            "dependsOn": ["@phyt/models#lint:fix", "@phyt/types#lint:fix"]
-        },
-        "@phyt/repositories#lint:fix": {
-            "dependsOn": ["@phyt/models#build", "@phyt/aws#build"]
-        },
-        "@phyt/dto#lint:fix": {
-            "dependsOn": ["@phyt/models#lint:fix"]
-        },
-        "@phyt/drizzle#lint:fix": {
-            "dependsOn": [
-                "@phyt/models#lint:fix",
-                "@phyt/repositories#lint:fix",
-                "@phyt/dto#lint:fix"
-            ]
-        },
-        "@phyt/web#lint:fix": {
-            "dependsOn": ["@phyt/drizzle#lint:fix", "@phyt/contracts#lint:fix"]
-        },
-        "@phyt/api#lint:fix": {
-            "dependsOn": [
-                "@phyt/drizzle#lint:fix",
-                "@phyt/web#lint:fix",
-                "@phyt/aws#lint:fix"
-            ]
-        },
+
         "dev": {
             "cache": false,
             "persistent": true
@@ -183,12 +71,6 @@
         },
         "clean": {
             "cache": false
-        },
-        "test": {
-            "cache": true,
-            "outputs": ["coverage/**"],
-            "dependsOn": ["^build"],
-            "persistent": false
         }
     }
 }
