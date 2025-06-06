@@ -14,6 +14,12 @@
     "include": [
         "apps/*/src",
         "packages/*/src",
+        "packages/*/__tests__",
+        "apps/*/__tests__",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "types/**/*.d.ts",
+        "packages/*/types/**/*.d.ts",
         "apps/*/eslint.config.mjs",
         "packages/*/eslint.config.mjs",
         "eslint.config.mjs"
