@@ -1,11 +1,15 @@
-import { defineConfig, mergeConfig } from 'vitest/config';
-import { base } from '@phyt/test/vitest.config';
+import { defineConfig, baseVitestConfig } from '@phyt/test/config';
+import { mergeConfig } from 'vitest/config';
 
 export default mergeConfig(
-    base,
+    baseVitestConfig,
     defineConfig({
         test: {
-            include: ['src/**/__tests__/**/*.test.ts', 'src/**/*.test.ts'],
+            include: [
+                '__tests__/**/*.test.ts',
+                'src/**/__tests__/**/*.test.ts',
+                'src/**/*.test.ts'
+            ],
             exclude: ['**/node_modules/**', '**/dist/**']
         }
     })
