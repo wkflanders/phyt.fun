@@ -2,7 +2,7 @@ import { uuidv7 } from 'uuidv7';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // eslint-disable-next-line no-restricted-imports
-import { ReactionsVO } from '../reactionsModel.js';
+import { ReactionsVO } from '../src/reactionsModel.js';
 
 import type { ReactionType, UUIDv7 } from '@phyt/types';
 
