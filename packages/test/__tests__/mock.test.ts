@@ -1,6 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
 
-import { createMockUser, createMockRequest, createMockResponse } from '..';
+// eslint-disable-next-line no-restricted-imports
+import {
+    createMockUser,
+    createMockRequest,
+    createMockResponse
+} from '../src/mocks.js';
 
 describe('@phyt/test utilities', () => {
     describe('createMockUser', () => {
@@ -9,7 +14,7 @@ describe('@phyt/test utilities', () => {
 
             expect(user).toHaveProperty('id');
             expect(user).toHaveProperty('email');
-            expect(user).toHaveProperty('displayName');
+            expect(user).toHaveProperty('username');
             expect(user).toHaveProperty('createdAt');
             expect(user).toHaveProperty('updatedAt');
         });
@@ -20,7 +25,7 @@ describe('@phyt/test utilities', () => {
 
             expect(user1.id).toBe(user2.id);
             expect(user1.email).toBe(user2.email);
-            expect(user1.displayName).toBe(user2.displayName);
+            expect(user1.username).toBe(user2.username);
         });
 
         it('should have valid email format', () => {
