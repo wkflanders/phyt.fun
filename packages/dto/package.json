@@ -15,18 +15,23 @@
     },
     "scripts": {
         "build": "tsup src/index.ts --dts --format esm,cjs --out-dir dist",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:coverage": "vitest run --coverage",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "update": "pnpm update --latest",
         "clean": "rm -rf dist .turbo node_modules"
     },
     "dependencies": {
-        "@phyt/models": "workspace:*"
+        "@phyt/models": "workspace:*",
+        "viem": "^2.30.5",
+        "zod": "^3.25.42"
     },
     "devDependencies": {
         "@phyt/eslint": "workspace:*",
         "@phyt/tsconfig": "workspace:*",
         "@phyt/types": "workspace:*",
-        "zod": "^3.25.42"
+        "vitest": "^3.2.1"
     }
 }
