@@ -2,7 +2,7 @@ import { uuidv7 } from 'uuidv7';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // eslint-disable-next-line no-restricted-imports
-import { PostsVO } from '../postsModel.js';
+import { PostsVO } from '../src/postsModel.js';
 
 import type { PostStatus, UUIDv7 } from '@phyt/types';
 
