@@ -6,12 +6,12 @@
         "rootDir": "src",
         "module": "NodeNext",
         "moduleResolution": "NodeNext",
-        "target": "es2020",
+        "target": "es2022",
         "allowSyntheticDefaultImports": true,
         "typeRoots": ["./node_modules/@types"],
         "baseUrl": ".",
         "strict": true
     },
     "include": ["src/**/*", "types/**/*.d.ts"],
-    "exclude": ["dist", "node_modules"]
+    "exclude": ["dist", "node_modules", "coverage"]
 }
