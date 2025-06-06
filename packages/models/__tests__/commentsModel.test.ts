@@ -2,7 +2,7 @@ import { uuidv7 } from 'uuidv7';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // eslint-disable-next-line no-restricted-imports
-import { CommentsVO } from '../commentsModel.js';
+import { CommentsVO } from '../src/commentsModel.js';
 
 import type { UUIDv7 } from '@phyt/types';
 
