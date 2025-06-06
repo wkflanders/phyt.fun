@@ -1,20 +1,24 @@
 {
     "extends": "@phyt/tsconfig/library.json",
     "compilerOptions": {
-        "types": ["vitest/globals", "@testing-library/jest-dom"],
-        "lib": ["ES2022", "DOM"],
         "target": "ES2022",
-        "module": "ESNext",
-        "moduleResolution": "bundler",
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+        "lib": ["ES2022", "DOM"],
+        "types": ["vitest/globals", "@testing-library/jest-dom"],
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "outDir": "dist",
-        "baseUrl": ".",
-        "paths": {
-            "@/*": ["./src/*"]
-        }
+        "rootDir": ".",
+        "baseUrl": "."
     },
-    "include": ["src/**/*", "vitest.config.ts"],
+    "include": [
+        "src/**/*",
+        "__tests__/**/*",
+        "setup.ts",
+        "vitest.config.ts",
+        "types/**/*.d.ts"
+    ],
     "exclude": ["dist", "node_modules", "coverage"]
 }
