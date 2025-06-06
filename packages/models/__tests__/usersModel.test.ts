@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 
 // eslint-disable-next-line no-restricted-imports
-import { UsersVO } from '../usersModel.js';
+import { UsersVO } from '../src/usersModel.js';
 
 describe('UsersModel', () => {
     describe('User Creation (UsersVO.create)', () => {
