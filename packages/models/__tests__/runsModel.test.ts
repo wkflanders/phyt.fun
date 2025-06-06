@@ -2,7 +2,7 @@ import { uuidv7 } from 'uuidv7';
 import { describe, it, expect } from 'vitest';
 
 // eslint-disable-next-line no-restricted-imports
-import { RunsVO } from '../runsModel.js';
+import { RunsVO } from '../src/runsModel.js';
 
 import type { UUIDv7 } from '@phyt/types';
 
