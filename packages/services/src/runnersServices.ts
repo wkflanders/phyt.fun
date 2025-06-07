@@ -27,7 +27,7 @@ export const makeRunnersServices = ({
     }): Promise<RunnerDTO> => {
         const runnerVO = RunnerVO.create({ input });
         await runnersRepo.save({ input: runnerVO });
-        return RunnerSchema.parse(runnerVO.toDTO());
+        return RunnerSchema.parse(runnerVO.toDTO<RunnerDTO>());
     };
 
     const getRunnerById = async ({
@@ -36,7 +36,7 @@ export const makeRunnersServices = ({
         runnerId: RunnerIdDTO;
     }): Promise<RunnerDTO> => {
         const runnerVO = await runnersRepo.findById({ runnerId });
-        return RunnerSchema.parse(runnerVO.toDTO());
+        return RunnerSchema.parse(runnerVO.toDTO<RunnerDTO>());
     };
 
     const getRunnerByPrivyId = async ({
@@ -72,7 +72,7 @@ export const makeRunnersServices = ({
         const runnerVO = await runnersRepo.findById({ runnerId });
         const updatedRunnerVO = runnerVO.update({ update });
         await runnersRepo.save({ input: updatedRunnerVO });
-        return RunnerSchema.parse(updatedRunnerVO.toDTO());
+        return RunnerSchema.parse(updatedRunnerVO.toDTO<RunnerDTO>());
     };
 
     const deleteRunner = async ({
@@ -83,7 +83,7 @@ export const makeRunnersServices = ({
         const runnerVO = await runnersRepo.findById({ runnerId });
         const removedRunnerVO = runnerVO.remove();
         await runnersRepo.save({ input: removedRunnerVO });
-        return RunnerSchema.parse(runnerVO.toDTO());
+        return RunnerSchema.parse(runnerVO.toDTO<RunnerDTO>());
     };
 
     return {

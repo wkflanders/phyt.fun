@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { db } from './db.js';
 import { makeCommentsDrizzleOps } from './ops/commentsDrizzleOps.js';
 import { makePostsDrizzleOps } from './ops/postsDrizzleOps.js';

@@ -11,6 +11,6 @@ export interface Pagination {
     totalPages: number;
 }
 
-export type WalletAddress = `0x${string}`;
+export type WalletAddress = `0x${string}` & { __brand: 'WalletAddress' };
 
 export type AvatarUrl = string;

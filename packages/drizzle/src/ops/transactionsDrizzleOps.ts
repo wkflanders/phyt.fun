@@ -4,7 +4,7 @@ import { uuidv7 } from 'uuidv7';
 // eslint-disable-next-line no-restricted-imports
 import { DrizzleDB } from '../db.js';
 // eslint-disable-next-line no-restricted-imports
-import { transactions, users } from '../schema.js';
+import { transactions } from '../schema.js';
 
 import type {
     UUIDv7,

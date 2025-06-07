@@ -1,5 +1,8 @@
 import { isUUIDv7 } from '@phyt/models';
 
+import { WalletAddress } from '@phyt/types';
+
+import { getAddress, isAddress } from 'viem';
 import { z } from 'zod';
 
 export const PaginationSchema = z
@@ -25,9 +28,11 @@ export type PrivyIdDTO = z.infer<typeof PrivyIdValueSchema>;
 
 export const WalletAddressValueSchema = z
     .string()
-    .regex(/^0x[a-fA-F0-9]{42}$/)
-    .length(42)
-    .transform((val) => val as `0x${string}`);
+    .refine(isAddress, {
+        message: 'Not a valid address'
+    })
+    .transform((val) => getAddress(val) as WalletAddress);
+
 export const WalletAddressSchema = z.object({
     walletAddress: WalletAddressValueSchema
 });

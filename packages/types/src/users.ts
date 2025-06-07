@@ -1,10 +1,4 @@
-import {
-    UUIDv7,
-    Pagination,
-    AvatarUrl,
-    WalletAddress,
-    PrivyId
-} from './core.js';
+import { UUIDv7, Pagination, AvatarUrl, PrivyId } from './core.js';
 import { RunnerStatus } from './runners.js';
 
 export type UserRole = 'admin' | 'user' | 'runner';
@@ -16,7 +10,7 @@ export interface User {
     role: UserRole;
     privyId: PrivyId;
     avatarUrl: AvatarUrl;
-    walletAddress: WalletAddress;
+    walletAddress: string;
     phytnessPoints: number;
     twitterHandle: string | null;
     stravaHandle: string | null;
@@ -37,7 +31,7 @@ export interface UserInsert {
     email: string;
     username: string;
     privyId: string;
-    walletAddress: WalletAddress;
+    walletAddress: string;
     avatarUrl?: AvatarUrl;
     role?: UserRole;
     phytnessPoints?: number;
@@ -49,7 +43,7 @@ export interface UserUpdate {
     email?: string;
     username?: string;
     privyId?: string;
-    walletAddress?: WalletAddress;
+    walletAddress?: string;
     avatarUrl?: AvatarUrl;
     role?: UserRole;
     phytnessPoints?: number;

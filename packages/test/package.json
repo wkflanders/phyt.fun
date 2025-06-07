@@ -1,0 +1,49 @@
+{
+    "name": "@phyt/test",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "types": "./dist/index.d.ts",
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs"
+        },
+        "./config": {
+            "types": "./dist/config.d.ts",
+            "import": "./dist/config.js",
+            "require": "./dist/config.cjs"
+        },
+        "./setup": {
+            "types": "./dist/setup.d.ts",
+            "import": "./dist/setup.js",
+            "require": "./dist/setup.cjs"
+        }
+    },
+    "scripts": {
+        "build": "tsup src/index.ts src/setup.ts src/config.ts --dts --format esm,cjs --out-dir dist --external vitest --external @testing-library/dom --external @testing-library/jest-dom --external happy-dom --external msw",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:coverage": "vitest run --coverage",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "update": "pnpm update --latest",
+        "clean": "rm -rf dist .turbo node_modules coverage"
+    },
+    "dependencies": {
+        "@phyt/eslint": "workspace:*",
+        "@testing-library/dom": "^10.4.0",
+        "@testing-library/jest-dom": "^6.6.3",
+        "happy-dom": "^15.11.7",
+        "msw": "^2.8.0"
+    },
+    "devDependencies": {
+        "@phyt/tsconfig": "workspace:*",
+        "@types/node": "^22.15.28",
+        "@vitest/coverage-v8": "^3.2.1",
+        "vitest": "^2.1.9"
+    }
+}

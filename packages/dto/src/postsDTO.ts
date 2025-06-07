@@ -14,7 +14,8 @@ import type {
 
 export const PostStatsSchema = z.object({
     commentCount: z.number(),
-    reactionCount: z.number()
+    reactionCount: z.number(),
+    shareCount: z.number()
 });
 
 /* ---------- Inbound DTOs ---------- */

@@ -38,6 +38,7 @@ export interface PostUpdate {
 export interface PostStats {
     commentCount: number;
     reactionCount: number;
+    shareCount: number;
 }
 
 export interface PostQueryParams {

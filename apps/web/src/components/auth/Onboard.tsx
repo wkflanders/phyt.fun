@@ -2,6 +2,8 @@
 
 import { isAPIError } from '@phyt/infra';
 
+import { WalletAddress } from '@phyt/types';
+
 import { OnboardForm } from '@/components/OnboardForm';
 import { useToast } from '@/hooks/use-toast';
 import { useCreateUser, useGetUser } from '@/hooks/use-users';
@@ -52,7 +54,7 @@ export const Onboard = () => {
                 email: user.google.email,
                 privyId: user.id,
                 username: formData.get('username') as string,
-                walletAddress: user.wallet?.address as `0x${string}`
+                walletAddress: user.wallet?.address as WalletAddress
             });
 
             router.push('/');

@@ -24,7 +24,13 @@
         "db:studio": "pnpm --filter @phyt/drizzle run db:studio",
         "db:seed": "pnpm --filter @phyt/drizzle run db:seed",
         "db:reset": "pnpm --filter @phyt/drizzle run db:reset",
-        "prepare": "husky"
+        "prepare": "husky",
+        "test": "turbo run test",
+        "test:watch": "turbo run test --parallel --continue",
+        "test:verbose": "turbo run test:verbose",
+        "test:debug": "turbo run test:debug",
+        "test:coverage": "turbo run test:coverage",
+        "test:ui": "turbo run test:ui"
     },
     "devDependencies": {
         "@types/node": "^22.14.0",
@@ -32,7 +38,7 @@
         "husky": "^9.1.7",
         "prettier": "^3.5.3",
         "tsup": "^8.4.0",
-        "turbo": "^2.5.3",
+        "turbo": "^2.5.4",
         "typescript": "5.7.3"
     },
     "dependencies": {
@@ -47,7 +53,7 @@
             "*>tailwindcss": "3.4.17"
         }
     },
-    "packageManager": "pnpm@10.11.0",
+    "packageManager": "pnpm@10.11.1",
     "engines": {
         "node": ">=18.0.0"
     }

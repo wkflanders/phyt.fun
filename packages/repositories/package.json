@@ -15,6 +15,9 @@
     },
     "scripts": {
         "build": "tsup src/index.ts --dts --format esm,cjs --out-dir dist",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:coverage": "vitest run --coverage",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "update": "pnpm update --latest",
@@ -25,9 +28,11 @@
     },
     "devDependencies": {
         "@phyt/aws": "workspace:*",
+        "@phyt/drizzle": "workspace:*",
         "@phyt/eslint": "workspace:*",
+        "@phyt/test": "workspace:*",
         "@phyt/tsconfig": "workspace:*",
         "@phyt/types": "workspace:*",
-        "@phyt/drizzle": "workspace:*"
+        "vitest": "^3.2.1"
     }
 }

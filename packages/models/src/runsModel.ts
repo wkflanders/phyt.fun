@@ -135,29 +135,28 @@ export const RunsVO = (() => {
                 throw new InputError('Distance must be greater than 0');
             }
 
-            if (input.averagePaceSec && input.averagePaceSec <= 0) {
+            if (input.averagePaceSec != null && input.averagePaceSec <= 0) {
                 throw new InputError('Average pace must be greater than 0');
             }
-
-            if (input.caloriesBurned && input.caloriesBurned <= 0) {
+            if (input.caloriesBurned != null && input.caloriesBurned <= 0) {
                 throw new InputError('Calories burned must be greater than 0');
             }
 
-            if (input.stepCount && input.stepCount <= 0) {
+            if (input.stepCount != null && input.stepCount <= 0) {
                 throw new InputError('Step count must be greater than 0');
             }
 
-            if (input.elevationGain && input.elevationGain <= 0) {
+            if (input.elevationGain != null && input.elevationGain <= 0) {
                 throw new InputError('Elevation gain must be greater than 0');
             }
 
-            if (input.averageHeartRate && input.averageHeartRate <= 0) {
+            if (input.averageHeartRate != null && input.averageHeartRate <= 0) {
                 throw new InputError(
                     'Average heart rate must be greater than 0'
                 );
             }
 
-            if (input.maxHeartRate && input.maxHeartRate <= 0) {
+            if (input.maxHeartRate != null && input.maxHeartRate <= 0) {
                 throw new InputError('Max heart rate must be greater than 0');
             }
 
@@ -199,37 +198,40 @@ export const RunsVO = (() => {
                 throw new InputError('End time must be a Date');
             }
 
-            if (update.durationSeconds && update.durationSeconds <= 0) {
+            if (update.durationSeconds != null && update.durationSeconds <= 0) {
                 throw new InputError('Duration must be greater than 0');
             }
 
-            if (update.distance && update.distance <= 0) {
+            if (update.distance != null && update.distance <= 0) {
                 throw new InputError('Distance must be greater than 0');
             }
 
-            if (update.averagePaceSec && update.averagePaceSec <= 0) {
+            if (update.averagePaceSec != null && update.averagePaceSec <= 0) {
                 throw new InputError('Average pace must be greater than 0');
             }
 
-            if (update.caloriesBurned && update.caloriesBurned <= 0) {
+            if (update.caloriesBurned != null && update.caloriesBurned <= 0) {
                 throw new InputError('Calories burned must be greater than 0');
             }
 
-            if (update.stepCount && update.stepCount <= 0) {
+            if (update.stepCount != null && update.stepCount <= 0) {
                 throw new InputError('Step count must be greater than 0');
             }
 
-            if (update.elevationGain && update.elevationGain <= 0) {
+            if (update.elevationGain != null && update.elevationGain <= 0) {
                 throw new InputError('Elevation gain must be greater than 0');
             }
 
-            if (update.averageHeartRate && update.averageHeartRate <= 0) {
+            if (
+                update.averageHeartRate != null &&
+                update.averageHeartRate <= 0
+            ) {
                 throw new InputError(
                     'Average heart rate must be greater than 0'
                 );
             }
 
-            if (update.maxHeartRate && update.maxHeartRate <= 0) {
+            if (update.maxHeartRate != null && update.maxHeartRate <= 0) {
                 throw new InputError('Max heart rate must be greater than 0');
             }
 
