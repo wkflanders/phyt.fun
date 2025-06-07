@@ -32,19 +32,31 @@
         "test:coverage": "turbo run test:coverage",
         "test:ui": "turbo run test:ui"
     },
+    "dependencies": {
+        "date-fns": "^4.1.0",
+        "dotenv": "^16.4.7",
+        "uuidv7": "^1.0.2"
+    },
     "devDependencies": {
         "@types/node": "^22.14.0",
         "eslint": "^9.24.0",
         "husky": "^9.1.7",
+        "lint-staged": "^16.1.0",
         "prettier": "^3.5.3",
         "tsup": "^8.4.0",
         "turbo": "^2.5.4",
         "typescript": "5.7.3"
     },
-    "dependencies": {
-        "date-fns": "^4.1.0",
-        "dotenv": "^16.4.7",
-        "uuidv7": "^1.0.2"
+    "lint-staged": {
+        "src/**/*.{js,jsx,ts,tsx}": [
+            "pnpm lint"
+        ],
+        "apps/**/*.{js,jsx,ts,tsx}": [
+            "pnpm lint"
+        ],
+        "packages/**/*.{js,jsx,ts,tsx}": [
+            "pnpm lint"
+        ]
     },
     "pnpm": {
         "overrides": {
